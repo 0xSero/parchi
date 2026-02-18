@@ -21,7 +21,7 @@ const parseHeadersJson = (raw: string): Record<string, string> => {
   if (this.elements.uiZoom) this.elements.uiZoom.value = clamped.toFixed(2);
   if (this.elements.uiZoomValue) this.elements.uiZoomValue.textContent = `${Math.round(clamped * 100)}%`;
   if (persist) {
-    chrome.storage.local.set({ uiZoom: clamped }).catch(() => {});
+    chrome.storage.local.set({ uiZoom: clamped }).catch(() => { });
   }
 };
 
@@ -71,6 +71,9 @@ const parseHeadersJson = (raw: string): Record<string, string> => {
         break;
       case 'openai':
         modelHint.textContent = 'Recommended: gpt-4o or gpt-4-turbo';
+        break;
+      case 'google':
+        modelHint.textContent = 'Recommended: gemini-3-flash';
         break;
       case 'kimi':
         modelHint.textContent = 'Recommended: kimi-for-coding (or your Kimi model ID)';
@@ -522,7 +525,7 @@ const parseHeadersJson = (raw: string): Record<string, string> => {
   this.currentTheme = id;
   applyTheme(id);
   this.renderThemeGrid();
-  chrome.storage.local.set({ theme: id }).catch(() => {});
+  chrome.storage.local.set({ theme: id }).catch(() => { });
 };
 
 (SidePanelUI.prototype as any).updateScreenshotToggleState = function updateScreenshotToggleState() {

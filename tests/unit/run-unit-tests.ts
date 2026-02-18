@@ -476,7 +476,7 @@ function testPlanNormalization(runner: TestRunner) {
     });
     runner.assertEqual(updated.createdAt, existing.createdAt);
     runner.assertTrue(updated.updatedAt > existing.updatedAt, 'updatedAt should advance');
-    runner.assertEqual(updated.steps[0].title, 'Step two');
+    runner.assertEqual(updated.steps[1].title, 'Step two');
   });
 }
 

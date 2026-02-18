@@ -1,4 +1,5 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { generateText, jsonSchema, tool } from 'ai';
@@ -15,7 +16,7 @@ export type SDKModelSettings = {
   useProxy?: boolean;
   proxyBaseUrl?: string;
   proxyAuthToken?: string;
-  proxyProvider?: 'openai' | 'anthropic' | 'kimi';
+  proxyProvider?: 'openai' | 'anthropic' | 'kimi' | 'google';
 };
 
 export function resolveLanguageModel(settings: SDKModelSettings) {
@@ -68,6 +69,14 @@ export function resolveLanguageModel(settings: SDKModelSettings) {
     return providerInstance(modelId);
   }
 
+  if (provider === 'google') {
+    const googleProvider = createGoogleGenerativeAI({
+      apiKey,
+      headers: extraHeaders,
+    });
+    return googleProvider(modelId);
+  }
+
   if (provider === 'kimi') {
     // Kimi is Anthropic-compatible (x-api-key + /v1/messages)
     // Also requires User-Agent header (enforced via declarativeNetRequest in background.ts)
@@ -96,10 +105,10 @@ export function resolveLanguageModel(settings: SDKModelSettings) {
     // - Remove trailing slashes
     const rawBase = settings.customEndpoint
       ? settings.customEndpoint
-          .replace(/\/chat\/completions\/?$/i, '')
-          .replace(/\/v1\/messages\/?$/i, '')
-          .replace(/\/messages\/?$/i, '')
-          .replace(/\/+$/, '')
+        .replace(/\/chat\/completions\/?$/i, '')
+        .replace(/\/v1\/messages\/?$/i, '')
+        .replace(/\/messages\/?$/i, '')
+        .replace(/\/+$/, '')
       : '';
 
     const baseURL = rawBase;

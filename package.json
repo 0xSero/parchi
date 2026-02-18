@@ -39,10 +39,11 @@
     "parchi-relay": "dist-relay/relay.js"
   },
   "dependencies": {
-    "@auth/core": "0.37.4",
     "@ai-sdk/anthropic": "3.0.17",
+    "@ai-sdk/google": "^3.0.29",
     "@ai-sdk/openai": "3.0.13",
     "@ai-sdk/openai-compatible": "2.0.16",
+    "@auth/core": "0.37.4",
     "@convex-dev/auth": "0.0.90",
     "ai": "6.0.42",
     "convex": "1.31.7",
