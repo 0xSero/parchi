@@ -2,6 +2,14 @@ import { isRuntimeMessage } from '../../../../shared/src/runtime-messages.js';
 import { createMessage, normalizeConversationHistory } from '../../../ai/message-schema.js';
 import type { Message } from '../../../ai/message-schema.js';
 import { bindSidebarNavigation, setSidebarOpen } from './panel-navigation.js';
+
+const debounce = (fn: (...args: any[]) => void, ms: number) => {
+  let timer: ReturnType<typeof setTimeout>;
+  return (...args: any[]) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+};
 import { SidePanelUI } from './panel-ui.js';
 
 const resolveTextAreaMaxHeight = (textarea: HTMLTextAreaElement, fallbackHeight: number): number => {
@@ -48,13 +56,25 @@ const autoResizeTextArea = (textarea: HTMLTextAreaElement | null, maxHeight: num
   bindSidebarNavigation(this.elements, {
     onOpen: () => this.openSettingsPanel(),
     onClose: () => this.closeSidebar(),
-    onHistory: () => this.openHistoryPanel(),
-    onSettings: () => this.openSettingsPanel(),
   });
 
   this.elements.startNewSessionBtn?.addEventListener('click', () => this.startNewSession());
   this.elements.newSessionFab?.addEventListener('click', () => this.startNewSession());
   this.elements.clearHistoryBtn?.addEventListener('click', () => this.clearAllHistory());
+
+  // History drawer
+  this.elements.historyFab?.addEventListener('click', () => this.openHistoryDrawer());
+  this.elements.closeHistoryDrawerBtn?.addEventListener('click', () => this.closeHistoryDrawer());
+  this.elements.historyDrawerScrim?.addEventListener('click', () => this.closeHistoryDrawer());
+  this.elements.drawerClearHistoryBtn?.addEventListener('click', () => this.clearAllHistory());
+  this.elements.drawerNewSessionBtn?.addEventListener('click', () => {
+    this.closeHistoryDrawer();
+    this.startNewSession();
+  });
+  this.elements.historySearchInput?.addEventListener('input', debounce(() => {
+    const query = (this.elements.historySearchInput?.value || '').trim();
+    this.filterHistoryList(query);
+  }, 150));
 
   // Provider change
   this.elements.provider?.addEventListener('change', () => {

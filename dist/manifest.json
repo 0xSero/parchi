@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "name": "Parchi",
+  "version": "0.4.0",
+  "description": "Warm-paper browser automation assistant with configurable LLM/vision profiles and enterprise-ready controls",
+  "permissions": [
+    "sidePanel",
+    "activeTab",
+    "scripting",
+    "tabs",
+    "tabGroups",
+    "storage",
+    "declarativeNetRequest",
+    "offscreen"
+  ],
+  "host_permissions": [
+    "<all_urls>",
+    "https://*.convex.cloud/*",
+    "https://*.convex.site/*"
+  ],
+  "action": {
+    "default_title": "Parchi Panel"
+  },
+  "background": {
+    "service_worker": "background.js",
+    "type": "module"
+  },
+  "side_panel": {
+    "default_path": "sidepanel/panel.html"
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle",
+      "all_frames": false
+    }
+  ]
+}

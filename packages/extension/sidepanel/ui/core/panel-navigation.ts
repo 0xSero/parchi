@@ -1,7 +1,6 @@
 import type { SidePanelElements } from './panel-elements.js';
 
-export type RightPanelName = 'history' | 'settings' | null;
-export type NavName = 'history' | 'settings';
+export type RightPanelName = 'settings' | null;
 
 const PANEL_SELECTOR = '.right-panel-content';
 
@@ -31,25 +30,9 @@ export const showRightPanel = (elements: SidePanelElements, panelName: RightPane
   document.body.dataset.rightPanel = panelName;
 };
 
-export const updateNavActive = (elements: SidePanelElements, navName: NavName) => {
-  elements.navHistoryBtn?.classList.remove('active');
-  elements.navSettingsBtn?.classList.remove('active');
-
-  switch (navName) {
-    case 'history':
-      elements.navHistoryBtn?.classList.add('active');
-      break;
-    case 'settings':
-      elements.navSettingsBtn?.classList.add('active');
-      break;
-  }
-};
-
 type NavigationHandlers = {
   onOpen: () => void;
   onClose: () => void;
-  onHistory: () => void;
-  onSettings: () => void;
 };
 
 export const bindSidebarNavigation = (elements: SidePanelElements, handlers: NavigationHandlers) => {
@@ -70,7 +53,4 @@ export const bindSidebarNavigation = (elements: SidePanelElements, handlers: Nav
 
   // Scrim click closes sidebar
   elements.sidebarScrim?.addEventListener('click', handlers.onClose);
-
-  elements.navHistoryBtn?.addEventListener('click', handlers.onHistory);
-  elements.navSettingsBtn?.addEventListener('click', handlers.onSettings);
 };

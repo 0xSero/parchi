@@ -20,37 +20,37 @@ http.route({
 });
 
 http.route({
-  pathPrefix: '/ai-proxy/openai',
+  pathPrefix: '/ai-proxy/openai/',
   method: 'POST',
   handler: aiProxy,
 });
 
 http.route({
-  pathPrefix: '/ai-proxy/openai',
+  pathPrefix: '/ai-proxy/openai/',
   method: 'OPTIONS',
   handler: aiProxy,
 });
 
 http.route({
-  pathPrefix: '/ai-proxy/anthropic',
+  pathPrefix: '/ai-proxy/anthropic/',
   method: 'POST',
   handler: aiProxy,
 });
 
 http.route({
-  pathPrefix: '/ai-proxy/anthropic',
+  pathPrefix: '/ai-proxy/anthropic/',
   method: 'OPTIONS',
   handler: aiProxy,
 });
 
 http.route({
-  pathPrefix: '/ai-proxy/kimi',
+  pathPrefix: '/ai-proxy/kimi/',
   method: 'POST',
   handler: aiProxy,
 });
 
 http.route({
-  pathPrefix: '/ai-proxy/kimi',
+  pathPrefix: '/ai-proxy/kimi/',
   method: 'OPTIONS',
   handler: aiProxy,
 });

@@ -1,0 +1,262 @@
+<!-- ===== SETUP TAB ===== -->
+<div class="settings-tab-pane" data-pane="setup">
+    <div class="form-group">
+        <label for="activeConfig">Active Profile</label>
+        <select id="activeConfig">
+            <option value="default">Default</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="provider">Provider</label>
+        <select id="provider">
+            <option value="anthropic">Anthropic (Claude)</option>
+            <option value="openai">OpenAI</option>
+            <option value="kimi">Kimi (Coding)</option>
+            <option value="custom">Custom / OpenRouter</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="apiKey">API Key</label>
+        <input type="password" id="apiKey" placeholder="Enter your API key..." />
+        <small>Stored locally. Never sent to our servers.</small>
+    </div>
+    <div class="form-group">
+        <label for="model">Model</label>
+        <input type="text" id="model" placeholder="e.g., claude-sonnet-4-20250514" />
+        <small id="modelHint">Recommended: claude-sonnet-4-20250514</small>
+    </div>
+    <div class="form-group" id="customEndpointGroup">
+        <label for="customEndpoint">API URL <span class="optional-badge">optional</span></label>
+        <input type="text" id="customEndpoint" placeholder="https://openrouter.ai/api/v1" />
+    </div>
+    <div class="form-group" id="customHeadersGroup">
+        <label for="customHeaders">Extra Headers <span class="optional-badge">JSON</span></label>
+        <textarea id="customHeaders" rows="2" placeholder='{"HTTP-Referer":"https://your.app"}'></textarea>
+    </div>
+    <button id="saveSettingsBtn" class="btn btn-primary" style="width: 100%; margin-top: 4px;">
+        Save Settings
+    </button>
+</div>
+
+<!-- ===== OAUTH TAB ===== -->
+<div class="settings-tab-pane" data-pane="oauth">
+    <details class="settings-section account-settings-section" open>
+        <summary>Account & Billing</summary>
+        <div class="settings-body account-settings-body">
+            <div id="accountAuthUnavailable" class="account-inline-note hidden">
+                Convex backend is not configured in this build.
+            </div>
+
+            <div id="accountAuthSignedOut" class="account-auth-block">
+                <div class="account-inline-note">Sign in to manage subscriptions and enable proxy mode.</div>
+                <div class="form-group">
+                    <label for="accountEmailInput">Email</label>
+                    <input type="email" id="accountEmailInput" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label for="accountPasswordInput">Password</label>
+                    <input type="password" id="accountPasswordInput" placeholder="At least 8 characters" />
+                </div>
+                <div class="form-row">
+                    <button id="accountSignInBtn" class="btn btn-primary" style="flex: 1;">Sign In</button>
+                    <button id="accountSignUpBtn" class="btn btn-secondary" style="flex: 1;">Sign Up</button>
+                </div>
+                <div class="form-row">
+                    <button id="accountGoogleBtn" class="btn btn-secondary" style="flex: 1;">Continue with Google</button>
+                    <button id="accountGithubBtn" class="btn btn-secondary" style="flex: 1;">Continue with GitHub</button>
+                </div>
+                <div id="accountStatusText" class="account-inline-note"></div>
+            </div>
+
+            <div id="accountAuthSignedIn" class="account-auth-block hidden">
+                <div class="account-stats-grid">
+                    <div class="account-stat">
+                        <span class="account-stat-label">User</span>
+                        <span id="accountUserValue" class="account-stat-value">-</span>
+                    </div>
+                    <div class="account-stat">
+                        <span class="account-stat-label">Plan</span>
+                        <span id="accountPlanValue" class="account-stat-value">Free</span>
+                    </div>
+                    <div class="account-stat">
+                        <span class="account-stat-label">Usage</span>
+                        <span id="accountUsageValue" class="account-stat-value">0 req · 0 tokens</span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button id="accountUpgradeBtn" class="btn btn-primary" style="flex: 1;">Upgrade</button>
+                    <button id="accountManageBtn" class="btn btn-secondary" style="flex: 1;">Manage</button>
+                </div>
+                <div class="form-row">
+                    <button id="accountRefreshBtn" class="btn btn-secondary" style="flex: 1;">Refresh</button>
+                    <button id="accountSignOutBtn" class="btn btn-secondary" style="flex: 1;">Sign Out</button>
+                </div>
+                <div id="accountStatusTextSignedIn" class="account-inline-note"></div>
+            </div>
+        </div>
+    </details>
+</div>
+
+<!-- ===== MODEL TAB ===== -->
+<div class="settings-tab-pane" data-pane="model">
+    <div class="form-group">
+        <label for="temperature">Temperature <span class="form-value" id="temperatureValue">0.7</span></label>
+        <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7" />
+        <small>Lower = focused, Higher = creative</small>
+    </div>
+    <div class="form-group">
+        <label for="maxTokens">Max Output Tokens</label>
+        <input type="number" id="maxTokens" value="4096" min="256" max="32000" />
+    </div>
+    <div class="form-group">
+        <label for="contextLimit">Context Limit</label>
+        <input type="number" id="contextLimit" value="200000" min="4000" max="2000000" />
+    </div>
+    <div class="settings-divider"></div>
+    <div class="form-group">
+        <label for="streamResponses">Stream Responses</label>
+        <select id="streamResponses">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="showThinking">Show Reasoning</label>
+        <select id="showThinking">
+            <option value="true">Show</option>
+            <option value="false">Hide</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="saveHistory">Save History</label>
+        <select id="saveHistory">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+        </select>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="form-group">
+        <label for="uiZoom">Text Size <span class="form-value" id="uiZoomValue">100%</span></label>
+        <input type="range" id="uiZoom" min="0.85" max="1.25" step="0.05" value="1" />
+    </div>
+    <div class="settings-divider"></div>
+    <div class="form-group">
+        <label for="themeSelect">Theme</label>
+        <div id="themeGrid" class="theme-grid"></div>
+    </div>
+</div>
+
+<!-- ===== BROWSER TAB ===== -->
+<div class="settings-tab-pane" data-pane="browser">
+    <div class="form-group">
+        <label for="enableScreenshots">Screenshots</label>
+        <select id="enableScreenshots">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="sendScreenshotsAsImages">Send Screenshots as</label>
+        <select id="sendScreenshotsAsImages">
+            <option value="true">Images (vision models)</option>
+            <option value="false">Text description</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="allowedDomains">Allowed Domains</label>
+        <input type="text" id="allowedDomains" placeholder="Leave empty for all domains" />
+        <small>Comma-separated, e.g.: google.com, github.com</small>
+    </div>
+    <div class="settings-divider"></div>
+    <div class="form-group">
+        <label for="visionProfile">Vision Profile</label>
+        <select id="visionProfile">
+            <option value="">Same as main</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="visionBridge">Vision Bridge</label>
+        <select id="visionBridge">
+            <option value="true">Enabled</option>
+            <option value="false">Disabled</option>
+        </select>
+        <small>Describe screenshots for non-vision models</small>
+    </div>
+</div>
+
+<!-- ===== NETWORK TAB ===== -->
+<div class="settings-tab-pane" data-pane="network">
+    <div class="settings-section-label">Relay</div>
+    <div class="form-group">
+        <label for="relayEnabled">Enable Relay</label>
+        <select id="relayEnabled">
+            <option value="false">Disabled</option>
+            <option value="true">Enabled</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="relayUrl">Relay URL</label>
+        <input type="text" id="relayUrl" placeholder="http://127.0.0.1:17373" />
+    </div>
+    <div class="form-group">
+        <label for="relayToken">Relay Token</label>
+        <input type="password" id="relayToken" placeholder="PARCHI_RELAY_TOKEN" />
+    </div>
+    <div class="form-group">
+        <label>Connection</label>
+        <div class="relay-status-row">
+            <span id="relayConnectedBadge" class="status-pill">Disconnected</span>
+            <span id="relayLastErrorText" class="relay-last-error"></span>
+        </div>
+    </div>
+    <div class="form-row">
+        <button id="saveRelayBtn" class="btn btn-primary" style="flex: 1;">Apply</button>
+        <button id="copyRelayEnvBtn" class="btn btn-secondary" style="flex: 1;">Copy Env Vars</button>
+    </div>
+
+    <div class="settings-divider"></div>
+    <div class="settings-section-label">Orchestrator</div>
+    <div class="form-group">
+        <label for="orchestratorToggle">Orchestrator Mode</label>
+        <select id="orchestratorToggle">
+            <option value="false">Disabled</option>
+            <option value="true">Enabled</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="orchestratorProfile">Orchestrator Profile</label>
+        <select id="orchestratorProfile">
+            <option value="">Same as main</option>
+        </select>
+    </div>
+
+    <div class="settings-divider"></div>
+    <div class="settings-section-label">Import / Export</div>
+    <div class="form-row">
+        <button id="exportSettingsBtn" class="btn btn-secondary" style="flex: 1;">Export</button>
+        <button id="importSettingsBtn" class="btn btn-secondary" style="flex: 1;">Import</button>
+        <input id="importSettingsInput" type="file" accept="application/json" style="display: none;" />
+    </div>
+    <small>Export all profiles to JSON. Import overwrites current settings.</small>
+</div>
+
+<!-- ===== PROMPT TAB ===== -->
+<div class="settings-tab-pane" data-pane="prompt">
+    <div class="form-group">
+        <label for="systemPrompt">System Prompt</label>
+        <textarea id="systemPrompt" rows="5" class="system-prompt-textarea" placeholder="Leave empty for default..."></textarea>
+        <small>Override the default system prompt</small>
+    </div>
+    <div id="orchestratorPromptSection" class="form-group hidden">
+        <div class="settings-divider"></div>
+        <label for="orchestratorPromptTextarea">Orchestrator Prompt</label>
+        <textarea id="orchestratorPromptTextarea" rows="5" class="system-prompt-textarea" placeholder="Leave empty to use orchestrator profile's prompt..."></textarea>
+        <small>System prompt for the orchestrator profile. Edit here or in the profile editor.</small>
+    </div>
+    <div id="visionPromptSection" class="form-group hidden">
+        <div class="settings-divider"></div>
+        <label for="visionPromptTextarea">Vision Prompt</label>
+        <textarea id="visionPromptTextarea" rows="5" class="system-prompt-textarea" placeholder="Leave empty to use vision profile's prompt..."></textarea>
+        <small>System prompt for the vision profile. Edit here or in the profile editor.</small>
+    </div>
+</div>

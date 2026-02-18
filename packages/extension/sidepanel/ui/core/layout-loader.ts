@@ -19,11 +19,10 @@ export const loadPanelLayout = async () => {
   const appRoot = document.getElementById('appRoot');
   if (!appRoot) return;
 
-  const [sidebarShell, mainContent, historyPanel, settingsPanel, settingsGeneral, settingsProfiles, tabSelector] =
+  const [sidebarShell, mainContent, settingsPanel, settingsGeneral, settingsProfiles, tabSelector] =
     await Promise.all([
       loadTemplate('sidebar-shell.html'),
       loadTemplate('main.html'),
-      loadTemplate('panels/history.html'),
       loadTemplate('panels/settings.html'),
       loadTemplate('panels/settings-general.html'),
       loadTemplate('panels/settings-profiles.html'),
@@ -38,7 +37,7 @@ export const loadPanelLayout = async () => {
   appContainer.insertAdjacentHTML('beforeend', mainContent.trim());
 
   const rightPanels = appContainer.querySelector('#rightPanelPanels') as HTMLElement | null;
-  rightPanels?.insertAdjacentHTML('beforeend', (historyPanel + settingsPanel).trim());
+  rightPanels?.insertAdjacentHTML('beforeend', settingsPanel.trim());
 
   // Parse the combined settings-general template and distribute panes into their tab containers.
   const tmp = document.createElement('div');

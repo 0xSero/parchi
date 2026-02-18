@@ -7,6 +7,7 @@
     "packages/backend"
   ],
   "scripts": {
+    "browser:agent": "agent-browser",
     "build": "node scripts/build.mjs",
     "build:firefox": "BROWSER=firefox node scripts/build.mjs",
     "build:firefox:xpi": "npm run build:firefox && node scripts/build-firefox-xpi.mjs",
@@ -55,6 +56,7 @@
     "@types/chrome": "0.0.268",
     "@types/node": "22.10.5",
     "@types/ws": "8.18.1",
+    "agent-browser": "^0.11.1",
     "esbuild": "0.27.2",
     "marked": "17.0.1",
     "playwright": "1.57.0",

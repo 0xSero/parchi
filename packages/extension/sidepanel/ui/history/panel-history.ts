@@ -65,41 +65,66 @@ const normalizeTranscript = (value: any): any[] => {
   }
 };
 
-(SidePanelUI.prototype as any).loadHistoryList = async function loadHistoryList() {
-  if (!this.elements.historyItems) {
-    // Defensive: if element references were captured before layout hydration.
-    this.elements.historyItems = document.getElementById('historyItems') as any;
+/**
+ * Resolve the target container for history items.
+ * Prefers the new drawer element, falls back to the old sidebar panel element.
+ */
+const resolveHistoryContainer = (self: any): HTMLElement | null => {
+  // Prefer drawer container
+  if (self.elements.historyDrawerItems) return self.elements.historyDrawerItems;
+  // Re-query in case elements were captured before layout hydration
+  const el = document.getElementById('historyDrawerItems');
+  if (el) {
+    self.elements.historyDrawerItems = el;
+    return el;
   }
-  if (!this.elements.historyItems) return;
+  // Fallback to legacy sidebar element
+  if (self.elements.historyItems) return self.elements.historyItems;
+  const legacy = document.getElementById('historyItems');
+  if (legacy) {
+    self.elements.historyItems = legacy;
+    return legacy;
+  }
+  return null;
+};
+
+(SidePanelUI.prototype as any).loadHistoryList = async function loadHistoryList() {
+  const container = resolveHistoryContainer(this);
+  if (!container) return;
 
   const saveEnabled = this.elements.saveHistory?.value !== 'false';
   if (!saveEnabled) {
-    this.elements.historyItems.innerHTML =
-      '<div class="history-empty">History is off. Enable “Save History” in Settings to see past chats.</div>';
+    container.innerHTML =
+      '<div class="history-empty">History is off. Enable "Save History" in Settings to see past chats.</div>';
     return;
   }
 
   try {
     const { chatSessions } = await chrome.storage.local.get(['chatSessions']);
     const sessions = normalizeStoredSessions(chatSessions);
-    this.elements.historyItems.innerHTML = '';
+    container.innerHTML = '';
 
     if (!sessions.length) {
-      this.elements.historyItems.innerHTML = '<div class="history-empty">No saved chats yet.</div>';
+      container.innerHTML = '<div class="history-empty">No saved chats yet.</div>';
       return;
     }
 
     sessions.forEach((session: any) => {
       const item = document.createElement('div');
       item.className = 'history-item';
+      item.dataset.title = (session.title || '').toLowerCase();
       const date = new Date(session.updatedAt || session.startedAt || Date.now());
       const transcript = normalizeTranscript(session.transcript);
       const msgCount = session.messageCount || transcript.length || 0;
       const timeAgo = this.formatTimeAgo(date);
 
+      const rawTitle = session.title || 'Untitled Session';
+      const words = rawTitle.split(/\s+/);
+      const truncatedTitle = words.length > 30 ? words.slice(0, 30).join(' ') + '...' : rawTitle;
+
       item.innerHTML = `
         <div class="history-item-main">
-          <div class="history-title">${this.escapeHtml(session.title || 'Untitled Session')}</div>
+          <div class="history-title">${this.escapeHtml(truncatedTitle)}</div>
           <div class="history-meta">
             <span>${timeAgo}</span>
             <span class="history-meta-dot">·</span>
@@ -116,6 +141,7 @@ const normalizeTranscript = (value: any): any[] => {
 
       // Click to load session
       item.querySelector('.history-item-main')?.addEventListener('click', () => {
+        this.closeHistoryDrawer?.();
         this.loadSession(session);
       });
 
@@ -125,12 +151,28 @@ const normalizeTranscript = (value: any): any[] => {
         this.deleteSession(session.id);
       });
 
-      this.elements.historyItems.appendChild(item);
+      container.appendChild(item);
     });
   } catch (e) {
     console.error('Failed to load history:', e);
-    this.elements.historyItems.innerHTML = '<div class="history-empty">Failed to load history.</div>';
+    container.innerHTML = '<div class="history-empty">Failed to load history.</div>';
   }
+};
+
+(SidePanelUI.prototype as any).filterHistoryList = function filterHistoryList(query: string) {
+  const container = resolveHistoryContainer(this);
+  if (!container) return;
+  const lowerQuery = query.toLowerCase();
+  const items = container.querySelectorAll('.history-item');
+  items.forEach((item: Element) => {
+    const el = item as HTMLElement;
+    if (!lowerQuery) {
+      el.style.display = '';
+      return;
+    }
+    const title = el.dataset.title || '';
+    el.style.display = title.includes(lowerQuery) ? '' : 'none';
+  });
 };
 
 (SidePanelUI.prototype as any).loadSession = function loadSession(session: any) {
@@ -276,14 +318,22 @@ const normalizeTranscript = (value: any): any[] => {
 };
 
 (SidePanelUI.prototype as any).clearAllHistory = async function clearAllHistory() {
-  if (!confirm('Clear all chat history? This cannot be undone.')) return;
-
-  try {
-    await chrome.storage.local.set({ chatSessions: [] });
-    this.loadHistoryList();
-  } catch (e) {
-    console.error('Failed to clear history:', e);
+  // Use a two-click pattern instead of confirm() which freezes the sidepanel.
+  // First click sets a flag; second click within 3s actually clears.
+  const now = Date.now();
+  if (this._clearHistoryPendingAt && now - this._clearHistoryPendingAt < 3000) {
+    this._clearHistoryPendingAt = 0;
+    try {
+      await chrome.storage.local.set({ chatSessions: [] });
+      this.loadHistoryList();
+      this.updateStatus('History cleared', 'success');
+    } catch (e) {
+      console.error('Failed to clear history:', e);
+    }
+    return;
   }
+  this._clearHistoryPendingAt = now;
+  this.updateStatus('Click Clear again to confirm', 'warning');
 };
 
 (SidePanelUI.prototype as any).formatTimeAgo = function formatTimeAgo(date: Date): string {

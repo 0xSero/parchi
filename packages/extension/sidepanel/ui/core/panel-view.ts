@@ -1,9 +1,9 @@
-import { setSidebarOpen, showRightPanel as showRightPanelContent, updateNavActive } from './panel-navigation.js';
+import { setSidebarOpen, showRightPanel as showRightPanelContent } from './panel-navigation.js';
 import { SidePanelUI } from './panel-ui.js';
 
 (SidePanelUI.prototype as any).switchView = function switchView(view: 'chat' | 'history') {
   this.currentView = view;
-  // History is a right-side panel now (see templates/panels/history.html), not a main view.
+  // History is now a top drawer overlay, not a main view.
   // Keep chat visible and let showRightPanel() control sidebar content.
   if (!this.elements.chatInterface) return;
   this.elements.chatInterface.classList.remove('hidden');
@@ -17,12 +17,8 @@ import { SidePanelUI } from './panel-ui.js';
   setSidebarOpen(this.elements, false);
 };
 
-(SidePanelUI.prototype as any).showRightPanel = function showRightPanel(panelName: 'history' | 'settings' | null) {
+(SidePanelUI.prototype as any).showRightPanel = function showRightPanel(panelName: 'settings' | null) {
   showRightPanelContent(this.elements, panelName);
-};
-
-(SidePanelUI.prototype as any).setNavActive = function setNavActive(navName: 'history' | 'settings') {
-  updateNavActive(this.elements, navName);
 };
 
 (SidePanelUI.prototype as any).openChatView = function openChatView() {
@@ -30,11 +26,21 @@ import { SidePanelUI } from './panel-ui.js';
   this.switchView('chat');
 };
 
-(SidePanelUI.prototype as any).openHistoryPanel = function openHistoryPanel() {
-  this.openSidebar();
-  this.showRightPanel('history');
-  this.setNavActive('history');
-  this.loadHistoryList(); // Refresh history when opening panel
+(SidePanelUI.prototype as any).openHistoryDrawer = function openHistoryDrawer() {
+  this.elements.historyDrawer?.classList.remove('hidden');
+  this.elements.historyDrawerScrim?.classList.remove('hidden');
+  this.loadHistoryList();
+  // Focus search input for quick filtering
+  setTimeout(() => this.elements.historySearchInput?.focus(), 100);
+};
+
+(SidePanelUI.prototype as any).closeHistoryDrawer = function closeHistoryDrawer() {
+  this.elements.historyDrawer?.classList.add('hidden');
+  this.elements.historyDrawerScrim?.classList.add('hidden');
+  // Clear search on close
+  if (this.elements.historySearchInput) {
+    this.elements.historySearchInput.value = '';
+  }
 };
 
 (SidePanelUI.prototype as any).openSettingsPanel = function openSettingsPanel() {
@@ -42,7 +48,6 @@ import { SidePanelUI } from './panel-ui.js';
   this.showRightPanel('settings');
   this.switchSettingsTab(this.currentSettingsTab || 'setup');
   void this.refreshAccountPanel?.({ silent: true });
-  this.setNavActive('settings');
 };
 
 (SidePanelUI.prototype as any).startNewSession = function startNewSession() {

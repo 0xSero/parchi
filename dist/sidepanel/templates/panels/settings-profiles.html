@@ -1,0 +1,139 @@
+<div class="profile-actions-row">
+    <input id="newProfileNameInput" type="text" placeholder="Profile name" />
+    <button id="createProfileBtn" class="btn btn-primary">Create</button>
+    <button id="refreshProfilesBtn" class="btn btn-secondary">Refresh</button>
+</div>
+<div id="agentGrid" class="agent-grid"></div>
+<div id="profileEditor" class="profile-editor">
+    <div class="panel-header">
+        <span id="profileEditorTitle">Editing: default</span>
+    </div>
+    <div class="profile-editor-grid">
+        <div class="form-group">
+            <label for="profileEditorName">Name</label>
+            <input type="text" id="profileEditorName" placeholder="Profile name" />
+        </div>
+        <div class="form-group">
+            <label for="profileEditorProvider">Provider</label>
+            <select id="profileEditorProvider">
+                <option value="openai">OpenAI</option>
+                <option value="anthropic">Anthropic</option>
+                <option value="kimi">Kimi (Coding)</option>
+                <option value="custom">Custom</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorApiKey">API Key</label>
+            <input type="password" id="profileEditorApiKey" placeholder="sk-..." />
+        </div>
+        <div class="form-group">
+            <label for="profileEditorModel">Model</label>
+            <input type="text" id="profileEditorModel" placeholder="gpt-4o" />
+        </div>
+        <div class="form-group" id="profileEditorEndpointGroup" style="display: none">
+            <label for="profileEditorEndpoint">Endpoint</label>
+            <input type="text" id="profileEditorEndpoint" placeholder="https://..." />
+        </div>
+        <div class="form-group full-width">
+            <label for="profileEditorHeaders">Extra Headers (JSON)</label>
+            <textarea id="profileEditorHeaders" rows="2" placeholder='{"HTTP-Referer":"https://your.app"}'></textarea>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorTemperature">Temp <span id="profileEditorTemperatureValue">0.7</span></label>
+            <input type="range" id="profileEditorTemperature" min="0" max="2" step="0.1" value="0.7" />
+        </div>
+        <div class="form-group">
+            <label for="profileEditorMaxTokens">Max tokens</label>
+            <input type="number" id="profileEditorMaxTokens" min="1" max="4096" value="2048" />
+        </div>
+        <div class="form-group">
+            <label for="profileEditorContextLimit">Context limit</label>
+            <input type="number" id="profileEditorContextLimit" min="4000" value="200000" />
+        </div>
+        <div class="form-group">
+            <label for="profileEditorTimeout">Timeout</label>
+            <input type="number" id="profileEditorTimeout" min="5000" step="1000" value="30000" />
+        </div>
+        <div class="form-group">
+            <label for="profileEditorEnableScreenshots">Screenshots</label>
+            <select id="profileEditorEnableScreenshots">
+                <option value="false">Disabled</option>
+                <option value="true">Enabled</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorSendScreenshots">Send as</label>
+            <select id="profileEditorSendScreenshots">
+                <option value="true">Images</option>
+                <option value="false">Text</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorScreenshotQuality">Quality</label>
+            <select id="profileEditorScreenshotQuality">
+                <option value="high">High</option>
+                <option value="low">Low</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorShowThinking">Reasoning</label>
+            <select id="profileEditorShowThinking">
+                <option value="true">Show</option>
+                <option value="false">Hide</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorStreamResponses">Streaming</label>
+            <select id="profileEditorStreamResponses">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorAutoScroll">Auto-scroll</label>
+            <select id="profileEditorAutoScroll">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorConfirmActions">Confirm actions</label>
+            <select id="profileEditorConfirmActions">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="profileEditorSaveHistory">Save history</label>
+            <select id="profileEditorSaveHistory">
+                <option value="true">Enabled</option>
+                <option value="false">Disabled</option>
+            </select>
+        </div>
+    </div>
+    <details class="settings-section profile-system-prompt">
+        <summary>System prompt</summary>
+        <div class="settings-body">
+            <div class="form-group">
+                <textarea id="profileEditorPrompt" rows="3" class="system-prompt-textarea"></textarea>
+            </div>
+            <small>Profile-level system prompt override. Leave empty to inherit default prompt.</small>
+        </div>
+    </details>
+    <button id="saveProfileBtn" class="btn btn-primary">Save Profile</button>
+</div>
+
+<details class="settings-section">
+    <summary>Profile JSON</summary>
+    <div class="settings-body">
+        <div class="form-group">
+            <label for="profileJsonEditor">Active Profile JSON</label>
+            <textarea id="profileJsonEditor" rows="6" spellcheck="false"></textarea>
+        </div>
+        <div class="config-row">
+            <button id="refreshProfileJsonBtn" class="btn btn-secondary">Refresh</button>
+            <button id="copyProfileJsonBtn" class="btn btn-secondary">Copy</button>
+            <button id="applyProfileJsonBtn" class="btn btn-primary">Apply</button>
+        </div>
+    </div>
+</details>

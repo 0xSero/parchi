@@ -2,7 +2,6 @@
 node_modules/
 
 # Build artifacts
-dist/
 dist-relay/
 build/
 server/dist/
