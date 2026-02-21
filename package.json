@@ -10,6 +10,7 @@
     "browser:agent": "agent-browser",
     "build": "node scripts/build.mjs",
     "build:firefox": "BROWSER=firefox node scripts/build.mjs",
+    "build:safari": "BROWSER=safari node scripts/build.mjs",
     "build:firefox:xpi": "npm run build:firefox && node scripts/build-firefox-xpi.mjs",
     "backend:dev": "cd packages/backend && npx convex dev",
     "relay:daemon": "node dist-relay/relay-daemon.js",

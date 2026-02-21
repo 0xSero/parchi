@@ -1,0 +1,36 @@
+            <div id="tabSelector" class="modal hidden">
+                <div class="modal-backdrop"></div>
+                <div class="modal-content tab-selector-modal">
+                    <div class="modal-header">
+                        <div class="modal-title-block">
+                            <div class="modal-title-row">
+                                <span class="modal-title">Add tab context</span>
+                                <span id="tabSelectorSummary" class="tab-selector-summary">0 selected</span>
+                            </div>
+                            <div class="modal-subtitle">
+                                Selected tabs add titles + URLs to your prompt for quick comparisons.
+                            </div>
+                        </div>
+                        <button id="closeTabSelector" class="icon-btn" title="Close">
+                            <svg
+                                width="14"
+                                height="14"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                            >
+                                <line x1="18" y1="6" x2="6" y2="18" />
+                                <line x1="6" y1="6" x2="18" y2="18" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="tab-selector-actions">
+                        <button id="tabSelectorAddActive" class="btn btn-secondary">Add active tab</button>
+                        <button id="tabSelectorClear" class="btn btn-secondary">Clear</button>
+                    </div>
+                    <div class="tab-selector-hint">Tip: Use tab groups to add entire sets at once.</div>
+                    <div id="tabList" class="tab-list"></div>
+                </div>
+            </div>
+        </div>

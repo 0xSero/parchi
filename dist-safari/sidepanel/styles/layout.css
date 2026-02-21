@@ -1,0 +1,595 @@
+/* ============================================================================
+   Layout — Modern Void Design System
+   ============================================================================ */
+
+/* Sidebar scrim — clickable overlay that closes the sidebar */
+.sidebar-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(2px);
+  z-index: 70;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-normal) var(--ease-out-expo);
+  cursor: pointer;
+}
+
+body.sidebar-open .sidebar-scrim {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Sidebar sizing */
+body[data-right-panel="settings"] {
+  --sidebar-width: clamp(320px, 80vw, 760px);
+}
+
+@media (max-width: 520px) {
+  body.sidebar-open {
+    --sidebar-width: 92vw;
+  }
+}
+
+.content-column {
+  width: min(var(--content-max), 100%);
+  margin: 0 auto;
+}
+
+.app-container {
+  display: flex;
+  height: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Sidebar — right side overlay (must not shrink the chat layout) */
+.sidebar {
+  width: var(--sidebar-width);
+  height: 100%;
+  background: var(--card);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 80;
+  transform: translateX(0);
+  transition: transform var(--duration-normal) var(--ease-out-expo), opacity var(--duration-normal) var(--ease-out-expo),
+    box-shadow var(--duration-normal) var(--ease-out-expo);
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.35);
+}
+
+.sidebar.closed {
+  transform: translateX(100%);
+  opacity: 0.98;
+  pointer-events: none;
+  box-shadow: none;
+}
+
+/* Right Panel */
+.right-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.right-panel.closed {
+  transform: translateX(100%);
+  position: absolute;
+  right: 0;
+  z-index: 50;
+}
+
+.right-panel-panels {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  max-width: 100%;
+}
+
+.right-panel-panels > * {
+  max-width: 100%;
+}
+
+.right-panel-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 20px;
+}
+
+.right-panel-content.hidden {
+  display: none;
+}
+
+/* Main content — left side */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+  order: 1;
+}
+
+/* Sidebar header */
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mascot {
+  width: 26px;
+  height: 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.mascot:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.25);
+  transform: scale(1.05);
+}
+
+.brand-name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--foreground);
+}
+
+.sidebar-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* History Drawer — floating overlay from top-right */
+.history-drawer {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 80%;
+  max-height: 65vh;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  z-index: 90;
+  display: flex;
+  flex-direction: column;
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform var(--duration-normal) var(--ease-out-expo), opacity var(--duration-normal) var(--ease-out-expo);
+}
+
+.history-drawer.hidden {
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.history-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.history-drawer-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.history-drawer-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  border-bottom: 1px solid var(--ink-1);
+  flex-shrink: 0;
+}
+
+.history-drawer-search svg {
+  flex-shrink: 0;
+  color: var(--muted-dim);
+}
+
+.history-drawer-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 6px 0;
+}
+
+.history-drawer-search input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.history-drawer-search input::placeholder {
+  color: var(--muted-dim);
+}
+
+.history-drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 85;
+  opacity: 1;
+  transition: opacity var(--duration-normal) var(--ease-out-expo);
+}
+
+.history-drawer-scrim.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panel-title {
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.panel-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Status dots */
+.status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--success);
+}
+
+.status-dot.error {
+  background: var(--error);
+}
+.status-dot.warning {
+  background: var(--warning);
+}
+.status-dot.active {
+  background: var(--accent);
+}
+
+#statusText {
+  font-size: 12px;
+  color: var(--foreground);
+}
+
+.status-meta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.status-meta:empty {
+  display: none;
+}
+
+/* ============================================================================
+   Mascot — Top-Left Companion
+   ============================================================================ */
+
+.mascot-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.mascot-corner {
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+  opacity: 0.7;
+  transition: opacity var(--duration-fast) ease;
+  cursor: pointer;
+}
+
+.mascot-corner:hover {
+  opacity: 1;
+}
+
+.mascot-blob {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform: scale(1.12);
+}
+
+.mascot-blob-body {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(145deg, var(--card) 0%, var(--card-hover) 100%);
+  border: 1.5px solid var(--ink-2);
+  border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  animation: mascotBreathe 4s ease-in-out infinite, mascotWobble 8s ease-in-out infinite;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.mascot-corner:hover .mascot-blob-body {
+  border-color: var(--ink-2);
+}
+
+.mascot-eyes {
+  position: absolute;
+  top: 35%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 5px;
+  transition: transform 0.3s ease;
+}
+
+/* --- Default / Awake eyes (round dots) --- */
+.mascot-eye {
+  width: 4px;
+  height: 4px;
+  background: var(--mascot-eye);
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  animation: mascotBlink 5s ease-in-out infinite;
+}
+
+.mascot-eye:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.mascot-eye::after {
+  content: "";
+  position: absolute;
+  top: 0.5px;
+  left: 0.5px;
+  width: 1.5px;
+  height: 1.5px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+}
+
+/* --- Sleeping eyes  _ _  (closed flat lines) --- */
+.mascot-corner.sleeping .mascot-eye {
+  width: 5px;
+  height: 1.5px;
+  border-radius: 1px;
+  animation: none;
+}
+
+.mascot-corner.sleeping .mascot-eye::after {
+  display: none;
+}
+
+/* --- Looking-up eyes (user typing) --- */
+.mascot-corner.looking-up .mascot-eyes {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.mascot-corner.looking-up .mascot-eye {
+  animation: none;
+}
+
+/* --- Working / awake eyes --- */
+.mascot-corner.working .mascot-eye {
+  animation: mascotBlink 5s ease-in-out infinite;
+}
+
+.mascot-corner.working .mascot-blob-body {
+  border-color: var(--ink-2);
+}
+
+.mascot-smile {
+  position: absolute;
+  bottom: 28%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 4px;
+  border-bottom: 1.5px solid var(--muted);
+  border-radius: 0 0 10px 10px;
+  opacity: 0.6;
+  transition: opacity var(--duration-fast) ease;
+}
+
+.mascot-corner:hover .mascot-smile {
+  opacity: 1;
+}
+
+/* No glow on thinking — mascot is enough */
+.mascot-corner.thinking .mascot-blob-body {
+  border-color: var(--ink-2);
+}
+
+.mascot-corner.thinking .mascot-eye {
+  animation: mascotLook 2s ease-in-out infinite;
+}
+
+/* ============================================================================
+   Mascot Bubble — Status popup above mascot
+   ============================================================================ */
+
+.mascot-bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  padding: 6px 10px;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  animation: bubbleAppear 0.15s var(--ease-out-expo);
+  pointer-events: auto;
+}
+
+.mascot-bubble.hidden {
+  display: none;
+}
+
+.mascot-bubble-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.bubble-verb {
+  color: var(--foreground);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.bubble-meta {
+  font-size: 10px;
+  color: var(--muted-dim);
+  padding-left: 6px;
+  border-left: 1px solid var(--ink-1);
+}
+
+.bubble-meta:empty {
+  display: none;
+}
+
+.mascot-bubble-tail {
+  position: absolute;
+  bottom: -5px;
+  left: 10px;
+  transform: rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: var(--card);
+  border-right: 1px solid var(--ink-2);
+  border-bottom: 1px solid var(--ink-2);
+}
+
+@keyframes bubbleAppear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   Mascot Keyframes
+   ============================================================================ */
+
+@keyframes mascotBreathe {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes mascotWobble {
+  0%,
+  100% {
+    border-radius: 40% 60% 55% 45% / 55% 45% 60% 40%;
+  }
+  25% {
+    border-radius: 45% 55% 50% 50% / 50% 50% 55% 45%;
+  }
+  50% {
+    border-radius: 50% 50% 45% 55% / 45% 55% 50% 50%;
+  }
+  75% {
+    border-radius: 55% 45% 60% 40% / 60% 40% 45% 55%;
+  }
+}
+
+@keyframes mascotBlink {
+  0%,
+  45%,
+  55%,
+  100% {
+    transform: scaleY(1);
+  }
+  50% {
+    transform: scaleY(0.1);
+  }
+}
+
+@keyframes mascotLook {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-2px);
+  }
+  75% {
+    transform: translateX(2px);
+  }
+}

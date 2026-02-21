@@ -1,0 +1,674 @@
+/* ============================================================================
+   Animations — Modern Void Design System
+   Subtle vertical micro-interactions
+   ============================================================================ */
+
+:root {
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+}
+
+/* --------------------------------------------------------------------------
+   Entrance Animations — Subtle vertical motion
+   -------------------------------------------------------------------------- */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Message Animations
+   -------------------------------------------------------------------------- */
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes thinkingPulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@keyframes cursorBlink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Loading & Progress
+   -------------------------------------------------------------------------- */
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-3px);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Interactive
+   -------------------------------------------------------------------------- */
+
+@keyframes ripple {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: translateX(-2px);
+  }
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+@keyframes pop {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.08);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Glow Effects — Indigo tones
+   -------------------------------------------------------------------------- */
+
+@keyframes glowPulse {
+  0%,
+  100% {
+    box-shadow: 0 0 20px rgb(var(--accent-rgb) / 0.3);
+  }
+  50% {
+    box-shadow: 0 0 40px rgb(var(--accent-rgb) / 0.5);
+  }
+}
+
+@keyframes borderGlow {
+  0%,
+  100% {
+    border-color: var(--accent);
+  }
+  50% {
+    border-color: var(--accent-light);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Sidebar
+   -------------------------------------------------------------------------- */
+
+.sidebar {
+  transition: transform var(--duration-normal) var(--ease-out-expo), opacity var(--duration-normal) var(--ease-out-expo);
+}
+
+.sidebar.closed {
+  transform: translateX(100%);
+  opacity: 0.95;
+}
+
+/* --------------------------------------------------------------------------
+   Navigation Items
+   -------------------------------------------------------------------------- */
+
+.nav-item {
+  position: relative;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.nav-item::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 3px;
+  height: 20px;
+  background: var(--accent);
+  border-radius: 0 2px 2px 0;
+  transition: transform var(--duration-fast) var(--ease-out-back);
+}
+
+.nav-item:hover {
+  transform: translateX(2px);
+}
+
+.nav-item.active {
+  background: var(--background);
+}
+
+.nav-item.active::before {
+  transform: translateY(-50%) scaleY(1);
+}
+
+.nav-item svg {
+  transition: transform var(--duration-fast) var(--ease-out-back);
+}
+
+.nav-item:hover svg {
+  transform: scale(1.1);
+}
+
+/* --------------------------------------------------------------------------
+   Buttons
+   -------------------------------------------------------------------------- */
+
+.btn {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.btn::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
+  opacity: 0;
+  transition: opacity var(--duration-fast);
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.btn:hover::after {
+  opacity: 1;
+}
+
+.btn:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(180deg, var(--accent-light), var(--accent));
+  box-shadow: 0 4px 16px rgb(var(--accent-rgb) / 0.35);
+}
+
+.icon-btn {
+  position: relative;
+  overflow: hidden;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.icon-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 255, 255, 0.15), transparent 70%);
+  opacity: 0;
+  transform: scale(0.5);
+  transition: all var(--duration-fast);
+}
+
+.icon-btn:hover {
+  transform: scale(1.05);
+}
+
+.icon-btn:hover::before {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.send-btn {
+  transition: all var(--duration-fast) var(--ease-spring);
+}
+
+.send-btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.4), 0 0 20px rgb(var(--accent-rgb) / 0.3);
+}
+
+.send-btn:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* --------------------------------------------------------------------------
+   Composer
+   -------------------------------------------------------------------------- */
+
+.composer {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s var(--ease-out-expo);
+}
+
+
+.composer.running {
+  /* glow removed — mascot is enough */
+}
+
+.composer.running::before {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+/* --------------------------------------------------------------------------
+   Messages — Vertical entrance animations
+   -------------------------------------------------------------------------- */
+
+.chat-turn {
+  animation: messageAppear var(--duration-normal) var(--ease-out-expo);
+}
+
+.message.user {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.message.assistant {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.tool-output {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.thinking-block {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.thinking-header {
+  transition: opacity var(--duration-fast);
+}
+
+.thinking-content {
+  animation: fadeInUp var(--duration-fast) var(--ease-out-expo);
+}
+
+/* --------------------------------------------------------------------------
+   Settings Panel
+   -------------------------------------------------------------------------- */
+
+.settings-section {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.settings-section > summary {
+  transition: all var(--duration-fast);
+}
+
+.settings-section > summary:hover {
+  padding-left: 16px;
+}
+
+.settings-section[open] > summary {
+  animation: none;
+}
+
+.settings-section[open] .settings-body {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.settings-quick-setup {
+  animation: glowPulse 4s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.settings-quick-setup:hover {
+  animation-play-state: running;
+}
+
+/* --------------------------------------------------------------------------
+   Form Elements
+   -------------------------------------------------------------------------- */
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / 0.15);
+  transform: translateY(-1px);
+}
+
+/* --------------------------------------------------------------------------
+   History Items — Vertical stagger entrance
+   -------------------------------------------------------------------------- */
+
+.history-item {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+  animation-fill-mode: both;
+}
+
+.history-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.history-item:nth-child(2) {
+  animation-delay: 50ms;
+}
+.history-item:nth-child(3) {
+  animation-delay: 100ms;
+}
+.history-item:nth-child(4) {
+  animation-delay: 150ms;
+}
+.history-item:nth-child(5) {
+  animation-delay: 200ms;
+}
+
+.history-item:hover {
+  transform: translateY(-1px);
+}
+
+.history-delete {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.history-delete:hover {
+  animation: shake 0.4s ease-in-out;
+}
+
+/* --------------------------------------------------------------------------
+   Modal
+   -------------------------------------------------------------------------- */
+
+.modal {
+  animation: fadeIn var(--duration-normal) var(--ease-out-expo);
+}
+
+.modal-backdrop {
+  animation: fadeIn var(--duration-normal) var(--ease-out-expo);
+}
+
+.modal-content {
+  animation: fadeInScale var(--duration-slow) var(--ease-out-back);
+}
+
+/* --------------------------------------------------------------------------
+   Tab Items
+   -------------------------------------------------------------------------- */
+
+.tab-item {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.tab-item:hover {
+  transform: translateY(-1px);
+}
+
+.tab-item.selected {
+  animation: pop 0.3s var(--ease-out-back);
+}
+
+.tab-item-checkbox {
+  transition: all var(--duration-fast) var(--ease-out-back);
+}
+
+/* --------------------------------------------------------------------------
+   Status & Indicators
+   -------------------------------------------------------------------------- */
+
+.status-dot {
+  transition: all var(--duration-fast);
+}
+
+.status-dot.active {
+  position: relative;
+}
+
+.status-dot.active::after {
+  /* pulse ring removed — mascot handles status */
+  display: none;
+}
+
+/* --------------------------------------------------------------------------
+   Error & Success States
+   -------------------------------------------------------------------------- */
+
+.error-banner {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-back);
+}
+
+.success-indicator {
+  animation: pop 0.4s var(--ease-out-back);
+}
+
+/* --------------------------------------------------------------------------
+   Agent Cards
+   -------------------------------------------------------------------------- */
+
+.agent-card {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.agent-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.role-pill {
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.role-pill:hover {
+  transform: scale(1.05);
+}
+
+.role-pill.active {
+  animation: pop 0.3s var(--ease-out-back);
+}
+
+/* --------------------------------------------------------------------------
+   Typing Indicator
+   -------------------------------------------------------------------------- */
+
+.typing-indicator span {
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+/* --------------------------------------------------------------------------
+   Page Transitions
+   -------------------------------------------------------------------------- */
+
+.right-panel-content {
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
+}
+
+.right-panel-content.hidden {
+  display: none !important;
+}
+
+/* --------------------------------------------------------------------------
+   Hover Lift (utility)
+   -------------------------------------------------------------------------- */
+
+.hover-lift {
+  transition: transform var(--duration-fast) var(--ease-out-expo), box-shadow var(--duration-fast) var(--ease-out-expo);
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+/* --------------------------------------------------------------------------
+   Focus Ring
+   -------------------------------------------------------------------------- */
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgb(var(--accent-rgb) / 0.2);
+}
+
+/* --------------------------------------------------------------------------
+   Stagger Animation Utility
+   -------------------------------------------------------------------------- */
+
+.stagger-children > * {
+  opacity: 0;
+  animation: fadeInUp var(--duration-normal) var(--ease-out-expo) forwards;
+}
+
+.stagger-children > *:nth-child(1) {
+  animation-delay: 0ms;
+}
+.stagger-children > *:nth-child(2) {
+  animation-delay: 50ms;
+}
+.stagger-children > *:nth-child(3) {
+  animation-delay: 100ms;
+}
+.stagger-children > *:nth-child(4) {
+  animation-delay: 150ms;
+}
+.stagger-children > *:nth-child(5) {
+  animation-delay: 200ms;
+}
+.stagger-children > *:nth-child(6) {
+  animation-delay: 250ms;
+}
+.stagger-children > *:nth-child(7) {
+  animation-delay: 300ms;
+}
+.stagger-children > *:nth-child(8) {
+  animation-delay: 350ms;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced Motion Support
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

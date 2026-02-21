@@ -14,8 +14,13 @@ const targetBrowser = (
   (browserArg ? browserArg.split('=')[1] : process.env.BROWSER || process.env.TARGET || 'chrome') || 'chrome'
 ).toLowerCase();
 const isFirefox = targetBrowser === 'firefox';
-const manifestName = isFirefox ? 'manifest.firefox.json' : 'manifest.json';
-const distName = isFirefox ? 'dist-firefox' : 'dist';
+const isSafari = targetBrowser === 'safari';
+const manifestName = isFirefox
+  ? 'manifest.firefox.json'
+  : isSafari
+    ? 'manifest.safari.json'
+    : 'manifest.json';
+const distName = isFirefox ? 'dist-firefox' : isSafari ? 'dist-safari' : 'dist';
 const distDir = path.join(rootDir, distName);
 const relayDistDir = path.join(rootDir, 'dist-relay');
 const extensionRoot = path.join(rootDir, 'packages', 'extension');
@@ -99,12 +104,15 @@ const run = async () => {
   execSync('tsc -p tsconfig.json --noEmit', { stdio: 'inherit' });
 
   // Build background and sidepanel as ESM (they support modules)
+  const esmEntryPoints = [
+    path.join(extensionRoot, 'background.ts'),
+    path.join(extensionRoot, 'sidepanel', 'panel.ts'),
+  ];
+  if (!isSafari) {
+    esmEntryPoints.push(path.join(extensionRoot, 'offscreen', 'offscreen.ts'));
+  }
   await esbuild.build({
-    entryPoints: [
-      path.join(extensionRoot, 'background.ts'),
-      path.join(extensionRoot, 'sidepanel', 'panel.ts'),
-      path.join(extensionRoot, 'offscreen', 'offscreen.ts'),
-    ],
+    entryPoints: esmEntryPoints,
     outdir: distDir,
     outbase: extensionRoot,
     bundle: true,
@@ -184,7 +192,9 @@ const run = async () => {
   copyFile(path.join(extensionRoot, 'sidepanel', 'panel.css'), path.join(distDir, 'sidepanel', 'panel.css'));
   copyDirFiltered(path.join(extensionRoot, 'sidepanel', 'styles'), path.join(distDir, 'sidepanel', 'styles'));
   copyDirFiltered(path.join(extensionRoot, 'sidepanel', 'templates'), path.join(distDir, 'sidepanel', 'templates'));
-  copyFile(path.join(extensionRoot, 'offscreen', 'offscreen.html'), path.join(distDir, 'offscreen', 'offscreen.html'));
+  if (!isSafari) {
+    copyFile(path.join(extensionRoot, 'offscreen', 'offscreen.html'), path.join(distDir, 'offscreen', 'offscreen.html'));
+  }
   copyDirFiltered(path.join(extensionRoot, 'icons'), path.join(distDir, 'icons'));
 };
 

@@ -1,0 +1,302 @@
+            <main class="main-content">
+
+                <!-- Chat Interface -->
+                <div id="chatInterface" class="chat-area">
+                    <!-- Agent Nav (when subagents active) -->
+                    <div id="agentNav" class="agent-nav hidden">
+                        <div
+                            class="agent-nav-item main-agent active"
+                            data-agent="main"
+                        >
+                            <span class="agent-status"></span>
+                            <span>Main</span>
+                        </div>
+                    </div>
+
+                    <!-- Session Tabs HUD -->
+                    <div id="sessionTabsHud" class="session-tabs-hud hidden">
+                        <div class="session-tabs-inner">
+                            <div class="session-tabs-label">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="2"/>
+                                    <line x1="3" y1="9" x2="21" y2="9"/>
+                                    <line x1="9" y1="21" x2="9" y2="9"/>
+                                </svg>
+                                <span id="sessionTabsCount">0/5</span>
+                            </div>
+                            <div id="sessionTabsList" class="session-tabs-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Empty state -->
+                    <div id="chatEmptyState" class="chat-empty-state">
+                        <div class="chat-empty-orb"></div>
+                        <div class="chat-empty-title">Ready when you are</div>
+                        <div class="chat-empty-subtitle">
+                            Ask anything or add tabs/files for richer context.
+                        </div>
+                    </div>
+
+                    <!-- Messages -->
+                    <div id="chatMessages" class="chat-messages"></div>
+
+                    <!-- Plan Drawer (above composer) -->
+                    <div id="planDrawer" class="plan-drawer hidden">
+                        <div class="plan-drawer-header" id="planDrawerToggle">
+                            <div class="plan-drawer-title">
+                                <svg class="plan-drawer-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <polyline points="6 9 12 15 18 9"></polyline>
+                                </svg>
+                                <span>Plan</span>
+                                <span class="plan-drawer-count" id="planStepCount">0 steps</span>
+                            </div>
+                            <div class="plan-drawer-actions">
+                                <button class="plan-drawer-btn" id="planClearBtn" title="Clear plan">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="plan-drawer-content" id="planDrawerContent">
+                            <ol class="plan-checklist" id="planChecklist"></ol>
+                        </div>
+                    </div>
+
+                    <!-- Jump to latest button -->
+                    <button id="scrollToLatestBtn" class="jump-to-latest hidden">
+                        Jump to latest
+                    </button>
+
+                    <!-- Composer -->
+                    <div class="composer-wrapper">
+                        <div id="selectedTabsBar" class="selected-tabs content-column hidden"></div>
+                        <div id="composer" class="composer content-column">
+                            <textarea
+                                id="userInput"
+                                placeholder="Message..."
+                                rows="1"
+                            ></textarea>
+                            <div class="composer-toolbar">
+                                <div class="composer-toolbar-left">
+                                    <div class="mascot-wrapper">
+                                        <div id="mascotBubble" class="mascot-bubble hidden">
+                                            <div class="mascot-bubble-content">
+                                                <span id="bubbleVerb" class="bubble-verb"></span>
+                                                <span id="bubbleMeta" class="bubble-meta"></span>
+                                            </div>
+                                            <div class="mascot-bubble-tail"></div>
+                                        </div>
+                                        <div id="mascotCorner" class="mascot-corner sleeping" title="Your AI companion">
+                                            <div class="mascot-blob">
+                                                <div class="mascot-blob-body"></div>
+                                                <div class="mascot-eyes">
+                                                    <div class="mascot-eye"></div>
+                                                    <div class="mascot-eye"></div>
+                                                </div>
+                                                <div class="mascot-smile"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div id="statusBar" class="composer-status">
+                                        <span id="statusMeta" class="status-meta"></span>
+                                    </div>
+                                </div>
+                                <div class="composer-toolbar-right">
+                                    <button
+                                        id="fileBtn"
+                                        class="icon-btn"
+                                        title="Attach file"
+                                    >
+                                        <svg
+                                            width="15"
+                                            height="15"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.75"
+                                        >
+                                            <path
+                                                d="M21.44 11.05 12.36 20.12a5 5 0 0 1-7.07-7.07l8.49-8.49a3 3 0 0 1 4.24 4.24L9.76 17.12a1 1 0 0 1-1.41-1.41l7.07-7.07"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <input
+                                        id="fileInput"
+                                        type="file"
+                                        multiple
+                                        accept=".md,.txt,.csv,.json,.log"
+                                        class="hidden"
+                                    />
+                                    <button
+                                        id="tabSelectorBtn"
+                                        class="icon-btn tab-selector-btn"
+                                        title="Select tabs"
+                                    >
+                                        <svg
+                                            width="15"
+                                            height="15"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="1.75"
+                                        >
+                                            <rect
+                                                x="3"
+                                                y="3"
+                                                width="18"
+                                                height="18"
+                                                rx="2"
+                                            />
+                                            <line
+                                                x1="3"
+                                                y1="9"
+                                                x2="21"
+                                                y2="9"
+                                            />
+                                            <line
+                                                x1="9"
+                                                y1="21"
+                                                x2="9"
+                                                y2="9"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <button
+                                        id="exportBtn"
+                                        class="icon-btn export-btn"
+                                        title="Export conversation"
+                                    >
+                                        <svg
+                                            width="16"
+                                            height="16"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <path
+                                                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
+                                            />
+                                            <polyline
+                                                points="7 10 12 15 17 10"
+                                            />
+                                            <line
+                                                x1="12"
+                                                y1="15"
+                                                x2="12"
+                                                y2="3"
+                                            />
+                                        </svg>
+                                    </button>
+                                    <div class="zoom-controls" title="Adjust text size">
+                                        <button id="zoomOutBtn" class="zoom-btn" type="button" aria-label="Zoom out">
+                                            A-
+                                        </button>
+                                        <button id="zoomResetBtn" class="zoom-btn zoom-reset" type="button" aria-label="Reset zoom">
+                                            A
+                                        </button>
+                                        <button id="zoomInBtn" class="zoom-btn" type="button" aria-label="Zoom in">
+                                            A+
+                                        </button>
+                                    </div>
+                                    <div class="model-selector" title="Switch profile">
+                                        <select id="modelSelect">
+                                            <option value="">
+                                                Profile
+                                            </option>
+                                        </select>
+                                        <svg
+                                            class="model-selector-chevron"
+                                            width="12"
+                                            height="12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <polyline points="6 9 12 15 18 9" />
+                                        </svg>
+                                    </div>
+                                    <button
+                                        id="sendBtn"
+                                        class="send-btn"
+                                        title="Send"
+                                    >
+                                        <svg class="send-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                                            <line x1="12" y1="19" x2="12" y2="5"/>
+                                            <polyline points="5 12 12 5 19 12"/>
+                                        </svg>
+                                        <svg class="stop-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none">
+                                            <rect x="4" y="4" width="16" height="16" rx="2" />
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAB Group - Top right -->
+                <div class="fab-group">
+                    <button id="openSidebarBtn" class="settings-fab" title="Settings" type="button">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                            <circle cx="12" cy="12" r="3" />
+                            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                    </button>
+                    <button id="historyFab" class="history-fab" title="History" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10" />
+                            <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                    </button>
+                    <button id="newSessionFab" class="new-session-fab" title="New session" type="button">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 5v14" />
+                            <path d="M5 12h14" />
+                        </svg>
+                    </button>
+                </div>
+
+                <!-- History Drawer Overlay -->
+                <div id="historyDrawer" class="history-drawer hidden">
+                    <div class="history-drawer-header">
+                        <span class="history-drawer-title">History</span>
+                        <div class="history-drawer-actions">
+                            <button id="drawerClearHistoryBtn" class="btn btn-secondary">Clear</button>
+                            <button id="drawerNewSessionBtn" class="btn btn-primary">+ New</button>
+                            <button id="closeHistoryDrawerBtn" class="icon-btn" title="Close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <line x1="18" y1="6" x2="6" y2="18" />
+                                    <line x1="6" y1="6" x2="18" y2="18" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="history-drawer-search">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="11" cy="11" r="8" />
+                            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                        <input id="historySearchInput" type="text" placeholder="Search conversations..." />
+                    </div>
+                    <div id="historyDrawerItems" class="history-drawer-list"></div>
+                </div>
+                <div id="historyDrawerScrim" class="history-drawer-scrim hidden"></div>
+
+                <div id="accountOnboardingModal" class="account-onboarding-modal hidden">
+                    <div class="account-onboarding-card">
+                        <div class="account-onboarding-title">Choose your setup</div>
+                        <div class="account-onboarding-subtitle">
+                            Use your own API keys for free, or subscribe for managed keys and billing.
+                        </div>
+                        <div class="account-onboarding-actions">
+                            <button id="accountChooseByokBtn" class="btn btn-secondary">Use your own API keys</button>
+                            <button id="accountChoosePaidBtn" class="btn btn-primary">Get a subscription</button>
+                        </div>
+                    </div>
+                </div>
+
+            </main>

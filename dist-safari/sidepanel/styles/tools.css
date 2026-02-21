@@ -1,0 +1,594 @@
+/* ============================================================================
+   Tools & Plan Drawer — Modern Void Design System
+   ============================================================================ */
+
+/* Plan Drawer — Editorial Waypoint Style */
+.plan-drawer {
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-bottom: none;
+  border-radius: 12px 12px 0 0;
+  overflow: hidden;
+  animation: drawerGrow 0.25s var(--ease-out-expo);
+  transform-origin: bottom center;
+  /* Match the composer's horizontal padding (18px left/right) */
+  width: min(var(--content-max), calc(100% - 36px));
+  margin: 0 auto;
+}
+
+@keyframes drawerGrow {
+  from {
+    opacity: 0;
+    transform: scaleY(0.3);
+  }
+  to {
+    opacity: 1;
+    transform: scaleY(1);
+  }
+}
+
+.plan-drawer.hidden {
+  display: none;
+}
+
+/* When plan drawer is visible, connect to composer */
+.plan-drawer:not(.hidden) ~ .composer-wrapper {
+  padding-top: 0;
+}
+
+.plan-drawer:not(.hidden) ~ .composer-wrapper .composer {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border-top-color: var(--ink-1);
+}
+
+/* Plan drawer header */
+.plan-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+  color: var(--foreground);
+  text-align: left;
+  transition: all var(--duration-fast) ease;
+}
+
+.plan-drawer-header:hover {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+}
+
+.plan-drawer-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.plan-drawer-chevron {
+  transition: transform var(--duration-fast) var(--ease-out-back);
+  color: var(--muted-dim);
+}
+
+.plan-drawer.collapsed .plan-drawer-chevron {
+  transform: rotate(-90deg);
+}
+
+.plan-drawer-count {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--muted-dim);
+  font-family: var(--font-mono);
+  padding: 2px 6px;
+  border: 1px solid var(--ink-1);
+  border-radius: 999px;
+}
+
+.plan-drawer-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.plan-drawer-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.plan-drawer-btn:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.025);
+}
+
+.plan-drawer-btn:active {
+  transform: scale(0.88);
+  transition-duration: 80ms;
+}
+
+.plan-drawer-content {
+  padding: 8px 12px 12px;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.plan-drawer.collapsed .plan-drawer-content {
+  display: none;
+}
+
+/* Plan Checklist — Vertical Thread / Waypoint */
+.plan-checklist {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+}
+
+/* Vertical connecting line */
+.plan-checklist::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 6px;
+  bottom: 6px;
+  width: 1px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.plan-checklist-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 5px 0;
+  font-size: 12px;
+  color: var(--foreground);
+  background: transparent;
+  position: relative;
+  transition: color var(--duration-fast) var(--ease-out-expo);
+  animation: fadeInUp 0.3s var(--ease-out-expo) backwards;
+}
+
+.plan-checklist-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.plan-checklist-item:nth-child(2) {
+  animation-delay: 40ms;
+}
+.plan-checklist-item:nth-child(3) {
+  animation-delay: 80ms;
+}
+.plan-checklist-item:nth-child(4) {
+  animation-delay: 120ms;
+}
+.plan-checklist-item:nth-child(5) {
+  animation-delay: 160ms;
+}
+
+.plan-checklist-item.completed {
+  color: var(--muted-dim);
+  opacity: 0.6;
+}
+
+.plan-checklist-item.current {
+  color: var(--foreground);
+}
+
+.plan-checklist-item.current .plan-checklist-title {
+  font-weight: 500;
+}
+
+.plan-checklist-item.blocked {
+  opacity: 0.4;
+}
+
+/* Node (replaces checkbox) — small circle on the thread line */
+.plan-checklist-checkbox {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  min-width: 7px;
+  min-height: 7px;
+  margin-top: 5px;
+  border: 1.5px solid var(--ink-2);
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  position: absolute;
+  left: -19px;
+  transition: all var(--duration-fast) var(--ease-out-back);
+}
+
+.plan-checklist-checkbox:hover:not(:disabled) {
+  border-color: var(--accent);
+  transform: scale(1.3);
+}
+
+.plan-checklist-checkbox:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Done node — filled muted */
+.plan-checklist-checkbox.checked {
+  background: var(--muted-dim);
+  border-color: var(--muted-dim);
+}
+
+/* Current node — filled accent with glow */
+.plan-checklist-item.current .plan-checklist-checkbox {
+  background: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 0 6px rgb(var(--accent-rgb) / 0.5);
+}
+
+.plan-checklist-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.plan-checklist-title {
+  font-weight: 400;
+  line-height: 1.4;
+  color: inherit;
+}
+
+.plan-checklist-notes {
+  font-size: 11px;
+  color: var(--muted-dim);
+  margin-top: 2px;
+  font-style: italic;
+}
+
+/* Legacy Plan Block (inline in chat) */
+.plan-block {
+  margin: 8px 0;
+  padding: 8px 10px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.plan-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.plan-title {
+  font-weight: 600;
+}
+
+.plan-meta {
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.plan-steps {
+  list-style: none;
+  margin: 8px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.plan-step {
+  display: flex;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--foreground);
+}
+
+/* ============================================================================
+   Tool Rows — Compact inline telemetry
+   ============================================================================ */
+
+.tool-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 11px;
+  line-height: 1.25;
+  color: var(--muted);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.tool-row.running {
+  color: var(--foreground);
+}
+
+.tool-row.done {
+  opacity: 0.55;
+}
+
+.tool-row.error {
+  color: hsla(0, 40%, 70%, 0.95);
+}
+
+.tool-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 12px;
+  height: 12px;
+  color: var(--muted-dim);
+  flex-shrink: 0;
+}
+
+.tool-name {
+  font-weight: 500;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.tool-args {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.tool-status {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--muted-dim);
+}
+
+.tool-duration {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted-dim);
+}
+
+.tool-note {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted-dim);
+  flex-shrink: 0;
+}
+
+.tool-row.noop {
+  opacity: 0.5;
+}
+
+/* ============================================================================
+   Tool Group — Collapsible tool call summary
+   ============================================================================ */
+
+.tool-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+  width: 100%;
+  text-align: left;
+  transition: color var(--duration-fast) ease;
+}
+
+.tool-group-toggle:hover {
+  color: var(--muted);
+}
+
+.tool-group-toggle .tool-group-chevron {
+  transition: transform var(--duration-fast) var(--ease-out-back);
+  flex-shrink: 0;
+}
+
+.stream-events.tools-collapsed .tool-group-toggle .tool-group-chevron {
+  transform: rotate(-90deg);
+}
+
+.stream-events.tools-collapsed .tool-row {
+  display: none;
+}
+
+.stream-events.tools-collapsed .inline-thinking-block,
+.stream-events.tools-collapsed .stream-event-reasoning {
+  display: none;
+}
+
+/* ============================================================================
+   Session Tabs HUD — Floating tab strip showing model's active browser tabs
+   ============================================================================ */
+
+.session-tabs-hud {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 6px 16px 6px;
+  background: linear-gradient(to bottom, var(--background) 60%, transparent);
+  animation: sessionHudSlideIn 0.25s var(--ease-out-expo);
+}
+
+.session-tabs-hud.hidden {
+  display: none;
+}
+
+@keyframes sessionHudSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.session-tabs-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.session-tabs-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.session-tabs-label svg {
+  opacity: 0.6;
+}
+
+#sessionTabsCount {
+  transition: color var(--duration-fast) ease;
+}
+
+#sessionTabsCount.at-limit {
+  color: var(--warning);
+}
+
+.session-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.session-tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Session Tab Pill */
+.session-tab-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--ink-1);
+  border: 1px solid transparent;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: default;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+  position: relative;
+  max-width: 160px;
+}
+
+.session-tab-pill.active {
+  background: rgba(var(--accent-rgb) / 0.08);
+  border-color: rgba(var(--accent-rgb) / 0.2);
+  color: var(--accent-light);
+}
+
+.session-tab-pill.interacting {
+  border-color: rgba(var(--accent-rgb) / 0.5);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb) / 0.15);
+  animation: tabInteracting 1.2s ease-in-out infinite;
+}
+
+@keyframes tabInteracting {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(var(--accent-rgb) / 0.15);
+    border-color: rgba(var(--accent-rgb) / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(var(--accent-rgb) / 0.3);
+    border-color: rgba(var(--accent-rgb) / 0.7);
+  }
+}
+
+.session-tab-favicon {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.session-tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.session-tab-activity {
+  display: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.session-tab-pill.interacting .session-tab-activity {
+  display: block;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(var(--accent-rgb) / 0.6);
+  animation: activityPulse 1s ease-in-out infinite;
+}
+
+@keyframes activityPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
+}

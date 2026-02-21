@@ -1,0 +1,105 @@
+/* Parchi — Safari / macOS HIG Theme */
+
+[data-theme="safari"] {
+  /* Light mode defaults — matches macOS system chrome */
+  --background: #f5f5f7;
+  --foreground: #1d1d1f;
+  --muted: #86868b;
+  --muted-dim: #aeaeb2;
+  --border: #d2d2d7;
+  --card: #ffffff;
+  --card-hover: #f0f0f5;
+
+  /* Accent — System Blue */
+  --accent: #007aff;
+  --accent-rgb: 0 122 255;
+  --accent-light: #409cff;
+  --accent-dark: #0055d4;
+
+  /* Status — macOS system colors */
+  --success: #34c759;
+  --warning: #ff9f0a;
+  --error: #ff3b30;
+
+  /* Ink system — light-mode transparency */
+  --ink-1: rgba(0, 0, 0, 0.03);
+  --ink-2: rgba(0, 0, 0, 0.06);
+  --ink-3: rgba(0, 0, 0, 0.1);
+
+  /* Radii — macOS standard */
+  --radius: 8px;
+  --radius-sm: 6px;
+
+  /* Typography — system fonts */
+  --font-sans: -apple-system, "SF Pro", system-ui, sans-serif;
+  --font-mono: "SF Mono", ui-monospace, monospace;
+
+  /* Mascot — subdued for Safari's lighter aesthetic */
+  --mascot-fill: #e8e8ed;
+  --mascot-stroke: var(--muted);
+  --mascot-detail: var(--accent);
+  --mascot-eye: var(--foreground);
+}
+
+/* Safari dark mode */
+@media (prefers-color-scheme: dark) {
+  [data-theme="safari"] {
+    --background: #1c1c1e;
+    --foreground: #f5f5f7;
+    --muted: #98989d;
+    --muted-dim: #636366;
+    --border: #38383a;
+    --card: #2c2c2e;
+    --card-hover: #3a3a3c;
+
+    --accent: #0a84ff;
+    --accent-rgb: 10 132 255;
+    --accent-light: #409cff;
+    --accent-dark: #0064d2;
+
+    --success: #30d158;
+    --warning: #ffd60a;
+    --error: #ff453a;
+
+    --ink-1: rgba(255, 255, 255, 0.04);
+    --ink-2: rgba(255, 255, 255, 0.07);
+    --ink-3: rgba(255, 255, 255, 0.12);
+
+    --mascot-fill: var(--card);
+  }
+}
+
+/* Safari scrollbar — native overlay style */
+[data-theme="safari"] ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+[data-theme="safari"] ::-webkit-scrollbar-track {
+  background: transparent;
+}
+[data-theme="safari"] ::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="safari"] ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+    background-clip: content-box;
+  }
+}
+
+/* Safari-specific box shadows — softer, more diffuse */
+[data-theme="safari"] {
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+@media (prefers-color-scheme: dark) {
+  [data-theme="safari"] {
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 2px 8px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 4px 16px rgba(0, 0, 0, 0.4);
+  }
+}

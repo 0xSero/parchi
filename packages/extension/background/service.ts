@@ -55,6 +55,8 @@ export class BackgroundService {
   relayActiveRunIds: Set<string>;
   private applyRelayConfig: () => Promise<void>;
   private relayKeepalivePorts: Set<chrome.runtime.Port>;
+  private safariPanelWindowId: number | null;
+  private alarmKeepaliveRegistered: boolean;
   // State tracking for enforcement
   lastBrowserAction: string | null;
   awaitingVerification: boolean;
@@ -87,6 +89,8 @@ export class BackgroundService {
     this.subAgentProfileCursor = 0;
     this.relayActiveRunIds = new Set();
     this.relayKeepalivePorts = new Set();
+    this.safariPanelWindowId = null;
+    this.alarmKeepaliveRegistered = false;
     this.activeRuns = new Map();
     this.activeRunIdBySessionId = new Map();
     this.cancelledRunIds = new Set();
@@ -112,7 +116,12 @@ export class BackgroundService {
           agentId,
           name: 'parchi-extension',
           version: String(manifest.version || ''),
-          browser: typeof (globalThis as any).browser !== 'undefined' ? 'firefox' : 'chrome',
+          browser:
+            typeof (globalThis as any).browser !== 'undefined'
+              ? navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Firefox')
+                ? 'safari'
+                : 'firefox'
+              : 'chrome',
           userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : '',
           capabilities: { tools: true, agentRun: true },
         };
@@ -149,29 +158,49 @@ export class BackgroundService {
 
   private async ensureRelayKeepalive() {
     const offscreen = (chrome as any).offscreen;
-    if (!offscreen?.createDocument) return;
-    try {
-      const hasDoc = typeof offscreen.hasDocument === 'function' ? await offscreen.hasDocument() : false;
-      if (hasDoc) return;
-      await offscreen.createDocument({
-        url: 'offscreen/offscreen.html',
-        reasons: [offscreen.Reason?.DOM_PARSER || 'DOM_PARSER'],
-        justification: 'Keep relay WebSocket alive for the extension relay agent in MV3.',
+    if (offscreen?.createDocument) {
+      try {
+        const hasDoc = typeof offscreen.hasDocument === 'function' ? await offscreen.hasDocument() : false;
+        if (hasDoc) return;
+        await offscreen.createDocument({
+          url: 'offscreen/offscreen.html',
+          reasons: [offscreen.Reason?.DOM_PARSER || 'DOM_PARSER'],
+          justification: 'Keep relay WebSocket alive for the extension relay agent in MV3.',
+        });
+        return;
+      } catch (err) {
+        console.warn('[relay] offscreen keepalive failed:', err);
+      }
+    }
+    // Fallback for Safari / browsers without offscreen API: use alarms-based keepalive
+    if (chrome.alarms && !this.alarmKeepaliveRegistered) {
+      this.alarmKeepaliveRegistered = true;
+      chrome.alarms.create('relay-keepalive', { periodInMinutes: 0.4 });
+      chrome.alarms.onAlarm.addListener((alarm) => {
+        if (alarm.name === 'relay-keepalive') {
+          // Waking the service worker is sufficient to keep the relay WebSocket alive
+          if (!this.relay.isConnected()) {
+            void this.applyRelayConfig();
+          }
+        }
       });
-    } catch (err) {
-      console.warn('[relay] offscreen keepalive failed:', err);
     }
   }
 
   private async closeRelayKeepalive() {
     const offscreen = (chrome as any).offscreen;
-    if (!offscreen?.closeDocument) return;
-    try {
-      const hasDoc = typeof offscreen.hasDocument === 'function' ? await offscreen.hasDocument() : false;
-      if (!hasDoc) return;
-      await offscreen.closeDocument();
-    } catch (err) {
-      // Ignore - offscreen may not exist or may already be closed.
+    if (offscreen?.closeDocument) {
+      try {
+        const hasDoc = typeof offscreen.hasDocument === 'function' ? await offscreen.hasDocument() : false;
+        if (hasDoc) await offscreen.closeDocument();
+      } catch (err) {
+        // Ignore - offscreen may not exist or may already be closed.
+      }
+    }
+    // Clear alarms-based keepalive if active
+    if (chrome.alarms) {
+      chrome.alarms.clear('relay-keepalive').catch(() => {});
+      this.alarmKeepaliveRegistered = false;
     }
   }
 
@@ -183,6 +212,47 @@ export class BackgroundService {
         const options = typeof tab?.windowId === 'number' ? { windowId: tab.windowId } : undefined;
         chrome.sidebarAction.open(options).catch((error) => console.error('Failed to open sidebar:', error));
       });
+    } else if (chrome.action?.onClicked) {
+      // Safari: try native messaging to toggle the companion sidebar panel.
+      // Falls back to a detached popup window if native messaging is unavailable.
+      const hasNativeMessaging = typeof (globalThis as any).browser?.runtime?.sendNativeMessage === 'function';
+      if (hasNativeMessaging) {
+        chrome.action.onClicked.addListener(() => {
+          (globalThis as any).browser.runtime.sendNativeMessage(
+            'com.parchi.safari',
+            { action: 'toggleSidebar' },
+          ).catch((err: Error) => console.warn('[safari] native toggle failed:', err));
+        });
+      } else {
+        // Popup window fallback (used during development before the Xcode app is built)
+        chrome.windows.onRemoved.addListener((closedId) => {
+          if (closedId === this.safariPanelWindowId) {
+            this.safariPanelWindowId = null;
+          }
+        });
+        chrome.action.onClicked.addListener(() => {
+          if (this.safariPanelWindowId !== null) {
+            chrome.windows.remove(this.safariPanelWindowId).catch(() => {
+              this.safariPanelWindowId = null;
+            });
+            this.safariPanelWindowId = null;
+            return;
+          }
+          chrome.windows.create(
+            {
+              url: chrome.runtime.getURL('sidepanel/panel.html'),
+              type: 'popup',
+              width: 420,
+              height: 700,
+            },
+            (win) => {
+              if (win?.id) {
+                this.safariPanelWindowId = win.id;
+              }
+            },
+          );
+        });
+      }
     }
 
     // Kimi API requires a coding-agent User-Agent header.

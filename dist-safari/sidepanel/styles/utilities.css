@@ -1,0 +1,189 @@
+/* ============================================================================
+   Utilities — Modern Void Design System
+   ============================================================================ */
+
+/* Error/Warning Banners — Toast style */
+.error-banner,
+.run-incomplete-banner {
+  position: fixed;
+  bottom: 120px;
+  right: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  font-size: 12px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  max-width: 320px;
+  animation: slideInToast 0.4s var(--ease-out-back);
+}
+
+@keyframes slideInToast {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.error-banner {
+  border-color: var(--error);
+  background: hsl(0, 30%, 12%);
+}
+
+.run-incomplete-banner {
+  border-color: var(--warning, hsl(40, 55%, 60%));
+  background: hsl(40, 10%, 12%);
+}
+
+.error-banner .error-icon {
+  flex-shrink: 0;
+  color: var(--error);
+}
+
+.error-banner .error-text {
+  flex: 1;
+}
+
+.error-banner .error-dismiss {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  font-size: 11px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.error-banner .error-dismiss:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
+  color: var(--foreground);
+  transform: translateY(-1px);
+}
+
+.error-banner .error-dismiss:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
+}
+
+.error-banner .error-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.error-banner .error-action {
+  font-size: 11px;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.error-banner .error-settings-btn {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 550;
+  background: rgb(var(--accent-rgb) / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.2);
+  border-radius: 8px;
+  color: var(--accent);
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.06);
+}
+
+.error-banner .error-settings-btn:hover {
+  background: rgb(var(--accent-rgb) / 0.18);
+  border-color: rgb(var(--accent-rgb) / 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgb(var(--accent-rgb) / 0.12);
+}
+
+.error-banner .error-settings-btn:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
+}
+
+/* Text utilities */
+.text-muted {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* Tab panels */
+.tab-panel {
+  animation: fadeInUp 0.3s var(--ease-out-expo);
+}
+
+.tab-panel.hidden {
+  display: none !important;
+}
+
+/* Hidden */
+.hidden {
+  display: none !important;
+}
+
+/* Streaming */
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+.streaming .status-dot {
+  animation: pulse 1.5s ease-in-out infinite;
+  background: var(--accent);
+  position: relative;
+}
+
+.streaming .status-dot::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+  background: var(--accent);
+  opacity: 0.3;
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+/* Focus */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid rgb(var(--accent-rgb) / 0.5);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(var(--accent-rgb) / 0.1);
+}
+
+/* Disabled */
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+::selection {
+  background: hsl(230, 25%, 28%);
+  color: var(--foreground);
+}
