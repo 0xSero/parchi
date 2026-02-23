@@ -41970,18 +41970,38 @@ var BrowserTools = class {
   async captureActiveTab() {
     try {
       const activeTab = await getActiveTab();
-      if (!activeTab || typeof activeTab.id !== "number") return null;
-      if (!this.sessionTabs.has(activeTab.id)) {
-        this.sessionTabs.set(activeTab.id, { id: activeTab.id, title: activeTab.title, url: activeTab.url });
+      const pickTab = async () => {
+        if (activeTab && typeof activeTab.id === "number" && !this.getScriptInjectionBlockReason(activeTab.url)) {
+          return activeTab;
+        }
+        const windowTabs = await chrome.tabs.query({ currentWindow: true });
+        return windowTabs.find(
+          (tab) => typeof tab.id === "number" && !this.getScriptInjectionBlockReason(tab.url) && tab.active
+        ) || windowTabs.find((tab) => typeof tab.id === "number" && !this.getScriptInjectionBlockReason(tab.url)) || null;
+      };
+      const target = await pickTab();
+      if (!target || typeof target.id !== "number") return null;
+      if (!this.sessionTabs.has(target.id)) {
+        this.sessionTabs.set(target.id, { id: target.id, title: target.title, url: target.url });
       }
-      this.currentSessionTabId = activeTab.id;
-      return activeTab.id;
+      this.currentSessionTabId = target.id;
+      return target.id;
     } catch (error48) {
       console.warn("Failed to capture active tab:", error48);
       return null;
     }
   }
   async runInTab(tabId, func, args = []) {
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    const blockedReason = this.getScriptInjectionBlockReason(tab?.url);
+    if (blockedReason) {
+      return {
+        success: false,
+        error: "Cannot run scripts on this page.",
+        details: blockedReason,
+        url: tab?.url || ""
+      };
+    }
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId },
@@ -41998,6 +42018,16 @@ var BrowserTools = class {
     }
   }
   async runInAllFrames(tabId, func, args = []) {
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    const blockedReason = this.getScriptInjectionBlockReason(tab?.url);
+    if (blockedReason) {
+      return {
+        success: false,
+        error: "Cannot run scripts on this page.",
+        details: blockedReason,
+        url: tab?.url || ""
+      };
+    }
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId, allFrames: true },
@@ -42015,6 +42045,24 @@ var BrowserTools = class {
         details: error48?.message || String(error48)
       };
     }
+  }
+  getScriptInjectionBlockReason(url2) {
+    const current = String(url2 || "").trim();
+    if (!current) return "";
+    const lower = current.toLowerCase();
+    if (lower.startsWith("about:")) {
+      return "Firefox about:* pages are restricted; script injection is not allowed.";
+    }
+    if (lower.startsWith("moz-extension:")) {
+      return "Extension pages are restricted targets for content script injection.";
+    }
+    if (lower.startsWith("chrome:") || lower.startsWith("edge:") || lower.startsWith("brave:")) {
+      return "Browser internal pages are restricted; script injection is not allowed.";
+    }
+    if (lower.startsWith("view-source:")) {
+      return "view-source pages are restricted; open the original page URL instead.";
+    }
+    return "";
   }
   async sendOverlay(tabId, payload, retries = 0) {
     try {
@@ -43319,9 +43367,8 @@ var BackgroundService = class {
     if (chrome.sidePanel?.setPanelBehavior) {
       chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error48) => console.error(error48));
     } else if (chrome.sidebarAction?.open && chrome.action?.onClicked) {
-      chrome.action.onClicked.addListener((tab) => {
-        const options = typeof tab?.windowId === "number" ? { windowId: tab.windowId } : void 0;
-        chrome.sidebarAction.open(options).catch((error48) => console.error("Failed to open sidebar:", error48));
+      chrome.action.onClicked.addListener(() => {
+        chrome.sidebarAction.open().catch((error48) => console.error("Failed to open sidebar:", error48));
       });
     }
     if (chrome.declarativeNetRequest?.updateDynamicRules) {

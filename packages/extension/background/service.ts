@@ -199,9 +199,9 @@ export class BackgroundService {
     if (chrome.sidePanel?.setPanelBehavior) {
       chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch((error) => console.error(error));
     } else if (chrome.sidebarAction?.open && chrome.action?.onClicked) {
-      chrome.action.onClicked.addListener((tab) => {
-        const options = typeof tab?.windowId === 'number' ? { windowId: tab.windowId } : undefined;
-        chrome.sidebarAction.open(options).catch((error) => console.error('Failed to open sidebar:', error));
+      chrome.action.onClicked.addListener(() => {
+        // Firefox sidebarAction.open does not accept the MV3 sidePanel-style options object.
+        chrome.sidebarAction.open().catch((error) => console.error('Failed to open sidebar:', error));
       });
     }
 

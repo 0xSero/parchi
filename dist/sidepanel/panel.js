@@ -4713,14 +4713,30 @@ SidePanelUI.prototype.loadTabs = async function loadTabs() {
       const item = document.createElement("div");
       item.className = `tab-item${isSelected ? " selected" : ""}`;
       const urlLabel = this.formatTabLabel(tab.url || "");
+      const fallbackFavicon = "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27%23666%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%274%27/%3E%3C/svg%3E";
+      const faviconUrl = (() => {
+        const raw = String(tab.favIconUrl || "").trim();
+        if (!raw) return fallbackFavicon;
+        const lower = raw.toLowerCase();
+        if (lower.startsWith("http://") || lower.startsWith("https://") || lower.startsWith("data:") || lower.startsWith("blob:")) {
+          return raw;
+        }
+        return fallbackFavicon;
+      })();
       item.innerHTML = `
           <div class="tab-item-checkbox"></div>
-          <img class="tab-item-favicon" src="${tab.favIconUrl || "data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27%23666%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%274%27/%3E%3C/svg%3E"}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27%23666%27%3E%3Crect width=%2724%27 height=%2724%27 rx=%274%27/%3E%3C/svg%3E'">
+          <img class="tab-item-favicon" src="${faviconUrl}">
           <div class="tab-item-text">
             <span class="tab-item-title">${this.escapeHtml(tab.title || "Untitled")}</span>
             ${urlLabel ? `<span class="tab-item-url">${this.escapeHtml(urlLabel)}</span>` : ""}
           </div>
         `;
+      const favicon = item.querySelector(".tab-item-favicon");
+      if (favicon) {
+        favicon.addEventListener("error", () => {
+          favicon.src = fallbackFavicon;
+        });
+      }
       item.addEventListener("click", () => this.toggleTabSelection(tab, item));
       section.appendChild(item);
     });
@@ -5085,6 +5101,12 @@ SidePanelUI.prototype.updateToolResult = function updateToolResult(entry, result
   }
   if (entry.statusEl) {
     entry.statusEl.textContent = isError ? "ERR" : "OK";
+  }
+  if (isError) {
+    const detailParts = [result?.error, result?.details, result?.hint].filter((part) => typeof part === "string" && part);
+    if (detailParts.length > 0) {
+      entry.element.title = detailParts.join(" ");
+    }
   }
   if (isNoopScroll) {
     entry.element.title = "Scroll did not move. The page may use an inner scroll container; pass scroll.selector.";
