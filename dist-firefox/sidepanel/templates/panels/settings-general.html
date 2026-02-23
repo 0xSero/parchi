@@ -38,6 +38,65 @@
     </button>
 </div>
 
+<!-- ===== OAUTH TAB ===== -->
+<div class="settings-tab-pane" data-pane="oauth">
+    <details class="settings-section account-settings-section" open>
+        <summary>Account & Billing</summary>
+        <div class="settings-body account-settings-body">
+            <div id="accountAuthUnavailable" class="account-inline-note hidden">
+                Convex backend is not configured in this build.
+            </div>
+
+            <div id="accountAuthSignedOut" class="account-auth-block">
+                <div class="account-inline-note">Sign in to manage subscriptions and enable proxy mode.</div>
+                <div class="form-group">
+                    <label for="accountEmailInput">Email</label>
+                    <input type="email" id="accountEmailInput" placeholder="you@example.com" />
+                </div>
+                <div class="form-group">
+                    <label for="accountPasswordInput">Password</label>
+                    <input type="password" id="accountPasswordInput" placeholder="At least 8 characters" />
+                </div>
+                <div class="form-row">
+                    <button id="accountSignInBtn" class="btn btn-primary" style="flex: 1;">Sign In</button>
+                    <button id="accountSignUpBtn" class="btn btn-secondary" style="flex: 1;">Sign Up</button>
+                </div>
+                <div class="form-row">
+                    <button id="accountGoogleBtn" class="btn btn-secondary" style="flex: 1;">Continue with Google</button>
+                    <button id="accountGithubBtn" class="btn btn-secondary" style="flex: 1;">Continue with GitHub</button>
+                </div>
+                <div id="accountStatusText" class="account-inline-note"></div>
+            </div>
+
+            <div id="accountAuthSignedIn" class="account-auth-block hidden">
+                <div class="account-stats-grid">
+                    <div class="account-stat">
+                        <span class="account-stat-label">User</span>
+                        <span id="accountUserValue" class="account-stat-value">-</span>
+                    </div>
+                    <div class="account-stat">
+                        <span class="account-stat-label">Plan</span>
+                        <span id="accountPlanValue" class="account-stat-value">Free</span>
+                    </div>
+                    <div class="account-stat">
+                        <span class="account-stat-label">Usage</span>
+                        <span id="accountUsageValue" class="account-stat-value">0 req · 0 tokens</span>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <button id="accountUpgradeBtn" class="btn btn-primary" style="flex: 1;">Upgrade</button>
+                    <button id="accountManageBtn" class="btn btn-secondary" style="flex: 1;">Manage</button>
+                </div>
+                <div class="form-row">
+                    <button id="accountRefreshBtn" class="btn btn-secondary" style="flex: 1;">Refresh</button>
+                    <button id="accountSignOutBtn" class="btn btn-secondary" style="flex: 1;">Sign Out</button>
+                </div>
+                <div id="accountStatusTextSignedIn" class="account-inline-note"></div>
+            </div>
+        </div>
+    </details>
+</div>
+
 <!-- ===== MODEL TAB ===== -->
 <div class="settings-tab-pane" data-pane="model">
     <div class="form-group">
@@ -172,13 +231,6 @@
     </div>
 
     <div class="settings-divider"></div>
-    <div class="settings-section-label">System Prompt</div>
-    <div class="form-group">
-        <textarea id="systemPrompt" rows="5" placeholder="Leave empty for default..."></textarea>
-        <small>Override the default system prompt</small>
-    </div>
-
-    <div class="settings-divider"></div>
     <div class="settings-section-label">Import / Export</div>
     <div class="form-row">
         <button id="exportSettingsBtn" class="btn btn-secondary" style="flex: 1;">Export</button>
@@ -186,4 +238,25 @@
         <input id="importSettingsInput" type="file" accept="application/json" style="display: none;" />
     </div>
     <small>Export all profiles to JSON. Import overwrites current settings.</small>
+</div>
+
+<!-- ===== PROMPT TAB ===== -->
+<div class="settings-tab-pane" data-pane="prompt">
+    <div class="form-group">
+        <label for="systemPrompt">System Prompt</label>
+        <textarea id="systemPrompt" rows="5" class="system-prompt-textarea" placeholder="Leave empty for default..."></textarea>
+        <small>Override the default system prompt</small>
+    </div>
+    <div id="orchestratorPromptSection" class="form-group hidden">
+        <div class="settings-divider"></div>
+        <label for="orchestratorPromptTextarea">Orchestrator Prompt</label>
+        <textarea id="orchestratorPromptTextarea" rows="5" class="system-prompt-textarea" placeholder="Leave empty to use orchestrator profile's prompt..."></textarea>
+        <small>System prompt for the orchestrator profile. Edit here or in the profile editor.</small>
+    </div>
+    <div id="visionPromptSection" class="form-group hidden">
+        <div class="settings-divider"></div>
+        <label for="visionPromptTextarea">Vision Prompt</label>
+        <textarea id="visionPromptTextarea" rows="5" class="system-prompt-textarea" placeholder="Leave empty to use vision profile's prompt..."></textarea>
+        <small>System prompt for the vision profile. Edit here or in the profile editor.</small>
+    </div>
 </div>

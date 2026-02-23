@@ -7,8 +7,6 @@ var getSidePanelElements = () => ({
   sidebarScrim: byId("sidebarScrim"),
   openSidebarBtn: byId("openSidebarBtn"),
   closeSidebarBtn: byId("closeSidebarBtn"),
-  navHistoryBtn: byId("navHistoryBtn"),
-  navSettingsBtn: byId("navSettingsBtn"),
   rightPanel: byId("rightPanel"),
   rightPanelPanels: byId("rightPanelPanels") ?? bySelector(".right-panel-panels"),
   // Legacy references (kept for compatibility)
@@ -28,21 +26,36 @@ var getSidePanelElements = () => ({
   tabList: byId("tabList"),
   closeTabSelector: byId("closeTabSelector"),
   selectedTabsBar: byId("selectedTabsBar"),
+  sessionTabsHud: byId("sessionTabsHud"),
+  sessionTabsCount: byId("sessionTabsCount"),
+  sessionTabsList: byId("sessionTabsList"),
   scrollToLatestBtn: byId("scrollToLatestBtn"),
   newSessionFab: byId("newSessionFab"),
+  historyFab: byId("historyFab"),
+  historyDrawer: byId("historyDrawer"),
+  historyDrawerScrim: byId("historyDrawerScrim"),
+  historySearchInput: byId("historySearchInput"),
+  historyDrawerItems: byId("historyDrawerItems"),
+  closeHistoryDrawerBtn: byId("closeHistoryDrawerBtn"),
+  drawerClearHistoryBtn: byId("drawerClearHistoryBtn"),
+  drawerNewSessionBtn: byId("drawerNewSessionBtn"),
   historyPanel: byId("historyPanel"),
   historyItems: byId("historyItems"),
   clearHistoryBtn: byId("clearHistoryBtn"),
   startNewSessionBtn: byId("startNewSessionBtn"),
   settingsTabSetupBtn: byId("settingsTabSetupBtn"),
+  settingsTabOauthBtn: byId("settingsTabOauthBtn"),
   settingsTabModelBtn: byId("settingsTabModelBtn"),
   settingsTabBrowserBtn: byId("settingsTabBrowserBtn"),
   settingsTabNetworkBtn: byId("settingsTabNetworkBtn"),
+  settingsTabPromptBtn: byId("settingsTabPromptBtn"),
   settingsTabProfilesBtn: byId("settingsTabProfilesBtn"),
   settingsTabSetup: byId("settingsTabSetup"),
+  settingsTabOauth: byId("settingsTabOauth"),
   settingsTabModel: byId("settingsTabModel"),
   settingsTabBrowser: byId("settingsTabBrowser"),
   settingsTabNetwork: byId("settingsTabNetwork"),
+  settingsTabPrompt: byId("settingsTabPrompt"),
   settingsTabProfiles: byId("settingsTabProfiles"),
   newProfileNameInput: byId("newProfileNameInput"),
   createProfileBtn: byId("createProfileBtn"),
@@ -82,6 +95,27 @@ var getSidePanelElements = () => ({
   exportSettingsBtn: byId("exportSettingsBtn"),
   importSettingsBtn: byId("importSettingsBtn"),
   importSettingsInput: byId("importSettingsInput"),
+  // Account + billing
+  accountOnboardingModal: byId("accountOnboardingModal"),
+  accountChooseByokBtn: byId("accountChooseByokBtn"),
+  accountChoosePaidBtn: byId("accountChoosePaidBtn"),
+  accountAuthUnavailable: byId("accountAuthUnavailable"),
+  accountAuthSignedOut: byId("accountAuthSignedOut"),
+  accountAuthSignedIn: byId("accountAuthSignedIn"),
+  accountEmailInput: byId("accountEmailInput"),
+  accountPasswordInput: byId("accountPasswordInput"),
+  accountSignInBtn: byId("accountSignInBtn"),
+  accountSignUpBtn: byId("accountSignUpBtn"),
+  accountGoogleBtn: byId("accountGoogleBtn"),
+  accountGithubBtn: byId("accountGithubBtn"),
+  accountStatusText: byId("accountStatusText"),
+  accountUserValue: byId("accountUserValue"),
+  accountPlanValue: byId("accountPlanValue"),
+  accountUsageValue: byId("accountUsageValue"),
+  accountUpgradeBtn: byId("accountUpgradeBtn"),
+  accountManageBtn: byId("accountManageBtn"),
+  accountRefreshBtn: byId("accountRefreshBtn"),
+  accountSignOutBtn: byId("accountSignOutBtn"),
   // Relay
   relayEnabled: byId("relayEnabled"),
   relayUrl: byId("relayUrl"),
@@ -121,6 +155,10 @@ var getSidePanelElements = () => ({
   orchestratorProfile: byId("orchestratorProfile"),
   // Form elements - System prompt
   systemPrompt: byId("systemPrompt"),
+  orchestratorPromptSection: byId("orchestratorPromptSection"),
+  orchestratorPromptTextarea: byId("orchestratorPromptTextarea"),
+  visionPromptSection: byId("visionPromptSection"),
+  visionPromptTextarea: byId("visionPromptTextarea"),
   // Form elements - Appearance
   uiZoom: byId("uiZoom"),
   uiZoomValue: byId("uiZoomValue"),
@@ -208,6 +246,14 @@ var SidePanelUI = class {
   _deleteConfirmAt;
   timelineCollapsed;
   currentTheme;
+  sessionTabsState;
+  workflows;
+  workflowMenuOpen;
+  workflowMenuIndex;
+  _lastTypingAt;
+  _typingCheckTimerId;
+  _mascotBubbleOpen;
+  _currentVerb;
   constructor() {
     this.elements = getSidePanelElements();
     this.displayHistory = [];
@@ -278,6 +324,20 @@ var SidePanelUI = class {
     this._deleteConfirmAt = null;
     this.timelineCollapsed = true;
     this.currentTheme = "void";
+    this.sessionTabsState = {
+      tabs: [],
+      activeTabId: null,
+      maxTabs: 5,
+      groupTitle: void 0,
+      interactingTabId: null
+    };
+    this.workflows = [];
+    this.workflowMenuOpen = false;
+    this.workflowMenuIndex = -1;
+    this._lastTypingAt = 0;
+    this._typingCheckTimerId = null;
+    this._mascotBubbleOpen = false;
+    this._currentVerb = null;
     void this.init();
   }
 };
@@ -614,12 +674,12 @@ var sanitizeForMessaging = (value, depth = 0) => {
   }
   if (typeof value === "object") {
     const out = {};
-    for (const [k, v] of Object.entries(value)) {
+    for (const [k, v2] of Object.entries(value)) {
       if (k === "dataUrl") {
         out[k] = "[omitted dataUrl]";
         continue;
       }
-      out[k] = sanitizeForMessaging(v, depth + 1);
+      out[k] = sanitizeForMessaging(v2, depth + 1);
     }
     return out;
   }
@@ -990,7 +1050,8 @@ var runtimeMessageTypes = [
   "run_warning",
   "context_compacted",
   "subagent_start",
-  "subagent_complete"
+  "subagent_complete",
+  "session_tabs_update"
 ];
 function isRuntimeMessage(value) {
   if (!value || typeof value !== "object") return false;
@@ -1026,18 +1087,6 @@ var showRightPanel = (elements, panelName) => {
   targetPanel?.classList.remove("hidden");
   document.body.dataset.rightPanel = panelName;
 };
-var updateNavActive = (elements, navName) => {
-  elements.navHistoryBtn?.classList.remove("active");
-  elements.navSettingsBtn?.classList.remove("active");
-  switch (navName) {
-    case "history":
-      elements.navHistoryBtn?.classList.add("active");
-      break;
-    case "settings":
-      elements.navSettingsBtn?.classList.add("active");
-      break;
-  }
-};
 var bindSidebarNavigation = (elements, handlers) => {
   elements.openSidebarBtn?.addEventListener("click", () => {
     const sidebar = elements.sidebar;
@@ -1053,11 +1102,33 @@ var bindSidebarNavigation = (elements, handlers) => {
   });
   elements.closeSidebarBtn?.addEventListener("click", handlers.onClose);
   elements.sidebarScrim?.addEventListener("click", handlers.onClose);
-  elements.navHistoryBtn?.addEventListener("click", handlers.onHistory);
-  elements.navSettingsBtn?.addEventListener("click", handlers.onSettings);
 };
 
 // packages/extension/sidepanel/ui/core/panel-core.ts
+var debounce = (fn, ms) => {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+};
+var resolveTextAreaMaxHeight = (textarea, fallbackHeight) => {
+  const computedMaxHeight = Number.parseFloat(getComputedStyle(textarea).maxHeight);
+  if (Number.isFinite(computedMaxHeight) && computedMaxHeight > 0) {
+    return computedMaxHeight;
+  }
+  return fallbackHeight;
+};
+var autoResizeTextArea = (textarea, maxHeight, minHeight = 0) => {
+  if (!textarea) return;
+  const resolvedMaxHeight = resolveTextAreaMaxHeight(textarea, maxHeight);
+  const resolvedMinHeight = Math.min(Math.max(0, minHeight), resolvedMaxHeight);
+  textarea.style.height = "auto";
+  const nextHeight = Math.min(textarea.scrollHeight, resolvedMaxHeight);
+  const clampedHeight = Math.max(nextHeight, resolvedMinHeight);
+  textarea.style.height = `${clampedHeight}px`;
+  textarea.style.overflowY = textarea.scrollHeight > resolvedMaxHeight || clampedHeight >= resolvedMaxHeight ? "auto" : "hidden";
+};
 SidePanelUI.prototype.init = async function init() {
   try {
     this.setupEventListeners();
@@ -1065,11 +1136,14 @@ SidePanelUI.prototype.init = async function init() {
     this.setupResizeObserver();
     setSidebarOpen(this.elements, false);
     await this.loadSettings();
+    await this.initAccountPanel?.();
+    await this.loadWorkflows();
     await this.loadHistoryList();
     this.updateStatus("Ready", "success");
     this.updateModelDisplay();
     this.fetchAvailableModels();
     this.updateChatEmptyState?.();
+    this.initMascotBubble?.();
   } catch (error) {
     console.error("[Parchi] init() failed:", error);
     this.updateStatus("Initialization failed - check console", "error");
@@ -1078,13 +1152,23 @@ SidePanelUI.prototype.init = async function init() {
 SidePanelUI.prototype.setupEventListeners = function setupEventListeners() {
   bindSidebarNavigation(this.elements, {
     onOpen: () => this.openSettingsPanel(),
-    onClose: () => this.closeSidebar(),
-    onHistory: () => this.openHistoryPanel(),
-    onSettings: () => this.openSettingsPanel()
+    onClose: () => this.closeSidebar()
   });
   this.elements.startNewSessionBtn?.addEventListener("click", () => this.startNewSession());
   this.elements.newSessionFab?.addEventListener("click", () => this.startNewSession());
   this.elements.clearHistoryBtn?.addEventListener("click", () => this.clearAllHistory());
+  this.elements.historyFab?.addEventListener("click", () => this.openHistoryDrawer());
+  this.elements.closeHistoryDrawerBtn?.addEventListener("click", () => this.closeHistoryDrawer());
+  this.elements.historyDrawerScrim?.addEventListener("click", () => this.closeHistoryDrawer());
+  this.elements.drawerClearHistoryBtn?.addEventListener("click", () => this.clearAllHistory());
+  this.elements.drawerNewSessionBtn?.addEventListener("click", () => {
+    this.closeHistoryDrawer();
+    this.startNewSession();
+  });
+  this.elements.historySearchInput?.addEventListener("input", debounce(() => {
+    const query = (this.elements.historySearchInput?.value || "").trim();
+    this.filterHistoryList(query);
+  }, 150));
   this.elements.provider?.addEventListener("change", () => {
     this.toggleCustomEndpoint();
     this.updateScreenshotToggleState();
@@ -1105,9 +1189,11 @@ SidePanelUI.prototype.setupEventListeners = function setupEventListeners() {
   this.elements.deleteConfigBtn?.addEventListener("click", () => this.deleteConfig());
   this.elements.activeConfig?.addEventListener("change", () => this.switchConfig());
   this.elements.settingsTabSetupBtn?.addEventListener("click", () => this.switchSettingsTab("setup"));
+  this.elements.settingsTabOauthBtn?.addEventListener("click", () => this.switchSettingsTab("oauth"));
   this.elements.settingsTabModelBtn?.addEventListener("click", () => this.switchSettingsTab("model"));
   this.elements.settingsTabBrowserBtn?.addEventListener("click", () => this.switchSettingsTab("browser"));
   this.elements.settingsTabNetworkBtn?.addEventListener("click", () => this.switchSettingsTab("network"));
+  this.elements.settingsTabPromptBtn?.addEventListener("click", () => this.switchSettingsTab("prompt"));
   this.elements.settingsTabProfilesBtn?.addEventListener("click", () => this.switchSettingsTab("profiles"));
   this.elements.createProfileBtn?.addEventListener("click", () => this.createProfileFromInput());
   this.elements.agentGrid?.addEventListener("click", (event) => {
@@ -1133,8 +1219,13 @@ SidePanelUI.prototype.setupEventListeners = function setupEventListeners() {
   });
   this.elements.refreshProfilesBtn?.addEventListener("click", () => this.renderProfileGrid());
   this.elements.enableScreenshots?.addEventListener("change", () => this.updateScreenshotToggleState());
-  this.elements.visionProfile?.addEventListener("change", () => this.updateScreenshotToggleState());
+  this.elements.visionProfile?.addEventListener("change", () => {
+    this.updateScreenshotToggleState();
+    this.updatePromptSections?.();
+  });
   this.elements.sendScreenshotsAsImages?.addEventListener("change", () => this.updateScreenshotToggleState());
+  this.elements.orchestratorToggle?.addEventListener("change", () => this.updatePromptSections?.());
+  this.elements.orchestratorProfile?.addEventListener("change", () => this.updatePromptSections?.());
   this.elements.saveSettingsBtn?.addEventListener("click", () => {
     void this.saveSettings();
   });
@@ -1209,6 +1300,9 @@ export PARCHI_RELAY_PORT="${port}"`;
     }
   });
   this.elements.userInput?.addEventListener("keydown", (event) => {
+    if (this.workflowMenuOpen && this.handleWorkflowKeydown(event)) {
+      return;
+    }
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       this.sendMessage();
@@ -1216,9 +1310,18 @@ export PARCHI_RELAY_PORT="${port}"`;
   });
   const userInput = this.elements.userInput;
   userInput?.addEventListener("input", () => {
-    userInput.style.height = "auto";
-    userInput.style.height = `${userInput.scrollHeight}px`;
+    autoResizeTextArea(userInput, 280);
+    this.handleWorkflowInput();
   });
+  this.elements.systemPrompt?.addEventListener("input", () => {
+    autoResizeTextArea(this.elements.systemPrompt, 500, 500);
+  });
+  this.elements.profileEditorPrompt?.addEventListener("input", () => {
+    autoResizeTextArea(this.elements.profileEditorPrompt, 500);
+  });
+  autoResizeTextArea(userInput, 280);
+  autoResizeTextArea(this.elements.systemPrompt, 500, 500);
+  autoResizeTextArea(this.elements.profileEditorPrompt, 500);
   this.elements.modelSelect?.addEventListener("change", () => {
     void this.handleModelSelectChange();
   });
@@ -1395,6 +1498,26 @@ SidePanelUI.prototype.handleRuntimeMessage = function handleRuntimeMessage(messa
     this.clearErrorBanner();
     this.updateActivityState();
     this.activeToolName = message.tool || null;
+    const browserTools = [
+      "navigate",
+      "openTab",
+      "click",
+      "type",
+      "pressKey",
+      "scroll",
+      "getContent",
+      "screenshot",
+      "switchTab",
+      "focusTab",
+      "closeTab",
+      "watchVideo",
+      "getVideoInfo"
+    ];
+    let toolTabId = typeof message.args?.tabId === "number" ? message.args.tabId : null;
+    if (!toolTabId && browserTools.includes(message.tool)) {
+      toolTabId = this.sessionTabsState?.activeTabId ?? null;
+    }
+    this.setInteractingTab(toolTabId);
     if (!this.streamingState) {
       this.startStreamingMessage();
     }
@@ -1430,6 +1553,9 @@ SidePanelUI.prototype.handleRuntimeMessage = function handleRuntimeMessage(messa
     this.pendingToolCount = Math.max(0, this.pendingToolCount - 1);
     this.updateActivityState();
     this.activeToolName = null;
+    if (this.pendingToolCount === 0) {
+      this.setInteractingTab(null);
+    }
     if (!this.streamingState) {
       this.startStreamingMessage();
     }
@@ -1522,6 +1648,10 @@ SidePanelUI.prototype.handleRuntimeMessage = function handleRuntimeMessage(messa
     this.showErrorBanner(message.message);
     return;
   }
+  if (message.type === "session_tabs_update") {
+    this.handleSessionTabsUpdate(message);
+    return;
+  }
   if (message.type === "subagent_start") {
     this.addSubagent(message.id, message.name, message.tasks);
     this.updateStatus(`Sub-agent "${message.name}" started`, "active");
@@ -1554,6 +1684,17 @@ SidePanelUI.prototype.appendContextMessages = function appendContextMessages(res
   this.contextHistory.push(...normalized);
 };
 SidePanelUI.prototype.handleContextCompaction = function handleContextCompaction(message) {
+  const trimmedCount = Number(message.trimmedCount || 0);
+  const preservedCount = Number(message.preservedCount || 0);
+  const percent = typeof message.contextUsage?.percent === "number" ? Math.max(0, Math.min(100, Math.round(message.contextUsage.percent))) : null;
+  const parts = [
+    trimmedCount > 0 ? `${trimmedCount} summarized` : "Context compacted",
+    preservedCount > 0 ? `${preservedCount} preserved` : null,
+    percent !== null ? `${percent}% after compaction` : null
+  ].filter(Boolean);
+  if (parts.length > 0) {
+    this.updateStatus(`Context compacted: ${parts.join(", ")}`, "success");
+  }
   const normalized = normalizeConversationHistory(message.contextMessages);
   this.contextHistory = normalized;
   this.sessionId = message.newSessionId || this.sessionId;
@@ -2042,34 +2183,51 @@ SidePanelUI.prototype.persistHistory = async function persistHistory() {
     console.error("Failed to persist history:", e);
   }
 };
-SidePanelUI.prototype.loadHistoryList = async function loadHistoryList() {
-  if (!this.elements.historyItems) {
-    this.elements.historyItems = document.getElementById("historyItems");
+var resolveHistoryContainer = (self) => {
+  if (self.elements.historyDrawerItems) return self.elements.historyDrawerItems;
+  const el = document.getElementById("historyDrawerItems");
+  if (el) {
+    self.elements.historyDrawerItems = el;
+    return el;
   }
-  if (!this.elements.historyItems) return;
+  if (self.elements.historyItems) return self.elements.historyItems;
+  const legacy = document.getElementById("historyItems");
+  if (legacy) {
+    self.elements.historyItems = legacy;
+    return legacy;
+  }
+  return null;
+};
+SidePanelUI.prototype.loadHistoryList = async function loadHistoryList() {
+  const container = resolveHistoryContainer(this);
+  if (!container) return;
   const saveEnabled = this.elements.saveHistory?.value !== "false";
   if (!saveEnabled) {
-    this.elements.historyItems.innerHTML = '<div class="history-empty">History is off. Enable \u201CSave History\u201D in Settings to see past chats.</div>';
+    container.innerHTML = '<div class="history-empty">History is off. Enable "Save History" in Settings to see past chats.</div>';
     return;
   }
   try {
     const { chatSessions } = await chrome.storage.local.get(["chatSessions"]);
     const sessions = normalizeStoredSessions(chatSessions);
-    this.elements.historyItems.innerHTML = "";
+    container.innerHTML = "";
     if (!sessions.length) {
-      this.elements.historyItems.innerHTML = '<div class="history-empty">No saved chats yet.</div>';
+      container.innerHTML = '<div class="history-empty">No saved chats yet.</div>';
       return;
     }
     sessions.forEach((session) => {
       const item = document.createElement("div");
       item.className = "history-item";
+      item.dataset.title = (session.title || "").toLowerCase();
       const date = new Date(session.updatedAt || session.startedAt || Date.now());
       const transcript = normalizeTranscript(session.transcript);
       const msgCount = session.messageCount || transcript.length || 0;
       const timeAgo = this.formatTimeAgo(date);
+      const rawTitle = session.title || "Untitled Session";
+      const words = rawTitle.split(/\s+/);
+      const truncatedTitle = words.length > 30 ? words.slice(0, 30).join(" ") + "..." : rawTitle;
       item.innerHTML = `
         <div class="history-item-main">
-          <div class="history-title">${this.escapeHtml(session.title || "Untitled Session")}</div>
+          <div class="history-title">${this.escapeHtml(truncatedTitle)}</div>
           <div class="history-meta">
             <span>${timeAgo}</span>
             <span class="history-meta-dot">\xB7</span>
@@ -2084,18 +2242,34 @@ SidePanelUI.prototype.loadHistoryList = async function loadHistoryList() {
         </button>
       `;
       item.querySelector(".history-item-main")?.addEventListener("click", () => {
+        this.closeHistoryDrawer?.();
         this.loadSession(session);
       });
       item.querySelector(".history-delete")?.addEventListener("click", (e) => {
         e.stopPropagation();
         this.deleteSession(session.id);
       });
-      this.elements.historyItems.appendChild(item);
+      container.appendChild(item);
     });
   } catch (e) {
     console.error("Failed to load history:", e);
-    this.elements.historyItems.innerHTML = '<div class="history-empty">Failed to load history.</div>';
+    container.innerHTML = '<div class="history-empty">Failed to load history.</div>';
   }
+};
+SidePanelUI.prototype.filterHistoryList = function filterHistoryList(query) {
+  const container = resolveHistoryContainer(this);
+  if (!container) return;
+  const lowerQuery = query.toLowerCase();
+  const items = container.querySelectorAll(".history-item");
+  items.forEach((item) => {
+    const el = item;
+    if (!lowerQuery) {
+      el.style.display = "";
+      return;
+    }
+    const title = el.dataset.title || "";
+    el.style.display = title.includes(lowerQuery) ? "" : "none";
+  });
 };
 SidePanelUI.prototype.loadSession = function loadSession(session) {
   this.switchView("chat");
@@ -2226,13 +2400,20 @@ SidePanelUI.prototype.deleteSession = async function deleteSession(sessionId) {
   }
 };
 SidePanelUI.prototype.clearAllHistory = async function clearAllHistory() {
-  if (!confirm("Clear all chat history? This cannot be undone.")) return;
-  try {
-    await chrome.storage.local.set({ chatSessions: [] });
-    this.loadHistoryList();
-  } catch (e) {
-    console.error("Failed to clear history:", e);
+  const now = Date.now();
+  if (this._clearHistoryPendingAt && now - this._clearHistoryPendingAt < 3e3) {
+    this._clearHistoryPendingAt = 0;
+    try {
+      await chrome.storage.local.set({ chatSessions: [] });
+      this.loadHistoryList();
+      this.updateStatus("History cleared", "success");
+    } catch (e) {
+      console.error("Failed to clear history:", e);
+    }
+    return;
   }
+  this._clearHistoryPendingAt = now;
+  this.updateStatus("Click Clear again to confirm", "warning");
 };
 SidePanelUI.prototype.formatTimeAgo = function formatTimeAgo(date) {
   const now = /* @__PURE__ */ new Date();
@@ -2330,9 +2511,9 @@ SidePanelUI.prototype.renderMarkdown = function renderMarkdown(text) {
   const applyInline = (value = "") => {
     let html2 = escape(value);
     const inlineCode = [];
-    html2 = html2.replace(/`([^`]+)`/g, (_, code) => {
-      const placeholder = `@@INLINE_CODE_${inlineCode.length}@@`;
-      inlineCode.push(`<code>${escape(code)}</code>`);
+    html2 = html2.replace(/`([^`]+)`/g, (_, code2) => {
+      const placeholder = `@@INLINECODE${inlineCode.length}@@`;
+      inlineCode.push(`<code>${escape(code2)}</code>`);
       return placeholder;
     });
     html2 = html2.replace(
@@ -2364,7 +2545,7 @@ SidePanelUI.prototype.renderMarkdown = function renderMarkdown(text) {
     html2 = html2.replace(/(?<!\*)\*(?!\s)(.+?)\*(?!\*)/g, "<em>$1</em>");
     html2 = html2.replace(/(?<!_)_(?!\s)(.+?)_(?!_)/g, "<em>$1</em>");
     inlineCode.forEach((codeBlock, index) => {
-      const placeholder = `@@INLINE_CODE_${index}@@`;
+      const placeholder = `@@INLINECODE${index}@@`;
       html2 = html2.split(placeholder).join(codeBlock);
     });
     return html2;
@@ -2474,6 +2655,29 @@ SidePanelUI.prototype.renderMarkdown = function renderMarkdown(text) {
 };
 SidePanelUI.prototype.renderMarkdownTable = function renderMarkdownTable(tableText) {
   const escape = (value = "") => this.escapeHtmlBasic(value);
+  const escapeAttr = (value = "") => this.escapeAttribute(value);
+  const applyCell = (value = "") => {
+    let html2 = escape(value);
+    const inlineCode = [];
+    html2 = html2.replace(/`([^`]+)`/g, (_, code2) => {
+      const ph = `@@TCODE${inlineCode.length}@@`;
+      inlineCode.push(`<code>${escape(code2)}</code>`);
+      return ph;
+    });
+    html2 = html2.replace(
+      /\[([^\]]+)\]\(([^)]+)\)/g,
+      (_, label, url) => `<a href="${escapeAttr(url)}" target="_blank" rel="noopener noreferrer">${label}</a>`
+    );
+    html2 = html2.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    html2 = html2.replace(/__(.+?)__/g, "<strong>$1</strong>");
+    html2 = html2.replace(/~~(.+?)~~/g, "<del>$1</del>");
+    html2 = html2.replace(/(?<!\*)\*(?!\s)(.+?)\*(?!\*)/g, "<em>$1</em>");
+    html2 = html2.replace(/(?<!_)_(?!\s)(.+?)_(?!_)/g, "<em>$1</em>");
+    inlineCode.forEach((codeBlock, i) => {
+      html2 = html2.split(`@@TCODE${i}@@`).join(codeBlock);
+    });
+    return html2;
+  };
   const lines = tableText.trim().split("\n").filter((line) => line.trim());
   if (lines.length < 2) return `<p>${escape(tableText)}</p>`;
   const headerLine = lines[0];
@@ -2486,7 +2690,7 @@ SidePanelUI.prototype.renderMarkdownTable = function renderMarkdownTable(tableTe
   let html = '<div class="table-wrapper"><table class="markdown-table">';
   html += "<thead><tr>";
   headers.forEach((header) => {
-    html += `<th>${escape(header)}</th>`;
+    html += `<th>${applyCell(header)}</th>`;
   });
   html += "</tr></thead>";
   if (bodyLines.length > 0) {
@@ -2497,7 +2701,7 @@ SidePanelUI.prototype.renderMarkdownTable = function renderMarkdownTable(tableTe
         html += "<tr>";
         cells.forEach((cell, idx) => {
           const tag = idx === 0 ? "th" : "td";
-          html += `<${tag}>${escape(cell)}</${tag}>`;
+          html += `<${tag}>${applyCell(cell)}</${tag}>`;
         });
         for (let i = cells.length; i < headers.length; i++) {
           html += "<td></td>";
@@ -2628,6 +2832,13 @@ var formatHeadersJson = (headers) => {
   if (!entries.length) return "";
   const normalized = Object.fromEntries(entries.map(([key, value]) => [key, String(value)]));
   return JSON.stringify(normalized, null, 2);
+};
+var resizeProfilePromptInput = (textarea) => {
+  if (!textarea) return;
+  textarea.style.height = "auto";
+  const nextHeight = Math.min(textarea.scrollHeight, 500);
+  textarea.style.height = `${nextHeight}px`;
+  textarea.style.overflowY = textarea.scrollHeight > 500 ? "auto" : "hidden";
 };
 SidePanelUI.prototype.createNewConfig = async function createNewConfig(name) {
   const inputA = this.elements.newProfileInput;
@@ -2869,6 +3080,7 @@ SidePanelUI.prototype.editProfile = function editProfile(name, silent = false) {
     this.elements.profileEditorSaveHistory.value = config.saveHistory !== false ? "true" : "false";
   if (this.elements.profileEditorPrompt)
     this.elements.profileEditorPrompt.value = config.systemPrompt || this.getDefaultSystemPrompt();
+  resizeProfilePromptInput(this.elements.profileEditorPrompt);
   this.toggleProfileEditorEndpoint();
   this.refreshProfileJsonEditor?.();
   this.renderProfileGrid();
@@ -3113,9 +3325,10 @@ var DEFAULT_AGENT_SYSTEM_PROMPT = `You are a browser automation agent. You execu
 <rules priority="CRITICAL">
 VIOLATIONS CAUSE TASK FAILURE. NO EXCEPTIONS.
 
-1. NO PLAN = NO ACTION
+   1. NO PLAN = NO ACTION
    You CANNOT call navigate, click, type, scroll, or pressKey without an active plan.
-   Your FIRST tool call MUST be set_plan.
+   Your FIRST tool call in a session MUST be set_plan.
+   You may call set_plan again later to append more steps to the existing plan.
 
 2. ACTION \u2192 VERIFY \u2192 MARK
    Every browser action MUST be followed by getContent.
@@ -3201,7 +3414,7 @@ set_plan({ steps: [
 
 <tools>
 PLANNING (use these to manage your task):
-\u2022 set_plan - Create action checklist. MUST BE YOUR FIRST CALL.
+  \u2022 set_plan - Create action checklist. MUST BE YOUR FIRST CALL, and can be used again later to append steps.
 \u2022 update_plan - Mark step complete. CALL AFTER EACH STEP IS VERIFIED.
 
 BROWSER ACTIONS (require getContent after):
@@ -3213,11 +3426,18 @@ BROWSER ACTIONS (require getContent after):
 
 READING (call after every action):
 \u2022 getContent - Read page content. REQUIRED after every browser action.
-\u2022 screenshot - Capture visible area (if enabled)
+\u2022 screenshot - Capture visible area when screenshot/vision tools are enabled.
+\u2022 findHtml - Verify whether a specific HTML snippet exists in the DOM structure.
+\u2022 watchVideo - Analyze video on the current page (vision mode only).
+\u2022 getVideoInfo - Read duration/state/metadata for page video elements (vision mode only).
 
 TABS:
 \u2022 getTabs, switchTab, openTab, closeTab, focusTab, groupTabs
 \u2022 ALWAYS check describeSessionTabs/getTabs before openTab unless explicitly required.
+
+ORCHESTRATOR TOOLS (if enabled):
+\u2022 spawn_subagent - Launch a focused helper agent with a separate goal/prompt.
+\u2022 subagent_complete - Return a sub-agent summary payload.
 </tools>
 
 <error_recovery>
@@ -3277,7 +3497,19 @@ var PARCHI_STORAGE_KEYS = [
   "relayConnected",
   "relayLastConnectedAt",
   "relayLastError",
-  "theme"
+  "accountModeChoice",
+  "convexUrl",
+  "convexAccessToken",
+  "convexRefreshToken",
+  "convexTokenExpiresAt",
+  "convexUserId",
+  "convexUserEmail",
+  "convexSubscriptionPlan",
+  "convexSubscriptionStatus",
+  "convexSubscriptionCurrentPeriodEnd",
+  "convexSubscriptionCheckedAt",
+  "theme",
+  "workflows"
 ];
 
 // packages/extension/sidepanel/ui/settings/themes.ts
@@ -3629,19 +3861,23 @@ SidePanelUI.prototype.switchSettingsTab = function switchSettingsTab(tabName = "
     void this.persistAllSettings({ silent: true });
   }
   this.currentSettingsTab = tabName;
-  const tabs = ["setup", "model", "browser", "network", "profiles"];
+  const tabs = ["setup", "oauth", "model", "browser", "network", "prompt", "profiles"];
   const tabElements = {
     setup: this.elements.settingsTabSetup,
+    oauth: this.elements.settingsTabOauth,
     model: this.elements.settingsTabModel,
     browser: this.elements.settingsTabBrowser,
     network: this.elements.settingsTabNetwork,
+    prompt: this.elements.settingsTabPrompt,
     profiles: this.elements.settingsTabProfiles
   };
   const btnElements = {
     setup: this.elements.settingsTabSetupBtn,
+    oauth: this.elements.settingsTabOauthBtn,
     model: this.elements.settingsTabModelBtn,
     browser: this.elements.settingsTabBrowserBtn,
     network: this.elements.settingsTabNetworkBtn,
+    prompt: this.elements.settingsTabPromptBtn,
     profiles: this.elements.settingsTabProfilesBtn
   };
   for (const tab of tabs) {
@@ -3751,6 +3987,8 @@ SidePanelUI.prototype.loadSettings = async function loadSettings() {
   this.toggleCustomEndpoint();
   this.updateScreenshotToggleState();
   this.editProfile(this.currentConfig, true);
+  this.updatePromptSections?.();
+  await this.refreshAccountPanel?.({ silent: true });
 };
 SidePanelUI.prototype.updateRelayStatusFromSettings = function updateRelayStatusFromSettings(settings = {}) {
   const connected = settings.relayConnected === true;
@@ -3774,6 +4012,7 @@ SidePanelUI.prototype.saveSettings = async function saveSettings() {
   }
   const profile = this.collectCurrentFormProfile();
   this.configs[this.currentConfig] = profile;
+  this.savePromptSections?.();
   await this.persistAllSettings();
   this.fetchAvailableModels();
   this.updateStatus("Settings saved successfully", "success");
@@ -3976,6 +4215,49 @@ SidePanelUI.prototype.updateScreenshotToggleState = function updateScreenshotTog
     this.updateStatus("Enable a vision-capable profile before sending screenshots.", "warning");
   }
 };
+SidePanelUI.prototype.updatePromptSections = function updatePromptSections() {
+  const orchSection = this.elements.orchestratorPromptSection || document.getElementById("orchestratorPromptSection");
+  const orchTextarea = this.elements.orchestratorPromptTextarea || document.getElementById("orchestratorPromptTextarea");
+  const visSection = this.elements.visionPromptSection || document.getElementById("visionPromptSection");
+  const visTextarea = this.elements.visionPromptTextarea || document.getElementById("visionPromptTextarea");
+  if (orchSection) this.elements.orchestratorPromptSection = orchSection;
+  if (orchTextarea) this.elements.orchestratorPromptTextarea = orchTextarea;
+  if (visSection) this.elements.visionPromptSection = visSection;
+  if (visTextarea) this.elements.visionPromptTextarea = visTextarea;
+  const orchEnabled = this.elements.orchestratorToggle?.value === "true";
+  const orchProfileName = this.elements.orchestratorProfile?.value || this.currentConfig;
+  if (orchSection) {
+    orchSection.classList.toggle("hidden", !orchEnabled);
+  }
+  if (orchEnabled && orchTextarea) {
+    const orchProfile = this.configs[orchProfileName] || {};
+    orchTextarea.value = orchProfile.systemPrompt || "";
+  }
+  const visProfileName = this.elements.visionProfile?.value;
+  const visEnabled = !!visProfileName && visProfileName !== "" && visProfileName !== this.currentConfig;
+  if (visSection) {
+    visSection.classList.toggle("hidden", !visEnabled);
+  }
+  if (visEnabled && visTextarea) {
+    const visProfile = this.configs[visProfileName] || {};
+    visTextarea.value = visProfile.systemPrompt || "";
+  }
+};
+SidePanelUI.prototype.savePromptSections = function savePromptSections() {
+  const orchEnabled = this.elements.orchestratorToggle?.value === "true";
+  if (orchEnabled && this.elements.orchestratorPromptTextarea) {
+    const orchProfileName = this.elements.orchestratorProfile?.value || this.currentConfig;
+    if (this.configs[orchProfileName]) {
+      this.configs[orchProfileName].systemPrompt = this.elements.orchestratorPromptTextarea.value || "";
+    }
+  }
+  const visProfileName = this.elements.visionProfile?.value;
+  if (visProfileName && visProfileName !== this.currentConfig && this.elements.visionPromptTextarea) {
+    if (this.configs[visProfileName]) {
+      this.configs[visProfileName].systemPrompt = this.elements.visionPromptTextarea.value || "";
+    }
+  }
+};
 
 // packages/extension/sidepanel/ui/status/panel-status.ts
 SidePanelUI.prototype.updateStatus = function updateStatus(text, type = "default") {
@@ -4096,6 +4378,33 @@ var formatElapsed = (elapsedMs) => {
   const secondLabel = seconds.toString().padStart(2, "0");
   return `${minuteLabel}:${secondLabel}`;
 };
+var MASCOT_VERBS = [
+  "Vibing",
+  "Slaying",
+  "Cooking",
+  "Grinding",
+  "Manifesting",
+  "Ghosting",
+  "Flexing",
+  "Streaming",
+  "Hustling",
+  "Glazing",
+  "Mogging",
+  "Coping",
+  "Rizzing",
+  "Finessing",
+  "Fumbling",
+  "Binging",
+  "Canceling",
+  "Yoinking",
+  "Simping",
+  "Dooming"
+];
+var _verbIndex = Math.floor(Math.random() * MASCOT_VERBS.length);
+var nextVerb = () => {
+  _verbIndex = (_verbIndex + 1) % MASCOT_VERBS.length;
+  return MASCOT_VERBS[_verbIndex];
+};
 SidePanelUI.prototype.handleAssistantStream = function handleAssistantStream(event) {
   if (event.status === "start") {
     this.isStreaming = true;
@@ -4117,9 +4426,16 @@ SidePanelUI.prototype.startThinkingTimer = function startThinkingTimer() {
     window.clearInterval(this.thinkingTimerId);
   }
   this.thinkingStartedAt = Date.now();
+  this._currentVerb = nextVerb();
+  let tickCount = 0;
   const updateTimer = () => {
     const elapsed = formatElapsed(Date.now() - (this.thinkingStartedAt || Date.now()));
-    this.updateStatus(`Thinking ${elapsed}`, "active");
+    tickCount++;
+    if (tickCount % 3 === 0) {
+      this._currentVerb = nextVerb();
+    }
+    this.updateStatus(`${this._currentVerb} ${elapsed}`, "active");
+    this.updateMascotBubbleContent(this._currentVerb, elapsed);
   };
   updateTimer();
   this.thinkingTimerId = window.setInterval(updateTimer, 1e3);
@@ -4130,6 +4446,9 @@ SidePanelUI.prototype.stopThinkingTimer = function stopThinkingTimer() {
     this.thinkingTimerId = null;
   }
   this.thinkingStartedAt = null;
+  this._currentVerb = null;
+  const bubbleVerb = document.getElementById("bubbleVerb");
+  if (bubbleVerb) bubbleVerb.textContent = "";
 };
 SidePanelUI.prototype.startStreamingMessage = function startStreamingMessage() {
   if (this.streamingState) return;
@@ -4567,6 +4886,98 @@ SidePanelUI.prototype.getSelectedTabsContext = function getSelectedTabsContext(t
   return context;
 };
 
+// packages/extension/sidepanel/ui/tabs/panel-session-tabs.ts
+SidePanelUI.prototype.handleSessionTabsUpdate = function handleSessionTabsUpdate(message) {
+  const tabs = Array.isArray(message.tabs) ? message.tabs : [];
+  const activeTabId = typeof message.activeTabId === "number" ? message.activeTabId : null;
+  const maxTabs = typeof message.maxTabs === "number" ? message.maxTabs : 5;
+  const groupTitle = typeof message.groupTitle === "string" ? message.groupTitle : void 0;
+  this.sessionTabsState = {
+    ...this.sessionTabsState,
+    tabs,
+    activeTabId,
+    maxTabs,
+    groupTitle
+  };
+  this.renderSessionTabsHud();
+};
+SidePanelUI.prototype.setInteractingTab = function setInteractingTab(tabId) {
+  const prev = this.sessionTabsState.interactingTabId;
+  if (prev === tabId) return;
+  this.sessionTabsState.interactingTabId = tabId;
+  this.updateSessionTabInteractionState();
+};
+SidePanelUI.prototype.renderSessionTabsHud = function renderSessionTabsHud() {
+  const hud = this.elements.sessionTabsHud;
+  const list = this.elements.sessionTabsList;
+  const countEl = this.elements.sessionTabsCount;
+  if (!hud || !list || !countEl) return;
+  const { tabs, activeTabId, maxTabs, interactingTabId } = this.sessionTabsState;
+  if (tabs.length === 0) {
+    hud.classList.add("hidden");
+    return;
+  }
+  hud.classList.remove("hidden");
+  countEl.textContent = `${tabs.length}/${maxTabs}`;
+  if (tabs.length >= maxTabs) {
+    countEl.classList.add("at-limit");
+  } else {
+    countEl.classList.remove("at-limit");
+  }
+  list.innerHTML = "";
+  tabs.forEach((tab) => {
+    const pill = document.createElement("div");
+    pill.className = "session-tab-pill";
+    pill.dataset.tabId = String(tab.id);
+    if (tab.id === activeTabId) {
+      pill.classList.add("active");
+    }
+    if (tab.id === interactingTabId) {
+      pill.classList.add("interacting");
+    }
+    const domain = this.formatTabLabel?.(tab.url) || "";
+    const title = tab.title || domain || "Tab";
+    const truncatedTitle = title.length > 20 ? title.slice(0, 20) + "\u2026" : title;
+    let faviconHtml = "";
+    if (tab.url) {
+      try {
+        const origin = new URL(tab.url).origin;
+        const img = document.createElement("img");
+        img.className = "session-tab-favicon";
+        img.src = `${origin}/favicon.ico`;
+        img.alt = "";
+        img.onerror = () => {
+          img.style.display = "none";
+        };
+        faviconHtml = img.outerHTML;
+      } catch {
+      }
+    }
+    pill.innerHTML = `
+      ${faviconHtml}
+      <span class="session-tab-title">${this.escapeHtml(truncatedTitle)}</span>
+      <span class="session-tab-activity"></span>
+    `;
+    pill.title = `${title}
+${tab.url || ""}`;
+    list.appendChild(pill);
+  });
+};
+SidePanelUI.prototype.updateSessionTabInteractionState = function updateSessionTabInteractionState() {
+  const list = this.elements.sessionTabsList;
+  if (!list) return;
+  const { interactingTabId } = this.sessionTabsState;
+  const pills = list.querySelectorAll(".session-tab-pill");
+  pills.forEach((pill) => {
+    const tabId = Number(pill.dataset.tabId);
+    if (tabId === interactingTabId) {
+      pill.classList.add("interacting");
+    } else {
+      pill.classList.remove("interacting");
+    }
+  });
+};
+
 // packages/extension/sidepanel/ui/chat/panel-tools.ts
 var toolIcons = {
   // Browser tools
@@ -4790,48 +5201,104 @@ SidePanelUI.prototype.updateToolMessage = function updateToolMessage(entry, resu
 SidePanelUI.prototype.updateToolLogEntry = function updateToolLogEntry(_entry, _result) {
 };
 SidePanelUI.prototype.updateActivityState = function updateActivityState() {
-  const labels = [];
+  const toolbarLabels = [];
   if (this.runStartedAt) {
     const elapsed = Math.max(0, Date.now() - this.runStartedAt);
     const totalSeconds = Math.floor(elapsed / 1e3);
     const minutes = Math.floor(totalSeconds / 60);
     const seconds = totalSeconds % 60;
     const label = `${minutes.toString().padStart(1, "0")}:${seconds.toString().padStart(2, "0")}`;
-    labels.push(`Run ${label}`);
-  }
-  if (this.pendingToolCount > 0) {
-    labels.push(`${this.pendingToolCount} action${this.pendingToolCount > 1 ? "s" : ""} running`);
-  }
-  if (this.isStreaming) {
-    labels.push("Streaming response");
+    toolbarLabels.push(`Run ${label}`);
   }
   if (this.contextUsage && this.contextUsage.maxContextTokens) {
     const used = Math.max(0, this.contextUsage.approxTokens || 0);
     const max = Math.max(1, this.contextUsage.maxContextTokens || 0);
     const usedLabel = used >= 1e4 ? `${(used / 1e3).toFixed(1)}k` : `${used}`;
     const maxLabel = max >= 1e4 ? `${(max / 1e3).toFixed(0)}k` : `${max}`;
-    labels.push(`Context ~ ${usedLabel} / ${maxLabel}`);
+    toolbarLabels.push(`${usedLabel} / ${maxLabel}`);
   }
   const usageLabel = this.buildUsageLabel?.(this.lastUsage);
   if (usageLabel) {
-    labels.push(usageLabel);
+    toolbarLabels.push(usageLabel);
   }
   if (this.elements.statusMeta) {
-    if (labels.length > 0) {
-      this.elements.statusMeta.textContent = labels.join(" \xB7 ");
-      this.elements.statusMeta.classList.remove("hidden");
-      this.elements.statusBar?.classList.add("has-meta");
-    } else {
-      this.elements.statusMeta.textContent = "";
-      this.elements.statusMeta.classList.add("hidden");
-      this.elements.statusBar?.classList.remove("has-meta");
-    }
+    this.elements.statusMeta.textContent = toolbarLabels.join(" \xB7 ");
   }
+  const bubbleLabels = [];
+  if (this.pendingToolCount > 0) {
+    bubbleLabels.push(`${this.pendingToolCount} action${this.pendingToolCount > 1 ? "s" : ""} running`);
+  }
+  if (this.isStreaming) {
+    bubbleLabels.push("Streaming");
+  }
+  const bubbleMeta = document.getElementById("bubbleMeta");
+  if (bubbleMeta) {
+    bubbleMeta.textContent = bubbleLabels.join(" \xB7 ");
+  }
+  this.updateMascotEyeState();
   this.updateActivityToggle();
 };
 SidePanelUI.prototype.updateActivityToggle = function updateActivityToggle() {
 };
 SidePanelUI.prototype.toggleActivityPanel = function toggleActivityPanel(_force) {
+};
+SidePanelUI.prototype.initMascotBubble = function initMascotBubble() {
+  const mascot = document.getElementById("mascotCorner");
+  if (!mascot) return;
+  this._lastTypingAt = 0;
+  this._typingCheckTimerId = null;
+  this._mascotBubbleOpen = false;
+  mascot.addEventListener("click", () => {
+    this.toggleMascotBubble();
+  });
+  const userInput = this.elements.userInput;
+  if (userInput) {
+    userInput.addEventListener("input", () => {
+      this._lastTypingAt = Date.now();
+      this.updateMascotEyeState();
+      if (!this._typingCheckTimerId) {
+        this._typingCheckTimerId = window.setInterval(() => {
+          const elapsed = Date.now() - this._lastTypingAt;
+          if (elapsed >= 5e3) {
+            window.clearInterval(this._typingCheckTimerId);
+            this._typingCheckTimerId = null;
+            this.updateMascotEyeState();
+          }
+        }, 1e3);
+      }
+    });
+  }
+};
+SidePanelUI.prototype.toggleMascotBubble = function toggleMascotBubble() {
+  const bubble = document.getElementById("mascotBubble");
+  if (!bubble) return;
+  this._mascotBubbleOpen = !this._mascotBubbleOpen;
+  if (this._mascotBubbleOpen) {
+    bubble.classList.remove("hidden");
+    this.updateActivityState();
+  } else {
+    bubble.classList.add("hidden");
+  }
+};
+SidePanelUI.prototype.updateMascotBubbleContent = function updateMascotBubbleContent(verb, elapsed) {
+  const bubbleVerb = document.getElementById("bubbleVerb");
+  if (bubbleVerb) {
+    bubbleVerb.textContent = `${verb} ${elapsed}`;
+  }
+};
+SidePanelUI.prototype.updateMascotEyeState = function updateMascotEyeState() {
+  const mascot = document.getElementById("mascotCorner");
+  if (!mascot) return;
+  const isRunning = !!(this.runStartedAt || this.isStreaming || this.pendingToolCount > 0);
+  const isTyping = this._lastTypingAt && Date.now() - this._lastTypingAt < 5e3;
+  mascot.classList.remove("sleeping", "working", "looking-up", "thinking");
+  if (isRunning) {
+    mascot.classList.add("working");
+  } else if (isTyping) {
+    mascot.classList.add("looking-up");
+  } else {
+    mascot.classList.add("sleeping");
+  }
 };
 SidePanelUI.prototype.updateThinkingPanel = function updateThinkingPanel(thinking, isStreaming = false) {
   if (thinking) {
@@ -4882,6 +5349,435 @@ SidePanelUI.prototype.resetActivityPanel = function resetActivityPanel() {
   this.stepTimeline.activeStepIndex = null;
   this.stepTimeline.activeStepBody = null;
 };
+
+// packages/extension/sidepanel/ui/chat/panel-workflows.ts
+var CHARS_PER_TOKEN = 3.5;
+var MAX_CONTEXT_TOKENS = 1e5;
+var MAX_CONTEXT_CHARS = MAX_CONTEXT_TOKENS * CHARS_PER_TOKEN;
+SidePanelUI.prototype.loadWorkflows = async function loadWorkflows() {
+  try {
+    const data = await chrome.storage.local.get("workflows");
+    this.workflows = Array.isArray(data.workflows) ? data.workflows : [];
+  } catch {
+    this.workflows = [];
+  }
+};
+SidePanelUI.prototype.saveWorkflow = async function saveWorkflow(name, prompt) {
+  const workflow = {
+    id: crypto.randomUUID(),
+    name: name.trim(),
+    prompt,
+    createdAt: Date.now()
+  };
+  this.workflows.push(workflow);
+  await chrome.storage.local.set({ workflows: this.workflows });
+};
+SidePanelUI.prototype.deleteWorkflow = async function deleteWorkflow(id) {
+  this.workflows = this.workflows.filter((w) => w.id !== id);
+  await chrome.storage.local.set({ workflows: this.workflows });
+};
+SidePanelUI.prototype.showWorkflowMenu = function showWorkflowMenu(filter) {
+  let menu = document.getElementById("workflowMenu");
+  if (!menu) {
+    menu = document.createElement("div");
+    menu.id = "workflowMenu";
+    menu.className = "workflow-menu";
+    document.body.appendChild(menu);
+  }
+  const composerEl = this.elements.composer;
+  if (composerEl) {
+    const rect = composerEl.getBoundingClientRect();
+    menu.style.position = "fixed";
+    menu.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+    menu.style.left = `${rect.left}px`;
+    menu.style.width = `${rect.width}px`;
+  }
+  const query = filter.toLowerCase();
+  const filtered = query ? this.workflows.filter((w) => w.name.toLowerCase().includes(query)) : this.workflows;
+  if (this.workflowMenuIndex >= filtered.length) this.workflowMenuIndex = filtered.length - 1;
+  if (this.workflowMenuIndex < 0 && filtered.length > 0) this.workflowMenuIndex = 0;
+  let listHtml = "";
+  if (filtered.length === 0 && this.workflows.length === 0) {
+    listHtml = '<div class="workflow-empty">No workflows yet. Type a prompt, then use <strong>/</strong> to save it.</div>';
+  } else if (filtered.length === 0) {
+    listHtml = '<div class="workflow-empty">No matching workflows</div>';
+  } else {
+    filtered.forEach((w, i) => {
+      const active = i === this.workflowMenuIndex ? " active" : "";
+      const preview = w.prompt.length > 50 ? w.prompt.slice(0, 50) + "\u2026" : w.prompt;
+      listHtml += `<div class="workflow-item${active}" data-workflow-id="${w.id}">
+        <div class="workflow-item-text">
+          <span class="workflow-item-name">/${w.name}</span>
+          <span class="workflow-item-preview">${escapeHtml2(preview)}</span>
+        </div>
+        <button class="workflow-item-delete" data-delete-id="${w.id}" title="Delete">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>`;
+    });
+  }
+  menu.innerHTML = `
+    <div class="workflow-menu-list">${listHtml}</div>
+    <div class="workflow-save-row" id="workflowSaveRow">
+      <button class="workflow-save-btn" id="workflowSaveBtn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 5v14M5 12h14"></path>
+        </svg>
+        Save as workflow\u2026
+      </button>
+    </div>
+  `;
+  this.workflowMenuOpen = true;
+  menu.querySelectorAll(".workflow-item").forEach((item) => {
+    item.addEventListener("click", (e) => {
+      const deleteBtn = e.target.closest(".workflow-item-delete");
+      if (deleteBtn) {
+        e.stopPropagation();
+        const deleteId = deleteBtn.dataset.deleteId;
+        if (deleteId) {
+          this.deleteWorkflow(deleteId).then(() => {
+            const input = this.elements.userInput?.value || "";
+            this.showWorkflowMenu(input.startsWith("/") ? input.slice(1) : "");
+          });
+        }
+        return;
+      }
+      const id = item.dataset.workflowId;
+      const wf = this.workflows.find((w) => w.id === id);
+      if (wf) this.selectWorkflow(wf);
+    });
+  });
+  menu.querySelector("#workflowSaveBtn")?.addEventListener("click", () => this.showWorkflowSaveInput());
+  this._workflowOutsideHandler = this._workflowOutsideHandler || ((e) => {
+    const menuEl = document.getElementById("workflowMenu");
+    const inputEl = this.elements.userInput;
+    if (menuEl && !menuEl.contains(e.target) && e.target !== inputEl) {
+      this.hideWorkflowMenu();
+    }
+  });
+  document.removeEventListener("mousedown", this._workflowOutsideHandler);
+  document.addEventListener("mousedown", this._workflowOutsideHandler);
+};
+SidePanelUI.prototype.buildSessionContext = function buildSessionContext() {
+  const sections = [];
+  if (this.displayHistory?.length) {
+    for (const entry of this.displayHistory) {
+      const text = this.extractTextContent?.(entry.content) || String(entry.content || "");
+      if (!text.trim()) continue;
+      if (entry.role === "user") {
+        sections.push(`[User]: ${text}`);
+      } else if (entry.role === "assistant") {
+        if (entry.thinking) sections.push(`[Assistant thinking]: ${entry.thinking}`);
+        sections.push(`[Assistant]: ${text}`);
+      } else if (entry.role === "system" && entry.meta?.kind === "summary") {
+        sections.push(`[Context summary]: ${text}`);
+      }
+    }
+  }
+  if (this.historyTurnMap?.size) {
+    sections.push("\n=== DETAILED TURN LOG ===");
+    this.historyTurnMap.forEach((turn, turnId) => {
+      sections.push(`
+--- Turn ${turnId} ---`);
+      if (turn.userMessage) sections.push(`[User]: ${turn.userMessage}`);
+      if (turn.plan?.steps?.length) {
+        const planLines = turn.plan.steps.map(
+          (s) => `  ${s.status === "done" ? "[x]" : "[ ]"} ${s.title}`
+        );
+        sections.push(`[Plan]:
+${planLines.join("\n")}`);
+      }
+      if (turn.toolEvents?.length) {
+        for (const ev of turn.toolEvents) {
+          if (ev.type === "tool_execution_start") {
+            const argsStr = ev.args ? JSON.stringify(ev.args) : "";
+            sections.push(`[Tool call] ${ev.tool}(${argsStr})`);
+          } else if (ev.type === "tool_execution_result") {
+            const resultStr = ev.result != null ? JSON.stringify(ev.result) : "";
+            const truncated = resultStr.length > 2e3 ? resultStr.slice(0, 2e3) + "...(truncated)" : resultStr;
+            sections.push(`[Tool result] ${ev.tool}: ${truncated}`);
+          }
+        }
+      }
+      if (turn.assistantFinal) {
+        if (turn.assistantFinal.thinking) {
+          sections.push(`[Assistant thinking]: ${turn.assistantFinal.thinking}`);
+        }
+        if (turn.assistantFinal.content) {
+          sections.push(`[Assistant]: ${turn.assistantFinal.content}`);
+        }
+      }
+    });
+  }
+  if (this.currentPlan?.steps?.length) {
+    const planLines = this.currentPlan.steps.map(
+      (s) => `  ${s.status === "done" ? "[x]" : "[ ]"} ${s.title}`
+    );
+    sections.push(`
+=== CURRENT PLAN ===
+${planLines.join("\n")}`);
+  }
+  if (this.contextHistory?.length) {
+    sections.push("\n=== RAW CONTEXT MESSAGES ===");
+    for (const msg of this.contextHistory) {
+      const text = this.extractTextContent?.(msg.content) || String(msg.content || "");
+      if (!text.trim()) continue;
+      sections.push(`[${msg.role}]: ${text}`);
+      if (msg.thinking) sections.push(`[thinking]: ${msg.thinking}`);
+      if (Array.isArray(msg.toolCalls) && msg.toolCalls.length) {
+        for (const tc of msg.toolCalls) {
+          sections.push(`[tool_call] ${tc.name}(${JSON.stringify(tc.args || {})})`);
+        }
+      }
+    }
+  }
+  let full = sections.join("\n\n");
+  if (full.length > MAX_CONTEXT_CHARS) {
+    const headBudget = Math.floor(MAX_CONTEXT_CHARS * 0.35);
+    const tailBudget = Math.floor(MAX_CONTEXT_CHARS * 0.6);
+    const head = full.slice(0, headBudget);
+    const tail = full.slice(full.length - tailBudget);
+    full = head + "\n\n[...middle of session omitted for brevity...]\n\n" + tail;
+  }
+  return full;
+};
+SidePanelUI.prototype.generateWorkflowFromSession = async function generateWorkflowFromSession() {
+  const context = this.buildSessionContext();
+  if (!context.trim()) return null;
+  const response = await chrome.runtime.sendMessage({
+    type: "generate_workflow",
+    sessionContext: context,
+    maxOutputTokens: 4096
+  });
+  if (!response?.success || !response.result?.prompt) {
+    const err = response?.result?.error || response?.error || "Generation failed";
+    throw new Error(err);
+  }
+  const firstUser = (this.displayHistory || []).find((m) => m.role === "user");
+  const firstText = firstUser ? (this.extractTextContent?.(firstUser.content) || "").toLowerCase().replace(/[^a-z0-9\s]/g, "") : "";
+  const words = firstText.split(/\s+/).filter(Boolean).slice(0, 3);
+  const suggestedName = words.join("-") || "workflow";
+  return { name: suggestedName, prompt: response.result.prompt };
+};
+SidePanelUI.prototype.showWorkflowSaveInput = function showWorkflowSaveInput() {
+  const saveRow = document.getElementById("workflowSaveRow");
+  if (!saveRow) return;
+  const hasSession = this.displayHistory?.length > 0 || this.historyTurnMap?.size > 0;
+  saveRow.innerHTML = `
+    <div class="workflow-save-form">
+      <input type="text" class="workflow-save-input" id="workflowNameInput"
+        placeholder="Name (e.g. summarize)" autocomplete="off" spellcheck="false" />
+      <textarea class="workflow-save-prompt" id="workflowPromptInput" rows="3"
+        placeholder="Prompt text to insert\u2026"></textarea>
+      <div class="workflow-save-actions">
+        ${hasSession ? `<button class="workflow-generate-btn" id="workflowGenerateBtn" title="Use AI to generate a workflow from this session">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path>
+          </svg>
+          Generate from session
+        </button>` : ""}
+        <div class="workflow-save-actions-right">
+          <button class="workflow-save-cancel" id="workflowSaveCancel">Cancel</button>
+          <button class="workflow-save-confirm" id="workflowSaveConfirm">Save</button>
+        </div>
+      </div>
+    </div>
+  `;
+  const nameInput = document.getElementById("workflowNameInput");
+  const promptInput = document.getElementById("workflowPromptInput");
+  const resizePromptInput = () => {
+    if (!promptInput) return;
+    const maxHeight = 500;
+    promptInput.style.height = "auto";
+    const nextHeight = Math.min(promptInput.scrollHeight, maxHeight);
+    promptInput.style.height = `${nextHeight}px`;
+    promptInput.style.overflowY = promptInput.scrollHeight > maxHeight ? "auto" : "hidden";
+  };
+  const composerValue = this.elements.userInput?.value || "";
+  if (composerValue && !composerValue.startsWith("/")) {
+    promptInput.value = composerValue;
+  }
+  resizePromptInput();
+  promptInput?.addEventListener("input", resizePromptInput);
+  nameInput?.focus();
+  const repositionMenu = () => {
+    requestAnimationFrame(() => {
+      const composerEl = this.elements.composer;
+      const menu = document.getElementById("workflowMenu");
+      if (composerEl && menu) {
+        const rect = composerEl.getBoundingClientRect();
+        menu.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+      }
+    });
+  };
+  const doSave = () => {
+    const name = nameInput?.value?.trim();
+    const prompt = promptInput?.value?.trim();
+    if (!name) {
+      nameInput?.focus();
+      return;
+    }
+    if (!prompt) {
+      promptInput?.focus();
+      return;
+    }
+    this.saveWorkflow(name, prompt).then(() => {
+      this.hideWorkflowMenu();
+      const userInput = this.elements.userInput;
+      if (userInput && userInput.value.startsWith("/")) {
+        userInput.value = "";
+        userInput.style.height = "auto";
+      }
+      this.updateStatus(`Workflow "/${name}" saved`, "success");
+    });
+  };
+  const generateBtn = document.getElementById("workflowGenerateBtn");
+  generateBtn?.addEventListener("click", async () => {
+    generateBtn.classList.add("loading");
+    generateBtn.setAttribute("disabled", "true");
+    const origText = generateBtn.innerHTML;
+    generateBtn.innerHTML = `<svg class="workflow-spinner" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"></path></svg>Generating\u2026`;
+    this.updateStatus("Generating workflow from session\u2026", "active");
+    try {
+      const generated = await this.generateWorkflowFromSession();
+      if (generated) {
+        if (!nameInput.value.trim()) nameInput.value = generated.name;
+        promptInput.value = generated.prompt;
+        promptInput.style.height = "auto";
+        promptInput.style.height = `${Math.min(promptInput.scrollHeight, 300)}px`;
+        this.updateStatus("Workflow generated", "success");
+      } else {
+        this.updateStatus("No session data to generate from", "warning");
+      }
+    } catch (err) {
+      this.updateStatus(`Generation failed: ${err?.message || err}`, "error");
+    } finally {
+      generateBtn.innerHTML = origText;
+      generateBtn.classList.remove("loading");
+      generateBtn.removeAttribute("disabled");
+      repositionMenu();
+    }
+  });
+  const handleKey = (e) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      this.hideWorkflowMenu();
+    }
+  };
+  nameInput?.addEventListener("keydown", (e) => {
+    handleKey(e);
+    if (e.key === "Enter") {
+      e.preventDefault();
+      promptInput?.focus();
+    }
+  });
+  promptInput?.addEventListener("keydown", (e) => {
+    handleKey(e);
+    if (e.key === "Enter" && e.metaKey) {
+      e.preventDefault();
+      doSave();
+    }
+  });
+  document.getElementById("workflowSaveCancel")?.addEventListener("click", () => this.hideWorkflowMenu());
+  document.getElementById("workflowSaveConfirm")?.addEventListener("click", doSave);
+  repositionMenu();
+};
+SidePanelUI.prototype.hideWorkflowMenu = function hideWorkflowMenu() {
+  const menu = document.getElementById("workflowMenu");
+  menu?.remove();
+  this.workflowMenuOpen = false;
+  this.workflowMenuIndex = -1;
+  if (this._workflowOutsideHandler) {
+    document.removeEventListener("mousedown", this._workflowOutsideHandler);
+  }
+};
+SidePanelUI.prototype.handleWorkflowInput = function handleWorkflowInput() {
+  const userInput = this.elements.userInput;
+  if (!userInput) return;
+  const value = userInput.value;
+  if (value.startsWith("/")) {
+    this.showWorkflowMenu(value.slice(1));
+  } else if (this.workflowMenuOpen) {
+    this.hideWorkflowMenu();
+  }
+};
+SidePanelUI.prototype.selectWorkflow = function selectWorkflow(workflow) {
+  const userInput = this.elements.userInput;
+  if (!userInput) return;
+  const computedMaxHeight = Number.parseFloat(getComputedStyle(userInput).maxHeight);
+  const maxHeight = Number.isFinite(computedMaxHeight) && computedMaxHeight > 0 ? computedMaxHeight : 280;
+  userInput.value = workflow.prompt;
+  userInput.style.height = "auto";
+  const nextHeight = Math.min(userInput.scrollHeight, maxHeight);
+  userInput.style.height = `${nextHeight}px`;
+  userInput.style.overflowY = userInput.scrollHeight > maxHeight ? "auto" : "hidden";
+  userInput.focus();
+  this.hideWorkflowMenu();
+};
+SidePanelUI.prototype.handleWorkflowKeydown = function handleWorkflowKeydown(event) {
+  if (!this.workflowMenuOpen) return false;
+  const active = document.activeElement;
+  if (active && (active.id === "workflowNameInput" || active.id === "workflowPromptInput")) {
+    return false;
+  }
+  const menu = document.getElementById("workflowMenu");
+  if (!menu) return false;
+  const items = menu.querySelectorAll(".workflow-item");
+  const count = items.length;
+  if (event.key === "ArrowDown") {
+    event.preventDefault();
+    this.workflowMenuIndex = count > 0 ? (this.workflowMenuIndex + 1) % count : -1;
+    this.updateWorkflowMenuHighlight(items);
+    return true;
+  }
+  if (event.key === "ArrowUp") {
+    event.preventDefault();
+    this.workflowMenuIndex = count > 0 ? (this.workflowMenuIndex - 1 + count) % count : -1;
+    this.updateWorkflowMenuHighlight(items);
+    return true;
+  }
+  if (event.key === "Enter") {
+    event.preventDefault();
+    if (this.workflowMenuIndex >= 0 && this.workflowMenuIndex < count) {
+      const id = items[this.workflowMenuIndex].dataset.workflowId;
+      const wf = this.workflows.find((w) => w.id === id);
+      if (wf) this.selectWorkflow(wf);
+    }
+    return true;
+  }
+  if (event.key === "Escape") {
+    event.preventDefault();
+    this.hideWorkflowMenu();
+    return true;
+  }
+  if (event.key === "Tab") {
+    event.preventDefault();
+    if (this.workflowMenuIndex >= 0 && this.workflowMenuIndex < count) {
+      const id = items[this.workflowMenuIndex].dataset.workflowId;
+      const wf = this.workflows.find((w) => w.id === id);
+      if (wf) this.selectWorkflow(wf);
+    }
+    return true;
+  }
+  return false;
+};
+SidePanelUI.prototype.updateWorkflowMenuHighlight = function updateWorkflowMenuHighlight(items) {
+  items.forEach((item, i) => {
+    if (i === this.workflowMenuIndex) {
+      item.classList.add("active");
+      item.scrollIntoView({ block: "nearest" });
+    } else {
+      item.classList.remove("active");
+    }
+  });
+};
+function escapeHtml2(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
 
 // packages/extension/sidepanel/ui/status/panel-usage.ts
 SidePanelUI.prototype.formatCurrency = function formatCurrency(amount, currency = "usd") {
@@ -4984,24 +5880,28 @@ SidePanelUI.prototype.closeSidebar = function closeSidebar() {
 SidePanelUI.prototype.showRightPanel = function showRightPanel2(panelName) {
   showRightPanel(this.elements, panelName);
 };
-SidePanelUI.prototype.setNavActive = function setNavActive(navName) {
-  updateNavActive(this.elements, navName);
-};
 SidePanelUI.prototype.openChatView = function openChatView() {
   this.closeSidebar();
   this.switchView("chat");
 };
-SidePanelUI.prototype.openHistoryPanel = function openHistoryPanel() {
-  this.openSidebar();
-  this.showRightPanel("history");
-  this.setNavActive("history");
+SidePanelUI.prototype.openHistoryDrawer = function openHistoryDrawer() {
+  this.elements.historyDrawer?.classList.remove("hidden");
+  this.elements.historyDrawerScrim?.classList.remove("hidden");
   this.loadHistoryList();
+  setTimeout(() => this.elements.historySearchInput?.focus(), 100);
+};
+SidePanelUI.prototype.closeHistoryDrawer = function closeHistoryDrawer() {
+  this.elements.historyDrawer?.classList.add("hidden");
+  this.elements.historyDrawerScrim?.classList.add("hidden");
+  if (this.elements.historySearchInput) {
+    this.elements.historySearchInput.value = "";
+  }
 };
 SidePanelUI.prototype.openSettingsPanel = function openSettingsPanel() {
   this.openSidebar();
   this.showRightPanel("settings");
   this.switchSettingsTab(this.currentSettingsTab || "setup");
-  this.setNavActive("settings");
+  void this.refreshAccountPanel?.({ silent: true });
 };
 SidePanelUI.prototype.startNewSession = function startNewSession() {
   this.displayHistory = [];
@@ -5026,6 +5926,11 @@ SidePanelUI.prototype.startNewSession = function startNewSession() {
   this.pendingToolCount = 0;
   this.isStreaming = false;
   this.activeToolName = null;
+  this._lastTypingAt = 0;
+  this._mascotBubbleOpen = false;
+  const mascotBubble = document.getElementById("mascotBubble");
+  if (mascotBubble) mascotBubble.classList.add("hidden");
+  this.updateMascotEyeState?.();
   this.subagents.clear();
   this.activeAgent = "main";
   this.historyTurnMap.clear();
@@ -5035,10 +5940,2366 @@ SidePanelUI.prototype.startNewSession = function startNewSession() {
   this.updateChatEmptyState?.();
   this.resetActivityPanel();
   this.hideAgentNav();
+  this.sessionTabsState = {
+    tabs: [],
+    activeTabId: null,
+    maxTabs: 5,
+    groupTitle: void 0,
+    interactingTabId: null
+  };
+  this.renderSessionTabsHud?.();
   this.updateStatus("Ready for a new session", "success");
   this.switchView("chat");
   this.updateContextUsage();
   this.scrollToBottom({ force: true });
+};
+
+// node_modules/convex/dist/esm/index.js
+var version = "1.31.7";
+
+// node_modules/convex/dist/esm/values/base64.js
+var lookup = [];
+var revLookup = [];
+var Arr = Uint8Array;
+var code = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+for (i = 0, len = code.length; i < len; ++i) {
+  lookup[i] = code[i];
+  revLookup[code.charCodeAt(i)] = i;
+}
+var i;
+var len;
+revLookup["-".charCodeAt(0)] = 62;
+revLookup["_".charCodeAt(0)] = 63;
+function getLens(b64) {
+  var len = b64.length;
+  if (len % 4 > 0) {
+    throw new Error("Invalid string. Length must be a multiple of 4");
+  }
+  var validLen = b64.indexOf("=");
+  if (validLen === -1) validLen = len;
+  var placeHoldersLen = validLen === len ? 0 : 4 - validLen % 4;
+  return [validLen, placeHoldersLen];
+}
+function _byteLength(_b64, validLen, placeHoldersLen) {
+  return (validLen + placeHoldersLen) * 3 / 4 - placeHoldersLen;
+}
+function toByteArray(b64) {
+  var tmp;
+  var lens = getLens(b64);
+  var validLen = lens[0];
+  var placeHoldersLen = lens[1];
+  var arr2 = new Arr(_byteLength(b64, validLen, placeHoldersLen));
+  var curByte = 0;
+  var len = placeHoldersLen > 0 ? validLen - 4 : validLen;
+  var i;
+  for (i = 0; i < len; i += 4) {
+    tmp = revLookup[b64.charCodeAt(i)] << 18 | revLookup[b64.charCodeAt(i + 1)] << 12 | revLookup[b64.charCodeAt(i + 2)] << 6 | revLookup[b64.charCodeAt(i + 3)];
+    arr2[curByte++] = tmp >> 16 & 255;
+    arr2[curByte++] = tmp >> 8 & 255;
+    arr2[curByte++] = tmp & 255;
+  }
+  if (placeHoldersLen === 2) {
+    tmp = revLookup[b64.charCodeAt(i)] << 2 | revLookup[b64.charCodeAt(i + 1)] >> 4;
+    arr2[curByte++] = tmp & 255;
+  }
+  if (placeHoldersLen === 1) {
+    tmp = revLookup[b64.charCodeAt(i)] << 10 | revLookup[b64.charCodeAt(i + 1)] << 4 | revLookup[b64.charCodeAt(i + 2)] >> 2;
+    arr2[curByte++] = tmp >> 8 & 255;
+    arr2[curByte++] = tmp & 255;
+  }
+  return arr2;
+}
+function tripletToBase64(num) {
+  return lookup[num >> 18 & 63] + lookup[num >> 12 & 63] + lookup[num >> 6 & 63] + lookup[num & 63];
+}
+function encodeChunk(uint8, start, end) {
+  var tmp;
+  var output = [];
+  for (var i = start; i < end; i += 3) {
+    tmp = (uint8[i] << 16 & 16711680) + (uint8[i + 1] << 8 & 65280) + (uint8[i + 2] & 255);
+    output.push(tripletToBase64(tmp));
+  }
+  return output.join("");
+}
+function fromByteArray(uint8) {
+  var tmp;
+  var len = uint8.length;
+  var extraBytes = len % 3;
+  var parts = [];
+  var maxChunkLength = 16383;
+  for (var i = 0, len2 = len - extraBytes; i < len2; i += maxChunkLength) {
+    parts.push(
+      encodeChunk(
+        uint8,
+        i,
+        i + maxChunkLength > len2 ? len2 : i + maxChunkLength
+      )
+    );
+  }
+  if (extraBytes === 1) {
+    tmp = uint8[len - 1];
+    parts.push(lookup[tmp >> 2] + lookup[tmp << 4 & 63] + "==");
+  } else if (extraBytes === 2) {
+    tmp = (uint8[len - 2] << 8) + uint8[len - 1];
+    parts.push(
+      lookup[tmp >> 10] + lookup[tmp >> 4 & 63] + lookup[tmp << 2 & 63] + "="
+    );
+  }
+  return parts.join("");
+}
+
+// node_modules/convex/dist/esm/common/index.js
+function parseArgs(args) {
+  if (args === void 0) {
+    return {};
+  }
+  if (!isSimpleObject(args)) {
+    throw new Error(
+      `The arguments to a Convex function must be an object. Received: ${args}`
+    );
+  }
+  return args;
+}
+function validateDeploymentUrl(deploymentUrl) {
+  if (typeof deploymentUrl === "undefined") {
+    throw new Error(
+      `Client created with undefined deployment address. If you used an environment variable, check that it's set.`
+    );
+  }
+  if (typeof deploymentUrl !== "string") {
+    throw new Error(
+      `Invalid deployment address: found ${deploymentUrl}".`
+    );
+  }
+  if (!(deploymentUrl.startsWith("http:") || deploymentUrl.startsWith("https:"))) {
+    throw new Error(
+      `Invalid deployment address: Must start with "https://" or "http://". Found "${deploymentUrl}".`
+    );
+  }
+  try {
+    new URL(deploymentUrl);
+  } catch {
+    throw new Error(
+      `Invalid deployment address: "${deploymentUrl}" is not a valid URL. If you believe this URL is correct, use the \`skipConvexDeploymentUrlCheck\` option to bypass this.`
+    );
+  }
+  if (deploymentUrl.endsWith(".convex.site")) {
+    throw new Error(
+      `Invalid deployment address: "${deploymentUrl}" ends with .convex.site, which is used for HTTP Actions. Convex deployment URLs typically end with .convex.cloud? If you believe this URL is correct, use the \`skipConvexDeploymentUrlCheck\` option to bypass this.`
+    );
+  }
+}
+function isSimpleObject(value) {
+  const isObject = typeof value === "object";
+  const prototype = Object.getPrototypeOf(value);
+  const isSimple = prototype === null || prototype === Object.prototype || // Objects generated from other contexts (e.g. across Node.js `vm` modules) will not satisfy the previous
+  // conditions but are still simple objects.
+  prototype?.constructor?.name === "Object";
+  return isObject && isSimple;
+}
+
+// node_modules/convex/dist/esm/values/value.js
+var LITTLE_ENDIAN = true;
+var MIN_INT64 = BigInt("-9223372036854775808");
+var MAX_INT64 = BigInt("9223372036854775807");
+var ZERO = BigInt("0");
+var EIGHT = BigInt("8");
+var TWOFIFTYSIX = BigInt("256");
+function isSpecial(n) {
+  return Number.isNaN(n) || !Number.isFinite(n) || Object.is(n, -0);
+}
+function slowBigIntToBase64(value) {
+  if (value < ZERO) {
+    value -= MIN_INT64 + MIN_INT64;
+  }
+  let hex = value.toString(16);
+  if (hex.length % 2 === 1) hex = "0" + hex;
+  const bytes = new Uint8Array(new ArrayBuffer(8));
+  let i = 0;
+  for (const hexByte of hex.match(/.{2}/g).reverse()) {
+    bytes.set([parseInt(hexByte, 16)], i++);
+    value >>= EIGHT;
+  }
+  return fromByteArray(bytes);
+}
+function slowBase64ToBigInt(encoded) {
+  const integerBytes = toByteArray(encoded);
+  if (integerBytes.byteLength !== 8) {
+    throw new Error(
+      `Received ${integerBytes.byteLength} bytes, expected 8 for $integer`
+    );
+  }
+  let value = ZERO;
+  let power = ZERO;
+  for (const byte of integerBytes) {
+    value += BigInt(byte) * TWOFIFTYSIX ** power;
+    power++;
+  }
+  if (value > MAX_INT64) {
+    value += MIN_INT64 + MIN_INT64;
+  }
+  return value;
+}
+function modernBigIntToBase64(value) {
+  if (value < MIN_INT64 || MAX_INT64 < value) {
+    throw new Error(
+      `BigInt ${value} does not fit into a 64-bit signed integer.`
+    );
+  }
+  const buffer = new ArrayBuffer(8);
+  new DataView(buffer).setBigInt64(0, value, true);
+  return fromByteArray(new Uint8Array(buffer));
+}
+function modernBase64ToBigInt(encoded) {
+  const integerBytes = toByteArray(encoded);
+  if (integerBytes.byteLength !== 8) {
+    throw new Error(
+      `Received ${integerBytes.byteLength} bytes, expected 8 for $integer`
+    );
+  }
+  const intBytesView = new DataView(integerBytes.buffer);
+  return intBytesView.getBigInt64(0, true);
+}
+var bigIntToBase64 = DataView.prototype.setBigInt64 ? modernBigIntToBase64 : slowBigIntToBase64;
+var base64ToBigInt = DataView.prototype.getBigInt64 ? modernBase64ToBigInt : slowBase64ToBigInt;
+var MAX_IDENTIFIER_LEN = 1024;
+function validateObjectField(k) {
+  if (k.length > MAX_IDENTIFIER_LEN) {
+    throw new Error(
+      `Field name ${k} exceeds maximum field name length ${MAX_IDENTIFIER_LEN}.`
+    );
+  }
+  if (k.startsWith("$")) {
+    throw new Error(`Field name ${k} starts with a '$', which is reserved.`);
+  }
+  for (let i = 0; i < k.length; i += 1) {
+    const charCode = k.charCodeAt(i);
+    if (charCode < 32 || charCode >= 127) {
+      throw new Error(
+        `Field name ${k} has invalid character '${k[i]}': Field names can only contain non-control ASCII characters`
+      );
+    }
+  }
+}
+function jsonToConvex(value) {
+  if (value === null) {
+    return value;
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "number") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (Array.isArray(value)) {
+    return value.map((value2) => jsonToConvex(value2));
+  }
+  if (typeof value !== "object") {
+    throw new Error(`Unexpected type of ${value}`);
+  }
+  const entries = Object.entries(value);
+  if (entries.length === 1) {
+    const key = entries[0][0];
+    if (key === "$bytes") {
+      if (typeof value.$bytes !== "string") {
+        throw new Error(`Malformed $bytes field on ${value}`);
+      }
+      return toByteArray(value.$bytes).buffer;
+    }
+    if (key === "$integer") {
+      if (typeof value.$integer !== "string") {
+        throw new Error(`Malformed $integer field on ${value}`);
+      }
+      return base64ToBigInt(value.$integer);
+    }
+    if (key === "$float") {
+      if (typeof value.$float !== "string") {
+        throw new Error(`Malformed $float field on ${value}`);
+      }
+      const floatBytes = toByteArray(value.$float);
+      if (floatBytes.byteLength !== 8) {
+        throw new Error(
+          `Received ${floatBytes.byteLength} bytes, expected 8 for $float`
+        );
+      }
+      const floatBytesView = new DataView(floatBytes.buffer);
+      const float = floatBytesView.getFloat64(0, LITTLE_ENDIAN);
+      if (!isSpecial(float)) {
+        throw new Error(`Float ${float} should be encoded as a number`);
+      }
+      return float;
+    }
+    if (key === "$set") {
+      throw new Error(
+        `Received a Set which is no longer supported as a Convex type.`
+      );
+    }
+    if (key === "$map") {
+      throw new Error(
+        `Received a Map which is no longer supported as a Convex type.`
+      );
+    }
+  }
+  const out = {};
+  for (const [k, v2] of Object.entries(value)) {
+    validateObjectField(k);
+    out[k] = jsonToConvex(v2);
+  }
+  return out;
+}
+var MAX_VALUE_FOR_ERROR_LEN = 16384;
+function stringifyValueForError(value) {
+  const str = JSON.stringify(value, (_key, value2) => {
+    if (value2 === void 0) {
+      return "undefined";
+    }
+    if (typeof value2 === "bigint") {
+      return `${value2.toString()}n`;
+    }
+    return value2;
+  });
+  if (str.length > MAX_VALUE_FOR_ERROR_LEN) {
+    const rest = "[...truncated]";
+    let truncateAt = MAX_VALUE_FOR_ERROR_LEN - rest.length;
+    const codePoint = str.codePointAt(truncateAt - 1);
+    if (codePoint !== void 0 && codePoint > 65535) {
+      truncateAt -= 1;
+    }
+    return str.substring(0, truncateAt) + rest;
+  }
+  return str;
+}
+function convexToJsonInternal(value, originalValue, context, includeTopLevelUndefined) {
+  if (value === void 0) {
+    const contextText = context && ` (present at path ${context} in original object ${stringifyValueForError(
+      originalValue
+    )})`;
+    throw new Error(
+      `undefined is not a valid Convex value${contextText}. To learn about Convex's supported types, see https://docs.convex.dev/using/types.`
+    );
+  }
+  if (value === null) {
+    return value;
+  }
+  if (typeof value === "bigint") {
+    if (value < MIN_INT64 || MAX_INT64 < value) {
+      throw new Error(
+        `BigInt ${value} does not fit into a 64-bit signed integer.`
+      );
+    }
+    return { $integer: bigIntToBase64(value) };
+  }
+  if (typeof value === "number") {
+    if (isSpecial(value)) {
+      const buffer = new ArrayBuffer(8);
+      new DataView(buffer).setFloat64(0, value, LITTLE_ENDIAN);
+      return { $float: fromByteArray(new Uint8Array(buffer)) };
+    } else {
+      return value;
+    }
+  }
+  if (typeof value === "boolean") {
+    return value;
+  }
+  if (typeof value === "string") {
+    return value;
+  }
+  if (value instanceof ArrayBuffer) {
+    return { $bytes: fromByteArray(new Uint8Array(value)) };
+  }
+  if (Array.isArray(value)) {
+    return value.map(
+      (value2, i) => convexToJsonInternal(value2, originalValue, context + `[${i}]`, false)
+    );
+  }
+  if (value instanceof Set) {
+    throw new Error(
+      errorMessageForUnsupportedType(context, "Set", [...value], originalValue)
+    );
+  }
+  if (value instanceof Map) {
+    throw new Error(
+      errorMessageForUnsupportedType(context, "Map", [...value], originalValue)
+    );
+  }
+  if (!isSimpleObject(value)) {
+    const theType = value?.constructor?.name;
+    const typeName = theType ? `${theType} ` : "";
+    throw new Error(
+      errorMessageForUnsupportedType(context, typeName, value, originalValue)
+    );
+  }
+  const out = {};
+  const entries = Object.entries(value);
+  entries.sort(([k1, _v1], [k2, _v2]) => k1 === k2 ? 0 : k1 < k2 ? -1 : 1);
+  for (const [k, v2] of entries) {
+    if (v2 !== void 0) {
+      validateObjectField(k);
+      out[k] = convexToJsonInternal(v2, originalValue, context + `.${k}`, false);
+    } else if (includeTopLevelUndefined) {
+      validateObjectField(k);
+      out[k] = convexOrUndefinedToJsonInternal(
+        v2,
+        originalValue,
+        context + `.${k}`
+      );
+    }
+  }
+  return out;
+}
+function errorMessageForUnsupportedType(context, typeName, value, originalValue) {
+  if (context) {
+    return `${typeName}${stringifyValueForError(
+      value
+    )} is not a supported Convex type (present at path ${context} in original object ${stringifyValueForError(
+      originalValue
+    )}). To learn about Convex's supported types, see https://docs.convex.dev/using/types.`;
+  } else {
+    return `${typeName}${stringifyValueForError(
+      value
+    )} is not a supported Convex type.`;
+  }
+}
+function convexOrUndefinedToJsonInternal(value, originalValue, context) {
+  if (value === void 0) {
+    return { $undefined: null };
+  } else {
+    if (originalValue === void 0) {
+      throw new Error(
+        `Programming error. Current value is ${stringifyValueForError(
+          value
+        )} but original value is undefined`
+      );
+    }
+    return convexToJsonInternal(value, originalValue, context, false);
+  }
+}
+function convexToJson(value) {
+  return convexToJsonInternal(value, value, "", false);
+}
+
+// node_modules/convex/dist/esm/values/validators.js
+var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+var UNDEFINED_VALIDATOR_ERROR_URL = "https://docs.convex.dev/error#undefined-validator";
+function throwUndefinedValidatorError(context, fieldName) {
+  const fieldInfo = fieldName !== void 0 ? ` for field "${fieldName}"` : "";
+  throw new Error(
+    `A validator is undefined${fieldInfo} in ${context}. This is often caused by circular imports. See ${UNDEFINED_VALIDATOR_ERROR_URL} for details.`
+  );
+}
+var BaseValidator = class {
+  constructor({ isOptional }) {
+    __publicField(this, "type");
+    __publicField(this, "fieldPaths");
+    __publicField(this, "isOptional");
+    __publicField(this, "isConvexValidator");
+    this.isOptional = isOptional;
+    this.isConvexValidator = true;
+  }
+};
+var VId = class _VId extends BaseValidator {
+  /**
+   * Usually you'd use `v.id(tableName)` instead.
+   */
+  constructor({
+    isOptional,
+    tableName
+  }) {
+    super({ isOptional });
+    __publicField(this, "tableName");
+    __publicField(this, "kind", "id");
+    if (typeof tableName !== "string") {
+      throw new Error("v.id(tableName) requires a string");
+    }
+    this.tableName = tableName;
+  }
+  /** @internal */
+  get json() {
+    return { type: "id", tableName: this.tableName };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VId({
+      isOptional: "optional",
+      tableName: this.tableName
+    });
+  }
+};
+var VFloat64 = class _VFloat64 extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "float64");
+  }
+  /** @internal */
+  get json() {
+    return { type: "number" };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VFloat64({
+      isOptional: "optional"
+    });
+  }
+};
+var VInt64 = class _VInt64 extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "int64");
+  }
+  /** @internal */
+  get json() {
+    return { type: "bigint" };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VInt64({ isOptional: "optional" });
+  }
+};
+var VBoolean = class _VBoolean extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "boolean");
+  }
+  /** @internal */
+  get json() {
+    return { type: this.kind };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VBoolean({
+      isOptional: "optional"
+    });
+  }
+};
+var VBytes = class _VBytes extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "bytes");
+  }
+  /** @internal */
+  get json() {
+    return { type: this.kind };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VBytes({ isOptional: "optional" });
+  }
+};
+var VString = class _VString extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "string");
+  }
+  /** @internal */
+  get json() {
+    return { type: this.kind };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VString({
+      isOptional: "optional"
+    });
+  }
+};
+var VNull = class _VNull extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "null");
+  }
+  /** @internal */
+  get json() {
+    return { type: this.kind };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VNull({ isOptional: "optional" });
+  }
+};
+var VAny = class _VAny extends BaseValidator {
+  constructor() {
+    super(...arguments);
+    __publicField(this, "kind", "any");
+  }
+  /** @internal */
+  get json() {
+    return {
+      type: this.kind
+    };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VAny({
+      isOptional: "optional"
+    });
+  }
+};
+var VObject = class _VObject extends BaseValidator {
+  /**
+   * Usually you'd use `v.object({ ... })` instead.
+   */
+  constructor({
+    isOptional,
+    fields
+  }) {
+    super({ isOptional });
+    __publicField(this, "fields");
+    __publicField(this, "kind", "object");
+    globalThis.Object.entries(fields).forEach(([fieldName, validator]) => {
+      if (validator === void 0) {
+        throwUndefinedValidatorError("v.object()", fieldName);
+      }
+      if (!validator.isConvexValidator) {
+        throw new Error("v.object() entries must be validators");
+      }
+    });
+    this.fields = fields;
+  }
+  /** @internal */
+  get json() {
+    return {
+      type: this.kind,
+      value: globalThis.Object.fromEntries(
+        globalThis.Object.entries(this.fields).map(([k, v2]) => [
+          k,
+          {
+            fieldType: v2.json,
+            optional: v2.isOptional === "optional" ? true : false
+          }
+        ])
+      )
+    };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VObject({
+      isOptional: "optional",
+      fields: this.fields
+    });
+  }
+  /**
+   * Create a new VObject with the specified fields omitted.
+   * @param fields The field names to omit from this VObject.
+   */
+  omit(...fields) {
+    const newFields = { ...this.fields };
+    for (const field of fields) {
+      delete newFields[field];
+    }
+    return new _VObject({
+      isOptional: this.isOptional,
+      fields: newFields
+    });
+  }
+  /**
+   * Create a new VObject with only the specified fields.
+   * @param fields The field names to pick from this VObject.
+   */
+  pick(...fields) {
+    const newFields = {};
+    for (const field of fields) {
+      newFields[field] = this.fields[field];
+    }
+    return new _VObject({
+      isOptional: this.isOptional,
+      fields: newFields
+    });
+  }
+  /**
+   * Create a new VObject with all fields marked as optional.
+   */
+  partial() {
+    const newFields = {};
+    for (const [key, validator] of globalThis.Object.entries(this.fields)) {
+      newFields[key] = validator.asOptional();
+    }
+    return new _VObject({
+      isOptional: this.isOptional,
+      fields: newFields
+    });
+  }
+  /**
+   * Create a new VObject with additional fields merged in.
+   * @param fields An object with additional validators to merge into this VObject.
+   */
+  extend(fields) {
+    return new _VObject({
+      isOptional: this.isOptional,
+      fields: { ...this.fields, ...fields }
+    });
+  }
+};
+var VLiteral = class _VLiteral extends BaseValidator {
+  /**
+   * Usually you'd use `v.literal(value)` instead.
+   */
+  constructor({ isOptional, value }) {
+    super({ isOptional });
+    __publicField(this, "value");
+    __publicField(this, "kind", "literal");
+    if (typeof value !== "string" && typeof value !== "boolean" && typeof value !== "number" && typeof value !== "bigint") {
+      throw new Error("v.literal(value) must be a string, number, or boolean");
+    }
+    this.value = value;
+  }
+  /** @internal */
+  get json() {
+    return {
+      type: this.kind,
+      value: convexToJson(this.value)
+    };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VLiteral({
+      isOptional: "optional",
+      value: this.value
+    });
+  }
+};
+var VArray = class _VArray extends BaseValidator {
+  /**
+   * Usually you'd use `v.array(element)` instead.
+   */
+  constructor({
+    isOptional,
+    element
+  }) {
+    super({ isOptional });
+    __publicField(this, "element");
+    __publicField(this, "kind", "array");
+    if (element === void 0) {
+      throwUndefinedValidatorError("v.array()");
+    }
+    this.element = element;
+  }
+  /** @internal */
+  get json() {
+    return {
+      type: this.kind,
+      value: this.element.json
+    };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VArray({
+      isOptional: "optional",
+      element: this.element
+    });
+  }
+};
+var VRecord = class _VRecord extends BaseValidator {
+  /**
+   * Usually you'd use `v.record(key, value)` instead.
+   */
+  constructor({
+    isOptional,
+    key,
+    value
+  }) {
+    super({ isOptional });
+    __publicField(this, "key");
+    __publicField(this, "value");
+    __publicField(this, "kind", "record");
+    if (key === void 0) {
+      throwUndefinedValidatorError("v.record()", "key");
+    }
+    if (value === void 0) {
+      throwUndefinedValidatorError("v.record()", "value");
+    }
+    if (key.isOptional === "optional") {
+      throw new Error("Record validator cannot have optional keys");
+    }
+    if (value.isOptional === "optional") {
+      throw new Error("Record validator cannot have optional values");
+    }
+    if (!key.isConvexValidator || !value.isConvexValidator) {
+      throw new Error("Key and value of v.record() but be validators");
+    }
+    this.key = key;
+    this.value = value;
+  }
+  /** @internal */
+  get json() {
+    return {
+      type: this.kind,
+      // This cast is needed because TypeScript thinks the key type is too wide
+      keys: this.key.json,
+      values: {
+        fieldType: this.value.json,
+        optional: false
+      }
+    };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VRecord({
+      isOptional: "optional",
+      key: this.key,
+      value: this.value
+    });
+  }
+};
+var VUnion = class _VUnion extends BaseValidator {
+  /**
+   * Usually you'd use `v.union(...members)` instead.
+   */
+  constructor({ isOptional, members }) {
+    super({ isOptional });
+    __publicField(this, "members");
+    __publicField(this, "kind", "union");
+    members.forEach((member, index) => {
+      if (member === void 0) {
+        throwUndefinedValidatorError("v.union()", `member at index ${index}`);
+      }
+      if (!member.isConvexValidator) {
+        throw new Error("All members of v.union() must be validators");
+      }
+    });
+    this.members = members;
+  }
+  /** @internal */
+  get json() {
+    return {
+      type: this.kind,
+      value: this.members.map((v2) => v2.json)
+    };
+  }
+  /** @internal */
+  asOptional() {
+    return new _VUnion({
+      isOptional: "optional",
+      members: this.members
+    });
+  }
+};
+
+// node_modules/convex/dist/esm/values/validator.js
+function isValidator(v2) {
+  return !!v2.isConvexValidator;
+}
+var v = {
+  /**
+   * Validates that the value corresponds to an ID of a document in given table.
+   * @param tableName The name of the table.
+   */
+  id: (tableName) => {
+    return new VId({
+      isOptional: "required",
+      tableName
+    });
+  },
+  /**
+   * Validates that the value is of type Null.
+   */
+  null: () => {
+    return new VNull({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is of Convex type Float64 (Number in JS).
+   *
+   * Alias for `v.float64()`
+   */
+  number: () => {
+    return new VFloat64({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is of Convex type Float64 (Number in JS).
+   */
+  float64: () => {
+    return new VFloat64({ isOptional: "required" });
+  },
+  /**
+   * @deprecated Use `v.int64()` instead
+   */
+  bigint: () => {
+    return new VInt64({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is of Convex type Int64 (BigInt in JS).
+   */
+  int64: () => {
+    return new VInt64({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is of type Boolean.
+   */
+  boolean: () => {
+    return new VBoolean({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is of type String.
+   */
+  string: () => {
+    return new VString({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is of Convex type Bytes (constructed in JS via `ArrayBuffer`).
+   */
+  bytes: () => {
+    return new VBytes({ isOptional: "required" });
+  },
+  /**
+   * Validates that the value is equal to the given literal value.
+   * @param literal The literal value to compare against.
+   */
+  literal: (literal) => {
+    return new VLiteral({ isOptional: "required", value: literal });
+  },
+  /**
+   * Validates that the value is an Array of the given element type.
+   * @param element The validator for the elements of the array.
+   */
+  array: (element) => {
+    return new VArray({ isOptional: "required", element });
+  },
+  /**
+   * Validates that the value is an Object with the given properties.
+   * @param fields An object specifying the validator for each property.
+   */
+  object: (fields) => {
+    return new VObject({ isOptional: "required", fields });
+  },
+  /**
+   * Validates that the value is a Record with keys and values that match the given types.
+   * @param keys The validator for the keys of the record. This cannot contain string literals.
+   * @param values The validator for the values of the record.
+   */
+  record: (keys, values) => {
+    return new VRecord({
+      isOptional: "required",
+      key: keys,
+      value: values
+    });
+  },
+  /**
+   * Validates that the value matches one of the given validators.
+   * @param members The validators to match against.
+   */
+  union: (...members) => {
+    return new VUnion({
+      isOptional: "required",
+      members
+    });
+  },
+  /**
+   * Does not validate the value.
+   */
+  any: () => {
+    return new VAny({ isOptional: "required" });
+  },
+  /**
+   * Allows not specifying a value for a property in an Object.
+   * @param value The property value validator to make optional.
+   *
+   * ```typescript
+   * const objectWithOptionalFields = v.object({
+   *   requiredField: v.string(),
+   *   optionalField: v.optional(v.string()),
+   * });
+   * ```
+   */
+  optional: (value) => {
+    return value.asOptional();
+  },
+  /**
+   * Allows specifying a value or null.
+   */
+  nullable: (value) => {
+    return v.union(value, v.null());
+  }
+};
+
+// node_modules/convex/dist/esm/values/errors.js
+var __defProp2 = Object.defineProperty;
+var __defNormalProp2 = (obj, key, value) => key in obj ? __defProp2(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField2 = (obj, key, value) => __defNormalProp2(obj, typeof key !== "symbol" ? key + "" : key, value);
+var _a;
+var _b;
+var IDENTIFYING_FIELD = /* @__PURE__ */ Symbol.for("ConvexError");
+var ConvexError = class extends (_b = Error, _a = IDENTIFYING_FIELD, _b) {
+  constructor(data) {
+    super(typeof data === "string" ? data : stringifyValueForError(data));
+    __publicField2(this, "name", "ConvexError");
+    __publicField2(this, "data");
+    __publicField2(this, _a, true);
+    this.data = data;
+  }
+};
+
+// node_modules/convex/dist/esm/values/compare_utf8.js
+var arr = () => Array.from({ length: 4 }, () => 0);
+var aBytes = arr();
+var bBytes = arr();
+
+// node_modules/convex/dist/esm/browser/logging.js
+var __defProp3 = Object.defineProperty;
+var __defNormalProp3 = (obj, key, value) => key in obj ? __defProp3(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField3 = (obj, key, value) => __defNormalProp3(obj, typeof key !== "symbol" ? key + "" : key, value);
+var INFO_COLOR = "color:rgb(0, 145, 255)";
+function prefix_for_source(source) {
+  switch (source) {
+    case "query":
+      return "Q";
+    case "mutation":
+      return "M";
+    case "action":
+      return "A";
+    case "any":
+      return "?";
+  }
+}
+var DefaultLogger = class {
+  constructor(options) {
+    __publicField3(this, "_onLogLineFuncs");
+    __publicField3(this, "_verbose");
+    this._onLogLineFuncs = {};
+    this._verbose = options.verbose;
+  }
+  addLogLineListener(func) {
+    let id = Math.random().toString(36).substring(2, 15);
+    for (let i = 0; i < 10; i++) {
+      if (this._onLogLineFuncs[id] === void 0) {
+        break;
+      }
+      id = Math.random().toString(36).substring(2, 15);
+    }
+    this._onLogLineFuncs[id] = func;
+    return () => {
+      delete this._onLogLineFuncs[id];
+    };
+  }
+  logVerbose(...args) {
+    if (this._verbose) {
+      for (const func of Object.values(this._onLogLineFuncs)) {
+        func("debug", `${(/* @__PURE__ */ new Date()).toISOString()}`, ...args);
+      }
+    }
+  }
+  log(...args) {
+    for (const func of Object.values(this._onLogLineFuncs)) {
+      func("info", ...args);
+    }
+  }
+  warn(...args) {
+    for (const func of Object.values(this._onLogLineFuncs)) {
+      func("warn", ...args);
+    }
+  }
+  error(...args) {
+    for (const func of Object.values(this._onLogLineFuncs)) {
+      func("error", ...args);
+    }
+  }
+};
+function instantiateDefaultLogger(options) {
+  const logger = new DefaultLogger(options);
+  logger.addLogLineListener((level, ...args) => {
+    switch (level) {
+      case "debug":
+        console.debug(...args);
+        break;
+      case "info":
+        console.log(...args);
+        break;
+      case "warn":
+        console.warn(...args);
+        break;
+      case "error":
+        console.error(...args);
+        break;
+      default: {
+        level;
+        console.log(...args);
+      }
+    }
+  });
+  return logger;
+}
+function instantiateNoopLogger(options) {
+  return new DefaultLogger(options);
+}
+function logForFunction(logger, type, source, udfPath, message) {
+  const prefix = prefix_for_source(source);
+  if (typeof message === "object") {
+    message = `ConvexError ${JSON.stringify(message.errorData, null, 2)}`;
+  }
+  if (type === "info") {
+    const match = message.match(/^\[.*?\] /);
+    if (match === null) {
+      logger.error(
+        `[CONVEX ${prefix}(${udfPath})] Could not parse console.log`
+      );
+      return;
+    }
+    const level = message.slice(1, match[0].length - 2);
+    const args = message.slice(match[0].length);
+    logger.log(`%c[CONVEX ${prefix}(${udfPath})] [${level}]`, INFO_COLOR, args);
+  } else {
+    logger.error(`[CONVEX ${prefix}(${udfPath})] ${message}`);
+  }
+}
+
+// node_modules/convex/dist/esm/server/functionName.js
+var functionName = /* @__PURE__ */ Symbol.for("functionName");
+
+// node_modules/convex/dist/esm/server/components/paths.js
+var toReferencePath = /* @__PURE__ */ Symbol.for("toReferencePath");
+function extractReferencePath(reference) {
+  return reference[toReferencePath] ?? null;
+}
+function isFunctionHandle(s) {
+  return s.startsWith("function://");
+}
+function getFunctionAddress(functionReference) {
+  let functionAddress;
+  if (typeof functionReference === "string") {
+    if (isFunctionHandle(functionReference)) {
+      functionAddress = { functionHandle: functionReference };
+    } else {
+      functionAddress = { name: functionReference };
+    }
+  } else if (functionReference[functionName]) {
+    functionAddress = { name: functionReference[functionName] };
+  } else {
+    const referencePath = extractReferencePath(functionReference);
+    if (!referencePath) {
+      throw new Error(`${functionReference} is not a functionReference`);
+    }
+    functionAddress = { reference: referencePath };
+  }
+  return functionAddress;
+}
+
+// node_modules/convex/dist/esm/server/api.js
+function getFunctionName(functionReference) {
+  const address = getFunctionAddress(functionReference);
+  if (address.name === void 0) {
+    if (address.functionHandle !== void 0) {
+      throw new Error(
+        `Expected function reference like "api.file.func" or "internal.file.func", but received function handle ${address.functionHandle}`
+      );
+    } else if (address.reference !== void 0) {
+      throw new Error(
+        `Expected function reference in the current component like "api.file.func" or "internal.file.func", but received reference ${address.reference}`
+      );
+    }
+    throw new Error(
+      `Expected function reference like "api.file.func" or "internal.file.func", but received ${JSON.stringify(address)}`
+    );
+  }
+  if (typeof functionReference === "string") return functionReference;
+  const name = functionReference[functionName];
+  if (!name) {
+    throw new Error(`${functionReference} is not a functionReference`);
+  }
+  return name;
+}
+function createApi(pathParts = []) {
+  const handler = {
+    get(_, prop) {
+      if (typeof prop === "string") {
+        const newParts = [...pathParts, prop];
+        return createApi(newParts);
+      } else if (prop === functionName) {
+        if (pathParts.length < 2) {
+          const found = ["api", ...pathParts].join(".");
+          throw new Error(
+            `API path is expected to be of the form \`api.moduleName.functionName\`. Found: \`${found}\``
+          );
+        }
+        const path = pathParts.slice(0, -1).join("/");
+        const exportName = pathParts[pathParts.length - 1];
+        if (exportName === "default") {
+          return path;
+        } else {
+          return path + ":" + exportName;
+        }
+      } else if (prop === Symbol.toStringTag) {
+        return "FunctionReference";
+      } else {
+        return void 0;
+      }
+    }
+  };
+  return new Proxy({}, handler);
+}
+var anyApi = createApi();
+
+// node_modules/convex/dist/esm/vendor/long.js
+var __defProp4 = Object.defineProperty;
+var __defNormalProp4 = (obj, key, value) => key in obj ? __defProp4(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField4 = (obj, key, value) => __defNormalProp4(obj, typeof key !== "symbol" ? key + "" : key, value);
+var Long = class _Long {
+  constructor(low, high) {
+    __publicField4(this, "low");
+    __publicField4(this, "high");
+    __publicField4(this, "__isUnsignedLong__");
+    this.low = low | 0;
+    this.high = high | 0;
+    this.__isUnsignedLong__ = true;
+  }
+  static isLong(obj) {
+    return (obj && obj.__isUnsignedLong__) === true;
+  }
+  // prettier-ignore
+  static fromBytesLE(bytes) {
+    return new _Long(
+      bytes[0] | bytes[1] << 8 | bytes[2] << 16 | bytes[3] << 24,
+      bytes[4] | bytes[5] << 8 | bytes[6] << 16 | bytes[7] << 24
+    );
+  }
+  // prettier-ignore
+  toBytesLE() {
+    const hi = this.high;
+    const lo = this.low;
+    return [
+      lo & 255,
+      lo >>> 8 & 255,
+      lo >>> 16 & 255,
+      lo >>> 24,
+      hi & 255,
+      hi >>> 8 & 255,
+      hi >>> 16 & 255,
+      hi >>> 24
+    ];
+  }
+  static fromNumber(value) {
+    if (isNaN(value)) return UZERO;
+    if (value < 0) return UZERO;
+    if (value >= TWO_PWR_64_DBL) return MAX_UNSIGNED_VALUE;
+    return new _Long(value % TWO_PWR_32_DBL | 0, value / TWO_PWR_32_DBL | 0);
+  }
+  toString() {
+    return (BigInt(this.high) * BigInt(TWO_PWR_32_DBL) + BigInt(this.low)).toString();
+  }
+  equals(other) {
+    if (!_Long.isLong(other)) other = _Long.fromValue(other);
+    if (this.high >>> 31 === 1 && other.high >>> 31 === 1) return false;
+    return this.high === other.high && this.low === other.low;
+  }
+  notEquals(other) {
+    return !this.equals(other);
+  }
+  comp(other) {
+    if (!_Long.isLong(other)) other = _Long.fromValue(other);
+    if (this.equals(other)) return 0;
+    return other.high >>> 0 > this.high >>> 0 || other.high === this.high && other.low >>> 0 > this.low >>> 0 ? -1 : 1;
+  }
+  lessThanOrEqual(other) {
+    return this.comp(
+      /* validates */
+      other
+    ) <= 0;
+  }
+  static fromValue(val) {
+    if (typeof val === "number") return _Long.fromNumber(val);
+    return new _Long(val.low, val.high);
+  }
+};
+var UZERO = new Long(0, 0);
+var TWO_PWR_16_DBL = 1 << 16;
+var TWO_PWR_32_DBL = TWO_PWR_16_DBL * TWO_PWR_16_DBL;
+var TWO_PWR_64_DBL = TWO_PWR_32_DBL * TWO_PWR_32_DBL;
+var MAX_UNSIGNED_VALUE = new Long(4294967295 | 0, 4294967295 | 0);
+
+// node_modules/convex/dist/esm/vendor/jwt-decode/index.js
+var InvalidTokenError = class extends Error {
+};
+InvalidTokenError.prototype.name = "InvalidTokenError";
+
+// node_modules/convex/dist/esm/browser/sync/authentication_manager.js
+var MAXIMUM_REFRESH_DELAY = 20 * 24 * 60 * 60 * 1e3;
+
+// node_modules/convex/dist/esm/browser/http_client.js
+var __defProp5 = Object.defineProperty;
+var __defNormalProp5 = (obj, key, value) => key in obj ? __defProp5(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField5 = (obj, key, value) => __defNormalProp5(obj, typeof key !== "symbol" ? key + "" : key, value);
+var STATUS_CODE_UDF_FAILED = 560;
+var specifiedFetch = void 0;
+var ConvexHttpClient = class {
+  /**
+   * Create a new {@link ConvexHttpClient}.
+   *
+   * @param address - The url of your Convex deployment, often provided
+   * by an environment variable. E.g. `https://small-mouse-123.convex.cloud`.
+   * @param options - An object of options.
+   * - `skipConvexDeploymentUrlCheck` - Skip validating that the Convex deployment URL looks like
+   * `https://happy-animal-123.convex.cloud` or localhost. This can be useful if running a self-hosted
+   * Convex backend that uses a different URL.
+   * - `logger` - A logger or a boolean. If not provided, logs to the console.
+   * You can construct your own logger to customize logging to log elsewhere
+   * or not log at all, or use `false` as a shorthand for a no-op logger.
+   * A logger is an object with 4 methods: log(), warn(), error(), and logVerbose().
+   * These methods can receive multiple arguments of any types, like console.log().
+   * - `auth` - A JWT containing identity claims accessible in Convex functions.
+   * This identity may expire so it may be necessary to call `setAuth()` later,
+   * but for short-lived clients it's convenient to specify this value here.
+   * - `fetch` - A custom fetch implementation to use for all HTTP requests made by this client.
+   */
+  constructor(address, options) {
+    __publicField5(this, "address");
+    __publicField5(this, "auth");
+    __publicField5(this, "adminAuth");
+    __publicField5(this, "encodedTsPromise");
+    __publicField5(this, "debug");
+    __publicField5(this, "fetchOptions");
+    __publicField5(this, "fetch");
+    __publicField5(this, "logger");
+    __publicField5(this, "mutationQueue", []);
+    __publicField5(this, "isProcessingQueue", false);
+    if (typeof options === "boolean") {
+      throw new Error(
+        "skipConvexDeploymentUrlCheck as the second argument is no longer supported. Please pass an options object, `{ skipConvexDeploymentUrlCheck: true }`."
+      );
+    }
+    const opts = options ?? {};
+    if (opts.skipConvexDeploymentUrlCheck !== true) {
+      validateDeploymentUrl(address);
+    }
+    this.logger = options?.logger === false ? instantiateNoopLogger({ verbose: false }) : options?.logger !== true && options?.logger ? options.logger : instantiateDefaultLogger({ verbose: false });
+    this.address = address;
+    this.debug = true;
+    this.auth = void 0;
+    this.adminAuth = void 0;
+    this.fetch = options?.fetch;
+    if (options?.auth) {
+      this.setAuth(options.auth);
+    }
+  }
+  /**
+   * Obtain the {@link ConvexHttpClient}'s URL to its backend.
+   * @deprecated Use url, which returns the url without /api at the end.
+   *
+   * @returns The URL to the Convex backend, including the client's API version.
+   */
+  backendUrl() {
+    return `${this.address}/api`;
+  }
+  /**
+   * Return the address for this client, useful for creating a new client.
+   *
+   * Not guaranteed to match the address with which this client was constructed:
+   * it may be canonicalized.
+   */
+  get url() {
+    return this.address;
+  }
+  /**
+   * Set the authentication token to be used for subsequent queries and mutations.
+   *
+   * Should be called whenever the token changes (i.e. due to expiration and refresh).
+   *
+   * @param value - JWT-encoded OpenID Connect identity token.
+   */
+  setAuth(value) {
+    this.clearAuth();
+    this.auth = value;
+  }
+  /**
+   * Set admin auth token to allow calling internal queries, mutations, and actions
+   * and acting as an identity.
+   *
+   * @internal
+   */
+  setAdminAuth(token, actingAsIdentity) {
+    this.clearAuth();
+    if (actingAsIdentity !== void 0) {
+      const bytes = new TextEncoder().encode(JSON.stringify(actingAsIdentity));
+      const actingAsIdentityEncoded = btoa(String.fromCodePoint(...bytes));
+      this.adminAuth = `${token}:${actingAsIdentityEncoded}`;
+    } else {
+      this.adminAuth = token;
+    }
+  }
+  /**
+   * Clear the current authentication token if set.
+   */
+  clearAuth() {
+    this.auth = void 0;
+    this.adminAuth = void 0;
+  }
+  /**
+   * Sets whether the result log lines should be printed on the console or not.
+   *
+   * @internal
+   */
+  setDebug(debug) {
+    this.debug = debug;
+  }
+  /**
+   * Used to customize the fetch behavior in some runtimes.
+   *
+   * @internal
+   */
+  setFetchOptions(fetchOptions) {
+    this.fetchOptions = fetchOptions;
+  }
+  /**
+   * This API is experimental: it may change or disappear.
+   *
+   * Execute a Convex query function at the same timestamp as every other
+   * consistent query execution run by this HTTP client.
+   *
+   * This doesn't make sense for long-lived ConvexHttpClients as Convex
+   * backends can read a limited amount into the past: beyond 30 seconds
+   * in the past may not be available.
+   *
+   * Create a new client to use a consistent time.
+   *
+   * @param name - The name of the query.
+   * @param args - The arguments object for the query. If this is omitted,
+   * the arguments will be `{}`.
+   * @returns A promise of the query's result.
+   *
+   * @deprecated This API is experimental: it may change or disappear.
+   */
+  async consistentQuery(query, ...args) {
+    const queryArgs = parseArgs(args[0]);
+    const timestampPromise = this.getTimestamp();
+    return await this.queryInner(query, queryArgs, { timestampPromise });
+  }
+  async getTimestamp() {
+    if (this.encodedTsPromise) {
+      return this.encodedTsPromise;
+    }
+    return this.encodedTsPromise = this.getTimestampInner();
+  }
+  async getTimestampInner() {
+    const localFetch = this.fetch || specifiedFetch || fetch;
+    const headers = {
+      "Content-Type": "application/json",
+      "Convex-Client": `npm-${version}`
+    };
+    const response = await localFetch(`${this.address}/api/query_ts`, {
+      ...this.fetchOptions,
+      method: "POST",
+      headers
+    });
+    if (!response.ok) {
+      throw new Error(await response.text());
+    }
+    const { ts } = await response.json();
+    return ts;
+  }
+  /**
+   * Execute a Convex query function.
+   *
+   * @param name - The name of the query.
+   * @param args - The arguments object for the query. If this is omitted,
+   * the arguments will be `{}`.
+   * @returns A promise of the query's result.
+   */
+  async query(query, ...args) {
+    const queryArgs = parseArgs(args[0]);
+    return await this.queryInner(query, queryArgs, {});
+  }
+  async queryInner(query, queryArgs, options) {
+    const name = getFunctionName(query);
+    const args = [convexToJson(queryArgs)];
+    const headers = {
+      "Content-Type": "application/json",
+      "Convex-Client": `npm-${version}`
+    };
+    if (this.adminAuth) {
+      headers["Authorization"] = `Convex ${this.adminAuth}`;
+    } else if (this.auth) {
+      headers["Authorization"] = `Bearer ${this.auth}`;
+    }
+    const localFetch = this.fetch || specifiedFetch || fetch;
+    const timestamp = options.timestampPromise ? await options.timestampPromise : void 0;
+    const body = JSON.stringify({
+      path: name,
+      format: "convex_encoded_json",
+      args,
+      ...timestamp ? { ts: timestamp } : {}
+    });
+    const endpoint = timestamp ? `${this.address}/api/query_at_ts` : `${this.address}/api/query`;
+    const response = await localFetch(endpoint, {
+      ...this.fetchOptions,
+      body,
+      method: "POST",
+      headers
+    });
+    if (!response.ok && response.status !== STATUS_CODE_UDF_FAILED) {
+      throw new Error(await response.text());
+    }
+    const respJSON = await response.json();
+    if (this.debug) {
+      for (const line of respJSON.logLines ?? []) {
+        logForFunction(this.logger, "info", "query", name, line);
+      }
+    }
+    switch (respJSON.status) {
+      case "success":
+        return jsonToConvex(respJSON.value);
+      case "error":
+        if (respJSON.errorData !== void 0) {
+          throw forwardErrorData(
+            respJSON.errorData,
+            new ConvexError(respJSON.errorMessage)
+          );
+        }
+        throw new Error(respJSON.errorMessage);
+      default:
+        throw new Error(`Invalid response: ${JSON.stringify(respJSON)}`);
+    }
+  }
+  async mutationInner(mutation, mutationArgs) {
+    const name = getFunctionName(mutation);
+    const body = JSON.stringify({
+      path: name,
+      format: "convex_encoded_json",
+      args: [convexToJson(mutationArgs)]
+    });
+    const headers = {
+      "Content-Type": "application/json",
+      "Convex-Client": `npm-${version}`
+    };
+    if (this.adminAuth) {
+      headers["Authorization"] = `Convex ${this.adminAuth}`;
+    } else if (this.auth) {
+      headers["Authorization"] = `Bearer ${this.auth}`;
+    }
+    const localFetch = this.fetch || specifiedFetch || fetch;
+    const response = await localFetch(`${this.address}/api/mutation`, {
+      ...this.fetchOptions,
+      body,
+      method: "POST",
+      headers
+    });
+    if (!response.ok && response.status !== STATUS_CODE_UDF_FAILED) {
+      throw new Error(await response.text());
+    }
+    const respJSON = await response.json();
+    if (this.debug) {
+      for (const line of respJSON.logLines ?? []) {
+        logForFunction(this.logger, "info", "mutation", name, line);
+      }
+    }
+    switch (respJSON.status) {
+      case "success":
+        return jsonToConvex(respJSON.value);
+      case "error":
+        if (respJSON.errorData !== void 0) {
+          throw forwardErrorData(
+            respJSON.errorData,
+            new ConvexError(respJSON.errorMessage)
+          );
+        }
+        throw new Error(respJSON.errorMessage);
+      default:
+        throw new Error(`Invalid response: ${JSON.stringify(respJSON)}`);
+    }
+  }
+  async processMutationQueue() {
+    if (this.isProcessingQueue) {
+      return;
+    }
+    this.isProcessingQueue = true;
+    while (this.mutationQueue.length > 0) {
+      const { mutation, args, resolve, reject } = this.mutationQueue.shift();
+      try {
+        const result = await this.mutationInner(mutation, args);
+        resolve(result);
+      } catch (error) {
+        reject(error);
+      }
+    }
+    this.isProcessingQueue = false;
+  }
+  enqueueMutation(mutation, args) {
+    return new Promise((resolve, reject) => {
+      this.mutationQueue.push({ mutation, args, resolve, reject });
+      void this.processMutationQueue();
+    });
+  }
+  /**
+   * Execute a Convex mutation function. Mutations are queued by default.
+   *
+   * @param name - The name of the mutation.
+   * @param args - The arguments object for the mutation. If this is omitted,
+   * the arguments will be `{}`.
+   * @param options - An optional object containing
+   * @returns A promise of the mutation's result.
+   */
+  async mutation(mutation, ...args) {
+    const [fnArgs, options] = args;
+    const mutationArgs = parseArgs(fnArgs);
+    const queued = !options?.skipQueue;
+    if (queued) {
+      return await this.enqueueMutation(mutation, mutationArgs);
+    } else {
+      return await this.mutationInner(mutation, mutationArgs);
+    }
+  }
+  /**
+   * Execute a Convex action function. Actions are not queued.
+   *
+   * @param name - The name of the action.
+   * @param args - The arguments object for the action. If this is omitted,
+   * the arguments will be `{}`.
+   * @returns A promise of the action's result.
+   */
+  async action(action, ...args) {
+    const actionArgs = parseArgs(args[0]);
+    const name = getFunctionName(action);
+    const body = JSON.stringify({
+      path: name,
+      format: "convex_encoded_json",
+      args: [convexToJson(actionArgs)]
+    });
+    const headers = {
+      "Content-Type": "application/json",
+      "Convex-Client": `npm-${version}`
+    };
+    if (this.adminAuth) {
+      headers["Authorization"] = `Convex ${this.adminAuth}`;
+    } else if (this.auth) {
+      headers["Authorization"] = `Bearer ${this.auth}`;
+    }
+    const localFetch = this.fetch || specifiedFetch || fetch;
+    const response = await localFetch(`${this.address}/api/action`, {
+      ...this.fetchOptions,
+      body,
+      method: "POST",
+      headers
+    });
+    if (!response.ok && response.status !== STATUS_CODE_UDF_FAILED) {
+      throw new Error(await response.text());
+    }
+    const respJSON = await response.json();
+    if (this.debug) {
+      for (const line of respJSON.logLines ?? []) {
+        logForFunction(this.logger, "info", "action", name, line);
+      }
+    }
+    switch (respJSON.status) {
+      case "success":
+        return jsonToConvex(respJSON.value);
+      case "error":
+        if (respJSON.errorData !== void 0) {
+          throw forwardErrorData(
+            respJSON.errorData,
+            new ConvexError(respJSON.errorMessage)
+          );
+        }
+        throw new Error(respJSON.errorMessage);
+      default:
+        throw new Error(`Invalid response: ${JSON.stringify(respJSON)}`);
+    }
+  }
+  /**
+   * Execute a Convex function of an unknown type. These function calls are not queued.
+   *
+   * @param name - The name of the function.
+   * @param args - The arguments object for the function. If this is omitted,
+   * the arguments will be `{}`.
+   * @returns A promise of the function's result.
+   *
+   * @internal
+   */
+  async function(anyFunction, componentPath, ...args) {
+    const functionArgs = parseArgs(args[0]);
+    const name = typeof anyFunction === "string" ? anyFunction : getFunctionName(anyFunction);
+    const body = JSON.stringify({
+      componentPath,
+      path: name,
+      format: "convex_encoded_json",
+      args: convexToJson(functionArgs)
+    });
+    const headers = {
+      "Content-Type": "application/json",
+      "Convex-Client": `npm-${version}`
+    };
+    if (this.adminAuth) {
+      headers["Authorization"] = `Convex ${this.adminAuth}`;
+    } else if (this.auth) {
+      headers["Authorization"] = `Bearer ${this.auth}`;
+    }
+    const localFetch = this.fetch || specifiedFetch || fetch;
+    const response = await localFetch(`${this.address}/api/function`, {
+      ...this.fetchOptions,
+      body,
+      method: "POST",
+      headers
+    });
+    if (!response.ok && response.status !== STATUS_CODE_UDF_FAILED) {
+      throw new Error(await response.text());
+    }
+    const respJSON = await response.json();
+    if (this.debug) {
+      for (const line of respJSON.logLines ?? []) {
+        logForFunction(this.logger, "info", "any", name, line);
+      }
+    }
+    switch (respJSON.status) {
+      case "success":
+        return jsonToConvex(respJSON.value);
+      case "error":
+        if (respJSON.errorData !== void 0) {
+          throw forwardErrorData(
+            respJSON.errorData,
+            new ConvexError(respJSON.errorMessage)
+          );
+        }
+        throw new Error(respJSON.errorMessage);
+      default:
+        throw new Error(`Invalid response: ${JSON.stringify(respJSON)}`);
+    }
+  }
+};
+function forwardErrorData(errorData, error) {
+  error.data = jsonToConvex(errorData);
+  return error;
+}
+
+// node_modules/convex/dist/esm/server/pagination.js
+var paginationOptsValidator = v.object({
+  numItems: v.number(),
+  cursor: v.union(v.string(), v.null()),
+  endCursor: v.optional(v.union(v.string(), v.null())),
+  id: v.optional(v.number()),
+  maximumRowsRead: v.optional(v.number()),
+  maximumBytesRead: v.optional(v.number())
+});
+
+// node_modules/convex/dist/esm/server/schema.js
+var __defProp6 = Object.defineProperty;
+var __defNormalProp6 = (obj, key, value) => key in obj ? __defProp6(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField6 = (obj, key, value) => __defNormalProp6(obj, typeof key !== "symbol" ? key + "" : key, value);
+var TableDefinition = class {
+  /**
+   * @internal
+   */
+  constructor(documentType) {
+    __publicField6(this, "indexes");
+    __publicField6(this, "stagedDbIndexes");
+    __publicField6(this, "searchIndexes");
+    __publicField6(this, "stagedSearchIndexes");
+    __publicField6(this, "vectorIndexes");
+    __publicField6(this, "stagedVectorIndexes");
+    __publicField6(this, "validator");
+    this.indexes = [];
+    this.stagedDbIndexes = [];
+    this.searchIndexes = [];
+    this.stagedSearchIndexes = [];
+    this.vectorIndexes = [];
+    this.stagedVectorIndexes = [];
+    this.validator = documentType;
+  }
+  /**
+   * This API is experimental: it may change or disappear.
+   *
+   * Returns indexes defined on this table.
+   * Intended for the advanced use cases of dynamically deciding which index to use for a query.
+   * If you think you need this, please chime in on ths issue in the Convex JS GitHub repo.
+   * https://github.com/get-convex/convex-js/issues/49
+   */
+  " indexes"() {
+    return this.indexes;
+  }
+  index(name, indexConfig) {
+    if (Array.isArray(indexConfig)) {
+      this.indexes.push({
+        indexDescriptor: name,
+        fields: indexConfig
+      });
+    } else if (indexConfig.staged) {
+      this.stagedDbIndexes.push({
+        indexDescriptor: name,
+        fields: indexConfig.fields
+      });
+    } else {
+      this.indexes.push({
+        indexDescriptor: name,
+        fields: indexConfig.fields
+      });
+    }
+    return this;
+  }
+  searchIndex(name, indexConfig) {
+    if (indexConfig.staged) {
+      this.stagedSearchIndexes.push({
+        indexDescriptor: name,
+        searchField: indexConfig.searchField,
+        filterFields: indexConfig.filterFields || []
+      });
+    } else {
+      this.searchIndexes.push({
+        indexDescriptor: name,
+        searchField: indexConfig.searchField,
+        filterFields: indexConfig.filterFields || []
+      });
+    }
+    return this;
+  }
+  vectorIndex(name, indexConfig) {
+    if (indexConfig.staged) {
+      this.stagedVectorIndexes.push({
+        indexDescriptor: name,
+        vectorField: indexConfig.vectorField,
+        dimensions: indexConfig.dimensions,
+        filterFields: indexConfig.filterFields || []
+      });
+    } else {
+      this.vectorIndexes.push({
+        indexDescriptor: name,
+        vectorField: indexConfig.vectorField,
+        dimensions: indexConfig.dimensions,
+        filterFields: indexConfig.filterFields || []
+      });
+    }
+    return this;
+  }
+  /**
+   * Work around for https://github.com/microsoft/TypeScript/issues/57035
+   */
+  self() {
+    return this;
+  }
+  /**
+   * Export the contents of this definition.
+   *
+   * This is called internally by the Convex framework.
+   * @internal
+   */
+  export() {
+    const documentType = this.validator.json;
+    if (typeof documentType !== "object") {
+      throw new Error(
+        "Invalid validator: please make sure that the parameter of `defineTable` is valid (see https://docs.convex.dev/database/schemas)"
+      );
+    }
+    return {
+      indexes: this.indexes,
+      stagedDbIndexes: this.stagedDbIndexes,
+      searchIndexes: this.searchIndexes,
+      stagedSearchIndexes: this.stagedSearchIndexes,
+      vectorIndexes: this.vectorIndexes,
+      stagedVectorIndexes: this.stagedVectorIndexes,
+      documentType
+    };
+  }
+};
+function defineTable(documentSchema) {
+  if (isValidator(documentSchema)) {
+    return new TableDefinition(documentSchema);
+  } else {
+    return new TableDefinition(v.object(documentSchema));
+  }
+}
+var SchemaDefinition = class {
+  /**
+   * @internal
+   */
+  constructor(tables, options) {
+    __publicField6(this, "tables");
+    __publicField6(this, "strictTableNameTypes");
+    __publicField6(this, "schemaValidation");
+    this.tables = tables;
+    this.schemaValidation = options?.schemaValidation === void 0 ? true : options.schemaValidation;
+  }
+  /**
+   * Export the contents of this definition.
+   *
+   * This is called internally by the Convex framework.
+   * @internal
+   */
+  export() {
+    return JSON.stringify({
+      tables: Object.entries(this.tables).map(([tableName, definition]) => {
+        const {
+          indexes,
+          stagedDbIndexes,
+          searchIndexes,
+          stagedSearchIndexes,
+          vectorIndexes,
+          stagedVectorIndexes,
+          documentType
+        } = definition.export();
+        return {
+          tableName,
+          indexes,
+          stagedDbIndexes,
+          searchIndexes,
+          stagedSearchIndexes,
+          vectorIndexes,
+          stagedVectorIndexes,
+          documentType
+        };
+      }),
+      schemaValidation: this.schemaValidation
+    });
+  }
+};
+function defineSchema(schema, options) {
+  return new SchemaDefinition(schema, options);
+}
+var _systemSchema = defineSchema({
+  _scheduled_functions: defineTable({
+    name: v.string(),
+    args: v.array(v.any()),
+    scheduledTime: v.float64(),
+    completedTime: v.optional(v.float64()),
+    state: v.union(
+      v.object({ kind: v.literal("pending") }),
+      v.object({ kind: v.literal("inProgress") }),
+      v.object({ kind: v.literal("success") }),
+      v.object({ kind: v.literal("failed"), error: v.string() }),
+      v.object({ kind: v.literal("canceled") })
+    )
+  }),
+  _storage: defineTable({
+    sha256: v.string(),
+    size: v.float64(),
+    contentType: v.optional(v.string())
+  })
+});
+
+// packages/extension/convex/client.ts
+var STORAGE_KEYS = {
+  accessToken: "convexAccessToken",
+  refreshToken: "convexRefreshToken",
+  expiresAt: "convexTokenExpiresAt",
+  userId: "convexUserId",
+  userEmail: "convexUserEmail",
+  subscriptionPlan: "convexSubscriptionPlan",
+  subscriptionStatus: "convexSubscriptionStatus",
+  subscriptionCurrentPeriodEnd: "convexSubscriptionCurrentPeriodEnd",
+  subscriptionCheckedAt: "convexSubscriptionCheckedAt",
+  convexUrl: "convexUrl"
+};
+var CONVEX_DEPLOYMENT_URL = String(true ? "" : "").trim();
+var runtimeConvexUrl = CONVEX_DEPLOYMENT_URL;
+var convexClient = runtimeConvexUrl ? new ConvexHttpClient(runtimeConvexUrl) : null;
+var resolveStoredConvexUrl = async () => {
+  const stored = await chrome.storage.local.get([STORAGE_KEYS.convexUrl]);
+  return String(stored?.[STORAGE_KEYS.convexUrl] || "").trim();
+};
+var ensureClient = async () => {
+  if (convexClient) return convexClient;
+  if (!runtimeConvexUrl) {
+    runtimeConvexUrl = await resolveStoredConvexUrl();
+  }
+  if (!runtimeConvexUrl) {
+    throw new Error("Convex backend is not configured. Set CONVEX_URL in .env.local or storage.");
+  }
+  convexClient = new ConvexHttpClient(runtimeConvexUrl);
+  return convexClient;
+};
+var decodeJwtExpiryMs = (token) => {
+  try {
+    const payloadPart = token.split(".")[1];
+    if (!payloadPart) return Date.now() + 45 * 60 * 1e3;
+    const base64 = payloadPart.replace(/-/g, "+").replace(/_/g, "/");
+    const payload = JSON.parse(atob(base64));
+    const expSeconds = Number(payload?.exp || 0);
+    if (!Number.isFinite(expSeconds) || expSeconds <= 0) return Date.now() + 45 * 60 * 1e3;
+    return expSeconds * 1e3;
+  } catch {
+    return Date.now() + 45 * 60 * 1e3;
+  }
+};
+var applyAuthTokenToClient = (token) => {
+  if (!convexClient) return;
+  if (token) {
+    convexClient.setAuth(token);
+  } else {
+    convexClient.clearAuth();
+  }
+};
+var setStorageDefaults = async () => {
+  const url = runtimeConvexUrl || (convexClient ? convexClient.url : "");
+  if (!url) return;
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.convexUrl]: url
+  });
+};
+var readStoredAuth = async () => {
+  const stored = await chrome.storage.local.get([
+    STORAGE_KEYS.accessToken,
+    STORAGE_KEYS.refreshToken,
+    STORAGE_KEYS.expiresAt
+  ]);
+  return stored;
+};
+var saveAuthTokens = async (tokens) => {
+  const expiresAt = decodeJwtExpiryMs(tokens.token);
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.accessToken]: tokens.token,
+    [STORAGE_KEYS.refreshToken]: tokens.refreshToken,
+    [STORAGE_KEYS.expiresAt]: expiresAt
+  });
+  applyAuthTokenToClient(tokens.token);
+};
+var clearAuthStorage = async () => {
+  await chrome.storage.local.remove([
+    STORAGE_KEYS.accessToken,
+    STORAGE_KEYS.refreshToken,
+    STORAGE_KEYS.expiresAt,
+    STORAGE_KEYS.userId,
+    STORAGE_KEYS.userEmail,
+    STORAGE_KEYS.subscriptionPlan,
+    STORAGE_KEYS.subscriptionStatus,
+    STORAGE_KEYS.subscriptionCurrentPeriodEnd,
+    STORAGE_KEYS.subscriptionCheckedAt
+  ]);
+  applyAuthTokenToClient(void 0);
+};
+var maybePersistAuthResult = async (result) => {
+  if (result?.tokens?.token && result?.tokens?.refreshToken) {
+    await saveAuthTokens(result.tokens);
+  }
+};
+var refreshAccessTokenIfNeeded = async () => {
+  if (!convexClient) return;
+  const stored = await readStoredAuth();
+  const accessToken = stored.convexAccessToken;
+  if (!accessToken) {
+    applyAuthTokenToClient(void 0);
+    return;
+  }
+  const expiresAt = Number(stored.convexTokenExpiresAt || 0);
+  if (Number.isFinite(expiresAt) && expiresAt > Date.now() + 6e4) {
+    applyAuthTokenToClient(accessToken);
+    return;
+  }
+  const refreshToken = stored.convexRefreshToken;
+  if (!refreshToken) {
+    applyAuthTokenToClient(accessToken);
+    return;
+  }
+  try {
+    const refreshed = await convexClient.action(anyApi.auth.signIn, {
+      refreshToken
+    });
+    await maybePersistAuthResult(refreshed);
+  } catch {
+    applyAuthTokenToClient(accessToken);
+  }
+};
+var syncAccountSnapshotToStorage = async (user, subscription) => {
+  await chrome.storage.local.set({
+    [STORAGE_KEYS.userId]: user?._id || "",
+    [STORAGE_KEYS.userEmail]: user?.email || "",
+    [STORAGE_KEYS.subscriptionPlan]: subscription?.plan || "free",
+    [STORAGE_KEYS.subscriptionStatus]: subscription?.status || "inactive",
+    [STORAGE_KEYS.subscriptionCurrentPeriodEnd]: subscription?.currentPeriodEnd || null,
+    [STORAGE_KEYS.subscriptionCheckedAt]: Date.now()
+  });
+};
+var ensureAuthReady = async () => {
+  await ensureClient();
+  await setStorageDefaults();
+  await refreshAccessTokenIfNeeded();
+};
+async function signInWithPassword(email, password) {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  const result = await client.action(anyApi.auth.signIn, {
+    provider: "password",
+    params: { flow: "signIn", email, password }
+  });
+  await maybePersistAuthResult(result);
+  return result;
+}
+async function signUpWithPassword(email, password) {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  const result = await client.action(anyApi.auth.signIn, {
+    provider: "password",
+    params: { flow: "signUp", email, password }
+  });
+  await maybePersistAuthResult(result);
+  return result;
+}
+async function signInWithOAuth(provider) {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  const redirectBase = typeof location !== "undefined" && location.origin ? location.origin : "https://example.com";
+  const result = await client.action(anyApi.auth.signIn, {
+    provider,
+    params: {
+      redirectTo: `${redirectBase}/billing`
+    }
+  });
+  await maybePersistAuthResult(result);
+  return result;
+}
+async function signOutAccount() {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  await client.action(anyApi.auth.signOut, {});
+  await clearAuthStorage();
+}
+async function getAuthState() {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  const authenticated = await client.query(anyApi.auth.isAuthenticated, {});
+  if (!authenticated) {
+    await clearAuthStorage();
+    return { authenticated: false, user: null, subscription: null };
+  }
+  const [user, subscription] = await Promise.all([
+    client.query(anyApi.users.me, {}),
+    client.query(anyApi.subscriptions.getCurrent, {})
+  ]);
+  await syncAccountSnapshotToStorage(user, subscription);
+  return { authenticated: true, user, subscription };
+}
+async function createCheckoutSession() {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  return client.action(anyApi.payments.createCheckoutSession, {});
+}
+async function manageSubscription() {
+  await ensureAuthReady();
+  const client = await ensureClient();
+  return client.action(anyApi.payments.manageSubscription, {});
+}
+var hasActiveSubscription = (subscription) => Boolean(subscription && subscription.plan === "pro" && subscription.status === "active");
+
+// packages/extension/sidepanel/ui/account/panel-account.ts
+var ACCOUNT_MODE_KEY = "accountModeChoice";
+var ACCOUNT_MODE_BYOK = "byok";
+var ACCOUNT_MODE_PAID = "paid";
+var setHidden = (element, hidden) => {
+  if (!element) return;
+  element.classList.toggle("hidden", hidden);
+};
+var toUsageLabel = (usage) => {
+  const requestCount = Number(usage?.requestCount || 0);
+  const tokensUsed = Number(usage?.tokensUsed || 0);
+  return `${requestCount} req \xB7 ${tokensUsed} tokens`;
+};
+var updateStatusCopy = (ui, text) => {
+  if (ui.elements.accountStatusText) {
+    ui.elements.accountStatusText.textContent = text;
+  }
+  const signedInStatus = document.getElementById("accountStatusTextSignedIn");
+  if (signedInStatus) {
+    signedInStatus.textContent = text;
+  }
+};
+SidePanelUI.prototype.setAccountUiBusy = function setAccountUiBusy(busy) {
+  const buttonIds = [
+    "accountSignInBtn",
+    "accountSignUpBtn",
+    "accountGoogleBtn",
+    "accountGithubBtn",
+    "accountUpgradeBtn",
+    "accountManageBtn",
+    "accountRefreshBtn",
+    "accountSignOutBtn",
+    "accountChooseByokBtn",
+    "accountChoosePaidBtn"
+  ];
+  buttonIds.forEach((id) => {
+    const button = this.elements[id];
+    if (button) {
+      button.disabled = busy;
+    }
+  });
+};
+SidePanelUI.prototype.bindAccountEventListeners = function bindAccountEventListeners() {
+  if (this._accountListenersBound) return;
+  this._accountListenersBound = true;
+  this.elements.accountChooseByokBtn?.addEventListener("click", () => {
+    void this.chooseAccountMode(ACCOUNT_MODE_BYOK);
+  });
+  this.elements.accountChoosePaidBtn?.addEventListener("click", () => {
+    void this.chooseAccountMode(ACCOUNT_MODE_PAID);
+  });
+  this.elements.accountSignInBtn?.addEventListener("click", () => {
+    void this.handleAccountPasswordAuth("signIn");
+  });
+  this.elements.accountSignUpBtn?.addEventListener("click", () => {
+    void this.handleAccountPasswordAuth("signUp");
+  });
+  this.elements.accountGoogleBtn?.addEventListener("click", () => {
+    void this.handleAccountOAuth("google");
+  });
+  this.elements.accountGithubBtn?.addEventListener("click", () => {
+    void this.handleAccountOAuth("github");
+  });
+  this.elements.accountUpgradeBtn?.addEventListener("click", () => {
+    void this.startAccountCheckout();
+  });
+  this.elements.accountManageBtn?.addEventListener("click", () => {
+    void this.openAccountBillingPortal();
+  });
+  this.elements.accountRefreshBtn?.addEventListener("click", () => {
+    void this.refreshAccountPanel();
+  });
+  this.elements.accountSignOutBtn?.addEventListener("click", () => {
+    void this.signOutFromAccount();
+  });
+};
+SidePanelUI.prototype.initAccountPanel = async function initAccountPanel() {
+  this.bindAccountEventListeners();
+  await this.refreshAccountPanel({ silent: true });
+  await this.showAccountOnboardingIfNeeded();
+};
+SidePanelUI.prototype.showAccountOnboardingIfNeeded = async function showAccountOnboardingIfNeeded() {
+  const stored = await chrome.storage.local.get([ACCOUNT_MODE_KEY]);
+  const hasChoice = stored[ACCOUNT_MODE_KEY] === ACCOUNT_MODE_BYOK || stored[ACCOUNT_MODE_KEY] === ACCOUNT_MODE_PAID;
+  setHidden(this.elements.accountOnboardingModal, hasChoice);
+  if (!hasChoice) {
+    updateStatusCopy(this, "Choose BYOK or paid mode to continue setup.");
+  }
+};
+SidePanelUI.prototype.chooseAccountMode = async function chooseAccountMode(mode) {
+  await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: mode });
+  setHidden(this.elements.accountOnboardingModal, true);
+  if (mode === ACCOUNT_MODE_BYOK) {
+    this.updateStatus("BYOK selected. Add your API key in Setup.", "success");
+    updateStatusCopy(this, "BYOK mode active.");
+    return;
+  }
+  this.openSettingsPanel?.();
+  this.switchSettingsTab?.("oauth");
+  this.updateStatus("Subscription mode selected. Sign in to continue.", "active");
+  updateStatusCopy(this, "Sign in to activate paid proxy mode.");
+};
+SidePanelUI.prototype.handleAccountPasswordAuth = async function handleAccountPasswordAuth(mode) {
+  const email = String(this.elements.accountEmailInput?.value || "").trim();
+  const password = String(this.elements.accountPasswordInput?.value || "").trim();
+  if (!email || !password) {
+    updateStatusCopy(this, "Email and password are required.");
+    return;
+  }
+  this.setAccountUiBusy(true);
+  try {
+    if (mode === "signIn") {
+      await signInWithPassword(email, password);
+    } else {
+      await signUpWithPassword(email, password);
+    }
+    await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_PAID });
+    await this.refreshAccountPanel();
+    this.updateStatus(mode === "signIn" ? "Signed in" : "Account created", "success");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? "Unknown auth error");
+    updateStatusCopy(this, message);
+    this.updateStatus("Authentication failed", "error");
+  } finally {
+    this.setAccountUiBusy(false);
+  }
+};
+SidePanelUI.prototype.handleAccountOAuth = async function handleAccountOAuth(provider) {
+  this.setAccountUiBusy(true);
+  try {
+    const result = await signInWithOAuth(provider);
+    const redirect = result?.redirect || "";
+    if (redirect) {
+      await chrome.tabs.create({ url: redirect });
+      updateStatusCopy(this, `Opened ${provider} sign-in. Complete login in the new tab, then refresh.`);
+    } else {
+      updateStatusCopy(this, `Started ${provider} sign-in flow.`);
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? "OAuth failed");
+    updateStatusCopy(this, message);
+    this.updateStatus("OAuth failed", "error");
+  } finally {
+    this.setAccountUiBusy(false);
+  }
+};
+SidePanelUI.prototype.startAccountCheckout = async function startAccountCheckout() {
+  this.setAccountUiBusy(true);
+  try {
+    const result = await createCheckoutSession();
+    if (result?.url) {
+      await chrome.tabs.create({ url: String(result.url) });
+      updateStatusCopy(this, "Stripe checkout opened in a new tab.");
+    } else {
+      throw new Error("Checkout URL was not returned.");
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? "Checkout failed");
+    updateStatusCopy(this, message);
+    this.updateStatus("Unable to open checkout", "error");
+  } finally {
+    this.setAccountUiBusy(false);
+  }
+};
+SidePanelUI.prototype.openAccountBillingPortal = async function openAccountBillingPortal() {
+  this.setAccountUiBusy(true);
+  try {
+    const result = await manageSubscription();
+    if (result?.url) {
+      await chrome.tabs.create({ url: String(result.url) });
+      updateStatusCopy(this, "Billing portal opened in a new tab.");
+    } else {
+      throw new Error("Billing portal URL was not returned.");
+    }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? "Billing portal failed");
+    updateStatusCopy(this, message);
+    this.updateStatus("Unable to open billing portal", "error");
+  } finally {
+    this.setAccountUiBusy(false);
+  }
+};
+SidePanelUI.prototype.signOutFromAccount = async function signOutFromAccount() {
+  this.setAccountUiBusy(true);
+  try {
+    await signOutAccount();
+    await this.refreshAccountPanel({ silent: true });
+    updateStatusCopy(this, "Signed out.");
+    this.updateStatus("Signed out", "success");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? "Sign-out failed");
+    updateStatusCopy(this, message);
+    this.updateStatus("Sign out failed", "error");
+  } finally {
+    this.setAccountUiBusy(false);
+  }
+};
+SidePanelUI.prototype.refreshAccountPanel = async function refreshAccountPanel({ silent = false } = {}) {
+  if (!CONVEX_DEPLOYMENT_URL) {
+    setHidden(this.elements.accountAuthUnavailable, false);
+    setHidden(this.elements.accountAuthSignedOut, true);
+    setHidden(this.elements.accountAuthSignedIn, true);
+    updateStatusCopy(this, "Set CONVEX_URL and rebuild to enable account features.");
+    return;
+  }
+  setHidden(this.elements.accountAuthUnavailable, true);
+  this.setAccountUiBusy(true);
+  try {
+    const state = await getAuthState();
+    if (!state.authenticated) {
+      setHidden(this.elements.accountAuthSignedOut, false);
+      setHidden(this.elements.accountAuthSignedIn, true);
+      updateStatusCopy(this, "Not signed in.");
+      if (!silent) this.updateStatus("Account: signed out", "warning");
+      return;
+    }
+    setHidden(this.elements.accountAuthSignedOut, true);
+    setHidden(this.elements.accountAuthSignedIn, false);
+    const userEmail = String(state.user?.email || "Unknown user");
+    const sub = state.subscription || null;
+    const paidActive = hasActiveSubscription(sub);
+    const planLabel = paidActive ? "Pro (active)" : `Free (${sub?.status || "inactive"})`;
+    if (this.elements.accountUserValue) this.elements.accountUserValue.textContent = userEmail;
+    if (this.elements.accountPlanValue) this.elements.accountPlanValue.textContent = planLabel;
+    if (this.elements.accountUsageValue) this.elements.accountUsageValue.textContent = toUsageLabel(sub?.usage);
+    setHidden(this.elements.accountUpgradeBtn, paidActive);
+    setHidden(this.elements.accountManageBtn, !paidActive);
+    updateStatusCopy(this, paidActive ? "Paid plan active. Proxy mode available." : "Free plan active.");
+    if (!silent) this.updateStatus("Account refreshed", "success");
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error ?? "Failed to refresh account");
+    updateStatusCopy(this, message);
+    if (!silent) this.updateStatus("Unable to load account state", "error");
+  } finally {
+    this.setAccountUiBusy(false);
+  }
 };
 
 // packages/extension/sidepanel/ui/core/layout-loader.ts
@@ -5058,10 +8319,9 @@ var injectInnerHtml = (root, selector, html) => {
 var loadPanelLayout = async () => {
   const appRoot = document.getElementById("appRoot");
   if (!appRoot) return;
-  const [sidebarShell, mainContent, historyPanel, settingsPanel, settingsGeneral, settingsProfiles, tabSelector] = await Promise.all([
+  const [sidebarShell, mainContent, settingsPanel, settingsGeneral, settingsProfiles, tabSelector] = await Promise.all([
     loadTemplate("sidebar-shell.html"),
     loadTemplate("main.html"),
-    loadTemplate("panels/history.html"),
     loadTemplate("panels/settings.html"),
     loadTemplate("panels/settings-general.html"),
     loadTemplate("panels/settings-profiles.html"),
@@ -5073,7 +8333,7 @@ var loadPanelLayout = async () => {
   appContainer.insertAdjacentHTML("beforeend", sidebarShell.trim());
   appContainer.insertAdjacentHTML("beforeend", mainContent.trim());
   const rightPanels = appContainer.querySelector("#rightPanelPanels");
-  rightPanels?.insertAdjacentHTML("beforeend", (historyPanel + settingsPanel).trim());
+  rightPanels?.insertAdjacentHTML("beforeend", settingsPanel.trim());
   const tmp = document.createElement("div");
   tmp.innerHTML = settingsGeneral.trim();
   const panes = tmp.querySelectorAll(".settings-tab-pane[data-pane]");

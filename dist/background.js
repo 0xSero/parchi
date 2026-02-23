@@ -43195,6 +43195,7 @@ var BackgroundService = class {
   relayActiveRunIds;
   applyRelayConfig;
   relayKeepalivePorts;
+  lastRelayStatus;
   // State tracking for enforcement
   lastBrowserAction;
   awaitingVerification;
@@ -43218,6 +43219,7 @@ var BackgroundService = class {
     this.subAgentProfileCursor = 0;
     this.relayActiveRunIds = /* @__PURE__ */ new Set();
     this.relayKeepalivePorts = /* @__PURE__ */ new Set();
+    this.lastRelayStatus = null;
     this.activeRuns = /* @__PURE__ */ new Map();
     this.activeRunIdBySessionId = /* @__PURE__ */ new Map();
     this.cancelledRunIds = /* @__PURE__ */ new Set();
@@ -43248,10 +43250,9 @@ var BackgroundService = class {
       },
       onRequest: async (req) => this.handleRelayRpc(req.method, req.params),
       onStatus: (status) => {
-        const payload = { relayConnected: !!status.connected };
-        if (status.connected) payload.relayLastConnectedAt = Date.now();
-        if (status.lastError !== void 0) payload.relayLastError = status.lastError;
-        chrome.storage.local.set(payload).catch(() => {
+        void this.persistRelayStatus({
+          connected: !!status.connected,
+          lastError: status.lastError !== void 0 ? status.lastError : null
         });
       }
     });
@@ -43261,7 +43262,9 @@ var BackgroundService = class {
       const url2 = typeof stored.relayUrl === "string" ? stored.relayUrl.trim() : "";
       const token = typeof stored.relayToken === "string" ? stored.relayToken.trim() : "";
       if (enabled && (!url2 || !token)) {
-        await chrome.storage.local.set({ relayConnected: false, relayLastError: "Missing relay URL or token" }).catch(() => {
+        await this.persistRelayStatus({
+          connected: false,
+          lastError: "Missing relay URL or token"
         });
       }
       if (enabled && url2 && token) {
@@ -43272,6 +43275,20 @@ var BackgroundService = class {
       this.relay.configure({ enabled, url: url2, token });
     };
     this.init();
+  }
+  async persistRelayStatus(status) {
+    const previous = this.lastRelayStatus;
+    const same = previous && previous.connected === status.connected && (previous.lastError || null) === (status.lastError || null);
+    if (same) return;
+    this.lastRelayStatus = {
+      connected: status.connected,
+      lastError: status.lastError || null
+    };
+    const payload = { relayConnected: status.connected };
+    if (status.connected) payload.relayLastConnectedAt = Date.now();
+    payload.relayLastError = status.lastError || null;
+    await chrome.storage.local.set(payload).catch(() => {
+    });
   }
   async ensureRelayKeepalive() {
     const offscreen = chrome.offscreen;
@@ -43308,6 +43325,10 @@ var BackgroundService = class {
       });
     }
     if (chrome.declarativeNetRequest?.updateDynamicRules) {
+      const dnr = chrome.declarativeNetRequest;
+      const modifyHeadersType = dnr?.RuleActionType?.MODIFY_HEADERS || "modifyHeaders";
+      const headerSetOperation = dnr?.HeaderOperation?.SET || "set";
+      const xhrResourceType = dnr?.ResourceType?.XMLHTTPREQUEST || "xmlhttprequest";
       chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [9e3],
         addRules: [
@@ -43315,18 +43336,18 @@ var BackgroundService = class {
             id: 9e3,
             priority: 1,
             action: {
-              type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+              type: modifyHeadersType,
               requestHeaders: [
                 {
                   header: "User-Agent",
-                  operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+                  operation: headerSetOperation,
                   value: "coding-agent"
                 }
               ]
             },
             condition: {
               urlFilter: "||api.kimi.com",
-              resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST]
+              resourceTypes: [xhrResourceType]
             }
           }
         ]
@@ -43367,8 +43388,10 @@ var BackgroundService = class {
     } catch (err) {
       console.warn("[relay] init failed:", err);
     }
-    chrome.storage.onChanged.addListener((_changes, areaName) => {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName !== "local") return;
+      const relayConfigChanged = !!changes.relayEnabled || !!changes.relayUrl || !!changes.relayToken;
+      if (!relayConfigChanged) return;
       void this.applyRelayConfig();
     });
   }

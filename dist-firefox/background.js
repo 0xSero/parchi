@@ -29069,7 +29069,20 @@ function normalizePlanSteps(input, options = {}) {
 }
 function buildRunPlan(stepsInput, options = {}) {
   const now2 = options.now ?? Date.now();
-  const steps = normalizePlanSteps(stepsInput, { maxSteps: options.maxSteps });
+  const maxSteps = options.maxSteps ?? 8;
+  const incomingSteps = normalizePlanSteps(stepsInput, { maxSteps });
+  const existingPlan = options.existingPlan ?? null;
+  const existingSteps = existingPlan?.steps || [];
+  const steps = [
+    ...existingSteps.map((step, index) => ({
+      ...step,
+      id: step.id || `step-${index + 1}`
+    })),
+    ...incomingSteps.map((step, index) => ({
+      ...step,
+      id: `step-${existingSteps.length + index + 1}`
+    }))
+  ].slice(0, maxSteps);
   const createdAt = options.existingPlan?.createdAt ?? now2;
   return {
     steps,
@@ -29118,7 +29131,19 @@ var PARCHI_STORAGE_KEYS = [
   "relayConnected",
   "relayLastConnectedAt",
   "relayLastError",
-  "theme"
+  "accountModeChoice",
+  "convexUrl",
+  "convexAccessToken",
+  "convexRefreshToken",
+  "convexTokenExpiresAt",
+  "convexUserId",
+  "convexUserEmail",
+  "convexSubscriptionPlan",
+  "convexSubscriptionStatus",
+  "convexSubscriptionCurrentPeriodEnd",
+  "convexSubscriptionCheckedAt",
+  "theme",
+  "workflows"
 ];
 
 // packages/extension/ai/message-utils.ts
@@ -29149,6 +29174,22 @@ function extractTextFromResponseMessages(messages) {
   };
   messages.forEach((msg) => collectFromContent(msg?.content));
   return collected.join("").trim();
+}
+function extractThinking(content, existingThinking = null) {
+  let thinking = existingThinking || null;
+  let cleanedContent = content || "";
+  const thinkRegex = /<\s*(think|analysis|thinking)\s*>([\s\S]*?)<\s*\/\s*\1\s*>/gi;
+  let match;
+  const collected = [];
+  while ((match = thinkRegex.exec(cleanedContent)) !== null) {
+    if (match[2]) collected.push(match[2].trim());
+  }
+  if (collected.length > 0) {
+    thinking = [existingThinking, ...collected].filter(Boolean).join("\n\n").trim();
+    thinkRegex.lastIndex = 0;
+    cleanedContent = cleanedContent.replace(thinkRegex, "").trim();
+  }
+  return { content: cleanedContent, thinking };
 }
 function estimateTokensFromContent(content) {
   if (!content) return 0;
@@ -29310,9 +29351,6 @@ function shouldCompact({
 }
 function estimateTokens(message) {
   let tokens = estimateTokensFromContent(message.content);
-  if (message.thinking) {
-    tokens += Math.ceil(message.thinking.length / 4);
-  }
   if (Array.isArray(message.content)) {
     for (const part of message.content) {
       if (!part || typeof part !== "object") continue;
@@ -29365,7 +29403,6 @@ function serializeConversation(messages) {
     if (msg.role === "user") {
       if (contentText) parts.push(`[User]: ${contentText}`);
     } else if (msg.role === "assistant") {
-      if (msg.thinking) parts.push(`[Assistant thinking]: ${msg.thinking}`);
       if (contentText) parts.push(`[Assistant]: ${contentText}`);
       if (Array.isArray(msg.toolCalls) && msg.toolCalls.length > 0) {
         const toolCalls = msg.toolCalls.map((call) => `${call.name}(${JSON.stringify(call.args || {})})`).join("; ");
@@ -29671,19 +29708,12 @@ function normalizeAssistantContent(message) {
   })) : [];
   if (toolCallParts.length > 0) {
     const parts = [];
-    if (message.thinking) {
-      parts.push({ type: "reasoning", text: message.thinking });
-    }
     const text2 = typeof message.content === "string" ? message.content : "";
     if (text2) {
       parts.push({ type: "text", text: text2 });
     }
     parts.push(...toolCallParts);
     return parts;
-  }
-  if (message.thinking) {
-    const text2 = typeof message.content === "string" ? message.content : "";
-    return [{ type: "reasoning", text: message.thinking }, { type: "text", text: text2 }];
   }
   if (typeof message.content === "string") return message.content;
   if (Array.isArray(message.content)) {
@@ -29730,13 +29760,27 @@ var DEFAULT_QUIT_PHRASES = [
   "unable to produce a final summary",
   "unable to provide a final response"
 ];
+function hasRunawayRepetition(text2) {
+  const segments = text2.split(/[\n.!?]+/).map((segment) => segment.trim().toLowerCase()).filter(Boolean).map((segment) => segment.replace(/[^a-z0-9\s]/g, "")).map((segment) => segment.replace(/\s+/g, " ").trim()).filter((segment) => segment.length >= 20);
+  if (segments.length < 8) return false;
+  const counts = /* @__PURE__ */ new Map();
+  let maxCount = 0;
+  for (const segment of segments) {
+    const next = (counts.get(segment) || 0) + 1;
+    counts.set(segment, next);
+    if (next > maxCount) maxCount = next;
+  }
+  return maxCount >= 4 && maxCount / segments.length >= 0.33;
+}
 function isValidFinalResponse(text2, options = {}) {
   if (typeof text2 !== "string") return false;
   const trimmed = text2.trim();
   if (!trimmed) return options.allowEmpty === true;
   const lowered = trimmed.toLowerCase();
   const phrases = options.quitPhrases || DEFAULT_QUIT_PHRASES;
-  return !phrases.some((phrase) => lowered.includes(phrase));
+  if (phrases.some((phrase) => lowered.includes(phrase))) return false;
+  if (hasRunawayRepetition(trimmed)) return false;
+  return true;
 }
 
 // node_modules/@ai-sdk/anthropic/dist/index.mjs
@@ -41207,6 +41251,39 @@ function resolveLanguageModel2(settings) {
   const modelId = settings.model || "gpt-4o";
   const apiKey = settings.apiKey || "";
   const extraHeaders = settings.extraHeaders && typeof settings.extraHeaders === "object" ? settings.extraHeaders : void 0;
+  if (settings.useProxy && settings.proxyBaseUrl && settings.proxyAuthToken) {
+    const normalizedBase = settings.proxyBaseUrl.replace(/\/+$/, "");
+    const proxyProvider = settings.proxyProvider || (provider === "anthropic" || provider === "kimi" ? "anthropic" : "openai");
+    if (proxyProvider === "anthropic") {
+      const anthropicProxy = createAnthropic({
+        apiKey: "convex-proxy",
+        baseURL: `${normalizedBase}/ai-proxy/anthropic/v1`,
+        headers: {
+          ...extraHeaders,
+          Authorization: `Bearer ${settings.proxyAuthToken}`
+        }
+      });
+      return anthropicProxy(modelId);
+    }
+    if (proxyProvider === "kimi") {
+      const kimiProxy = createAnthropic({
+        apiKey: "convex-proxy",
+        baseURL: `${normalizedBase}/ai-proxy/kimi/v1`,
+        headers: {
+          ...extraHeaders,
+          Authorization: `Bearer ${settings.proxyAuthToken}`
+        }
+      });
+      return kimiProxy(modelId);
+    }
+    const openAiProxy = createOpenAICompatible({
+      name: "convex-proxy",
+      apiKey: settings.proxyAuthToken,
+      baseURL: `${normalizedBase}/ai-proxy/openai`,
+      headers: extraHeaders
+    });
+    return openAiProxy(modelId);
+  }
   if (provider === "anthropic") {
     const providerInstance2 = createAnthropic({ apiKey, headers: extraHeaders });
     return providerInstance2(modelId);
@@ -41455,7 +41532,7 @@ var getActiveTab = async () => {
 // packages/extension/tools/browser-tools.ts
 var MAX_SESSION_TABS = 5;
 var DEFAULT_SESSION_GROUP = {
-  title: "Session",
+  title: "Parchi",
   color: "blue"
 };
 var BrowserTools = class {
@@ -41473,10 +41550,12 @@ var BrowserTools = class {
       navigate: true,
       openTab: true,
       click: true,
+      clickAt: true,
       type: true,
       pressKey: true,
       scroll: true,
       getContent: true,
+      findHtml: true,
       screenshot: true,
       getTabs: true,
       closeTab: true,
@@ -41525,6 +41604,25 @@ var BrowserTools = class {
             tabId: { type: "number", description: "Optional tab id." }
           },
           required: ["selector"]
+        }
+      },
+      {
+        name: "clickAt",
+        description: "Click at exact viewport coordinates (x, y). Use this when you cannot identify an element by selector \u2014 for example after taking a screenshot and identifying a position visually. Coordinates are relative to the viewport top-left corner. Optionally double-click or right-click.",
+        input_schema: {
+          type: "object",
+          properties: {
+            x: { type: "number", description: "X coordinate in viewport pixels (from left edge)." },
+            y: { type: "number", description: "Y coordinate in viewport pixels (from top edge)." },
+            button: {
+              type: "string",
+              enum: ["left", "right", "middle"],
+              description: "Mouse button (default: left)."
+            },
+            doubleClick: { type: "boolean", description: "If true, perform a double-click." },
+            tabId: { type: "number", description: "Optional tab id." }
+          },
+          required: ["x", "y"]
         }
       },
       {
@@ -41577,6 +41675,27 @@ var BrowserTools = class {
             selector: { type: "string", description: "Optional selector to scope content." },
             tabId: { type: "number", description: "Optional tab id." }
           }
+        }
+      },
+      {
+        name: "findHtml",
+        description: "Check whether a provided HTML snippet exists in the current page DOM structure (full page by default). Useful for confirming exact markup presence.",
+        input_schema: {
+          type: "object",
+          properties: {
+            htmlSnippet: { type: "string", description: "Exact HTML snippet to search for." },
+            selector: { type: "string", description: "Optional CSS selector to scope search." },
+            normalizeWhitespace: {
+              type: "boolean",
+              description: "Collapse whitespace in both snippet and page HTML before matching."
+            },
+            maxMatches: {
+              type: "number",
+              description: "Maximum number of matches to return (default 8)."
+            },
+            tabId: { type: "number", description: "Optional tab id." }
+          },
+          required: ["htmlSnippet"]
         }
       },
       {
@@ -41699,6 +41818,14 @@ var BrowserTools = class {
   getCurrentSessionTabId() {
     return this.currentSessionTabId;
   }
+  getSessionState() {
+    return {
+      tabs: this.getSessionTabSummaries(),
+      activeTabId: this.currentSessionTabId,
+      maxTabs: MAX_SESSION_TABS,
+      groupTitle: this.getGroupTitle(DEFAULT_SESSION_GROUP)
+    };
+  }
   async configureSessionTabs(tabs, options = {}) {
     this.sessionTabs.clear();
     this.currentSessionTabId = null;
@@ -41717,29 +41844,45 @@ var BrowserTools = class {
       });
     }
   }
+  getGroupTitle(options) {
+    const base = options.title || DEFAULT_SESSION_GROUP.title;
+    const count = this.sessionTabs.size;
+    return count > 0 ? `${base} \xB7 ${count}/${MAX_SESSION_TABS}` : base;
+  }
   async ensureSessionTabGroup(options = DEFAULT_SESSION_GROUP) {
     if (!this.supportsTabGroups) return;
     const sessionTabIds = Array.from(this.sessionTabs.keys());
     if (sessionTabIds.length === 0) return;
+    const title = this.getGroupTitle(options);
+    const color = options.color || DEFAULT_SESSION_GROUP.color;
     try {
       if (this.sessionTabGroupId !== null) {
         await chrome.tabs.group({ groupId: this.sessionTabGroupId, tabIds: sessionTabIds });
         await chrome.tabGroups.update(this.sessionTabGroupId, {
-          title: options.title || DEFAULT_SESSION_GROUP.title,
-          color: options.color || DEFAULT_SESSION_GROUP.color,
+          title,
+          color,
           collapsed: false
         });
       } else {
         const groupId = await chrome.tabs.group({ tabIds: sessionTabIds });
         await chrome.tabGroups.update(groupId, {
-          title: options.title || DEFAULT_SESSION_GROUP.title,
-          color: options.color || DEFAULT_SESSION_GROUP.color,
+          title,
+          color,
           collapsed: false
         });
         this.sessionTabGroupId = groupId;
       }
     } catch (error48) {
       console.warn("Failed to group tabs:", error48);
+    }
+  }
+  async updateGroupTitle() {
+    if (!this.supportsTabGroups || this.sessionTabGroupId === null) return;
+    try {
+      await chrome.tabGroups.update(this.sessionTabGroupId, {
+        title: this.getGroupTitle(DEFAULT_SESSION_GROUP)
+      });
+    } catch {
     }
   }
   async executeTool(toolName, args = {}) {
@@ -41751,6 +41894,8 @@ var BrowserTools = class {
           return await this.openTab(args);
         case "click":
           return await this.click(args);
+        case "clickAt":
+          return await this.clickAt(args);
         case "type":
           return await this.type(args);
         case "pressKey":
@@ -41759,6 +41904,8 @@ var BrowserTools = class {
           return await this.scroll(args);
         case "getContent":
           return await this.getContent(args);
+        case "findHtml":
+          return await this.findHtml(args);
         case "screenshot":
           return await this.screenshot(args);
         case "getTabs":
@@ -41778,11 +41925,12 @@ var BrowserTools = class {
           return {
             success: true,
             tabs: this.getSessionTabSummaries(),
+            activeTabId: this.currentSessionTabId,
             tabCount: this.sessionTabs.size,
             maxTabs: MAX_SESSION_TABS,
             canOpenMore: this.sessionTabs.size < MAX_SESSION_TABS,
             groupId: this.sessionTabGroupId,
-            groupTitle: DEFAULT_SESSION_GROUP.title
+            groupTitle: this.getGroupTitle(DEFAULT_SESSION_GROUP)
           };
         case "watchVideo":
           return await this.watchVideo(args);
@@ -41905,6 +42053,10 @@ var BrowserTools = class {
       });
       await chrome.tabs.update(tabId, { url: url2 });
       this.currentSessionTabId = tabId;
+      const existing = this.sessionTabs.get(tabId);
+      if (existing) {
+        existing.url = url2;
+      }
       return { success: true, tabId, url: url2 };
     } catch (error48) {
       return {
@@ -41940,6 +42092,7 @@ var BrowserTools = class {
         if (this.supportsTabGroups && this.sessionTabGroupId !== null) {
           try {
             await chrome.tabs.group({ groupId: this.sessionTabGroupId, tabIds: [tab.id] });
+            await this.updateGroupTitle();
           } catch (error48) {
             console.warn("Failed to add tab to session group:", error48);
           }
@@ -41971,6 +42124,7 @@ var BrowserTools = class {
     if (this.currentSessionTabId === tabId) {
       this.currentSessionTabId = null;
     }
+    await this.updateGroupTitle();
     return { success: true, tabId };
   }
   async click(args) {
@@ -42231,6 +42385,104 @@ var BrowserTools = class {
     if (result?.error === "Element not found.") {
       result = await this.runInAllFrames(tabId, clickScript, [selector, timeoutMs]);
     }
+    return result || { success: false, error: "Script execution failed." };
+  }
+  async clickAt(args) {
+    const tabId = await this.resolveTabId(args);
+    if (!tabId) {
+      return {
+        success: false,
+        error: "No session tab available. Pass tabId from describeSessionTabs(), or select a tab in the UI before running."
+      };
+    }
+    const x = typeof args.x === "number" ? args.x : NaN;
+    const y = typeof args.y === "number" ? args.y : NaN;
+    if (!Number.isFinite(x) || !Number.isFinite(y)) {
+      return { success: false, error: "Missing or invalid x/y coordinates." };
+    }
+    const button = ["left", "right", "middle"].includes(args.button) ? args.button : "left";
+    const doubleClick = args.doubleClick === true;
+    await this.sendOverlay(tabId, {
+      label: doubleClick ? "Double-click" : "Click",
+      note: `(${Math.round(x)}, ${Math.round(y)})`,
+      durationMs: 1500
+    });
+    const clickAtScript = (cx, cy, btn, dblClick) => {
+      const buttonCode = btn === "right" ? 2 : btn === "middle" ? 1 : 0;
+      const el = document.elementFromPoint(cx, cy);
+      const tag = el ? el.tagName.toLowerCase() : null;
+      const id = el?.id || null;
+      const text2 = el?.textContent?.trim().slice(0, 80) || null;
+      const firePointer = (type, target2) => {
+        try {
+          target2.dispatchEvent(
+            new PointerEvent(type, {
+              bubbles: true,
+              cancelable: true,
+              view: window,
+              clientX: cx,
+              clientY: cy,
+              button: buttonCode,
+              pointerId: 1,
+              pointerType: "mouse",
+              isPrimary: true
+            })
+          );
+        } catch {
+        }
+      };
+      const fireMouse = (type, target2) => {
+        target2.dispatchEvent(
+          new MouseEvent(type, {
+            bubbles: true,
+            cancelable: true,
+            view: window,
+            clientX: cx,
+            clientY: cy,
+            button: buttonCode
+          })
+        );
+      };
+      const target = el || document.documentElement;
+      if (el && typeof el.focus === "function") {
+        el.focus();
+      }
+      firePointer("pointerover", target);
+      fireMouse("mouseover", target);
+      firePointer("pointerdown", target);
+      fireMouse("mousedown", target);
+      firePointer("pointerup", target);
+      fireMouse("mouseup", target);
+      fireMouse("click", target);
+      if (dblClick) {
+        firePointer("pointerdown", target);
+        fireMouse("mousedown", target);
+        firePointer("pointerup", target);
+        fireMouse("mouseup", target);
+        fireMouse("click", target);
+        fireMouse("dblclick", target);
+      }
+      if (btn === "right") {
+        fireMouse("contextmenu", target);
+      }
+      if (el && typeof el.click === "function" && btn === "left") {
+        el.click();
+      }
+      return {
+        success: true,
+        x: cx,
+        y: cy,
+        button: btn,
+        doubleClick: dblClick,
+        elementHit: el ? {
+          tag,
+          id,
+          className: el.className ? String(el.className).slice(0, 120) : null,
+          text: text2 ? text2.length > 80 ? text2.slice(0, 77) + "\u2026" : text2 : null
+        } : null
+      };
+    };
+    const result = await this.runInTab(tabId, clickAtScript, [x, y, button, doubleClick]);
     return result || { success: false, error: "Script execution failed." };
   }
   async type(args) {
@@ -42562,6 +42814,97 @@ var BrowserTools = class {
     );
     return result || { success: false, error: "Script execution failed." };
   }
+  async findHtml(args) {
+    const tabId = await this.resolveTabId(args);
+    if (!tabId) {
+      return {
+        success: false,
+        error: "No session tab available. Pass tabId from describeSessionTabs(), or select a tab in the UI before running."
+      };
+    }
+    const htmlSnippet = String(args.htmlSnippet || args.snippet || "").trim();
+    if (!htmlSnippet) {
+      return {
+        success: false,
+        error: "Missing htmlSnippet parameter."
+      };
+    }
+    const selector = args.selector ? String(args.selector) : "";
+    const normalizeWhitespace = args.normalizeWhitespace === true;
+    const maxMatches = Math.max(1, Math.min(20, Math.floor(Number(args.maxMatches) || 8)));
+    await this.sendOverlay(tabId, {
+      label: "Find HTML snippet",
+      note: selector ? `within ${selector}` : "in document markup",
+      durationMs: 700
+    });
+    const result = await this.runInTab(
+      tabId,
+      (scopeSelector, needle, normalizeWs, matchLimit) => {
+        const normalize = (value) => {
+          if (!normalizeWs) return value;
+          return value.replace(/\s+/g, " ").trim();
+        };
+        let scope = null;
+        try {
+          if (scopeSelector) {
+            scope = document.querySelector(scopeSelector);
+          }
+        } catch {
+          scope = null;
+        }
+        const sourceNode = scope || document.documentElement;
+        if (!sourceNode) return { success: false, error: "Target scope not found." };
+        const rawSource = sourceNode.outerHTML || "";
+        const source = normalize(rawSource);
+        const normalizedNeedle = normalize(needle);
+        const indexNeedle = normalizeWs ? normalizedNeedle : needle;
+        const haystack = normalizeWs ? source : rawSource;
+        const matches = [];
+        const searchNeedle = normalizeWs ? indexNeedle : needle;
+        if (searchNeedle && searchNeedle.length > 0) {
+          let position = 0;
+          while (matches.length < matchLimit) {
+            const foundAt = haystack.indexOf(searchNeedle, position);
+            if (foundAt < 0) break;
+            const contextStart = Math.max(0, foundAt - 120);
+            const contextEnd = Math.min(haystack.length, foundAt + searchNeedle.length + 120);
+            matches.push({
+              index: foundAt,
+              context: haystack.slice(contextStart, contextEnd)
+            });
+            position = foundAt + Math.max(1, searchNeedle.length);
+          }
+        }
+        if (!normalizeWs && matches.length === 0 && normalizedNeedle && normalizedNeedle !== needle) {
+          const fallbackNeedle = normalizedNeedle;
+          let position = 0;
+          while (matches.length < matchLimit) {
+            const foundAt = source.indexOf(fallbackNeedle, position);
+            if (foundAt < 0) break;
+            const contextStart = Math.max(0, foundAt - 120);
+            const contextEnd = Math.min(source.length, foundAt + fallbackNeedle.length + 120);
+            matches.push({
+              index: -1,
+              context: source.slice(contextStart, contextEnd)
+            });
+            position = foundAt + Math.max(1, fallbackNeedle.length);
+          }
+        }
+        return {
+          success: true,
+          hasMatch: matches.length > 0,
+          matchCount: matches.length,
+          matched: matches.length > 0 ? `Found ${matches.length} match(es) for provided HTML.` : "No exact match found.",
+          scopeSelector: scopeSelector || ":root",
+          snippetLength: normalizeWs ? normalizedNeedle.length : needle.length,
+          sourceLength: haystack.length,
+          matches
+        };
+      },
+      [selector, htmlSnippet, normalizeWhitespace, maxMatches]
+    );
+    return result || { success: false, error: "Script execution failed." };
+  }
   async screenshot(args) {
     const tabId = await this.resolveTabId(args);
     if (!tabId) {
@@ -42852,6 +43195,7 @@ var BackgroundService = class {
   relayActiveRunIds;
   applyRelayConfig;
   relayKeepalivePorts;
+  lastRelayStatus;
   // State tracking for enforcement
   lastBrowserAction;
   awaitingVerification;
@@ -42875,6 +43219,7 @@ var BackgroundService = class {
     this.subAgentProfileCursor = 0;
     this.relayActiveRunIds = /* @__PURE__ */ new Set();
     this.relayKeepalivePorts = /* @__PURE__ */ new Set();
+    this.lastRelayStatus = null;
     this.activeRuns = /* @__PURE__ */ new Map();
     this.activeRunIdBySessionId = /* @__PURE__ */ new Map();
     this.cancelledRunIds = /* @__PURE__ */ new Set();
@@ -42905,10 +43250,9 @@ var BackgroundService = class {
       },
       onRequest: async (req) => this.handleRelayRpc(req.method, req.params),
       onStatus: (status) => {
-        const payload = { relayConnected: !!status.connected };
-        if (status.connected) payload.relayLastConnectedAt = Date.now();
-        if (status.lastError !== void 0) payload.relayLastError = status.lastError;
-        chrome.storage.local.set(payload).catch(() => {
+        void this.persistRelayStatus({
+          connected: !!status.connected,
+          lastError: status.lastError !== void 0 ? status.lastError : null
         });
       }
     });
@@ -42918,7 +43262,9 @@ var BackgroundService = class {
       const url2 = typeof stored.relayUrl === "string" ? stored.relayUrl.trim() : "";
       const token = typeof stored.relayToken === "string" ? stored.relayToken.trim() : "";
       if (enabled && (!url2 || !token)) {
-        await chrome.storage.local.set({ relayConnected: false, relayLastError: "Missing relay URL or token" }).catch(() => {
+        await this.persistRelayStatus({
+          connected: false,
+          lastError: "Missing relay URL or token"
         });
       }
       if (enabled && url2 && token) {
@@ -42929,6 +43275,20 @@ var BackgroundService = class {
       this.relay.configure({ enabled, url: url2, token });
     };
     this.init();
+  }
+  async persistRelayStatus(status) {
+    const previous = this.lastRelayStatus;
+    const same = previous && previous.connected === status.connected && (previous.lastError || null) === (status.lastError || null);
+    if (same) return;
+    this.lastRelayStatus = {
+      connected: status.connected,
+      lastError: status.lastError || null
+    };
+    const payload = { relayConnected: status.connected };
+    if (status.connected) payload.relayLastConnectedAt = Date.now();
+    payload.relayLastError = status.lastError || null;
+    await chrome.storage.local.set(payload).catch(() => {
+    });
   }
   async ensureRelayKeepalive() {
     const offscreen = chrome.offscreen;
@@ -42965,6 +43325,10 @@ var BackgroundService = class {
       });
     }
     if (chrome.declarativeNetRequest?.updateDynamicRules) {
+      const dnr = chrome.declarativeNetRequest;
+      const modifyHeadersType = dnr?.RuleActionType?.MODIFY_HEADERS || "modifyHeaders";
+      const headerSetOperation = dnr?.HeaderOperation?.SET || "set";
+      const xhrResourceType = dnr?.ResourceType?.XMLHTTPREQUEST || "xmlhttprequest";
       chrome.declarativeNetRequest.updateDynamicRules({
         removeRuleIds: [9e3],
         addRules: [
@@ -42972,18 +43336,18 @@ var BackgroundService = class {
             id: 9e3,
             priority: 1,
             action: {
-              type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+              type: modifyHeadersType,
               requestHeaders: [
                 {
                   header: "User-Agent",
-                  operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+                  operation: headerSetOperation,
                   value: "coding-agent"
                 }
               ]
             },
             condition: {
               urlFilter: "||api.kimi.com",
-              resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST]
+              resourceTypes: [xhrResourceType]
             }
           }
         ]
@@ -43024,23 +43388,55 @@ var BackgroundService = class {
     } catch (err) {
       console.warn("[relay] init failed:", err);
     }
-    chrome.storage.onChanged.addListener((_changes, areaName) => {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName !== "local") return;
+      const relayConfigChanged = !!changes.relayEnabled || !!changes.relayUrl || !!changes.relayToken;
+      if (!relayConfigChanged) return;
       void this.applyRelayConfig();
     });
   }
   async handleRelayRpc(method, params) {
     switch (method) {
       case "tools.list":
-        return this.browserTools.getToolDefinitions();
+        const settings = await chrome.storage.local.get([
+          "activeConfig",
+          "provider",
+          "apiKey",
+          "model",
+          "customEndpoint",
+          "extraHeaders",
+          "systemPrompt",
+          "configs",
+          "useOrchestrator",
+          "orchestratorProfile",
+          "visionBridge",
+          "visionProfile",
+          "enableScreenshots",
+          "sendScreenshotsAsImages",
+          "screenshotQuality",
+          "showThinking",
+          "streamResponses",
+          "temperature",
+          "maxTokens",
+          "timeout",
+          "contextLimit",
+          "toolPermissions",
+          "allowedDomains"
+        ]);
+        const activeProfileName = settings.activeConfig || "default";
+        const activeProfile = this.resolveProfile(settings, activeProfileName);
+        const orchestratorEnabled = settings.useOrchestrator === true;
+        const teamProfiles = this.resolveTeamProfiles(settings);
+        const visionToolsEnabled = this.isVisionModelProfile(activeProfile);
+        return this.getToolsForSession(settings, orchestratorEnabled, teamProfiles, visionToolsEnabled);
       case "tool.call": {
         const tool2 = typeof params?.tool === "string" ? params.tool : "";
         const sessionId = typeof params?.sessionId === "string" ? String(params.sessionId) : this.currentSessionId || "relay";
         const args = params?.args;
         if (!tool2) throw new Error("tool.call: missing tool");
         const safeArgs = args && typeof args === "object" && !Array.isArray(args) ? args : {};
-        const settings = await chrome.storage.local.get(["toolPermissions", "allowedDomains"]);
-        const perm = await this.checkToolPermission(tool2, safeArgs, settings, sessionId);
+        const settings2 = await chrome.storage.local.get(["toolPermissions", "allowedDomains"]);
+        const perm = await this.checkToolPermission(tool2, safeArgs, settings2, sessionId);
         if (!perm.allowed) {
           throw new Error(perm.reason || "Tool blocked by policy");
         }
@@ -43058,7 +43454,7 @@ var BackgroundService = class {
           } catch {
           }
         }
-        await this.getBrowserTools(sessionId).configureSessionTabs(tabs, { title: "Session", color: "blue" });
+        await this.getBrowserTools(sessionId).configureSessionTabs(tabs, { title: "Parchi", color: "blue" });
         return { ok: true, tabIds: tabs.map((t) => t.id).filter((id) => typeof id === "number") };
       }
       case "settings.get": {
@@ -43155,6 +43551,14 @@ var BackgroundService = class {
           sendResponse({ success: true, result });
           break;
         }
+        case "generate_workflow": {
+          const result = await this.generateWorkflowPrompt(
+            message.sessionContext || "",
+            message.maxOutputTokens
+          );
+          sendResponse({ success: true, result });
+          break;
+        }
         case "ping_test": {
           sendResponse({ success: true, pong: true, time: Date.now() });
           break;
@@ -43202,19 +43606,20 @@ var BackgroundService = class {
       }
       if (settings.allowedDomains === void 0) settings.allowedDomains = "";
       if (!Array.isArray(settings.auxAgentProfiles)) settings.auxAgentProfiles = [];
-      if (!settings.apiKey) {
-        this.sendRuntime(runMeta, {
-          type: "run_error",
-          message: "Please configure your API key in settings"
-        });
-        return;
-      }
       this.currentSettings = settings;
       this.currentSessionId = sessionId;
       try {
         await browserTools.configureSessionTabs(selectedTabs || [], {
-          title: "Session",
+          title: "Parchi",
           color: "blue"
+        });
+        const tabState = browserTools.getSessionState();
+        this.sendRuntime(runMeta, {
+          type: "session_tabs_update",
+          tabs: tabState.tabs,
+          activeTabId: tabState.activeTabId,
+          maxTabs: tabState.maxTabs,
+          groupTitle: tabState.groupTitle
         });
       } catch (error48) {
         console.warn("Failed to configure session tabs:", error48);
@@ -43225,8 +43630,20 @@ var BackgroundService = class {
       const orchestratorEnabled = settings.useOrchestrator === true;
       const teamProfiles = this.resolveTeamProfiles(settings);
       const activeProfile = this.resolveProfile(settings, activeProfileName);
-      const orchestratorProfile = orchestratorEnabled ? this.resolveProfile(settings, orchestratorProfileName) : activeProfile;
-      const visionProfile = settings.visionBridge !== false ? this.resolveProfile(settings, visionProfileName || activeProfileName) : null;
+      let orchestratorProfile = orchestratorEnabled ? this.resolveProfile(settings, orchestratorProfileName) : activeProfile;
+      let visionProfile = settings.visionBridge !== false ? this.resolveProfile(settings, visionProfileName || activeProfileName) : null;
+      const runtimeProfileResolution = this.resolveRuntimeModelProfile(orchestratorProfile, settings);
+      if (!runtimeProfileResolution.allowed) {
+        this.sendRuntime(runMeta, {
+          type: "run_error",
+          message: runtimeProfileResolution.errorMessage || "Please configure your API key in settings"
+        });
+        return;
+      }
+      orchestratorProfile = runtimeProfileResolution.profile;
+      if (visionProfile && !this.hasOwnApiKey(visionProfile) && runtimeProfileResolution.route === "proxy") {
+        visionProfile = this.applyConvexProxyProfile(visionProfile, settings);
+      }
       const kimiInUse = activeProfile?.provider === "kimi" || orchestratorProfile?.provider === "kimi" || visionProfile?.provider === "kimi";
       if (kimiInUse && !this.kimiHeaderRuleOk && !sessionState.kimiWarningSent) {
         sessionState.kimiWarningSent = true;
@@ -43235,7 +43652,8 @@ var BackgroundService = class {
           message: "Kimi requires a User-Agent header. Some Chromium forks (e.g., Brave) block UA overrides, which can break requests. Try Chrome, or use a proxy that adds the header."
         });
       }
-      const tools = this.getToolsForSession(settings, orchestratorEnabled, teamProfiles);
+      const visionToolsEnabled = this.isVisionModelProfile(orchestratorProfile);
+      const tools = this.getToolsForSession(settings, orchestratorEnabled, teamProfiles, visionToolsEnabled);
       const streamEnabled = settings.streamResponses !== false && settings.streamResponses !== "false";
       const showThinking = settings.showThinking !== false && settings.showThinking !== "false";
       const enableAnthropicThinking = showThinking && (orchestratorProfile.provider === "anthropic" || orchestratorProfile.provider === "kimi");
@@ -43260,6 +43678,7 @@ var BackgroundService = class {
         teamProfiles,
         provider: orchestratorProfile.provider || "",
         model: orchestratorProfile.model || settings.model || "",
+        toolCatalog: tools.map((tool2) => ({ name: tool2.name, description: tool2.description || "" })),
         showThinking
       };
       const historyInput = Array.isArray(conversationHistory) ? conversationHistory : [];
@@ -43499,6 +43918,7 @@ var BackgroundService = class {
             message: "Detected XML tool call output. Executing tools and retrying."
           });
           const cleanedText2 = this.stripXmlToolCalls(passResult.text);
+          const parsedXmlAssistant = extractThinking(cleanedText2, passResult.reasoningText || null);
           const toolMessages = [];
           const xmlToolCallEntries = [];
           for (const call of xmlToolCalls) {
@@ -43531,8 +43951,8 @@ var BackgroundService = class {
           }
           const xmlAssistantMsg = {
             role: "assistant",
-            content: cleanedText2 || "",
-            thinking: passResult.reasoningText || null,
+            content: parsedXmlAssistant.content || "",
+            thinking: parsedXmlAssistant.thinking || null,
             toolCalls: xmlToolCallEntries
           };
           currentHistory = normalizeConversationHistory([...currentHistory, xmlAssistantMsg]);
@@ -43547,11 +43967,12 @@ var BackgroundService = class {
           recoveryAttempt += 1;
           continue;
         }
-        reasoningText = passResult.reasoningText || null;
-        totalUsage = passResult.totalUsage || totalUsage;
         const cleanedText = this.stripXmlToolCalls(passResult.text);
-        const isValid2 = isValidFinalResponse(cleanedText, { allowEmpty: false });
-        finalText = isValid2 ? cleanedText.trim() : "";
+        const parsedFinal = extractThinking(cleanedText, passResult.reasoningText || null);
+        reasoningText = parsedFinal.thinking || passResult.reasoningText || null;
+        totalUsage = passResult.totalUsage || totalUsage;
+        const isValid2 = isValidFinalResponse(parsedFinal.content, { allowEmpty: false });
+        finalText = isValid2 ? parsedFinal.content.trim() : "";
         if (!finalText) {
           const maxFinalizeAttempts = 2;
           const toolDigest = (() => {
@@ -43595,7 +44016,12 @@ var BackgroundService = class {
               temperature: 0.2,
               maxOutputTokens: Math.min(2048, orchestratorProfile.maxTokens ?? 4096)
             });
-            const candidate = String(finalizeResult.text || "").trim();
+            const candidateRaw = String(finalizeResult.text || "");
+            const parsedFinalize = extractThinking(candidateRaw, reasoningText || null);
+            if (parsedFinalize.thinking) {
+              reasoningText = parsedFinalize.thinking;
+            }
+            const candidate = parsedFinalize.content.trim();
             if (isValidFinalResponse(candidate, { allowEmpty: false })) {
               finalText = candidate;
               totalUsage = {
@@ -43665,6 +44091,14 @@ var BackgroundService = class {
         settings: compactionSettings
       });
       if (compactionCheck.shouldCompact) {
+        const currentPercent = Math.max(0, Math.min(100, Math.round(compactionCheck.percent * 100)));
+        this.sendRuntime(runMeta, {
+          type: "run_status",
+          phase: "finalizing",
+          attempts: { api: 0, tool: 0, finalize: 0 },
+          maxRetries: { api: 0, tool: 0, finalize: 0 },
+          note: `Context near limit (${currentPercent}%, ${compactionCheck.approxTokens}/${contextLimit} tokens). Compaction started.`
+        });
         let summaryIndex = -1;
         for (let i = nextHistory.length - 1; i >= 0; i -= 1) {
           const msg = nextHistory[i];
@@ -43706,7 +44140,13 @@ ${previousSummary}
             temperature: 0.2,
             maxOutputTokens: Math.floor(0.8 * compactionSettings.reserveTokens)
           });
-          const summaryMessage = buildCompactionSummaryMessage(summaryResult.text, messagesToSummarize.length);
+          const parsedSummary = extractThinking(summaryResult.text || "", null);
+          const summaryText = parsedSummary.content || String(summaryResult.text || "").trim();
+          const compactedInfo = `Compaction result: summarized ${messagesToSummarize.length} messages, kept ${preserved.length} recent messages.`;
+          const compactedSummary = `${compactedInfo}
+
+${summaryText}`;
+          const summaryMessage = buildCompactionSummaryMessage(compactedSummary, messagesToSummarize.length);
           const compaction = applyCompaction({
             summaryMessage,
             preserved,
@@ -43715,7 +44155,7 @@ ${previousSummary}
           const newSessionId = `session-${Date.now()}`;
           this.sendRuntime(runMeta, {
             type: "context_compacted",
-            summary: summaryResult.text,
+            summary: compactedSummary,
             trimmedCount: messagesToSummarize.length,
             preservedCount: compaction.preservedCount,
             newSessionId,
@@ -43725,6 +44165,13 @@ ${previousSummary}
               contextLimit,
               percent: Math.round(compactionCheck.percent * 100)
             }
+          });
+          this.sendRuntime(runMeta, {
+            type: "run_status",
+            phase: "finalizing",
+            attempts: { api: 0, tool: 0, finalize: 0 },
+            maxRetries: { api: 0, tool: 0, finalize: 0 },
+            note: `Context compacted. ${compactedInfo}`
           });
         }
       }
@@ -43754,13 +44201,30 @@ ${previousSummary}
   }
   async runApiSmokeTest(settings, prompt) {
     try {
-      const model = resolveLanguageModel2({
-        provider: settings.provider || "openai",
-        apiKey: settings.apiKey || "",
-        model: settings.model || "",
-        customEndpoint: settings.customEndpoint,
-        extraHeaders: settings.extraHeaders
-      });
+      const runtimeProfile = this.resolveRuntimeModelProfile(
+        {
+          provider: settings.provider || "openai",
+          apiKey: settings.apiKey || "",
+          model: settings.model || "",
+          customEndpoint: settings.customEndpoint,
+          extraHeaders: settings.extraHeaders
+        },
+        settings
+      );
+      if (!runtimeProfile.allowed) {
+        return {
+          rawText: "",
+          fallbackText: "",
+          resolvedText: "",
+          error: runtimeProfile.errorMessage || "No API key configured",
+          usage: {
+            inputTokens: 0,
+            outputTokens: 0,
+            totalTokens: 0
+          }
+        };
+      }
+      const model = resolveLanguageModel2(runtimeProfile.profile);
       const result = streamText({
         model,
         messages: [{ role: "user", content: prompt }],
@@ -43800,6 +44264,58 @@ ${previousSummary}
       };
     }
   }
+  async generateWorkflowPrompt(sessionContext, maxOutputTokens) {
+    try {
+      const settings = this.currentSettings || await chrome.storage.local.get(PARCHI_STORAGE_KEYS);
+      const runtimeProfile = this.resolveRuntimeModelProfile(
+        {
+          provider: settings.provider,
+          apiKey: settings.apiKey,
+          model: settings.model,
+          customEndpoint: settings.customEndpoint,
+          extraHeaders: settings.extraHeaders
+        },
+        settings
+      );
+      if (!runtimeProfile.allowed) {
+        return { prompt: "", error: runtimeProfile.errorMessage || "No API key configured" };
+      }
+      const model = resolveLanguageModel2(runtimeProfile.profile);
+      const outputLimit = Math.min(maxOutputTokens || 4096, 4096);
+      const result = await generateText({
+        model,
+        system: `You are a workflow prompt engineer. Your job is to distill a chat session transcript into a single, reusable workflow prompt.
+
+Rules:
+- Output ONLY the workflow prompt itself \u2014 no preamble, no "Here is your workflow:", no markdown fences wrapping the entire output.
+- The prompt must be self-contained and reproducible: when a user pastes it into a new chat session, an AI assistant should be able to replicate the same behavior and steps.
+- Break the process down into clear numbered steps.
+- Preserve important details: specific URLs, selectors, field names, values, edge cases, and error-handling the assistant performed.
+- Omit irrelevant chatter, greetings, and status updates.
+- If the session involved browser automation, include the exact actions (navigate, click, type, scroll) with their targets.
+- Keep the prompt concise but thorough \u2014 aim for under 1500 words.
+- Use imperative mood ("Navigate to\u2026", "Click\u2026", "Wait for\u2026").`,
+        messages: [
+          {
+            role: "user",
+            content: `Here is the full chat session transcript. Please create a workflow prompt out of it that captures the complete process step by step, so it can be reused to reproduce this exact behavior in a new session.
+
+---
+
+${sessionContext}`
+          }
+        ],
+        maxOutputTokens: outputLimit,
+        temperature: 0.3
+      });
+      const text2 = typeof result.text === "string" ? result.text.trim() : "";
+      return { prompt: text2 };
+    } catch (error48) {
+      const msg = error48 instanceof Error ? error48.message : String(error48 ?? "Unknown error");
+      console.error("[generateWorkflowPrompt] Error:", error48);
+      return { prompt: "", error: msg };
+    }
+  }
   async executeToolByName(toolName, args, options, toolCallId) {
     const callId = toolCallId || `tool_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
     if (this.isRunCancelled(options.runMeta.runId)) {
@@ -43835,6 +44351,7 @@ ${previousSummary}
     });
     sendStart();
     if (toolName === "set_plan") {
+      const hadPlan = Boolean(sessionState.currentPlan && sessionState.currentPlan.steps.length > 0);
       const plan = this.buildPlanFromArgs(args, sessionState.currentPlan);
       if (!plan) {
         const errorResult = {
@@ -43851,7 +44368,7 @@ ${previousSummary}
       const result2 = {
         success: true,
         plan,
-        message: `Plan created with ${plan.steps.length} steps. Use update_plan({ step_index: 0, status: "done" }) after completing each step.`
+        message: hadPlan ? `Plan extended with ${plan.steps.length} total steps. Continue with the active step and use update_plan({ step_index: 0, status: "done" }) after completing each step.` : `Plan created with ${plan.steps.length} steps. Use update_plan({ step_index: 0, status: "done" }) after completing each step.`
       };
       sendResult(result2);
       return result2;
@@ -43945,6 +44462,17 @@ ${previousSummary}
       return errorResult;
     }
     const finalResult = result || { error: "No result returned" };
+    const tabModifyingTools = ["openTab", "closeTab", "navigate", "switchTab", "focusTab"];
+    if (tabModifyingTools.includes(toolName)) {
+      const state = browserTools.getSessionState();
+      this.sendRuntime(options.runMeta, {
+        type: "session_tabs_update",
+        tabs: state.tabs,
+        activeTabId: state.activeTabId,
+        maxTabs: state.maxTabs,
+        groupTitle: state.groupTitle
+      });
+    }
     const browserActions = ["navigate", "click", "type", "scroll", "pressKey"];
     if (browserActions.includes(toolName) && finalResult?.success !== false) {
       sessionState.lastBrowserAction = toolName;
@@ -44136,7 +44664,10 @@ Provide a coherent summary of what happens in the video.`,
       pressKey: "interact",
       scroll: "interact",
       getContent: "read",
+      findHtml: "read",
       screenshot: "screenshots",
+      watchVideo: "screenshots",
+      getVideoInfo: "screenshots",
       getTabs: "tabs",
       closeTab: "tabs",
       switchTab: "tabs",
@@ -44318,6 +44849,21 @@ Use spawn_subagent with a profile name to delegate parallel browser work.` : "";
     const modelLabel = String(context2.model || "").toLowerCase();
     const isKimi = context2.provider === "kimi" || modelLabel.includes("kimi");
     const thinkingSection = context2.showThinking && isKimi ? "\n<thinking>\nIf you produce internal reasoning, wrap it in <analysis>...</analysis> tags. Keep it concise. Do not include the analysis in your final answer text.\n</thinking>" : "";
+    const toolCatalog = Array.isArray(context2.toolCatalog) ? context2.toolCatalog : [];
+    const availableToolNames = toolCatalog.length ? toolCatalog.map((tool2) => String(tool2?.name || "")).filter(Boolean) : [];
+    const toolCatalogSection = toolCatalog.length ? `<tooling>
+${toolCatalog.map((tool2) => `  - ${tool2.name}: ${tool2.description || "No description."}`).join("\n")}
+</tooling>` : "";
+    const hasVisionTools = availableToolNames.includes("screenshot") || availableToolNames.includes("watchVideo") || availableToolNames.includes("getVideoInfo");
+    const visionToolSection = hasVisionTools ? `<vision_tools>
+Vision-capable tools enabled:
+  - screenshot: capture a full screenshot of the current tab for visual verification.
+  - watchVideo: analyze on-page video/audio elements for motion content.
+  - getVideoInfo: fetch metadata for video elements (duration, playback, resolution).
+  - findHtml: confirm whether exact HTML structure exists within page markup.
+If vision tools are enabled, use them when visual structure or media context cannot be verified by text alone.
+</vision_tools>` : "<vision_tools>Vision-capable tools are disabled for this model.</vision_tools>";
+    const orchestratorToolSection = context2.orchestratorEnabled ? availableToolNames.includes("spawn_subagent") ? "<orchestrator_tools>Orchestrator tools enabled: spawn_subagent, subagent_complete. Use spawn_subagent for focused parallel work, and have each sub-agent report via subagent_complete.</orchestrator_tools>" : "<orchestrator_tools>Orchestrator mode is enabled.</orchestrator_tools>" : "";
     let stateSection = "";
     let requiredNextCall = "";
     if (!sessionState.currentPlan || sessionState.currentPlan.steps.length === 0) {
@@ -44382,6 +44928,9 @@ After marking step ${currentIndex} done, proceed to step ${currentIndex + 1}.
     }
     return `${basePrompt}
  ${stateSection}${thinkingSection}
+${toolCatalogSection}
+${visionToolSection}
+${orchestratorToolSection}
 
  <browser_context>
 URL: ${context2.currentUrl}
@@ -44407,6 +44956,58 @@ When a tool fails:
 \u2022 If an element is not found, try a broader selector or use text-based selection
 \u2022 Never give up - keep trying until you succeed or exhaust options
 </checkpoint>`;
+  }
+  hasOwnApiKey(profile) {
+    return Boolean(String(profile?.apiKey || "").trim());
+  }
+  hasActivePaidSubscription(settings = {}) {
+    const mode = String(settings.accountModeChoice || "").toLowerCase();
+    const status = String(settings.convexSubscriptionStatus || "").toLowerCase();
+    const plan = String(settings.convexSubscriptionPlan || "").toLowerCase();
+    return mode === "paid" && plan === "pro" && status === "active";
+  }
+  canUseConvexProxy(settings = {}) {
+    return Boolean(String(settings.convexUrl || "").trim() && String(settings.convexAccessToken || "").trim());
+  }
+  applyConvexProxyProfile(profile, settings) {
+    const preferredProvider = profile?.provider === "kimi" ? "kimi" : profile?.provider === "anthropic" ? "anthropic" : "openai";
+    return {
+      provider: preferredProvider,
+      apiKey: profile?.apiKey || "",
+      model: profile?.model || settings.model || "gpt-4o",
+      customEndpoint: profile?.customEndpoint || "",
+      extraHeaders: profile?.extraHeaders || {},
+      useProxy: true,
+      proxyBaseUrl: String(settings.convexUrl || "").trim(),
+      proxyAuthToken: String(settings.convexAccessToken || "").trim(),
+      proxyProvider: preferredProvider
+    };
+  }
+  resolveRuntimeModelProfile(profile, settings) {
+    if (this.hasOwnApiKey(profile)) {
+      return { allowed: true, route: "byok", profile };
+    }
+    if (!this.hasActivePaidSubscription(settings)) {
+      return {
+        allowed: false,
+        route: "none",
+        profile,
+        errorMessage: "Add an API key in settings or subscribe to the paid plan."
+      };
+    }
+    if (!this.canUseConvexProxy(settings)) {
+      return {
+        allowed: false,
+        route: "none",
+        profile,
+        errorMessage: "Paid plan is active but auth is missing. Sign in again in Account & Billing."
+      };
+    }
+    return {
+      allowed: true,
+      route: "proxy",
+      profile: this.applyConvexProxyProfile(profile, settings)
+    };
   }
   resolveProfile(settings, name17 = "default") {
     const base = {
@@ -44443,10 +45044,29 @@ When a tool fails:
       };
     });
   }
-  getToolsForSession(settings, includeOrchestrator = false, teamProfiles = []) {
+  isVisionModelProfile(profile) {
+    const provider = String(profile?.provider || "").toLowerCase();
+    const model = String(profile?.model || "").toLowerCase();
+    if (!provider) return false;
+    if (provider === "anthropic") return true;
+    if (provider === "kimi") return true;
+    if (provider === "openai") {
+      return /gpt-4o|gpt-4\.1|gpt-4-turbo|gpt-4-vision|vision/.test(model);
+    }
+    if (provider === "google") {
+      return /(gemini|imagen)/.test(model);
+    }
+    return model.includes("vision");
+  }
+  getToolsForSession(settings, includeOrchestrator = false, teamProfiles = [], includeVisionTools = false) {
     let tools = this.browserTools.getToolDefinitions();
     if (settings && settings.enableScreenshots === false) {
       tools = tools.filter((tool2) => tool2.name !== "screenshot");
+    }
+    if (!includeVisionTools) {
+      tools = tools.filter(
+        (tool2) => tool2.name !== "screenshot" && tool2.name !== "watchVideo" && tool2.name !== "getVideoInfo"
+      );
     }
     tools = tools.concat([
       {
@@ -44579,7 +45199,7 @@ When a tool fails:
     try {
       const subAgentSystemPrompt = `${args.prompt || "You are a focused sub-agent working under an orchestrator. Be concise and tool-driven."}
 Always cite evidence from tools. Finish by calling subagent_complete with a short summary and any structured findings.`;
-      const tools = this.getToolsForSession(settings || {}, false);
+      const tools = this.getToolsForSession(profileSettings, false, [], this.isVisionModelProfile(profileSettings));
       const toolSet = buildToolSet(
         tools,
         async (toolName, toolArgs, options) => this.executeToolByName(

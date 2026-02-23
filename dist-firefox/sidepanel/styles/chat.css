@@ -11,46 +11,70 @@
   scroll-behavior: smooth;
 }
 
-/* New Session FAB — Top right */
-.new-session-fab {
+/* FAB Group — Top right */
+.fab-group {
   position: fixed;
   top: 12px;
   right: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 50;
+  transition: right var(--duration-normal) var(--ease-out-expo);
+}
+
+body.sidebar-open .fab-group {
+  right: calc(var(--sidebar-width) + 12px);
+}
+
+.settings-fab,
+.history-fab,
+.new-session-fab {
   width: 34px;
   height: 34px;
   border-radius: 999px;
-  border: 1.5px solid var(--ink-2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   background: var(--card);
   color: var(--foreground);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  z-index: 50;
-  transition: transform var(--duration-fast) var(--ease-out-expo), border-color var(--duration-fast)
-    var(--ease-out-expo), box-shadow var(--duration-fast) var(--ease-out-expo), opacity var(--duration-fast) ease;
-  opacity: 0.6;
+  transition: all 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0.65;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
-body.sidebar-open .new-session-fab {
-  right: calc(var(--sidebar-width) + 12px);
-}
-
+.settings-fab:hover,
+.history-fab:hover,
 .new-session-fab:hover {
-  transform: scale(1.05);
+  transform: scale(1.12);
   opacity: 1;
-  border-color: var(--accent);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3), 0 0 0 1px rgb(var(--accent-rgb) / 0.15);
+  border-color: rgb(var(--accent-rgb) / 0.35);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 24px rgba(0, 0, 0, 0.4),
+    0 0 24px rgb(var(--accent-rgb) / 0.08);
 }
 
+.settings-fab:active,
+.history-fab:active,
+.new-session-fab:active {
+  transform: scale(0.92);
+  transition-duration: 80ms;
+}
+
+.settings-fab svg,
+.history-fab svg,
 .new-session-fab svg {
-  transition: transform 180ms var(--ease-out-back);
+  transition: transform 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   width: 16px;
   height: 16px;
 }
 
 .new-session-fab:hover svg {
-  transform: rotate(90deg) scale(1.1);
+  transform: rotate(90deg) scale(1.15);
 }
 
 /* Jump to latest */
@@ -59,25 +83,35 @@ body.sidebar-open .new-session-fab {
   left: 50%;
   transform: translateX(-50%);
   bottom: 140px;
-  padding: 6px 12px;
+  padding: 6px 14px;
   background: var(--card);
-  border: 1px solid var(--ink-2);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 999px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 550;
   color: var(--foreground);
   cursor: pointer;
   z-index: 10;
-  transition: all var(--duration-fast) var(--ease-out-expo);
-  opacity: 0.8;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: all 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  opacity: 0.85;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 4px 16px rgba(0, 0, 0, 0.3);
 }
 
 .jump-to-latest:hover {
   opacity: 1;
-  border-color: var(--accent);
-  transform: translateX(-50%) translateY(-1px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+  border-color: rgb(var(--accent-rgb) / 0.35);
+  transform: translateX(-50%) translateY(-2px) scale(1.03);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 8px 24px rgba(0, 0, 0, 0.35),
+    0 0 20px rgb(var(--accent-rgb) / 0.08);
+}
+
+.jump-to-latest:active {
+  transform: translateX(-50%) scale(0.97);
+  transition-duration: 80ms;
 }
 
 .jump-to-latest.hidden {
@@ -941,7 +975,7 @@ body.sidebar-open .new-session-fab {
   animation-delay: -0.16s;
 }
 .typing-indicator span:nth-child(3) {
-  animation-delay: 0;
+  animation-delay: 0s;
 }
 
 @keyframes typing-bounce {
@@ -1034,17 +1068,23 @@ body.sidebar-open .new-session-fab {
   height: 24px;
   padding: 0;
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
-  transition: all var(--duration-fast) ease;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .export-menu-close:hover {
-  background: var(--background);
-  border-color: var(--accent);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgb(var(--accent-rgb) / 0.3);
   color: var(--foreground);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.06);
+}
+
+.export-menu-close:active {
+  transform: scale(0.88);
+  transition-duration: 80ms;
 }
 
 .export-menu-options {
@@ -1061,16 +1101,23 @@ body.sidebar-open .new-session-fab {
   padding: 10px 12px;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
   text-align: left;
-  transition: all var(--duration-fast) ease;
+  transition: all 180ms ease;
   color: var(--foreground);
 }
 
 .export-option:hover {
   background: rgba(255, 255, 255, 0.04);
-  border-color: var(--border);
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+
+.export-option:active {
+  background: rgba(255, 255, 255, 0.02);
+  transform: scale(0.98);
+  transition-duration: 80ms;
 }
 
 .export-option svg {
@@ -1263,26 +1310,33 @@ body.sidebar-open .new-session-fab {
   gap: 6px;
   padding: 4px 10px;
   background: transparent;
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 999px;
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 550;
   color: var(--muted);
   cursor: pointer;
-  transition: all var(--duration-fast) ease;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   white-space: nowrap;
 }
 
 .agent-nav-item:hover {
   background: rgba(255, 255, 255, 0.04);
-  border-color: var(--accent);
+  border-color: rgb(var(--accent-rgb) / 0.3);
   color: var(--foreground);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.06);
+}
+
+.agent-nav-item:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 .agent-nav-item.active {
-  background: rgb(var(--accent-rgb) / 0.12);
-  border-color: rgb(var(--accent-rgb) / 0.4);
+  background: rgb(var(--accent-rgb) / 0.1);
+  border-color: rgb(var(--accent-rgb) / 0.25);
   color: var(--accent-light);
+  box-shadow: 0 0 16px rgb(var(--accent-rgb) / 0.08);
 }
 
 .agent-nav-item .agent-status {

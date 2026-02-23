@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#0a0a0f"/>
+    </linearGradient>
+    <linearGradient id="ac" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a5b4fc"/>
+      <stop offset="100%" stop-color="#6366f1"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Classic pointer cursor -->
+  <path d="M44 26 L44 82 L56 70 L70 90 L78 84 L64 64 L80 56 Z" fill="url(#ac)" stroke="#c7d2fe" stroke-width="1.5" stroke-linejoin="round"/>
+  <!-- Dashed orbit — automation loop -->
+  <circle cx="64" cy="64" r="28" fill="none" stroke="#818cf8" stroke-width="2" stroke-dasharray="8 6" opacity="0.35"/>
+  <!-- Spark -->
+  <circle cx="92" cy="64" r="4" fill="#c7d2fe"/>
+</svg>

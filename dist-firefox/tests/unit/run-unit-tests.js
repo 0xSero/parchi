@@ -104,9 +104,6 @@ function shouldCompact({
 }
 function estimateTokens(message) {
   let tokens = estimateTokensFromContent(message.content);
-  if (message.thinking) {
-    tokens += Math.ceil(message.thinking.length / 4);
-  }
   if (Array.isArray(message.content)) {
     for (const part of message.content) {
       if (!part || typeof part !== "object") continue;
@@ -299,6 +296,18 @@ var DEFAULT_QUIT_PHRASES = [
   "unable to produce a final summary",
   "unable to provide a final response"
 ];
+function hasRunawayRepetition(text) {
+  const segments = text.split(/[\n.!?]+/).map((segment) => segment.trim().toLowerCase()).filter(Boolean).map((segment) => segment.replace(/[^a-z0-9\s]/g, "")).map((segment) => segment.replace(/\s+/g, " ").trim()).filter((segment) => segment.length >= 20);
+  if (segments.length < 8) return false;
+  const counts = /* @__PURE__ */ new Map();
+  let maxCount = 0;
+  for (const segment of segments) {
+    const next = (counts.get(segment) || 0) + 1;
+    counts.set(segment, next);
+    if (next > maxCount) maxCount = next;
+  }
+  return maxCount >= 4 && maxCount / segments.length >= 0.33;
+}
 function createExponentialBackoff(options = {}) {
   const baseMs = Number.isFinite(options.baseMs) ? Number(options.baseMs) : 500;
   const maxMs = Number.isFinite(options.maxMs) ? Number(options.maxMs) : 8e3;
@@ -318,7 +327,9 @@ function isValidFinalResponse(text, options = {}) {
   if (!trimmed) return options.allowEmpty === true;
   const lowered = trimmed.toLowerCase();
   const phrases = options.quitPhrases || DEFAULT_QUIT_PHRASES;
-  return !phrases.some((phrase) => lowered.includes(phrase));
+  if (phrases.some((phrase) => lowered.includes(phrase))) return false;
+  if (hasRunawayRepetition(trimmed)) return false;
+  return true;
 }
 
 // packages/shared/src/plan.ts
@@ -362,7 +373,20 @@ function normalizePlanSteps(input, options = {}) {
 }
 function buildRunPlan(stepsInput, options = {}) {
   const now = options.now ?? Date.now();
-  const steps = normalizePlanSteps(stepsInput, { maxSteps: options.maxSteps });
+  const maxSteps = options.maxSteps ?? 8;
+  const incomingSteps = normalizePlanSteps(stepsInput, { maxSteps });
+  const existingPlan = options.existingPlan ?? null;
+  const existingSteps = existingPlan?.steps || [];
+  const steps = [
+    ...existingSteps.map((step, index) => ({
+      ...step,
+      id: step.id || `step-${index + 1}`
+    })),
+    ...incomingSteps.map((step, index) => ({
+      ...step,
+      id: `step-${existingSteps.length + index + 1}`
+    }))
+  ].slice(0, maxSteps);
   const createdAt = options.existingPlan?.createdAt ?? now;
   return {
     steps,
@@ -389,7 +413,8 @@ var runtimeMessageTypes = [
   "run_warning",
   "context_compacted",
   "subagent_start",
-  "subagent_complete"
+  "subagent_complete",
+  "session_tabs_update"
 ];
 function isRuntimeMessage(value) {
   if (!value || typeof value !== "object") return false;

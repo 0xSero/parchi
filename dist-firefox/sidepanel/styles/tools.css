@@ -105,22 +105,24 @@
   height: 24px;
   padding: 0;
   background: transparent;
-  border: 1px solid var(--ink-1);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .plan-drawer-btn:hover {
-  background: var(--background);
-  border-color: var(--ink-2);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
   color: var(--foreground);
-  transform: scale(1.05);
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.025);
 }
 
 .plan-drawer-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.88);
+  transition-duration: 80ms;
 }
 
 .plan-drawer-content {
@@ -426,4 +428,167 @@
 .stream-events.tools-collapsed .inline-thinking-block,
 .stream-events.tools-collapsed .stream-event-reasoning {
   display: none;
+}
+
+/* ============================================================================
+   Session Tabs HUD — Floating tab strip showing model's active browser tabs
+   ============================================================================ */
+
+.session-tabs-hud {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  padding: 6px 16px 6px;
+  background: linear-gradient(to bottom, var(--background) 60%, transparent);
+  animation: sessionHudSlideIn 0.25s var(--ease-out-expo);
+}
+
+.session-tabs-hud.hidden {
+  display: none;
+}
+
+@keyframes sessionHudSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.session-tabs-inner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 10px;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.session-tabs-label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.session-tabs-label svg {
+  opacity: 0.6;
+}
+
+#sessionTabsCount {
+  transition: color var(--duration-fast) ease;
+}
+
+#sessionTabsCount.at-limit {
+  color: var(--warning);
+}
+
+.session-tabs-list {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  flex: 1;
+  min-width: 0;
+}
+
+.session-tabs-list::-webkit-scrollbar {
+  display: none;
+}
+
+/* Session Tab Pill */
+.session-tab-pill {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: var(--ink-1);
+  border: 1px solid transparent;
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+  cursor: default;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+  position: relative;
+  max-width: 160px;
+}
+
+.session-tab-pill.active {
+  background: rgba(var(--accent-rgb) / 0.08);
+  border-color: rgba(var(--accent-rgb) / 0.2);
+  color: var(--accent-light);
+}
+
+.session-tab-pill.interacting {
+  border-color: rgba(var(--accent-rgb) / 0.5);
+  box-shadow: 0 0 8px rgba(var(--accent-rgb) / 0.15);
+  animation: tabInteracting 1.2s ease-in-out infinite;
+}
+
+@keyframes tabInteracting {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(var(--accent-rgb) / 0.15);
+    border-color: rgba(var(--accent-rgb) / 0.5);
+  }
+  50% {
+    box-shadow: 0 0 14px rgba(var(--accent-rgb) / 0.3);
+    border-color: rgba(var(--accent-rgb) / 0.7);
+  }
+}
+
+.session-tab-favicon {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.session-tab-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.session-tab-activity {
+  display: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.session-tab-pill.interacting .session-tab-activity {
+  display: block;
+  background: var(--accent);
+  box-shadow: 0 0 6px rgba(var(--accent-rgb) / 0.6);
+  animation: activityPulse 1s ease-in-out infinite;
+}
+
+@keyframes activityPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(0.7);
+  }
 }

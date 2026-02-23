@@ -1,0 +1,97 @@
+.account-onboarding-modal {
+  position: absolute;
+  inset: 16px;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in oklab, var(--bg-primary) 74%, transparent);
+  backdrop-filter: blur(5px);
+  border-radius: 16px;
+}
+
+.account-onboarding-card {
+  width: min(420px, 96%);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  background: var(--bg-secondary);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.2);
+  padding: 18px;
+}
+
+.account-onboarding-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.account-onboarding-subtitle {
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.45;
+}
+
+.account-onboarding-actions {
+  margin-top: 14px;
+  display: flex;
+  gap: 10px;
+}
+
+.account-settings-section {
+  margin-top: 8px;
+}
+
+.account-settings-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.account-auth-block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.account-inline-note {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.account-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.account-stat {
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 8px 10px;
+  background: var(--bg-tertiary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.account-stat-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-tertiary);
+}
+
+.account-stat-value {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: right;
+}
+
+@media (max-width: 540px) {
+  .account-onboarding-actions {
+    flex-direction: column;
+  }
+}

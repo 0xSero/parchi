@@ -110,11 +110,16 @@
                 <option value="false">Disabled</option>
             </select>
         </div>
-        <div class="form-group full-width">
-            <label for="profileEditorPrompt">System prompt</label>
-            <textarea id="profileEditorPrompt" rows="3"></textarea>
-        </div>
     </div>
+    <details class="settings-section profile-system-prompt">
+        <summary>System prompt</summary>
+        <div class="settings-body">
+            <div class="form-group">
+                <textarea id="profileEditorPrompt" rows="3" class="system-prompt-textarea"></textarea>
+            </div>
+            <small>Profile-level system prompt override. Leave empty to inherit default prompt.</small>
+        </div>
+    </details>
     <button id="saveProfileBtn" class="btn btn-primary">Save Profile</button>
 </div>
 

@@ -36,16 +36,8 @@
 }
 
 .composer.running::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent 0%, hsla(0, 0%, 100%, 0.2) 50%, transparent 100%);
-  background-size: 200% 100%;
-  animation: shimmer 1.5s ease-in-out infinite;
-  z-index: 2;
+  /* shimmer removed — mascot handles running state */
+  display: none;
 }
 
 @keyframes shimmer {
@@ -64,11 +56,19 @@
 .composer.running .send-btn {
   background: hsla(0, 40%, 50%, 0.9);
   color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 8px hsla(0, 40%, 50%, 0.25),
+    0 0 20px hsla(0, 40%, 50%, 0.1);
 }
 
 .composer.running .send-btn:hover {
   background: hsl(0, 45%, 55%);
   color: #fff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 16px hsla(0, 45%, 55%, 0.35),
+    0 0 32px hsla(0, 40%, 50%, 0.12);
 }
 
 /* Send/Stop icon toggle — stop icon hidden by default */
@@ -88,11 +88,13 @@
   width: 100%;
   min-height: 54px;
   padding: 18px 18px 12px;
+  max-height: min(40vh, 280px);
   background: transparent;
   color: var(--foreground);
   font-size: 15px;
   line-height: 1.6;
   resize: none;
+  overflow-y: auto;
   border: none;
   border-radius: 0;
   outline: none;
@@ -111,6 +113,8 @@
   padding: 6px 14px 8px;
   background: transparent;
   border-top: 1px solid var(--ink-1);
+  position: relative;
+  z-index: 3;
 }
 
 .composer-toolbar-left {
@@ -166,7 +170,7 @@
   color: var(--foreground);
 }
 
-/* Status — inline text, no pill */
+/* Status — only timer & context meta shown inline */
 .composer-status {
   display: inline-flex;
   align-items: center;
@@ -177,9 +181,7 @@
   border-radius: 0;
   font-size: 11px;
   color: var(--muted);
-  max-width: 260px;
   white-space: nowrap;
-  overflow: hidden;
   transition: all var(--duration-fast) ease;
 }
 
@@ -196,7 +198,6 @@
 
 .composer-status .status-dot.active {
   background: var(--accent);
-  box-shadow: 0 0 8px rgb(var(--accent-rgb) / 0.3);
 }
 
 .composer-status #statusText {
@@ -215,7 +216,6 @@
   padding-left: 6px;
   border-left: 1px solid var(--ink-1);
   opacity: 0;
-  max-width: 0;
   overflow: hidden;
   transition: all var(--duration-fast) ease;
 }
@@ -223,7 +223,6 @@
 .composer-status:hover .status-meta,
 .composer-status.has-meta .status-meta {
   opacity: 1;
-  max-width: 120px;
 }
 
 .composer-status .status-meta:empty {
@@ -242,8 +241,8 @@
 }
 
 .composer .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: transparent;
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.04);
   color: var(--foreground);
 }
 
@@ -359,10 +358,7 @@
   }
 }
 
-/* Export button — hidden from toolbar, accessible via sidebar menu */
-.composer .export-btn {
-  display: none;
-}
+/* Export button */
 
 /* Narrow sidepanel adjustments */
 @media (max-width: 520px) {
@@ -473,32 +469,43 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  padding: 6px 10px;
+  gap: 6px;
+  padding: 7px 14px;
   font-size: 12px;
-  font-weight: 500;
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border);
-  background: var(--card);
+  font-weight: 550;
+  letter-spacing: 0.01em;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.02) 100%);
   color: var(--foreground);
   position: relative;
   overflow: hidden;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
 }
 
 .btn::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.07), transparent 50%);
   opacity: 0;
-  transition: opacity var(--duration-fast);
+  transition: opacity 200ms ease;
+  pointer-events: none;
 }
 
 .btn:hover {
-  background: var(--card-hover);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.035) 100%);
+  border-color: rgba(255, 255, 255, 0.11);
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 20px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.03);
 }
 
 .btn:hover::after {
@@ -506,24 +513,62 @@
 }
 
 .btn:active {
-  transform: translateY(0);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transform: translateY(0) scale(0.97);
+  box-shadow:
+    inset 0 2px 4px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.15);
+  transition-duration: 80ms;
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, var(--accent), var(--accent-dark));
-  border-color: transparent;
+  background: var(--accent);
+  border-color: rgba(255, 255, 255, 0.1);
   color: #fff;
-  box-shadow: 0 4px 12px rgb(var(--accent-rgb) / 0.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.12),
+    0 2px 10px rgb(var(--accent-rgb) / 0.3),
+    0 0 24px rgb(var(--accent-rgb) / 0.1);
+}
+
+.btn-primary::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 60%);
+  opacity: 1;
 }
 
 .btn-primary:hover {
-  background: linear-gradient(180deg, var(--accent-light), var(--accent));
-  box-shadow: 0 6px 16px rgb(var(--accent-rgb) / 0.35);
+  background: var(--accent-light);
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 6px 24px rgb(var(--accent-rgb) / 0.4),
+    0 0 48px rgb(var(--accent-rgb) / 0.12);
+}
+
+.btn-primary:active {
+  background: var(--accent-dark);
+  box-shadow:
+    inset 0 2px 6px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgb(var(--accent-rgb) / 0.2);
 }
 
 .btn-secondary {
   background: transparent;
+  border-color: var(--ink-2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.025);
+}
+
+.btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    0 4px 14px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary:active {
+  background: rgba(255, 255, 255, 0.02);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .icon-btn {
@@ -534,12 +579,13 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  border-radius: 10px;
   color: var(--muted);
   position: relative;
   overflow: hidden;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  cursor: pointer;
 }
 
 .icon-btn::before {
@@ -547,29 +593,36 @@
 }
 
 .icon-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.055);
+  border-color: rgba(255, 255, 255, 0.06);
   color: var(--foreground);
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.025);
 }
 
 .icon-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.88);
+  transition-duration: 80ms;
 }
 
-/* Send button — subtle circle */
+/* Send button — precision circle */
 .send-btn {
   width: 32px;
   height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--muted-dim);
+  background: var(--foreground);
   border: none;
   border-radius: 50%;
   color: var(--background);
-  box-shadow: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 2px 8px rgba(0, 0, 0, 0.35),
+    0 0 0 1px rgba(255, 255, 255, 0.05);
   position: relative;
   overflow: hidden;
-  transition: all var(--duration-fast) var(--ease-spring);
+  z-index: 4;
+  transition: all 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .send-btn::before {
@@ -577,7 +630,13 @@
 }
 
 .send-btn:hover {
-  background: var(--muted);
+  background: var(--accent);
+  color: #fff;
+  transform: scale(1.1);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 16px rgb(var(--accent-rgb) / 0.4),
+    0 0 32px rgb(var(--accent-rgb) / 0.15);
 }
 
 .send-btn:hover::before {
@@ -585,13 +644,316 @@
 }
 
 .send-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.9);
+  transition-duration: 80ms;
 }
 
 .send-btn:disabled {
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--muted-dim);
   cursor: not-allowed;
-  box-shadow: none;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
   transform: none;
+}
+
+/* ============================================================================
+   Workflow Menu — slash command palette
+   ============================================================================ */
+
+.workflow-menu {
+  position: fixed;
+  z-index: 1000;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+  animation: workflowSlideUp 0.15s var(--ease-out-expo);
+}
+
+@keyframes workflowSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.workflow-menu-list {
+  overflow-y: auto;
+  max-height: 200px;
+  padding: 4px;
+}
+
+.workflow-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-fast) ease;
+}
+
+.workflow-item:hover,
+.workflow-item.active {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.workflow-item.active {
+  outline: 1px solid var(--ink-2);
+}
+
+.workflow-item-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.workflow-item-name {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--foreground);
+  font-family: var(--font-mono);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-item-preview {
+  font-size: 11px;
+  color: var(--muted-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.workflow-item-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  color: var(--muted-dim);
+  cursor: pointer;
+  opacity: 0;
+  transition: all var(--duration-fast) ease;
+  flex-shrink: 0;
+}
+
+.workflow-item:hover .workflow-item-delete {
+  opacity: 1;
+}
+
+.workflow-item-delete:hover {
+  background: rgba(255, 80, 80, 0.15);
+  color: var(--error);
+}
+
+.workflow-empty {
+  padding: 20px 16px;
+  text-align: center;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted-dim);
+}
+
+.workflow-empty strong {
+  color: var(--muted);
+}
+
+.workflow-save-row {
+  border-top: 1px solid var(--ink-1);
+  padding: 4px;
+}
+
+.workflow-save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all var(--duration-fast) ease;
+}
+
+.workflow-save-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+.workflow-save-btn svg {
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.workflow-save-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+}
+
+.workflow-save-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--background);
+  border: 1px solid var(--ink-2);
+  border-radius: 8px;
+  color: var(--foreground);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.workflow-save-input:focus {
+  border-color: var(--accent);
+}
+
+.workflow-save-prompt {
+  width: 100%;
+  padding: 8px 10px;
+  background: var(--background);
+  border: 1px solid var(--ink-2);
+  border-radius: 8px;
+  color: var(--foreground);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  line-height: 1.5;
+  min-height: 72px;
+  max-height: 500px;
+  height: 72px;
+  resize: none;
+  overflow-y: hidden;
+  outline: none;
+  box-sizing: border-box;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.workflow-save-prompt:focus {
+  border-color: var(--accent);
+}
+
+.workflow-save-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.workflow-save-actions-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.workflow-generate-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  background: transparent;
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  white-space: nowrap;
+}
+
+.workflow-generate-btn:hover {
+  border-color: rgb(var(--accent-rgb) / 0.4);
+  color: var(--accent);
+  background: rgb(var(--accent-rgb) / 0.06);
+  box-shadow: 0 0 16px rgb(var(--accent-rgb) / 0.08);
+  transform: translateY(-1px);
+}
+
+.workflow-generate-btn svg {
+  flex-shrink: 0;
+  color: var(--accent);
+}
+
+.workflow-generate-btn.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.workflow-spinner {
+  animation: workflowSpin 1s linear infinite;
+}
+
+@keyframes workflowSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.workflow-save-cancel {
+  padding: 6px 12px;
+  background: transparent;
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  color: var(--muted);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.workflow-save-cancel:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.04);
+  transform: translateY(-1px);
+}
+
+.workflow-save-cancel:active {
+  transform: scale(0.97);
+  transition-duration: 80ms;
+}
+
+.workflow-save-confirm {
+  padding: 6px 12px;
+  background: var(--accent);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 550;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.15),
+    0 2px 8px rgb(var(--accent-rgb) / 0.25);
+}
+
+.workflow-save-confirm:hover {
+  background: var(--accent-light);
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 16px rgb(var(--accent-rgb) / 0.35);
+}
+
+.workflow-save-confirm:active {
+  transform: scale(0.97);
+  background: var(--accent-dark);
+  transition-duration: 80ms;
 }

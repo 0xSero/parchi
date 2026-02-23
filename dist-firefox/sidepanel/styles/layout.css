@@ -21,8 +21,7 @@ body.sidebar-open .sidebar-scrim {
 }
 
 /* Sidebar sizing */
-body[data-right-panel="settings"],
-body[data-right-panel="history"] {
+body[data-right-panel="settings"] {
   --sidebar-width: clamp(320px, 80vw, 760px);
 }
 
@@ -170,64 +169,111 @@ body[data-right-panel="history"] {
   min-height: 0;
 }
 
-/* Sidebar Navigation */
-.sidebar-nav {
+/* History Drawer — floating overlay from top-right */
+.history-drawer {
+  position: fixed;
+  top: 12px;
+  right: 12px;
+  width: 80%;
+  max-height: 65vh;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: var(--radius);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  z-index: 90;
   display: flex;
   flex-direction: column;
-  padding: 8px;
-  gap: 2px;
-  border-bottom: 1px solid var(--border);
+  transform: translateY(0);
+  opacity: 1;
+  transition: transform var(--duration-normal) var(--ease-out-expo), opacity var(--duration-normal) var(--ease-out-expo);
 }
 
-.nav-item {
+.history-drawer.hidden {
+  transform: translateY(-20px);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.history-drawer-header {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px;
-  border-radius: var(--radius-sm);
-  color: var(--muted);
-  font-size: 13px;
-  font-weight: 500;
-  position: relative;
-  transition: all var(--duration-fast) var(--ease-out-expo);
-  overflow: hidden;
-}
-
-.nav-item::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%) scaleY(0);
-  width: 3px;
-  height: 20px;
-  background: var(--accent);
-  border-radius: 0 2px 2px 0;
-  transition: transform var(--duration-fast) var(--ease-out-back);
-}
-
-.nav-item:hover {
-  background: var(--card-hover);
-  color: var(--foreground);
-  transform: translateX(2px);
-}
-
-.nav-item.active {
-  background: var(--background);
-  color: var(--foreground);
-}
-
-.nav-item.active::before {
-  transform: translateY(-50%) scaleY(1);
-}
-
-.nav-item svg {
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  transition: transform var(--duration-fast) var(--ease-out-back);
 }
 
-.nav-item:hover svg {
-  transform: scale(1.1);
+.history-drawer-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--foreground);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.history-drawer-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.history-drawer-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 16px;
+  border-bottom: 1px solid var(--ink-1);
+  flex-shrink: 0;
+}
+
+.history-drawer-search svg {
+  flex-shrink: 0;
+  color: var(--muted-dim);
+}
+
+.history-drawer-search input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--foreground);
+  font-size: 13px;
+  font-family: inherit;
+  padding: 6px 0;
+}
+
+.history-drawer-search input:focus {
+  outline: none;
+  border: none;
+  box-shadow: none;
+}
+
+.history-drawer-search input::placeholder {
+  color: var(--muted-dim);
+}
+
+.history-drawer-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.history-drawer-scrim {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(2px);
+  z-index: 85;
+  opacity: 1;
+  transition: opacity var(--duration-normal) var(--ease-out-expo);
+}
+
+.history-drawer-scrim.hidden {
+  opacity: 0;
+  pointer-events: none;
 }
 
 .panel-header {
@@ -290,13 +336,18 @@ body[data-right-panel="history"] {
    Mascot — Top-Left Companion
    ============================================================================ */
 
+.mascot-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
 .mascot-corner {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   flex-shrink: 0;
   opacity: 0.7;
   transition: opacity var(--duration-fast) ease;
-  cursor: default;
+  cursor: pointer;
 }
 
 .mascot-corner:hover {
@@ -307,6 +358,7 @@ body[data-right-panel="history"] {
   width: 100%;
   height: 100%;
   position: relative;
+  transform: scale(1.12);
 }
 
 .mascot-blob-body {
@@ -321,7 +373,7 @@ body[data-right-panel="history"] {
 }
 
 .mascot-corner:hover .mascot-blob-body {
-  border-color: var(--accent);
+  border-color: var(--ink-2);
 }
 
 .mascot-eyes {
@@ -330,14 +382,17 @@ body[data-right-panel="history"] {
   left: 50%;
   transform: translateX(-50%);
   display: flex;
-  gap: 6px;
+  gap: 5px;
+  transition: transform 0.3s ease;
 }
 
+/* --- Default / Awake eyes (round dots) --- */
 .mascot-eye {
-  width: 6px;
-  height: 6px;
+  width: 4px;
+  height: 4px;
   background: var(--mascot-eye);
   border-radius: 50%;
+  transition: all 0.3s ease;
   animation: mascotBlink 5s ease-in-out infinite;
 }
 
@@ -348,12 +403,42 @@ body[data-right-panel="history"] {
 .mascot-eye::after {
   content: "";
   position: absolute;
-  top: 1px;
-  left: 1px;
-  width: 2px;
-  height: 2px;
+  top: 0.5px;
+  left: 0.5px;
+  width: 1.5px;
+  height: 1.5px;
   background: rgba(255, 255, 255, 0.6);
   border-radius: 50%;
+}
+
+/* --- Sleeping eyes  _ _  (closed flat lines) --- */
+.mascot-corner.sleeping .mascot-eye {
+  width: 5px;
+  height: 1.5px;
+  border-radius: 1px;
+  animation: none;
+}
+
+.mascot-corner.sleeping .mascot-eye::after {
+  display: none;
+}
+
+/* --- Looking-up eyes (user typing) --- */
+.mascot-corner.looking-up .mascot-eyes {
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.mascot-corner.looking-up .mascot-eye {
+  animation: none;
+}
+
+/* --- Working / awake eyes --- */
+.mascot-corner.working .mascot-eye {
+  animation: mascotBlink 5s ease-in-out infinite;
+}
+
+.mascot-corner.working .mascot-blob-body {
+  border-color: var(--ink-2);
 }
 
 .mascot-smile {
@@ -371,17 +456,92 @@ body[data-right-panel="history"] {
 
 .mascot-corner:hover .mascot-smile {
   opacity: 1;
-  border-color: var(--accent);
 }
 
+/* No glow on thinking — mascot is enough */
 .mascot-corner.thinking .mascot-blob-body {
-  border-color: var(--accent);
-  box-shadow: 0 2px 12px rgb(var(--accent-rgb) / 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  border-color: var(--ink-2);
 }
 
 .mascot-corner.thinking .mascot-eye {
   animation: mascotLook 2s ease-in-out infinite;
 }
+
+/* ============================================================================
+   Mascot Bubble — Status popup above mascot
+   ============================================================================ */
+
+.mascot-bubble {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  padding: 6px 10px;
+  white-space: nowrap;
+  z-index: 100;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+  animation: bubbleAppear 0.15s var(--ease-out-expo);
+  pointer-events: auto;
+}
+
+.mascot-bubble.hidden {
+  display: none;
+}
+
+.mascot-bubble-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.bubble-verb {
+  color: var(--foreground);
+  font-weight: 500;
+  font-size: 11px;
+}
+
+.bubble-meta {
+  font-size: 10px;
+  color: var(--muted-dim);
+  padding-left: 6px;
+  border-left: 1px solid var(--ink-1);
+}
+
+.bubble-meta:empty {
+  display: none;
+}
+
+.mascot-bubble-tail {
+  position: absolute;
+  bottom: -5px;
+  left: 10px;
+  transform: rotate(45deg);
+  width: 8px;
+  height: 8px;
+  background: var(--card);
+  border-right: 1px solid var(--ink-2);
+  border-bottom: 1px solid var(--ink-2);
+}
+
+@keyframes bubbleAppear {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================================
+   Mascot Keyframes
+   ============================================================================ */
 
 @keyframes mascotBreathe {
   0%,

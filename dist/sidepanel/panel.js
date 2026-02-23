@@ -4942,7 +4942,14 @@ SidePanelUI.prototype.renderSessionTabsHud = function renderSessionTabsHud() {
     if (tab.url) {
       try {
         const origin = new URL(tab.url).origin;
-        faviconHtml = `<img class="session-tab-favicon" src="${origin}/favicon.ico" onerror="this.style.display='none'" alt="">`;
+        const img = document.createElement("img");
+        img.className = "session-tab-favicon";
+        img.src = `${origin}/favicon.ico`;
+        img.alt = "";
+        img.onerror = () => {
+          img.style.display = "none";
+        };
+        faviconHtml = img.outerHTML;
       } catch {
       }
     }
@@ -7867,7 +7874,7 @@ var STORAGE_KEYS = {
   subscriptionCheckedAt: "convexSubscriptionCheckedAt",
   convexUrl: "convexUrl"
 };
-var CONVEX_DEPLOYMENT_URL = String(true ? "https://energetic-firefly-297.convex.cloud" : "").trim();
+var CONVEX_DEPLOYMENT_URL = String(true ? "" : "").trim();
 var runtimeConvexUrl = CONVEX_DEPLOYMENT_URL;
 var convexClient = runtimeConvexUrl ? new ConvexHttpClient(runtimeConvexUrl) : null;
 var resolveStoredConvexUrl = async () => {

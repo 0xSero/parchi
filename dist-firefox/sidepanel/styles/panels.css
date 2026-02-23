@@ -56,25 +56,34 @@
 }
 
 .settings-tab-button {
-  padding: 5px 12px;
+  padding: 5px 14px;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 550;
+  letter-spacing: 0.01em;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: 999px;
   color: var(--muted);
-  transition: all var(--duration-fast) ease;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .settings-tab-button:hover {
   color: var(--foreground);
-  background: rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.05);
 }
 
 .settings-tab-button.active {
-  background: var(--card);
-  border-color: var(--ink-2);
-  color: var(--foreground);
+  background: rgb(var(--accent-rgb) / 0.1);
+  border-color: rgb(var(--accent-rgb) / 0.2);
+  color: var(--accent-light);
+  box-shadow: 0 0 14px rgb(var(--accent-rgb) / 0.06);
+}
+
+.settings-tab-button:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 /* Settings tab panes */
@@ -418,18 +427,24 @@
   justify-content: center;
   background: none;
   border: 1px solid transparent;
-  border-radius: var(--radius-sm);
+  border-radius: 8px;
   color: var(--muted-dim);
   font-size: 16px;
   line-height: 1;
   cursor: pointer;
-  transition: all var(--duration-fast) ease;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .agent-card-delete:hover {
   color: #f87171;
   background: rgba(248, 113, 113, 0.1);
-  border-color: rgba(248, 113, 113, 0.25);
+  border-color: rgba(248, 113, 113, 0.2);
+  box-shadow: 0 0 10px rgba(248, 113, 113, 0.06);
+}
+
+.agent-card-delete:active {
+  transform: scale(0.85);
+  transition-duration: 80ms;
 }
 
 .role-pill {
@@ -441,18 +456,26 @@
   border-radius: 9999px;
   color: var(--muted);
   margin: 2px;
-  transition: all var(--duration-fast) ease;
+  cursor: pointer;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .role-pill:hover {
   color: var(--foreground);
-  border-color: var(--ink-2);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.role-pill:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 .role-pill.active {
-  background: var(--card);
-  border-color: var(--accent);
+  background: rgb(var(--accent-rgb) / 0.08);
+  border-color: rgb(var(--accent-rgb) / 0.25);
   color: var(--accent);
+  box-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.06);
 }
 
 .profile-editor {
@@ -467,6 +490,22 @@
   grid-template-columns: 1fr 1fr;
   gap: 10px;
   margin: 10px 0;
+}
+
+.profile-system-prompt {
+  margin: 0;
+}
+
+.profile-system-prompt .settings-body {
+  padding-top: 12px;
+  gap: 8px;
+}
+
+.system-prompt-textarea {
+  min-height: 300px;
+  max-height: 500px;
+  resize: none;
+  overflow-y: auto;
 }
 
 /* Theme Grid */
@@ -484,20 +523,29 @@
   padding: 6px 4px;
   background: transparent;
   border: 1px solid var(--ink-1);
-  border-radius: var(--radius-sm);
+  border-radius: 10px;
   cursor: pointer;
-  transition: all var(--duration-fast) ease;
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .theme-swatch:hover {
-  border-color: var(--ink-3);
-  background: rgba(255, 255, 255, 0.02);
-  transform: translateY(-1px);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.025);
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.theme-swatch:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 .theme-swatch.active {
-  border-color: var(--accent);
+  border-color: rgb(var(--accent-rgb) / 0.4);
   background: rgb(var(--accent-rgb) / 0.06);
+  box-shadow:
+    0 0 16px rgb(var(--accent-rgb) / 0.08),
+    inset 0 0 0 1px rgb(var(--accent-rgb) / 0.1);
 }
 
 .theme-swatch-color {
@@ -598,12 +646,12 @@
   align-items: center;
   justify-content: center;
   background: transparent;
-  border: none;
-  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  border-radius: 8px;
   color: var(--muted-dim);
   opacity: 0;
   transform: scale(0.8);
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
   cursor: pointer;
 }
 
@@ -613,8 +661,15 @@
 }
 
 .history-delete:hover {
-  background: hsl(0, 40%, 15%);
+  background: hsla(0, 40%, 50%, 0.1);
+  border-color: hsla(0, 40%, 50%, 0.15);
   color: var(--error);
+  box-shadow: 0 0 10px hsla(0, 40%, 50%, 0.08);
+}
+
+.history-delete:active {
+  transform: scale(0.85);
+  transition-duration: 80ms;
 }
 
 .plan-card {
@@ -795,11 +850,19 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 9999px;
   padding: 2px 8px;
+  cursor: pointer;
+  transition: all 180ms ease;
 }
 
 .tab-group-toggle:hover {
   color: var(--foreground);
-  border-color: var(--ink-2);
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.tab-group-toggle:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 .tab-item {

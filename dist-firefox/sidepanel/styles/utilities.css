@@ -54,24 +54,26 @@
 
 .error-banner .error-dismiss {
   flex-shrink: 0;
-  padding: 2px 8px;
+  padding: 3px 10px;
   font-size: 11px;
   background: transparent;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
   color: var(--muted);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .error-banner .error-dismiss:hover {
-  background: var(--card-hover);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.12);
   color: var(--foreground);
-  transform: scale(1.05);
+  transform: translateY(-1px);
 }
 
 .error-banner .error-dismiss:active {
   transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 .error-banner .error-body {
@@ -92,18 +94,26 @@
   flex-shrink: 0;
   padding: 3px 10px;
   font-size: 11px;
-  font-weight: 500;
-  background: rgb(var(--accent-rgb) / 0.15);
-  border: 1px solid rgb(var(--accent-rgb) / 0.3);
-  border-radius: var(--radius-sm);
+  font-weight: 550;
+  background: rgb(var(--accent-rgb) / 0.12);
+  border: 1px solid rgb(var(--accent-rgb) / 0.2);
+  border-radius: 8px;
   color: var(--accent);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.06);
 }
 
 .error-banner .error-settings-btn:hover {
-  background: rgb(var(--accent-rgb) / 0.25);
-  border-color: rgb(var(--accent-rgb) / 0.5);
+  background: rgb(var(--accent-rgb) / 0.18);
+  border-color: rgb(var(--accent-rgb) / 0.35);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 12px rgb(var(--accent-rgb) / 0.12);
+}
+
+.error-banner .error-settings-btn:active {
+  transform: scale(0.95);
+  transition-duration: 80ms;
 }
 
 /* Text utilities */
@@ -159,8 +169,9 @@
 button:focus-visible,
 input:focus-visible,
 select:focus-visible {
-  outline: 2px solid var(--accent);
+  outline: 2px solid rgb(var(--accent-rgb) / 0.5);
   outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgb(var(--accent-rgb) / 0.1);
 }
 
 /* Disabled */

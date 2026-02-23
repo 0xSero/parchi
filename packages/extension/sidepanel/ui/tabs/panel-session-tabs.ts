@@ -74,7 +74,14 @@ import { SidePanelUI } from '../core/panel-ui.js';
     if (tab.url) {
       try {
         const origin = new URL(tab.url).origin;
-        faviconHtml = `<img class="session-tab-favicon" src="${origin}/favicon.ico" onerror="this.style.display='none'" alt="">`;
+        const img = document.createElement('img');
+        img.className = 'session-tab-favicon';
+        img.src = `${origin}/favicon.ico`;
+        img.alt = '';
+        img.onerror = () => {
+          img.style.display = 'none';
+        };
+        faviconHtml = img.outerHTML;
       } catch {
         // skip favicon for invalid URLs
       }

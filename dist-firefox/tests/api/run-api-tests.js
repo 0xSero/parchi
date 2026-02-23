@@ -43,6 +43,39 @@ function resolveLanguageModel(settings) {
   const modelId = settings.model || "gpt-4o";
   const apiKey = settings.apiKey || "";
   const extraHeaders = settings.extraHeaders && typeof settings.extraHeaders === "object" ? settings.extraHeaders : void 0;
+  if (settings.useProxy && settings.proxyBaseUrl && settings.proxyAuthToken) {
+    const normalizedBase = settings.proxyBaseUrl.replace(/\/+$/, "");
+    const proxyProvider = settings.proxyProvider || (provider === "anthropic" || provider === "kimi" ? "anthropic" : "openai");
+    if (proxyProvider === "anthropic") {
+      const anthropicProxy = createAnthropic({
+        apiKey: "convex-proxy",
+        baseURL: `${normalizedBase}/ai-proxy/anthropic/v1`,
+        headers: {
+          ...extraHeaders,
+          Authorization: `Bearer ${settings.proxyAuthToken}`
+        }
+      });
+      return anthropicProxy(modelId);
+    }
+    if (proxyProvider === "kimi") {
+      const kimiProxy = createAnthropic({
+        apiKey: "convex-proxy",
+        baseURL: `${normalizedBase}/ai-proxy/kimi/v1`,
+        headers: {
+          ...extraHeaders,
+          Authorization: `Bearer ${settings.proxyAuthToken}`
+        }
+      });
+      return kimiProxy(modelId);
+    }
+    const openAiProxy = createOpenAICompatible({
+      name: "convex-proxy",
+      apiKey: settings.proxyAuthToken,
+      baseURL: `${normalizedBase}/ai-proxy/openai`,
+      headers: extraHeaders
+    });
+    return openAiProxy(modelId);
+  }
   if (provider === "anthropic") {
     const providerInstance2 = createAnthropic({ apiKey, headers: extraHeaders });
     return providerInstance2(modelId);

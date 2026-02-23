@@ -55,6 +55,7 @@ export class BackgroundService {
   relayActiveRunIds: Set<string>;
   private applyRelayConfig: () => Promise<void>;
   private relayKeepalivePorts: Set<chrome.runtime.Port>;
+  private lastRelayStatus: { connected: boolean; lastError: string | null } | null;
   // State tracking for enforcement
   lastBrowserAction: string | null;
   awaitingVerification: boolean;
@@ -87,6 +88,7 @@ export class BackgroundService {
     this.subAgentProfileCursor = 0;
     this.relayActiveRunIds = new Set();
     this.relayKeepalivePorts = new Set();
+    this.lastRelayStatus = null;
     this.activeRuns = new Map();
     this.activeRunIdBySessionId = new Map();
     this.cancelledRunIds = new Set();
@@ -119,10 +121,10 @@ export class BackgroundService {
       },
       onRequest: async (req) => this.handleRelayRpc(req.method, req.params),
       onStatus: (status) => {
-        const payload: Record<string, any> = { relayConnected: !!status.connected };
-        if (status.connected) payload.relayLastConnectedAt = Date.now();
-        if (status.lastError !== undefined) payload.relayLastError = status.lastError;
-        chrome.storage.local.set(payload).catch(() => {});
+        void this.persistRelayStatus({
+          connected: !!status.connected,
+          lastError: status.lastError !== undefined ? (status.lastError as string | null) : null,
+        });
       },
     });
 
@@ -132,9 +134,10 @@ export class BackgroundService {
       const url = typeof stored.relayUrl === 'string' ? stored.relayUrl.trim() : '';
       const token = typeof stored.relayToken === 'string' ? stored.relayToken.trim() : '';
       if (enabled && (!url || !token)) {
-        await chrome.storage.local
-          .set({ relayConnected: false, relayLastError: 'Missing relay URL or token' })
-          .catch(() => {});
+        await this.persistRelayStatus({
+          connected: false,
+          lastError: 'Missing relay URL or token',
+        });
       }
       if (enabled && url && token) {
         await this.ensureRelayKeepalive();
@@ -145,6 +148,23 @@ export class BackgroundService {
     };
 
     this.init();
+  }
+
+  private async persistRelayStatus(status: { connected: boolean; lastError: string | null }) {
+    const previous = this.lastRelayStatus;
+    const same =
+      previous && previous.connected === status.connected && (previous.lastError || null) === (status.lastError || null);
+    if (same) return;
+
+    this.lastRelayStatus = {
+      connected: status.connected,
+      lastError: status.lastError || null,
+    };
+
+    const payload: Record<string, any> = { relayConnected: status.connected };
+    if (status.connected) payload.relayLastConnectedAt = Date.now();
+    payload.relayLastError = status.lastError || null;
+    await chrome.storage.local.set(payload).catch(() => {});
   }
 
   private async ensureRelayKeepalive() {
@@ -189,6 +209,13 @@ export class BackgroundService {
     // Chrome MV3 service workers cannot set User-Agent via fetch(),
     // so we use declarativeNetRequest to inject it at the network level.
     if (chrome.declarativeNetRequest?.updateDynamicRules) {
+      // Firefox may not expose enum helpers under RuleActionType/HeaderOperation/ResourceType.
+      // Fall back to spec string literals to keep the background script from crashing at startup.
+      const dnr = chrome.declarativeNetRequest as any;
+      const modifyHeadersType = dnr?.RuleActionType?.MODIFY_HEADERS || 'modifyHeaders';
+      const headerSetOperation = dnr?.HeaderOperation?.SET || 'set';
+      const xhrResourceType = dnr?.ResourceType?.XMLHTTPREQUEST || 'xmlhttprequest';
+
       chrome.declarativeNetRequest
         .updateDynamicRules({
           removeRuleIds: [9000],
@@ -197,18 +224,18 @@ export class BackgroundService {
               id: 9000,
               priority: 1,
               action: {
-                type: chrome.declarativeNetRequest.RuleActionType.MODIFY_HEADERS,
+                type: modifyHeadersType,
                 requestHeaders: [
                   {
                     header: 'User-Agent',
-                    operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+                    operation: headerSetOperation,
                     value: 'coding-agent',
                   },
                 ],
               },
               condition: {
                 urlFilter: '||api.kimi.com',
-                resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST],
+                resourceTypes: [xhrResourceType],
               },
             },
           ],
@@ -258,8 +285,10 @@ export class BackgroundService {
       console.warn('[relay] init failed:', err);
     }
 
-    chrome.storage.onChanged.addListener((_changes, areaName) => {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName !== 'local') return;
+      const relayConfigChanged = !!changes.relayEnabled || !!changes.relayUrl || !!changes.relayToken;
+      if (!relayConfigChanged) return;
       void this.applyRelayConfig();
     });
   }

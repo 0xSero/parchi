@@ -22,7 +22,9 @@
     "declarativeNetRequest"
   ],
   "host_permissions": [
-    "<all_urls>"
+    "<all_urls>",
+    "https://*.convex.cloud/*",
+    "https://*.convex.site/*"
   ],
   "action": {
     "default_title": "Parchi Panel"
