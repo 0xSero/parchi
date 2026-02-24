@@ -508,17 +508,31 @@ export class BrowserTools {
   private async captureActiveTab() {
     try {
       const activeTab = await getActiveTab();
-      if (!activeTab || typeof activeTab.id !== 'number') return null;
-      if (!this.sessionTabs.has(activeTab.id)) {
-        this.sessionTabs.set(activeTab.id, {
-          id: activeTab.id,
-          title: activeTab.title,
-          url: activeTab.url,
-          windowId: typeof activeTab.windowId === 'number' ? activeTab.windowId : undefined,
+      const pickTab = async () => {
+        if (activeTab && typeof activeTab.id === 'number' && !this.getScriptInjectionBlockReason(activeTab.url)) {
+          return activeTab;
+        }
+        const windowTabs = await chrome.tabs.query({ currentWindow: true });
+        return (
+          windowTabs.find(
+            (tab) => typeof tab.id === 'number' && !this.getScriptInjectionBlockReason(tab.url) && tab.active,
+          ) ||
+          windowTabs.find((tab) => typeof tab.id === 'number' && !this.getScriptInjectionBlockReason(tab.url)) ||
+          null
+        );
+      };
+      const target = await pickTab();
+      if (!target || typeof target.id !== 'number') return null;
+      if (!this.sessionTabs.has(target.id)) {
+        this.sessionTabs.set(target.id, {
+          id: target.id,
+          title: target.title,
+          url: target.url,
+          windowId: typeof target.windowId === 'number' ? target.windowId : undefined,
         });
       }
-      this.currentSessionTabId = activeTab.id;
-      return activeTab.id;
+      this.currentSessionTabId = target.id;
+      return target.id;
     } catch (error) {
       console.warn('Failed to capture active tab:', error);
       return null;
@@ -526,6 +540,17 @@ export class BrowserTools {
   }
 
   private async runInTab(tabId: number, func: (...args: any[]) => unknown, args: any[] = []): Promise<any> {
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    const blockedReason = this.getScriptInjectionBlockReason(tab?.url);
+    if (blockedReason) {
+      return {
+        success: false,
+        error: 'Cannot run scripts on this page.',
+        details: blockedReason,
+        url: tab?.url || '',
+      };
+    }
+
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId },
@@ -544,6 +569,17 @@ export class BrowserTools {
   }
 
   private async runInAllFrames(tabId: number, func: (...args: any[]) => unknown, args: any[] = []): Promise<any> {
+    const tab = await chrome.tabs.get(tabId).catch(() => null);
+    const blockedReason = this.getScriptInjectionBlockReason(tab?.url);
+    if (blockedReason) {
+      return {
+        success: false,
+        error: 'Cannot run scripts on this page.',
+        details: blockedReason,
+        url: tab?.url || '',
+      };
+    }
+
     try {
       const results = await chrome.scripting.executeScript({
         target: { tabId, allFrames: true },
@@ -561,6 +597,25 @@ export class BrowserTools {
         details: error?.message || String(error),
       };
     }
+  }
+
+  private getScriptInjectionBlockReason(url?: string | null) {
+    const current = String(url || '').trim();
+    if (!current) return '';
+    const lower = current.toLowerCase();
+    if (lower.startsWith('about:')) {
+      return 'Firefox about:* pages are restricted; script injection is not allowed.';
+    }
+    if (lower.startsWith('moz-extension:')) {
+      return 'Extension pages are restricted targets for content script injection.';
+    }
+    if (lower.startsWith('chrome:') || lower.startsWith('edge:') || lower.startsWith('brave:')) {
+      return 'Browser internal pages are restricted; script injection is not allowed.';
+    }
+    if (lower.startsWith('view-source:')) {
+      return 'view-source pages are restricted; open the original page URL instead.';
+    }
+    return '';
   }
 
   private async sendOverlay(tabId: number, payload: ActionOverlayPayload, retries = 0) {

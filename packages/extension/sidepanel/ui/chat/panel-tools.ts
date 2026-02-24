@@ -200,6 +200,13 @@ const toolIcons: Record<string, string> = {
     entry.statusEl.textContent = isError ? 'ERR' : 'OK';
   }
 
+  if (isError) {
+    const detailParts = [result?.error, result?.details, result?.hint].filter((part) => typeof part === 'string' && part);
+    if (detailParts.length > 0) {
+      entry.element.title = detailParts.join(' ');
+    }
+  }
+
   // When scroll can't move (common in nested scroll containers), surface it without marking as an error.
   if (isNoopScroll) {
     entry.element.title = 'Scroll did not move. The page may use an inner scroll container; pass scroll.selector.';

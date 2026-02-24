@@ -87,10 +87,10 @@ export const setupActionClickOpensPanel = () => {
 
   if (features.sidebarActionOpen && chrome.action?.onClicked) {
     const sidebarApi = getBrowserSidebarAction();
-    chrome.action.onClicked.addListener((tab) => {
-      const options = typeof tab?.windowId === 'number' ? { windowId: tab.windowId } : undefined;
+    chrome.action.onClicked.addListener(() => {
       try {
-        const maybePromise = sidebarApi.open(options) as Promise<void> | undefined;
+        // Firefox sidebarAction.open does not accept MV3 sidePanel-like options.
+        const maybePromise = sidebarApi.open() as Promise<void> | undefined;
         maybePromise?.catch((error) => console.error('Failed to open sidebar:', error));
       } catch (error) {
         console.error('Failed to open sidebar:', error);

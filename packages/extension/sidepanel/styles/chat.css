@@ -987,7 +987,7 @@ body.sidebar-open .fab-group {
   animation-delay: -0.16s;
 }
 .typing-indicator span:nth-child(3) {
-  animation-delay: 0;
+  animation-delay: 0s;
 }
 
 @keyframes typing-bounce {

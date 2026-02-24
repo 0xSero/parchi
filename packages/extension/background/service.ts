@@ -77,6 +77,7 @@ export class BackgroundService {
   relayActiveRunIds: Set<string>;
   private applyRelayConfig: () => Promise<void>;
   private relayKeepalivePorts: Set<chrome.runtime.Port>;
+  private lastRelayStatus: { connected: boolean; lastError: string | null } | null;
   private sidepanelLifecyclePorts: Set<chrome.runtime.Port>;
   // State tracking for enforcement
   lastBrowserAction: string | null;
@@ -112,6 +113,7 @@ export class BackgroundService {
     this.subAgentProfileCursor = 0;
     this.relayActiveRunIds = new Set();
     this.relayKeepalivePorts = new Set();
+    this.lastRelayStatus = null;
     this.sidepanelLifecyclePorts = new Set();
     this.activeRuns = new Map();
     this.activeRunIdBySessionId = new Map();
@@ -147,10 +149,10 @@ export class BackgroundService {
       },
       onRequest: async (req) => this.handleRelayRpc(req.method, req.params),
       onStatus: (status) => {
-        const payload: Record<string, any> = { relayConnected: !!status.connected };
-        if (status.connected) payload.relayLastConnectedAt = Date.now();
-        if (status.lastError !== undefined) payload.relayLastError = status.lastError;
-        chrome.storage.local.set(payload).catch(() => {});
+        void this.persistRelayStatus({
+          connected: !!status.connected,
+          lastError: status.lastError !== undefined ? (status.lastError as string | null) : null,
+        });
       },
     });
 
@@ -160,9 +162,10 @@ export class BackgroundService {
       const url = typeof stored.relayUrl === 'string' ? stored.relayUrl.trim() : '';
       const token = typeof stored.relayToken === 'string' ? stored.relayToken.trim() : '';
       if (enabled && (!url || !token)) {
-        await chrome.storage.local
-          .set({ relayConnected: false, relayLastError: 'Missing relay URL or token' })
-          .catch(() => {});
+        await this.persistRelayStatus({
+          connected: false,
+          lastError: 'Missing relay URL or token',
+        });
       }
       if (enabled && url && token) {
         await this.ensureRelayKeepalive();
@@ -173,6 +176,23 @@ export class BackgroundService {
     };
 
     this.init();
+  }
+
+  private async persistRelayStatus(status: { connected: boolean; lastError: string | null }) {
+    const previous = this.lastRelayStatus;
+    const same =
+      previous && previous.connected === status.connected && (previous.lastError || null) === (status.lastError || null);
+    if (same) return;
+
+    this.lastRelayStatus = {
+      connected: status.connected,
+      lastError: status.lastError || null,
+    };
+
+    const payload: Record<string, any> = { relayConnected: status.connected };
+    if (status.connected) payload.relayLastConnectedAt = Date.now();
+    payload.relayLastError = status.lastError || null;
+    await chrome.storage.local.set(payload).catch(() => {});
   }
 
   private async ensureRelayKeepalive() {
@@ -283,8 +303,10 @@ export class BackgroundService {
       console.warn('[relay] init failed:', err);
     }
 
-    chrome.storage.onChanged.addListener((_changes, areaName) => {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName !== 'local') return;
+      const relayConfigChanged = !!changes.relayEnabled || !!changes.relayUrl || !!changes.relayToken;
+      if (!relayConfigChanged) return;
       void this.applyRelayConfig();
     });
   }
