@@ -610,7 +610,8 @@ const renderUsageCharts = (
         this.elements.paidStatusBadge.textContent = paidLabel;
       }
       this.elements.paidStatusBadge.title = detail ? `${setupState.paidStatusLabel} — ${detail}` : setupState.paidStatusLabel;
-      this.paidStatusHoverLabel = detail ? `${paidLabel}: ${detail}` : paidLabel;
+      // Keep toolbar meta compact; full detail remains on badge hover title.
+      this.paidStatusHoverLabel = paidLabel;
       this.elements.paidStatusBadge.classList.remove('hidden', 'is-active', 'is-warning', 'is-error');
       if (setupState.paidStatusTone === 'error') {
         this.elements.paidStatusBadge.classList.add('is-error');
