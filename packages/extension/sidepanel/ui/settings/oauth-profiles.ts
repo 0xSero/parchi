@@ -1,10 +1,17 @@
-import { OAUTH_PROVIDERS, fetchProviderModels } from '../../../oauth/manager.js';
+import { OAUTH_PROVIDERS, fetchProviderModels, getAllProviderStates } from '../../../oauth/manager.js';
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import type { OAuthProviderKey } from '../../../oauth/types.js';
 import type { OAuthProviderConfig } from '../../../oauth/types.js';
 import type { SidePanelUI } from '../core/panel-ui.js';
 
 const OAUTH_PROFILE_PREFIX = 'oauth:';
+const DEFAULT_CONTEXT_LIMIT = 200000;
+
+type SyncOAuthProfilesOptions = {
+  fetchModels?: boolean;
+  persist?: boolean;
+  refreshUi?: boolean;
+};
 
 function oauthProfileName(key: string): string {
   return `${OAUTH_PROFILE_PREFIX}${key}`;
@@ -19,12 +26,41 @@ function oauthKeyFromProfile(name: string): string | null {
   return name.slice(OAUTH_PROFILE_PREFIX.length);
 }
 
+export function isRunnableProfileConfig(profile: Record<string, any> | null | undefined): boolean {
+  const provider = String(profile?.provider || '').trim();
+  const model = String(profile?.model || '').trim();
+  return provider.length > 0 && model.length > 0;
+}
+
+export function getPreferredConnectedOAuthProfileName(configs: Record<string, any> | null | undefined): string | null {
+  const names = Object.keys(configs || {}).filter((name) => {
+    if (!isOAuthProfile(name)) return false;
+    const profile = (configs || {})[name] as Record<string, any> | null | undefined;
+    return isRunnableProfileConfig(profile);
+  });
+  if (names.length === 0) return null;
+  return names.includes('oauth:codex') ? 'oauth:codex' : names[0];
+}
+
+export function getPreferredRunnableProfileName(configs: Record<string, any> | null | undefined): string | null {
+  const names = Object.keys(configs || {}).filter((name) => {
+    const profile = (configs || {})[name] as Record<string, any> | null | undefined;
+    return isRunnableProfileConfig(profile);
+  });
+  if (names.length === 0) return null;
+  if (names.includes('oauth:codex')) return 'oauth:codex';
+  return names[0];
+}
+
 /**
  * Ensures an auto-managed profile exists for each connected OAuth provider.
  * Removes profiles for disconnected providers. Preserves user model choice.
  */
-export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
-  const states = await ui.getAllOAuthProviderStates?.();
+export async function syncOAuthProfiles(ui: SidePanelUI, options: SyncOAuthProfilesOptions = {}): Promise<boolean> {
+  const fetchModels = options.fetchModels !== false;
+  const persist = options.persist !== false;
+  const refreshUi = options.refreshUi !== false;
+  const states = await getAllProviderStates();
   const configs = ui.configs || {};
   let changed = false;
 
@@ -34,7 +70,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
     const connected = Boolean(state?.connected && state?.tokens?.accessToken);
     let discoveredModels: string[] = [];
 
-    if (connected) {
+    if (connected && fetchModels) {
       try {
         discoveredModels = await fetchProviderModels(config.key as OAuthProviderKey);
       } catch {
@@ -60,7 +96,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
         contextLimit:
           config.models.find((model) => model.id === defaultModel)?.contextWindow ||
           config.models[0]?.contextWindow ||
-          200000,
+          DEFAULT_CONTEXT_LIMIT,
         timeout: 30000,
       };
       changed = true;
@@ -92,10 +128,15 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
 
   if (changed) {
     ui.configs = configs;
-    await ui.persistAllSettings?.({ silent: true });
-    ui.refreshConfigDropdown?.();
-    ui.populateModelSelect?.();
+    if (persist) {
+      await ui.persistAllSettings?.({ silent: true });
+    }
+    if (refreshUi) {
+      ui.refreshConfigDropdown?.();
+      ui.populateModelSelect?.();
+    }
   }
+  return changed;
 }
 
 export function getOAuthConfigForProfile(profileName: string): OAuthProviderConfig | null {

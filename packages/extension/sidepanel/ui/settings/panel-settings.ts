@@ -7,9 +7,10 @@ import {
   replaceSettingsStoreSnapshot,
 } from '../../../state/stores/settings-store.js';
 import { SidePanelUI } from '../core/panel-ui.js';
-const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
-
+import { getPreferredRunnableProfileName, isRunnableProfileConfig, syncOAuthProfiles } from './oauth-profiles.js';
 import { DEFAULT_THEME_ID, THEMES, applyTheme } from './themes.js';
+
+const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
 const parseHeadersJson = (raw: string): Record<string, string> => {
   const trimmed = raw.trim();
@@ -278,6 +279,11 @@ sidePanelProto.loadSettings = async function loadSettings() {
     default: { ...baseConfig, ...(storedConfigs.default || {}) },
     ...storedConfigs,
   };
+  const didSyncOAuthProfiles = await syncOAuthProfiles(this, {
+    fetchModels: false,
+    persist: false,
+    refreshUi: false,
+  });
   const storedActiveConfig = typeof settings.activeConfig === 'string' ? settings.activeConfig : '';
   const storedActiveProvider = String(settings.provider || '')
     .trim()
@@ -303,6 +309,12 @@ sidePanelProto.loadSettings = async function loadSettings() {
     });
   })();
   this.currentConfig = this.configs[storedActiveConfig] ? storedActiveConfig : legacyActiveConfig || 'default';
+  if (!isRunnableProfileConfig(this.configs[this.currentConfig])) {
+    const preferredRunnableProfileName = getPreferredRunnableProfileName(this.configs);
+    if (preferredRunnableProfileName && this.configs[preferredRunnableProfileName]) {
+      this.currentConfig = preferredRunnableProfileName;
+    }
+  }
   this.auxAgentProfiles = settings.auxAgentProfiles || [];
   this.applyUiZoom(settings.uiZoom ?? 1, { persist: false });
   this.applyTypography(settings.fontPreset ?? 'default', settings.fontStylePreset ?? 'normal', { persist: false });
@@ -366,6 +378,10 @@ sidePanelProto.loadSettings = async function loadSettings() {
 
   this.refreshConfigDropdown();
   this.setActiveConfig(this.currentConfig, true);
+  const persistedActiveConfig = String(settings.activeConfig || '').trim();
+  if (didSyncOAuthProfiles || persistedActiveConfig !== this.currentConfig) {
+    await this.persistAllSettings({ silent: true });
+  }
   this.updateScreenshotToggleState();
   this.editProfile(this.currentConfig, true);
   this.updatePromptSections?.();

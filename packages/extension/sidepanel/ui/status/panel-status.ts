@@ -435,7 +435,19 @@ sidePanelProto.populateModelSelect = function populateModelSelect() {
   // Populate with profiles
   select.innerHTML = '';
 
-  const configNames = Object.keys(this.configs);
+  const allConfigNames = Object.keys(this.configs);
+  const hasRunnableProfile = allConfigNames.some((name) => {
+    const cfg = this.configs[name] || {};
+    return String(cfg.provider || '').trim().length > 0 && String(cfg.model || '').trim().length > 0;
+  });
+  const configNames = allConfigNames.filter((name) => {
+    if (!hasRunnableProfile) return true;
+    const cfg = this.configs[name] || {};
+    const provider = String(cfg.provider || '').trim();
+    const model = String(cfg.model || '').trim();
+    // Hide empty placeholder profiles (e.g., default/unconfigured) when runnable profiles exist.
+    return provider.length > 0 && model.length > 0;
+  });
   if (configNames.length === 0) {
     const option = document.createElement('option');
     option.value = '';

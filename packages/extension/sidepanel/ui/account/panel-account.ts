@@ -64,6 +64,7 @@ const MANAGED_PROFILE_NAME = 'parchi-managed';
 const PARCHI_PAID_DEFAULT_MODEL = 'moonshotai/kimi-k2.5';
 const LEGACY_MANAGED_DEFAULT_MODEL = 'openai/gpt-4o-mini';
 const PARCHI_RUNTIME_STATUS_KEY = 'parchiRuntimeStatus';
+const OAUTH_PROVIDERS_STORAGE_KEY = 'oauthProviders';
 const PARCHI_RUNTIME_STATUS_TTL_MS = 30 * 60 * 1000;
 const ACCOUNT_SETUP_STORAGE_KEYS = [
   ACCOUNT_MODE_KEY,
@@ -78,6 +79,7 @@ const ACCOUNT_SETUP_STORAGE_KEYS = [
   'convexCreditBalanceCents',
   'convexSubscriptionPlan',
   'convexSubscriptionStatus',
+  OAUTH_PROVIDERS_STORAGE_KEY,
   PARCHI_RUNTIME_STATUS_KEY,
 ] as const;
 
@@ -466,12 +468,25 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
   const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
   const mode = String(stored[ACCOUNT_MODE_KEY] || '').toLowerCase();
   const hasChoice = mode === ACCOUNT_MODE_BYOK || mode === ACCOUNT_MODE_PAID;
-  const hasConfiguredProvider = hasConfiguredByokProvider(stored);
+  const oauthStates = isRecord(stored[OAUTH_PROVIDERS_STORAGE_KEY]) ? stored[OAUTH_PROVIDERS_STORAGE_KEY] : {};
+  const connectedOAuthProviderKeys = Object.entries(oauthStates)
+    .filter(([, state]) => {
+      if (!isRecord(state)) return false;
+      const connected = Boolean(state.connected);
+      const tokens = isRecord(state.tokens) ? state.tokens : null;
+      return connected && Boolean(String(tokens?.accessToken || '').trim());
+    })
+    .map(([key]) => String(key || '').trim())
+    .filter((key) => key.length > 0);
+  const hasConnectedOAuthProvider = connectedOAuthProviderKeys.length > 0;
+  const hasConfiguredProvider = hasConfiguredByokProvider(stored) || hasConnectedOAuthProvider;
   const profiles = collectCandidateProfiles(stored);
   const hasAnyModel = profiles.some((profile) => hasConfiguredModel(profile));
-  const byokReady = hasRunnableByokProfile(profiles);
-  const activeConfig = String(stored.activeConfig || 'default');
   const configs = isRecord(stored.configs) ? stored.configs : {};
+  // A live OAuth connection is runnable even before profile-sync writes an oauth:* config entry.
+  const hasRunnableOAuthProfile = hasConnectedOAuthProvider;
+  const byokReady = hasRunnableByokProfile(profiles) || hasRunnableOAuthProfile;
+  const activeConfig = String(stored.activeConfig || 'default');
   const activeProfile = isRecord(configs[activeConfig]) ? configs[activeConfig] : {};
   const activeProvider = String(activeProfile.provider || stored.provider || '')
     .trim()
@@ -504,10 +519,9 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
       }
     : null;
 
-  let setupComplete = byokReady;
-  if (!setupComplete && mode === ACCOUNT_MODE_PAID) {
-    setupComplete = hasPaidModelConfigured && hasConvexUrl && signedInPaid && paidAccess;
-  }
+  const byokSetupComplete = byokReady;
+  const paidSetupComplete = hasPaidModelConfigured && hasConvexUrl && signedInPaid && paidAccess;
+  const setupComplete = mode === ACCOUNT_MODE_PAID ? paidSetupComplete : byokSetupComplete;
 
   let setupButtonLabel = 'Pay or add your own key';
   if (mode === ACCOUNT_MODE_BYOK && !setupComplete) {

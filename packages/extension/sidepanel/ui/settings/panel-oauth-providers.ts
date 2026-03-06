@@ -11,7 +11,12 @@ import {
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
-import { getOAuthProfileNameForProvider, syncOAuthProfiles } from './oauth-profiles.js';
+import {
+  getOAuthProfileNameForProvider,
+  getPreferredRunnableProfileName,
+  isRunnableProfileConfig,
+  syncOAuthProfiles,
+} from './oauth-profiles.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -21,7 +26,12 @@ sidePanelProto.renderOAuthProviderGrid = async function renderOAuthProviderGrid(
   const grid = document.getElementById('oauthProviderGrid');
   if (!grid) return;
 
+  const ui = this as SidePanelUI & Record<string, any>;
+  const nextRenderToken = Number(ui.__oauthProviderRenderToken || 0) + 1;
+  ui.__oauthProviderRenderToken = nextRenderToken;
+
   const states = await getAllProviderStates();
+  if (ui.__oauthProviderRenderToken !== nextRenderToken) return;
   grid.innerHTML = '';
 
   // Fetch models from APIs in parallel for connected providers
@@ -39,6 +49,7 @@ sidePanelProto.renderOAuthProviderGrid = async function renderOAuthProviderGrid(
         return { key, models };
       }),
     );
+    if (ui.__oauthProviderRenderToken !== nextRenderToken) return;
     for (const { key, models } of results) {
       modelsByProvider[key] = models;
     }
@@ -135,6 +146,7 @@ sidePanelProto.updateOAuthProfileModel = async function updateOAuthProfileModel(
   await this.persistAllSettings?.({ silent: true });
   this.populateModelSelect?.();
   this.updateModelDisplay?.();
+  await this.refreshSetupFlowUi?.();
   this.updateStatus(`${providerConfig?.name || key} model set to ${normalizedModelId}`, 'success');
 };
 
@@ -166,7 +178,15 @@ sidePanelProto.startOAuthConnect = async function startOAuthConnect(key: OAuthPr
     setHidden(document.getElementById('oauthDeviceCodePrompt'), true);
     this.updateStatus(`${config.name} connected`, 'success');
     await syncOAuthProfiles(this);
-    this.renderOAuthProviderGrid();
+    if (!isRunnableProfileConfig(this.configs?.[this.currentConfig])) {
+      const preferredRunnableProfileName = getPreferredRunnableProfileName(this.configs);
+      if (preferredRunnableProfileName && this.configs?.[preferredRunnableProfileName]) {
+        this.setActiveConfig?.(preferredRunnableProfileName, true);
+        await this.persistAllSettings?.({ silent: true });
+      }
+    }
+    await this.refreshSetupFlowUi?.();
+    await this.renderOAuthProviderGrid();
   } catch (error) {
     setHidden(document.getElementById('oauthDeviceCodePrompt'), true);
     const message = error instanceof Error ? error.message : String(error);
@@ -182,7 +202,15 @@ sidePanelProto.startOAuthDisconnect = async function startOAuthDisconnect(key: O
   await disconnect(key);
   this.updateStatus(`${config?.name || key} disconnected`, 'success');
   await syncOAuthProfiles(this);
-  this.renderOAuthProviderGrid();
+  if (!isRunnableProfileConfig(this.configs?.[this.currentConfig])) {
+    const preferredRunnableProfileName = getPreferredRunnableProfileName(this.configs);
+    if (preferredRunnableProfileName && this.configs?.[preferredRunnableProfileName]) {
+      this.setActiveConfig?.(preferredRunnableProfileName, true);
+      await this.persistAllSettings?.({ silent: true });
+    }
+  }
+  await this.refreshSetupFlowUi?.();
+  await this.renderOAuthProviderGrid();
 };
 
 sidePanelProto.showDeviceCodePrompt = function showDeviceCodePrompt(
