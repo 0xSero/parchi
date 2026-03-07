@@ -23,6 +23,7 @@ import {
 import type { Message } from '../../packages/extension/ai/message-schema.js';
 import { extractThinking } from '../../packages/extension/ai/message-utils.js';
 import { createExponentialBackoff, isValidFinalResponse } from '../../packages/extension/ai/retry-engine.js';
+import { executeOrchestratorFixture } from '../orchestrator/fixture-executor.js';
 
 import {
   buildOrchestratorPlan,
@@ -1010,6 +1011,40 @@ function testOrchestratorPlanFixtures(runner: TestRunner) {
   });
 }
 
+function testOrchestratorFixtureExecutor(runner: TestRunner) {
+  log('\n=== Testing Orchestrator Fixture Executor ===', 'info');
+
+  runner.test('fixture executor runs set->dispatch->await->validate and exports summary', () => {
+    const fixtureDir = path.resolve(process.cwd(), 'tests/fixtures/orchestrator');
+    const fixtureFiles = fs
+      .readdirSync(fixtureDir, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+      .map((entry) => entry.name)
+      .sort();
+
+    const results = fixtureFiles.map((fileName) => {
+      const filePath = path.join(fixtureDir, fileName);
+      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      return executeOrchestratorFixture(fileName, parsed);
+    });
+
+    runner.assertTrue(results.length > 0, 'Expected fixture executor results.');
+    results.forEach((result) => {
+      runner.assertTrue(result.success, `Fixture ${result.fixture} should execute successfully.`);
+      runner.assertEqual(result.missingOutputKeys, [], `Fixture ${result.fixture} should have no missing outputs.`);
+    });
+
+    const outDir = path.resolve(process.cwd(), 'test-output');
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, 'orchestrator-fixture-execution.json');
+    fs.writeFileSync(
+      outPath,
+      JSON.stringify({ generatedAt: new Date().toISOString(), results }, null, 2),
+    );
+    runner.assertTrue(fs.existsSync(outPath), 'Fixture execution artifact should exist.');
+  });
+}
+
 // Main test execution
 function main() {
   log('╔════════════════════════════════════════╗', 'info');
@@ -1034,6 +1069,7 @@ function main() {
   testRuntimeMessages(runner);
   testOrchestratorSimulation(runner);
   testOrchestratorPlanFixtures(runner);
+  testOrchestratorFixtureExecutor(runner);
 
   const success = runner.printSummary();
   process.exit(success ? 0 : 1);

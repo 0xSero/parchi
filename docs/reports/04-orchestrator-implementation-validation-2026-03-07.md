@@ -129,6 +129,18 @@ Added reusable orchestrator plan fixtures:
 Fixture validation artifact:
 
 - `test-output/orchestrator-fixture-validation.json`
+- `test-output/orchestrator-fixture-execution.json`
+
+Fixture executor path now exists in tests:
+
+- `tests/orchestrator/fixture-executor.ts`
+
+Executor loop:
+
+1. set plan (`buildOrchestratorPlan`)
+2. dispatch ready tasks (`getDispatchableOrchestratorTaskIds`)
+3. await simulated subagents
+4. validate required outputs and export summary artifact
 
 ---
 
@@ -143,9 +155,4 @@ Fixture validation artifact:
 
 ## 9) Next concrete step
 
-Implement a runtime **fixture executor** that can load these plan JSON fixtures and run them through:
-
-- `set_orchestrator_plan`
-- `dispatch_orchestrator_tasks`
-- `await_subagent`
-- goal-level validation summary export
+Extend fixture executor from simulation into background-service integration harness that calls runtime tool handlers directly for end-to-end orchestration contract checks.
