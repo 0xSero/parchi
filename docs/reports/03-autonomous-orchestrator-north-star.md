@@ -1,739 +1,519 @@
-# North Star: Multi-Tab Autonomous Orchestrator
+# Master Specification: 5-Tab Autonomous Orchestrator
 
-## 0. Why this document exists
-
-The previous draft captured the ambition but not the actual system boundaries. This version is grounded in the code that exists today and defines a technically correct path from the current extension to a real multi-tab orchestrator.
-
-This document preserves the original goals:
-- profiles = model/provider/prompt configurations
-- skills = workflows + recordings + prompt injection
-- vision = screenshot/video-assisted perception
-- tab use = bounded session tab set
-- orchestration = delegating work toward a goal
-- user interview, task research, dependency mapping, validation, UX, tests, and observability
-
-It also corrects the key architectural mistake in the earlier draft:
-
-> Today, Parchi does not yet have a true async multi-worker orchestrator.
-> It has session-scoped tabs, a linear run plan, prompt-injected skills, and a synchronous `spawn_subagent` primitive.
-
-So the North Star must be built in layers, not assumed into existence.
+> Version: 1.0 (North Star Spec)  
+> Scope: Browser-AI extension orchestrator control plane + tab-bound worker plane  
+> Hard limit: 5 concurrent session tabs
 
 ---
 
-## 1. Ground truth: what exists in the repo today
-
-### 1.1 Profiles and model roles
-
-The current settings model already supports role-specific profiles in `packages/shared/src/settings.ts` and the sidepanel settings UI:
-
-- `activeConfig` = main profile
-- `orchestratorProfile` = planning / delegation model
-- `visionProfile` = screenshot and video interpretation model
-- `auxAgentProfiles` = team profiles for delegated work
-- `useOrchestrator` = orchestration mode toggle
-
-This is important: the product already thinks in terms of **role-specialized models**, not just one agent.
-
-### 1.2 Skills and recordings
-
-The current skill system is implemented around `AtomicSkill` and `ComposedSkill` in `packages/shared/src/recording.ts`.
-
-What exists today:
-- user recording of actions and screenshots
-- workflow extraction from session history
-- storage in `chrome.storage.local`
-- site-pattern matching
-- prompt injection of matched skills in `BackgroundService.getMatchedSkills()`
-
-What does **not** exist today:
-- no scheduler that chooses skills as executable task nodes
-- no reliability-weighted planner
-- no graph-level skill composition
-- no cross-tab skill handoff contract
-
-### 1.3 Planning and execution today
-
-Current planning is defined by `RunPlan` in `packages/shared/src/plan.ts`.
-
-`RunPlan` today is:
-- a **linear checklist**
-- status per step: `pending | running | done | blocked`
-- enforced through `set_plan` and `update_plan`
-- rendered in the sidepanel plan drawer
-
-This is useful, but it is not a dependency graph.
-
-### 1.4 Tab model today
-
-`packages/extension/tools/browser-tools.ts` already gives us a bounded session tab set:
-
-- session tab capture
-- current tab focus
-- `openTab`, `closeTab`, `switchTab`, `focusTab`, `groupTabs`
-- hard cap: `MAX_SESSION_TABS = 5`
-
-This is the correct primitive for the North Star. The product requirement “manage up to 5 tabs at a time” already matches the implementation boundary.
-
-But today these tabs are:
-- **session-scoped**, not worker-reserved
-- **shared**, not owned by a particular task
-- managed by one `BrowserTools` instance per session
-
-### 1.5 Vision today
-
-Vision exists as optional tools, not as a separate execution substrate:
-
-- `screenshot`
-- `watchVideo`
-- `getVideoInfo`
-- `describeImageWithModel()` bridge through the configured `visionProfile`
-
-That means the realistic UX is not “live video streaming across 5 tabs.”
-The realistic UX is **periodic screenshot previews plus structured status**.
-
-### 1.6 Orchestration today
-
-The current orchestrator primitive is `spawn_subagent` in `packages/extension/background/service.ts`.
-
-Important truth:
-- it is **not** a full async dispatcher yet
-- it runs inside the same background service run envelope
-- it returns through `subagent_complete`
-- until this PR, it was not tab-pinned and had no shared memory primitive
-
-So the real foundation is:
-- session tabs
-- synchronous delegation primitive
-- linear run plan
-- site-matched skills
-- runtime events
-
-That foundation is useful, but it is not yet the North Star system.
+## Table of Contents
+1. [Purpose and Product Promise](#1-purpose-and-product-promise)
+2. [System Boundaries and Non-Goals](#2-system-boundaries-and-non-goals)
+3. [Core Architecture](#3-core-architecture)
+4. [User Interview Framework](#4-user-interview-framework)
+5. [Planning Graph Model](#5-planning-graph-model)
+6. [Dependency Sequencing Model](#6-dependency-sequencing-model)
+7. [Validation Model](#7-validation-model)
+8. [UX Spec: War Room + Command Center](#8-ux-spec-war-room--command-center)
+9. [Data Model](#9-data-model)
+10. [Real Test Suite Strategy](#10-real-test-suite-strategy)
+11. [Observability + Operational Telemetry](#11-observability--operational-telemetry)
+12. [Rollout Phases](#12-rollout-phases)
+13. [Concrete First Case: Cross-Site Simultaneous Write](#13-concrete-first-case-cross-site-simultaneous-write)
+14. [Task Trees](#14-task-trees)
+15. [Definition of Done](#15-definition-of-done)
 
 ---
 
-## 2. Product North Star
+## 1. Purpose and Product Promise
 
-## 2.1 The user promise
+The orchestrator is a **goal execution control plane** that can:
+- interview the user for missing requirements,
+- build a dependency-aware execution graph,
+- schedule work across up to 5 tabs,
+- delegate tasks to subagents with explicit tab ownership,
+- maintain shared state (whiteboard),
+- validate outcomes with evidence,
+- escalate only when required.
 
-A user should be able to give a goal like:
+This is not a single-agent macro runner. This is multi-worker, stateful, validated orchestration.
 
-> “Publish a YouTube video.”
+---
 
-And Parchi should be able to:
+## 2. System Boundaries and Non-Goals
 
-1. interview the user
-2. research missing context
-3. propose a plan
-4. show all moving pieces
-5. identify dependencies and parallelizable work
-6. reserve up to 5 tabs
-7. delegate work to specialized workers
-8. maintain shared state across tasks
-9. validate completion
-10. escalate only when blocked
+### In scope
+- 5-tab bounded orchestration runtime
+- graph planning + dependency sequencing
+- two-plane architecture (orchestrator + workers)
+- structured whiteboard state
+- deterministic validation contracts
+- operator-facing war-room and command-center UX
 
-This is not “browser automation.”
-This is **goal orchestration over browser tasks**.
+### Out of scope (v1)
+- unlimited tab scaling
+- unbounded autonomous retries without policy
+- full live-stream video from every tab
+- hidden autonomous publish actions without approval checkpoints
 
-## 2.2 The operating model
+---
 
-The orchestrator is best understood as a **control plane** managing a set of **tab-bound workers**.
+## 3. Core Architecture
 
-```text
-User
-  -> Interviewer / Planner
-      -> Execution Graph
-          -> Scheduler
-              -> Tab Reservations (max 5)
-                  -> Worker A on Tab 1
-                  -> Worker B on Tab 2
-                  -> Worker C on Tab 3
-              -> Shared Whiteboard
-              -> Validation Engine
-              -> Observability / Timeline
+```mermaid
+flowchart LR
+    U["User Goal"] --> I["Interview Engine"]
+    I --> P["Planner (DAG Builder)"]
+    P --> S["Scheduler"]
+    S --> T["Tab Reservation Ledger (max 5)"]
+    S --> W["Whiteboard State Store"]
+    S --> V["Validation Engine"]
+
+    T --> A1["Subagent A @ Tab 1"]
+    T --> A2["Subagent B @ Tab 2"]
+    T --> A3["Subagent C @ Tab N"]
+
+    A1 --> W
+    A2 --> W
+    A3 --> W
+    V --> S
+    S --> UX["Command Center UI"]
 ```
 
-The scheduler does not “do the task.”
-It decides:
-- what is ready
-- what must wait
-- which tab/profile to use
-- what shared outputs are needed
-- whether a task is actually complete
+### Planes
+- **Control plane:** interview, plan, sequence, reserve, validate, escalate.
+- **Worker plane:** execute bounded task in one reserved tab and emit structured outputs.
+
+### Hard runtime constraints
+- Max 5 concurrent reserved tabs.
+- Each running task owns exactly one tab.
+- Workers cannot steal each other’s tabs.
 
 ---
 
-## 3. The canonical workflow example: Publish a YouTube video
+## 4. User Interview Framework
 
-## 3.1 User goal
+Interview runs before execution and produces a machine-usable contract.
 
-> Publish the latest Riverside interview to YouTube with a strong thumbnail and searchable title.
+### 4.1 Interview stages
+1. **Goal normalization** — what result must exist at end?
+2. **Constraint elicitation** — deadlines, policy, approval gates.
+3. **Credential/access check** — site auth state and missing accounts.
+4. **Input inventory** — assets and data already available vs missing.
+5. **Risk capture** — likely blockers and fallback preferences.
+6. **Approval summary** — user confirms or edits assumptions.
 
-## 3.2 Interview phase
+### 4.2 Question taxonomy
+- **Required:** missing answers block plan finalization.
+- **Optional:** improves quality only.
+- **Policy-critical:** controls safety and user approvals.
+- **Ambiguity-breakers:** disambiguate overloaded intents.
 
-Before executing anything, the orchestrator should gather:
-
-- which Riverside recording?
-- which YouTube channel?
-- desired publishing mode: draft / private / public?
-- target audience?
-- brand constraints for the thumbnail?
-- required assets already available vs to be generated?
-- whether the user wants trend research only from Google Trends, or also Google Search / YouTube autocomplete?
-
-## 3.3 Sites involved
-
-For this example, the planner must reason across at least these domains:
-
-- `riverside.fm` or `riverside.io` — source asset download
-- `trends.google.com` — trend data
-- Google Search and/or YouTube search/autocomplete — search term validation
-- `canva.com` or other thumbnail tool — thumbnail creation
-- `studio.youtube.com` — upload, metadata, thumbnail, publish
-
-Optional supporting sites:
-- Drive/Dropbox if assets need transfer
-- brand asset source if logos/templates are needed
-
-## 3.4 Task graph
-
-```text
-Goal: Publish Riverside video to YouTube
-
-A. Interview user and resolve missing inputs
-B. Download source video from Riverside
-C. Research trend terms
-D. Generate thumbnail brief
-E. Build thumbnail asset
-F. Upload video to YouTube Studio
-G. Apply title/description/tags/thumbnail
-H. Validate published state and return final URL
-
-Dependencies:
-A -> B
-A -> C
-A -> D
-C + D -> E
-B -> F
-B + C + E -> G
-F + G -> H
-```
-
-## 3.5 Parallelization window
-
-Once interview is complete:
-
-- Tab 1: Riverside download
-- Tab 2: Google Trends research
-- Tab 3: Google / YouTube keyword verification
-- Tab 4: Thumbnail design
-- Tab 5: reserved for YouTube Studio upload once upload inputs are ready
-
-Not every task should open a new tab. The scheduler should prefer:
-1. reuse of reserved tabs by domain/role
-2. preserving authenticated state
-3. avoiding unnecessary tab churn
-
----
-
-## 4. The core technical model
-
-## 4.1 Control plane vs worker plane
-
-### Control plane
-
-Responsibilities:
-- interview
-- plan graph creation
-- dependency resolution
-- tab reservation
-- profile selection
-- shared state management
-- retry policy
-- validation policy
-- user escalation
-
-### Worker plane
-
-Responsibilities:
-- act inside exactly one tab
-- execute a bounded task prompt
-- write structured outputs back to shared memory
-- stop at task completion or blocker
-
-This split matters because the current codebase already has most worker primitives, but lacks a true control plane.
-
-## 4.2 Shared memory: the whiteboard
-
-A multi-tab orchestrator fails without durable shared state.
-
-The whiteboard is the contract between tasks.
-
-Examples of whiteboard keys:
-- `recording.videoFile`
-- `research.primaryKeywords`
-- `research.titleCandidates`
-- `thumbnail.brief`
-- `thumbnail.assetUrl`
-- `youtube.draftUrl`
-- `youtube.publishState`
-
-The whiteboard is not conversation history.
-It is structured, task-addressable working memory.
-
-## 4.3 Execution graph
-
-A real orchestrator needs a DAG, not a checklist.
-
-Each node must define:
-- what it is trying to do
-- what it depends on
-- which site(s) it targets
-- which profile it should use
-- what inputs it consumes from the whiteboard
-- what outputs it must publish
-- how success is validated
-- whether failure blocks downstream work
-
-## 4.4 Tab reservation model
-
-This is the correct tab model for Parchi:
-
-```text
-Session Tab Pool (max 5)
-  Tab 1 -> reservation: riverside-download
-  Tab 2 -> reservation: trend-research
-  Tab 3 -> reservation: keyword-verification
-  Tab 4 -> reservation: thumbnail-design
-  Tab 5 -> reservation: youtube-upload
-```
-
-Rules:
-- a running task owns its reserved tab
-- sibling workers cannot switch into each other’s tabs
-- the scheduler may reuse a tab only after the current reservation is terminal
-- authenticated sites should prefer tab reuse on the same domain
-
-This is stricter than the current session tab model and is necessary for correctness.
-
-## 4.5 Validation model
-
-Validation must be explicit and task-local.
-
-A task is not complete because the model says so.
-A task is complete because its validation contract passed.
-
-Validation types:
-- URL state reached
-- DOM text present
-- required whiteboard key written
-- tool result asserted
-- human confirmation required
-
-Example:
-
-```text
-Task: Upload video to YouTube Studio
-Success is not “clicked upload”.
-Success is:
-- file accepted by uploader
-- upload progress started or draft page loaded
-- draft/video URL written to whiteboard
+### 4.3 Interview output schema
+```ts
+interface InterviewResult {
+  resolvedInputs: Record<string, unknown>;
+  missingRequiredInputs: string[];
+  assumptions: string[];
+  constraints: {
+    deadline?: string;
+    allowedSites: string[];
+    requiresHumanApprovalAt: string[];
+  };
+  riskFlags: string[];
+  readyToPlan: boolean;
+}
 ```
 
 ---
 
-## 5. Current architecture gaps
+## 5. Planning Graph Model
 
-## 5.1 What is missing today
+Planner output is a DAG where nodes are executable tasks with explicit contracts.
 
-### Gap A — planner outputs a checklist, not a graph
-Current `RunPlan` is sequential and UI-facing.
-It cannot represent:
-- fan-out
-- fan-in
-- data dependencies
-- partial failure propagation
+```mermaid
+graph TD
+    G["Goal"] --> Q["Interview Complete"]
+    Q --> R1["Research Context"]
+    Q --> R2["Prepare Destination Session"]
+    R1 --> M["Map Data Fields"]
+    R2 --> M
+    M --> W1["Worker A Write Pass"]
+    M --> W2["Worker B Write Pass"]
+    W1 --> V["Validation Gate"]
+    W2 --> V
+    V --> D["Done or Escalate"]
+```
 
-### Gap B — no shared orchestration memory
-Before this PR, sibling delegated work had no durable structured memory surface.
-
-### Gap C — subagents were not tab-isolated
-Before this PR, `spawn_subagent` could delegate work, but not safely pin a worker to a single session tab.
-
-### Gap D — no scheduler
-There is no async loop yet that evaluates “ready tasks”, dispatches them, and reacts to completion events.
-
-### Gap E — no orchestrator-specific UX
-The current UI can show:
-- streaming output
-- tool events
-- plan drawer
-- session tabs
-
-It cannot yet show:
-- graph planning review
-- worker reservation map
-- whiteboard state
-- per-task validation state
+### Node contract
+Each node defines:
+- dependencies,
+- allowed tools,
+- target site patterns,
+- assigned profile,
+- required whiteboard inputs,
+- expected whiteboard outputs,
+- validation rules,
+- failure class.
 
 ---
 
-## 6. Correct architecture for the North Star
+## 6. Dependency Sequencing Model
 
-## 6.1 Interview subsystem
+### 6.1 Sequencing rules
+1. Node is **ready** only if all hard dependencies are terminal-success.
+2. Soft-fail dependencies may unlock with degraded mode if policy allows.
+3. Scheduler computes ready set per tick.
+4. Ready nodes compete for tab reservations.
+5. No reservation, no dispatch.
 
-The interviewer should run before execution and produce:
-- resolved inputs
-- unresolved questions
-- assumptions
-- risk flags
-- required auth checkpoints
-- user-approved scope
+### 6.2 Priority order
+1. unblock critical path,
+2. preserve authenticated tab reuse,
+3. minimize cross-site context switching,
+4. maximize parallelism up to tab cap.
 
-Output contract:
-
-```text
-Interview Result
-  requiredInputs
-  optionalInputs
-  missingInputs
-  assumptions
-  constraints
-  siteAccessRequirements
+### 6.3 Lifecycle
+```mermaid
+stateDiagram-v2
+    [*] --> Pending
+    Pending --> Ready : dependencies satisfied
+    Ready --> Reserved : tab allocated
+    Reserved --> Running : subagent started
+    Running --> Validating : worker returns outputs
+    Validating --> Succeeded : rules pass
+    Validating --> Blocked : needs user input
+    Validating --> Failed : hard validation fail
+    Running --> RetryQueued : retryable error
+    RetryQueued --> Ready
+    Succeeded --> [*]
+    Blocked --> [*]
+    Failed --> [*]
 ```
-
-## 6.2 Planner subsystem
-
-Input:
-- user goal
-- interview result
-- current tabs
-- matched skills
-- known auth state
-
-Output:
-- execution graph
-- recommended profiles per task
-- tab demand estimate
-- whiteboard schema
-- validation contracts
-
-## 6.3 Scheduler subsystem
-
-The scheduler loop should do this repeatedly:
-
-```text
-1. Read graph state
-2. Find ready tasks (dependencies satisfied)
-3. Check tab and profile availability
-4. Reserve tab(s)
-5. Spawn worker(s)
-6. Wait for worker result / timeout / blocker
-7. Update task state + whiteboard
-8. Unlock newly ready tasks
-9. Run validation tasks
-10. Stop when goal terminal or irrecoverably blocked
-```
-
-## 6.4 Worker contract
-
-Each worker receives:
-- task id
-- tab id reservation
-- profile selection
-- task prompt
-- allowed tools
-- whiteboard snapshot
-- required outputs
-- validation expectations
-
-Each worker returns:
-- success/failure/blocker
-- summary
-- evidence
-- output keys written
-- recommended next action if blocked
-
-## 6.5 Failure policy
-
-Failure propagation must be typed.
-
-Task failures are not all equal:
-- `retryable` — same node may retry with modified approach
-- `requires_user` — scheduler pauses and escalates
-- `soft_fail` — downstream can continue with degraded mode
-- `hard_fail` — dependent tasks cancel
-
-This is critical for flows like:
-- thumbnail generation failed, but upload draft can still proceed
-- trend research failed, but publish can continue with fallback metadata
-- YouTube login required, user must intervene
 
 ---
 
-## 7. UX North Star
+## 7. Validation Model
 
-## 7.1 Pre-flight “War Room”
+Validation is contract-based, not LLM self-assertion.
 
-Before execution, show:
-- interview answers
-- assumptions
-- site list
-- task graph
-- concurrency plan
-- expected outputs
-- risk and auth checkpoints
+### 7.1 Validation layers
+- **Task-level validation:** local postconditions for a node.
+- **Dependency-edge validation:** required outputs exist before downstream unlock.
+- **Goal-level validation:** final objective evidence is present.
 
-The user should be able to:
-- edit a task
-- remove a task
-- change ordering constraints
-- set publish mode to draft/private/public
-- approve execution
+### 7.2 Validation rule types
+- URL pattern reached
+- DOM selector/text assertion
+- file upload acceptance
+- whiteboard key existence + schema
+- cross-site data consistency check
+- explicit human confirmation checkpoint
 
-## 7.2 Live “Command Center”
-
-During execution, show:
-- graph with node status
-- tab reservation board
-- worker cards
-- whiteboard panel
-- error / blocker queue
-- validation results
-
-Recommended layout:
-
-```text
-+--------------------------------------------------------------+
-| Chat / Orchestrator Log                                      |
-+-------------------------+------------------------------------+
-| Graph / Task Tree       | Worker / Tab Preview Grid          |
-|                         | [Tab1] [Tab2] [Tab3] [Tab4] [Tab5] |
-+-------------------------+------------------------------------+
-| Whiteboard              | Validation + Blockers              |
-+--------------------------------------------------------------+
-```
-
-## 7.3 Preview strategy
-
-Do not attempt full live tab streaming as v1.
-Use:
-- periodic screenshots
-- active tool label
-- current URL/title
-- last successful verification excerpt
-
-This aligns with the current vision stack and keeps token / performance cost bounded.
+### 7.3 Evidence bundle
+Every terminal node emits:
+- `summary`
+- `screenshotRefs[]`
+- `toolEvents[]`
+- `whiteboardDiff`
+- `validationResults[]`
 
 ---
 
-## 8. Test and observability architecture
+## 8. UX Spec: War Room + Command Center
 
-## 8.1 What must be tested
+### 8.1 Pre-execution War Room
+Purpose: approve plan before runtime side-effects.
 
-### Planner tests
-- ambiguous goal -> interview questions generated
-- graph is acyclic
-- whiteboard bindings are coherent
-- concurrency is clamped to max 5 tabs
+Panels:
+- Interview summary
+- Assumptions + risks
+- DAG preview
+- Tab demand forecast
+- Approval checkpoints
+- “Run / Edit / Cancel” controls
 
-### Scheduler tests
-- ready-task detection
-- dependency unlocking
-- tab reservation and reuse
-- cancellation propagation
-- user-intervention pause/resume
+### 8.2 Live Command Center
+Purpose: control and audit execution in real time.
 
-### Worker tests
-- tab-pinned execution cannot escape reservation
-- whiteboard reads/writes work
-- validation contracts are checked
-
-### End-to-end workflow tests
-Use realistic mock flows for:
-- Riverside download
-- Google Trends lookup
-- thumbnail creation flow
-- YouTube Studio upload flow
-
-## 8.2 Observability model
-
-Every orchestrated run should be reconstructable.
-
-Required identifiers:
-- `runId` = whole orchestration run
-- `taskId` = graph node
-- `tabId` = browser reservation
-- `subagentId` = delegated worker instance
-- `profile` = model role actually used
-
-Timeline events should support replay:
-- task ready
-- task reserved
-- worker started
-- tool called
-- verification passed
-- whiteboard updated
-- validation passed/failed
-- task terminal
-
-## 8.3 Deterministic testing strategy
-
-For CI, prefer a local mock web sandbox instead of live sites.
-
-```text
-/mock/riverside
-/mock/google-trends
-/mock/thumbnail-tool
-/mock/youtube-studio
+```mermaid
+flowchart TB
+    CC["Command Center"] --> GL["Graph Live View"]
+    CC --> TR["Tab Reservation Board"]
+    CC --> WC["Worker Cards"]
+    CC --> WB["Whiteboard Inspector"]
+    CC --> VQ["Validation Queue"]
+    CC --> BQ["Blocker Queue + Escalations"]
 ```
 
-And use mock model responses for scheduler tests so we can verify orchestration logic without nondeterministic LLM behavior.
+### 8.3 Required operator actions
+- pause/resume scheduler
+- retry specific node
+- force revalidation
+- reassign profile/tab
+- inject user answer into blocked node
 
 ---
 
-## 9. Data model for the target system
-
-This PR introduces the shared graph model in `packages/shared/src/orchestrator.ts`.
+## 9. Data Model
 
 ```ts
-OrchestratorPlan
-  goal
-  assumptions
-  interviewQuestions
-  tasks[]
-  whiteboardKeys[]
-  maxConcurrentTabs
+type TaskStatus =
+  | 'pending'
+  | 'ready'
+  | 'reserved'
+  | 'running'
+  | 'validating'
+  | 'succeeded'
+  | 'blocked'
+  | 'failed'
+  | 'canceled';
 
-OrchestratorTaskNode
-  id
-  title
-  kind
-  status
-  dependencies[]
-  sitePatterns[]
-  requiredSkills[]
-  assignedProfile?
-  assignedTabId?
-  prompt?
-  inputs[]
-  outputs[]
-  validations[]
+interface OrchestratorPlan {
+  id: string;
+  goal: string;
+  maxConcurrentTabs: number; // <= 5
+  interview: InterviewResult;
+  tasks: OrchestratorTaskNode[];
+  whiteboardSchema: WhiteboardSchema;
+  policies: OrchestratorPolicy;
+}
+
+interface OrchestratorTaskNode {
+  id: string;
+  title: string;
+  dependencies: string[];
+  softDependencies?: string[];
+  targetSites: string[];
+  assignedProfile?: string;
+  assignedTabId?: number;
+  inputs: WhiteboardBinding[];
+  outputs: WhiteboardBinding[];
+  validations: ValidationRule[];
+  retryPolicy: RetryPolicy;
+  status: TaskStatus;
+}
+
+interface WhiteboardEntry<T = unknown> {
+  key: string;
+  value: T;
+  producerTaskId: string;
+  updatedAt: string;
+  schemaVersion: string;
+}
+
+interface TimelineEvent {
+  runId: string;
+  taskId?: string;
+  tabId?: number;
+  subagentId?: string;
+  type: string;
+  at: string;
+  payload: Record<string, unknown>;
+}
 ```
 
-This model is intentionally separate from `RunPlan`.
+---
 
-Reason:
-- `RunPlan` remains the linear execution/checklist primitive used by an individual worker
-- `OrchestratorPlan` becomes the graph primitive used by the scheduler
+## 10. Real Test Suite Strategy
 
-That separation is the technically correct design.
+Use real-browser integration where orchestration behavior matters.
+
+### 10.1 Test pyramid (orchestration-first)
+1. **Unit** — graph normalization, ready-set derivation, retry classification.
+2. **Integration** — scheduler + ledger + whiteboard with deterministic stubs.
+3. **E2E (mock web sandbox)** — multi-tab browser flows with DOM assertions.
+4. **Canary live-site probes** — small, non-destructive periodic checks.
+
+### 10.2 Required suites
+- `planner.spec.ts`: DAG validity, ambiguity handling, interview gate checks
+- `scheduler.spec.ts`: dependency unlock, reservation fairness, cancellation
+- `worker-contract.spec.ts`: tab pinning, tool guardrails, output contracts
+- `validation-engine.spec.ts`: rule execution and evidence integrity
+- `flows/cross-site-write.spec.ts`: first-case full execution path
+
+### 10.3 Artifact policy
+All integration/E2E runs must dump:
+- `test-output/orchestrator/<runId>/timeline.json`
+- `test-output/orchestrator/<runId>/whiteboard-final.json`
+- `test-output/orchestrator/<runId>/screenshots/*.png`
 
 ---
 
-## 10. What this PR implements
+## 11. Observability + Operational Telemetry
 
-This PR is the first real foundation slice, not the full orchestrator.
+### 11.1 Event stream contract
+```mermaid
+sequenceDiagram
+    participant UI as Command Center
+    participant O as Orchestrator
+    participant L as Ledger
+    participant A as Subagent A
+    participant B as Subagent B
+    participant W as Whiteboard
 
-### 10.1 Implemented in code
+    O->>L: reserve(Tab1, taskA)
+    O->>L: reserve(Tab2, taskB)
+    O->>A: start(taskA, Tab1)
+    O->>B: start(taskB, Tab2)
+    A->>W: write(outputA)
+    B->>W: write(outputB)
+    O->>O: validate(taskA, taskB)
+    O->>UI: emit timeline + status
+```
 
-#### A. Shared orchestration graph types
-Added `packages/shared/src/orchestrator.ts` with:
-- orchestrator task statuses
-- task graph node type
-- whiteboard entry type
-- plan normalization helpers
-- ready-task derivation helpers
+### 11.2 Minimum telemetry dimensions
+- runId, taskId, tabId, subagentId
+- profile, site, tool, latency
+- retryCount, blockerType, validationOutcome
 
-#### B. Shared whiteboard tools
-Added orchestrator shared memory tools in `BackgroundService`:
-- `whiteboard_get`
-- `whiteboard_set`
-- `whiteboard_list`
-
-These create a real structured state surface for cross-task handoff.
-
-#### C. Tab-pinned subagent foundation
-`spawn_subagent` now supports:
-- `tabId`
-- `name`
-- `whiteboardKeys`
-
-When pinned:
-- the worker is forced onto one session tab
-- tab-management tools are removed
-- browser calls are scoped to that tab
-
-This is the correct first step toward safe multi-tab delegation.
-
-#### D. Prompt/runtime grounding
-The orchestrator prompt now surfaces:
-- shared whiteboard snapshot
-- explicit whiteboard tool usage
-- tab-pinned delegation guidance
-
-#### E. Unit coverage
-Added unit tests for:
-- orchestrator task normalization
-- concurrency clamping
-- whiteboard key derivation
-- ready-task derivation
-
-## 10.2 Not implemented yet
-
-Still intentionally out of scope for this PR:
-- async scheduler/event loop
-- tab reservation ledger UI
-- graph editor UI
-- task-level validation engine
-- blocker escalation UI
-- automated parallel execution of 5 workers at once
-
-Those belong in the next phases.
+### 11.3 SLOs (initial)
+- scheduler tick p95 < 500ms
+- node dispatch-to-first-action p95 < 2s
+- validation completion p95 < 1s after worker return
+- run replay completeness = 100% (no missing critical events)
 
 ---
 
-## 11. Delivery roadmap
+## 12. Rollout Phases
 
-## Phase 1 — Foundations
-- graph types
-- whiteboard
-- tab-pinned worker contract
-- unit coverage
+```mermaid
+gantt
+    title Orchestrator Rollout Roadmap
+    dateFormat  YYYY-MM-DD
+    section Phase 1 Foundations
+    Graph + whiteboard + contracts      :done, p1, 2026-03-01, 14d
+    section Phase 2 Scheduler Core
+    Ready-set + reservation ledger      :active, p2, 2026-03-15, 21d
+    section Phase 3 Validation Engine
+    Rule runtime + evidence bundle      :p3, 2026-04-05, 14d
+    section Phase 4 UX Surfaces
+    War room + command center           :p4, 2026-04-19, 21d
+    section Phase 5 Real Workflow Packs
+    Cross-site write + publish packs    :p5, 2026-05-10, 21d
+```
 
-## Phase 2 — Scheduler
-- ready queue
-- reservation ledger
-- task lifecycle state machine
-- async worker dispatch
-
-## Phase 3 — Validation engine
-- reusable validation rule executor
-- blocker classification
-- human-in-the-loop checkpoints
-
-## Phase 4 — UX
-- war room
-- command center
-- whiteboard panel
-- worker cards and previews
-
-## Phase 5 — Real workflow packs
-- publish YouTube video
-- post LinkedIn update
-- research + outreach pipeline
-- internal multi-site operational flows
+### Exit criteria per phase
+- **P1:** plan + whiteboard types stable and versioned
+- **P2:** deterministic scheduler with pause/resume/retry
+- **P3:** validation failures produce actionable blockers
+- **P4:** operator can control run without logs spelunking
+- **P5:** first-case workflow passes E2E with artifacts
 
 ---
 
-## 12. Final position
+## 13. Concrete First Case: Cross-Site Simultaneous Write
 
-The North Star is not “let one agent open five tabs.”
-It is:
+### Scenario statement
+**“One site writes into another site at the same time with 2 subagents and 1 orchestrator.”**
 
-> Build a control plane that can interview, plan, reserve tabs, delegate bounded work, share state, validate outcomes, and only escalate to the user when required.
+### 13.1 Real example
+- **Source site:** Airtable (records to sync)
+- **Destination site:** Notion (pages/database rows)
+- **Direction:** bi-directional sync window
+- **Agents:**
+  - Subagent A (Tab 1): Airtable ➜ Notion write path
+  - Subagent B (Tab 2): Notion ➜ Airtable write-back path
+  - Orchestrator: dependency control, conflict detection, validation
 
-That is the technically correct path from the Parchi codebase as it exists today to the product described in the original request.
+### 13.2 Execution design
+1. Interview: confirm field mappings + conflict policy + authoritative source per field.
+2. Planner: build graph with mapping, write pass A, write pass B, reconcile, validate.
+3. Scheduler: reserve Tab 1 and Tab 2 simultaneously.
+4. Workers: execute writes in parallel with idempotency keys.
+5. Validation: compare both systems by checksum on synced records.
+6. Escalate: if conflicts exceed threshold or required fields mismatch.
+
+### 13.3 Concurrency + conflict policy
+- Last-write-wins forbidden for critical fields.
+- Conflict classes: `nonCritical`, `critical`, `schemaMismatch`.
+- Critical conflicts route to human approval node.
+
+### 13.4 Success contract
+Run is successful only if:
+- both write passes succeed,
+- reconciliation node reports zero critical conflicts,
+- both sites contain agreed canonical values,
+- evidence bundle includes screenshots + record IDs + whiteboard diff.
+
+### 13.5 Secondary exemplar: YouTube publish pipeline (parallel branches)
+- Tab 1: download final export from Riverside
+- Tab 2: trend and search-term research
+- Tab 3: thumbnail generation flow
+- Tab 4: upload + metadata + thumbnail in YouTube Studio
+- Tab 5: reserved for fallback/auth/manual intervention
+
+The same orchestration mechanics apply: whiteboard handoff, dependency gates,
+parallel workers, and validation before final publish state.
+
+---
+
+## 14. Task Trees
+
+### 14.1 Master task tree
+```text
+Orchestrator Program
+├── Interview Framework
+│   ├── Goal normalization
+│   ├── Constraint collection
+│   ├── Auth/access verification
+│   └── Approval summary
+├── Planning Graph
+│   ├── Node contract generation
+│   ├── Dependency graph build
+│   └── Whiteboard schema derivation
+├── Scheduler
+│   ├── Ready-set computation
+│   ├── Tab reservation ledger
+│   ├── Dispatch loop
+│   └── Retry/cancel policies
+├── Validation
+│   ├── Rule engine
+│   ├── Evidence bundling
+│   └── Goal-level verdict
+├── UX
+│   ├── War room
+│   ├── Command center
+│   └── Blocker escalation UI
+├── Testing
+│   ├── Unit/integration suites
+│   ├── Mock-web E2E
+│   └── Canary live probes
+└── Observability
+    ├── Timeline event schema
+    ├── Metrics + traces
+    └── Replay tooling
+```
+
+### 14.2 First-case task tree (Airtable ↔ Notion)
+```text
+Cross-Site Simultaneous Write Run
+├── Interview
+│   ├── Confirm source/destination auth
+│   ├── Confirm field mappings
+│   └── Confirm conflict policy
+├── Plan
+│   ├── Build bi-directional write DAG
+│   └── Define reconciliation/validation nodes
+├── Execute Parallel Writes
+│   ├── Subagent A: Airtable -> Notion
+│   └── Subagent B: Notion -> Airtable
+├── Reconcile
+│   ├── Compute record checksums
+│   └── Classify conflicts
+└── Validate + Finish
+    ├── Assert critical conflict count == 0
+    ├── Persist artifacts
+    └── Return final run summary
+```
+
+---
+
+## 15. Definition of Done
+
+This specification is considered implemented when:
+1. 5-tab bounded scheduler is operational,
+2. graph-based orchestration replaces checklist-only execution for orchestrated mode,
+3. validation contracts gate task completion,
+4. war-room and command-center UX are usable,
+5. first-case cross-site simultaneous write passes E2E with reproducible artifacts.
