@@ -238,3 +238,48 @@ export function getReadyOrchestratorTaskIds(plan: OrchestratorPlan): string[] {
     .filter((task) => task.dependencies.every((dependency) => completed.has(dependency)))
     .map((task) => task.id);
 }
+
+export function getDispatchableOrchestratorTaskIds(
+  plan: OrchestratorPlan,
+  options: { runningTaskIds?: string[]; maxSlots?: number } = {},
+): string[] {
+  const ready = getReadyOrchestratorTaskIds(plan);
+  const running = new Set(Array.isArray(options.runningTaskIds) ? options.runningTaskIds : []);
+  const maxSlots = Math.max(1, Math.min(5, Math.floor(options.maxSlots ?? plan.maxConcurrentTabs)));
+  return ready.filter((taskId) => !running.has(taskId)).slice(0, maxSlots);
+}
+
+export function getOrchestratorPlanValidationIssues(plan: OrchestratorPlan): string[] {
+  const issues: string[] = [];
+  const taskIds = new Set(plan.tasks.map((task) => task.id));
+  const visiting = new Set<string>();
+  const visited = new Set<string>();
+
+  for (const task of plan.tasks) {
+    for (const dependency of task.dependencies) {
+      if (!taskIds.has(dependency)) {
+        issues.push(`Task "${task.id}" references missing dependency "${dependency}".`);
+      }
+    }
+  }
+
+  const hasCycle = (taskId: string): boolean => {
+    if (visiting.has(taskId)) return true;
+    if (visited.has(taskId)) return false;
+    visiting.add(taskId);
+    const task = plan.tasks.find((entry) => entry.id === taskId);
+    const cyclic = Boolean(task?.dependencies.some((dependency) => hasCycle(dependency)));
+    visiting.delete(taskId);
+    visited.add(taskId);
+    return cyclic;
+  };
+
+  for (const taskId of taskIds) {
+    if (hasCycle(taskId)) {
+      issues.push(`Detected dependency cycle reachable from task "${taskId}".`);
+      break;
+    }
+  }
+
+  return issues;
+}

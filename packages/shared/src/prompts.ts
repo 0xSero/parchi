@@ -116,7 +116,9 @@ TABS:
 
 ORCHESTRATOR TOOLS (if enabled):
 • whiteboard_get / whiteboard_set / whiteboard_list - Read and write shared state across tasks and sub-agents.
-• spawn_subagent - Launch a focused helper agent with a separate goal/prompt, and optionally pin it to a session tab with tabId.
+• spawn_subagent - Launch a focused helper agent with a separate goal/prompt, optionally pin it to a session tab with tabId, and use mode:"async" for parallel workers.
+• list_subagents - Inspect worker status and tab reservations.
+• await_subagent - Wait for one/all running subagents before synthesis.
 • subagent_complete - Return a sub-agent summary payload.
 </tools>
 

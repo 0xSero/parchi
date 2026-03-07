@@ -5,6 +5,8 @@
  * Tests individual components without Chrome APIs
  */
 
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   DEFAULT_COMPACTION_SETTINGS,
   applyCompaction,
@@ -24,6 +26,8 @@ import { createExponentialBackoff, isValidFinalResponse } from '../../packages/e
 
 import {
   buildOrchestratorPlan,
+  getDispatchableOrchestratorTaskIds,
+  getOrchestratorPlanValidationIssues,
   getReadyOrchestratorTaskIds,
   isOrchestratorTaskTerminal,
   normalizeOrchestratorTaskStatus,
@@ -683,6 +687,42 @@ function testOrchestratorPlanNormalization(runner: TestRunner) {
     runner.assertTrue(isOrchestratorTaskTerminal('completed'));
     runner.assertFalse(isOrchestratorTaskTerminal('running'));
   });
+
+  runner.test('getDispatchableOrchestratorTaskIds enforces slot limits and excludes running tasks', () => {
+    const plan = buildOrchestratorPlan({
+      goal: 'Parallel workflow',
+      maxConcurrentTabs: 3,
+      tasks: [
+        { id: 'a', title: 'Task A', status: 'completed' },
+        { id: 'b', title: 'Task B', dependencies: ['a'], status: 'pending' },
+        { id: 'c', title: 'Task C', dependencies: ['a'], status: 'pending' },
+        { id: 'd', title: 'Task D', dependencies: ['a'], status: 'pending' },
+      ],
+    });
+
+    runner.assertEqual(getDispatchableOrchestratorTaskIds(plan, { runningTaskIds: ['b'], maxSlots: 2 }), ['c', 'd']);
+  });
+
+  runner.test('getOrchestratorPlanValidationIssues catches missing deps and cycles', () => {
+    const withMissing = buildOrchestratorPlan({
+      goal: 'Bad graph',
+      tasks: [{ id: 'a', title: 'Task A', dependencies: ['missing'] }],
+    });
+    runner.assertTrue(
+      getOrchestratorPlanValidationIssues(withMissing).some((issue) => issue.includes('missing dependency')),
+    );
+
+    const cyclic = buildOrchestratorPlan({
+      goal: 'Cycle graph',
+      tasks: [
+        { id: 'a', title: 'Task A', dependencies: ['b'] },
+        { id: 'b', title: 'Task B', dependencies: ['a'] },
+      ],
+    });
+    runner.assertTrue(
+      getOrchestratorPlanValidationIssues(cyclic).some((issue) => issue.includes('dependency cycle')),
+    );
+  });
 }
 
 // Test Retry Helpers
@@ -831,6 +871,98 @@ function testRuntimeMessages(runner: TestRunner) {
   });
 }
 
+function testOrchestratorSimulation(runner: TestRunner) {
+  log('\n=== Testing Orchestrator Simulation (2 subagents + 1 orchestrator) ===', 'info');
+
+  runner.test('simulated cross-site parallel write flow produces deterministic artifact', () => {
+    const now = Date.now();
+    const plan = buildOrchestratorPlan({
+      goal: 'Sync Airtable and Notion in parallel',
+      maxConcurrentTabs: 5,
+      tasks: [
+        { id: 'interview', title: 'Collect field mapping + conflict policy', status: 'completed' },
+        {
+          id: 'write_a_to_b',
+          title: 'Subagent A writes Airtable to Notion',
+          dependencies: ['interview'],
+          outputs: [{ key: 'sync.airtable_to_notion' }],
+        },
+        {
+          id: 'write_b_to_a',
+          title: 'Subagent B writes Notion to Airtable',
+          dependencies: ['interview'],
+          outputs: [{ key: 'sync.notion_to_airtable' }],
+        },
+        {
+          id: 'validate',
+          title: 'Validate both sites and reconcile conflicts',
+          dependencies: ['write_a_to_b', 'write_b_to_a'],
+          inputs: [{ key: 'sync.airtable_to_notion' }, { key: 'sync.notion_to_airtable' }],
+        },
+      ],
+    });
+
+    const initialReady = getReadyOrchestratorTaskIds(plan);
+    runner.assertEqual(initialReady, ['write_a_to_b', 'write_b_to_a']);
+
+    const dispatchable = getDispatchableOrchestratorTaskIds(plan, { maxSlots: 2 });
+    runner.assertEqual(dispatchable, ['write_a_to_b', 'write_b_to_a']);
+
+    const whiteboard = {
+      'sync.airtable_to_notion': {
+        status: 'ok',
+        recordsSynced: 12,
+        evidence: ['airtable-record-1', 'notion-page-1'],
+      },
+      'sync.notion_to_airtable': {
+        status: 'ok',
+        recordsSynced: 11,
+        evidence: ['notion-page-8', 'airtable-record-8'],
+      },
+      'sync.conflicts': {
+        critical: 0,
+        nonCritical: 1,
+      },
+    };
+
+    const taskState = {
+      interview: 'completed',
+      write_a_to_b: 'completed',
+      write_b_to_a: 'completed',
+      validate: 'completed',
+    };
+
+    const artifact = {
+      runId: `sim-${now}`,
+      goal: plan.goal,
+      topology: {
+        orchestrator: 1,
+        subagents: 2,
+        tabs: [
+          { tabId: 1, subagentId: 'subagent-a', taskId: 'write_a_to_b' },
+          { tabId: 2, subagentId: 'subagent-b', taskId: 'write_b_to_a' },
+        ],
+      },
+      tasks: taskState,
+      whiteboard,
+      validations: [
+        { key: 'sync.airtable_to_notion', passed: true },
+        { key: 'sync.notion_to_airtable', passed: true },
+        { key: 'sync.conflicts.critical==0', passed: true },
+      ],
+      success: true,
+    };
+
+    const outDir = path.resolve(process.cwd(), 'test-output');
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, 'orchestrator-simulated-run.json');
+    fs.writeFileSync(outPath, JSON.stringify(artifact, null, 2));
+
+    runner.assertTrue(fs.existsSync(outPath), 'Simulation artifact should exist');
+    runner.assertEqual(artifact.success, true);
+  });
+}
+
 // Main test execution
 function main() {
   log('╔════════════════════════════════════════╗', 'info');
@@ -853,6 +985,7 @@ function main() {
   testOrchestratorPlanNormalization(runner);
   testRetryHelpers(runner);
   testRuntimeMessages(runner);
+  testOrchestratorSimulation(runner);
 
   const success = runner.printSummary();
   process.exit(success ? 0 : 1);

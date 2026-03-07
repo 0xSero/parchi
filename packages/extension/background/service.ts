@@ -59,11 +59,28 @@ type ReportImage = {
   visionDescription?: string;
 };
 
+type SubagentRunStatus = 'running' | 'completed' | 'failed' | 'cancelled';
+
+type SubagentRunState = {
+  id: string;
+  name: string;
+  status: SubagentRunStatus;
+  tasks: string[];
+  profile?: string;
+  tabId?: number;
+  startedAt: number;
+  finishedAt?: number;
+  summary?: string;
+  error?: string;
+};
+
 type SessionState = {
   sessionId: string;
   currentPlan: RunPlan | null;
   subAgentCount: number;
   subAgentProfileCursor: number;
+  subAgentRuns: Map<string, SubagentRunState>;
+  tabLeases: Map<number, string>;
   whiteboard: Map<string, WhiteboardEntry>;
   lastBrowserAction: string | null;
   awaitingVerification: boolean;
@@ -110,6 +127,7 @@ export class BackgroundService {
   private cancelledRunIds: Set<string>;
   private sessionStateById: Map<string, SessionState>;
   private browserToolsBySessionId: Map<string, BrowserTools>;
+  private subagentPromisesById: Map<string, Promise<Record<string, any>>>;
 
   constructor() {
     this.browserTools = new BrowserTools();
@@ -126,6 +144,7 @@ export class BackgroundService {
     this.cancelledRunIds = new Set();
     this.sessionStateById = new Map();
     this.browserToolsBySessionId = new Map();
+    this.subagentPromisesById = new Map();
     this.recordingCoordinator = new RecordingCoordinator();
     // State tracking for enforcement
     this.lastBrowserAction = null;
@@ -1753,6 +1772,53 @@ Rules:
       return result;
     }
 
+    if (toolName === 'list_subagents') {
+      const result = {
+        success: true,
+        runningCount: this.getRunningSubagentCount(sessionState),
+        subagents: this.listSubagentRuns(sessionState),
+        tabLeases: Array.from(sessionState.tabLeases.entries()).map(([tabId, subagentId]) => ({
+          tabId,
+          subagentId,
+        })),
+      };
+      sendResult(result);
+      return result;
+    }
+
+    if (toolName === 'await_subagent') {
+      const requestedIds = new Set(
+        [
+          ...(typeof args?.id === 'string' ? [args.id] : []),
+          ...(Array.isArray(args?.ids) ? args.ids : []),
+        ]
+          .map((value) => String(value || '').trim())
+          .filter(Boolean),
+      );
+      const defaultIds = Array.from(sessionState.subAgentRuns.values())
+        .filter((run) => run.status === 'running')
+        .map((run) => run.id);
+      const targetIds = requestedIds.size ? Array.from(requestedIds) : defaultIds;
+      const timeoutMs = Math.max(500, Math.min(120000, Number(args?.timeoutMs || 30000)));
+      const missingIds = targetIds.filter((id) => !sessionState.subAgentRuns.has(id));
+      const waitResult = await this.awaitSubagentRuns(
+        sessionState,
+        targetIds.filter((id) => !missingIds.includes(id)),
+        timeoutMs,
+      );
+      const result = {
+        success: true,
+        timedOut: waitResult.timedOut,
+        waitedMs: waitResult.waitedMs,
+        targetIds,
+        missingIds,
+        runningCount: this.getRunningSubagentCount(sessionState),
+        subagents: this.listSubagentRuns(sessionState),
+      };
+      sendResult(result);
+      return result;
+    }
+
     if (toolName === 'subagent_complete') {
       const result = { success: true, ack: true, details: args || {} };
       sendResult(result);
@@ -2342,6 +2408,48 @@ Rules:
       .join('\n');
   }
 
+  private listSubagentRuns(sessionState: SessionState) {
+    return Array.from(sessionState.subAgentRuns.values())
+      .sort((a, b) => b.startedAt - a.startedAt)
+      .map((run) => ({ ...run }));
+  }
+
+  private updateSubagentRun(sessionState: SessionState, id: string, patch: Partial<SubagentRunState>) {
+    const existing = sessionState.subAgentRuns.get(id);
+    if (!existing) return;
+    sessionState.subAgentRuns.set(id, { ...existing, ...patch });
+  }
+
+  private releaseTabLease(sessionState: SessionState, subagentId: string, tabId?: number | null) {
+    if (typeof tabId !== 'number') return;
+    if (sessionState.tabLeases.get(tabId) === subagentId) {
+      sessionState.tabLeases.delete(tabId);
+    }
+  }
+
+  private getRunningSubagentCount(sessionState: SessionState) {
+    return Array.from(sessionState.subAgentRuns.values()).filter((run) => run.status === 'running').length;
+  }
+
+  private async awaitSubagentRuns(sessionState: SessionState, runIds: string[], timeoutMs: number) {
+    const startedAt = Date.now();
+    const pendingPromises = runIds
+      .map((id) => this.subagentPromisesById.get(id))
+      .filter((promise): promise is Promise<Record<string, any>> => Boolean(promise));
+    if (pendingPromises.length === 0) {
+      return { timedOut: false, waitedMs: 0 };
+    }
+    const timeoutPromise = new Promise<'timeout'>((resolve) => {
+      setTimeout(() => resolve('timeout'), timeoutMs);
+    });
+    const raceResult = await Promise.race([Promise.allSettled(pendingPromises), timeoutPromise]);
+    return {
+      timedOut: raceResult === 'timeout',
+      waitedMs: Date.now() - startedAt,
+      subagents: this.listSubagentRuns(sessionState),
+    };
+  }
+
   getToolPermissionCategory(toolName) {
     const mapping = {
       navigate: 'navigate',
@@ -2493,7 +2601,11 @@ Rules:
   private getSessionState(sessionId: string): SessionState {
     const id = typeof sessionId === 'string' && sessionId.trim() ? sessionId : 'default';
     const existing = this.sessionStateById.get(id);
-    if (existing) return existing;
+    if (existing) {
+      if (!(existing.subAgentRuns instanceof Map)) existing.subAgentRuns = new Map();
+      if (!(existing.tabLeases instanceof Map)) existing.tabLeases = new Map();
+      return existing;
+    }
     // Evict oldest sessions when at capacity
     if (this.sessionStateById.size >= BackgroundService.MAX_SESSIONS) {
       const oldestKey = this.sessionStateById.keys().next().value;
@@ -2504,6 +2616,8 @@ Rules:
       currentPlan: null,
       subAgentCount: 0,
       subAgentProfileCursor: 0,
+      subAgentRuns: new Map(),
+      tabLeases: new Map(),
       whiteboard: new Map(),
       lastBrowserAction: null,
       awaitingVerification: false,
@@ -2657,7 +2771,7 @@ If vision tools are enabled, use them when visual structure or media context can
       : '<vision_tools>Vision-capable tools are disabled for this model.</vision_tools>';
     const orchestratorToolSection = context.orchestratorEnabled
       ? availableToolNames.includes('spawn_subagent')
-        ? '<orchestrator_tools>Orchestrator tools enabled: spawn_subagent, subagent_complete, whiteboard_get, whiteboard_set, whiteboard_list. Use whiteboard tools for shared memory, and pin sub-agents to specific session tabs with spawn_subagent({ tabId, ... }) when you want isolated execution.</orchestrator_tools>'
+        ? '<orchestrator_tools>Orchestrator tools enabled: spawn_subagent, list_subagents, await_subagent, subagent_complete, whiteboard_get, whiteboard_set, whiteboard_list. Use spawn_subagent({ mode: "async", tabId, ... }) to run parallel workers, whiteboard tools for shared memory, and await_subagent to join results before final synthesis.</orchestrator_tools>'
         : '<orchestrator_tools>Orchestrator mode is enabled.</orchestrator_tools>'
       : '';
     const whiteboardSnapshot = this.serializeWhiteboardForPrompt(sessionState);
@@ -3104,6 +3218,43 @@ When a tool fails:
                 items: { type: 'string' },
                 description: 'Optional whiteboard keys this sub-agent should prioritize reading.',
               },
+              mode: {
+                type: 'string',
+                enum: ['sync', 'async'],
+                description:
+                  'Execution mode. Use "async" for parallel tab work and then call await_subagent to join results.',
+              },
+            },
+          },
+        },
+        {
+          name: 'list_subagents',
+          description: 'List currently running and completed sub-agents plus active tab leases.',
+          input_schema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'await_subagent',
+          description:
+            'Wait for one or more sub-agents to finish. If no id is provided, waits for all currently running sub-agents.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              id: {
+                type: 'string',
+                description: 'Optional sub-agent id to wait for.',
+              },
+              ids: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Optional list of sub-agent ids to wait for.',
+              },
+              timeoutMs: {
+                type: 'number',
+                description: 'Optional timeout in milliseconds (default 30000).',
+              },
             },
           },
         },
@@ -3127,10 +3278,20 @@ When a tool fails:
   async handleSpawnSubagent(runMeta: RunMeta, args, settings: Record<string, any>) {
     const sessionState = this.getSessionState(runMeta.sessionId);
     const browserTools = this.getBrowserTools(runMeta.sessionId);
-    if (sessionState.subAgentCount >= 10) {
+    if (sessionState.subAgentRuns.size >= 50) {
+      const terminal = Array.from(sessionState.subAgentRuns.values())
+        .filter((run) => run.status !== 'running')
+        .sort((a, b) => a.startedAt - b.startedAt);
+      while (sessionState.subAgentRuns.size >= 50 && terminal.length) {
+        const stale = terminal.shift();
+        if (!stale) break;
+        sessionState.subAgentRuns.delete(stale.id);
+      }
+    }
+    if (this.getRunningSubagentCount(sessionState) >= 5) {
       return {
         success: false,
-        error: 'Sub-agent limit reached for this session (max 10).',
+        error: 'Sub-agent concurrency limit reached for this session (max 5 running).',
       };
     }
     sessionState.subAgentCount += 1;
@@ -3156,166 +3317,231 @@ When a tool fails:
         error: `Cannot pin sub-agent to tab ${lockedTabId}. It is not part of the current session tabs.`,
       };
     }
+    if (lockedTabId !== null) {
+      const leasedTo = sessionState.tabLeases.get(lockedTabId);
+      if (leasedTo) {
+        const owner = sessionState.subAgentRuns.get(leasedTo);
+        if (!owner || owner.status !== 'running') {
+          sessionState.tabLeases.delete(lockedTabId);
+        } else if (leasedTo !== subagentId) {
+          return {
+            success: false,
+            error: `Tab ${lockedTabId} is already reserved by ${leasedTo}. Wait for it or pick another tab.`,
+          };
+        }
+      }
+      sessionState.tabLeases.set(lockedTabId, subagentId);
+    }
+
+    const requestedMode = String(args?.mode || '').trim().toLowerCase();
+    const mode: 'sync' | 'async' = requestedMode === 'async' || args?.detach === true ? 'async' : 'sync';
+    const taskList = Array.isArray(args?.tasks)
+      ? args.tasks.map((task: unknown) => String(task || '').trim()).filter(Boolean)
+      : [args?.goal || args?.task || 'Task'].map((task: unknown) => String(task || '').trim()).filter(Boolean);
 
     const subagentName = args.name || `Sub-Agent ${sessionState.subAgentCount}`;
+    sessionState.subAgentRuns.set(subagentId, {
+      id: subagentId,
+      name: subagentName,
+      status: 'running',
+      tasks: taskList,
+      profile: profileName,
+      tabId: lockedTabId ?? undefined,
+      startedAt: Date.now(),
+    });
     this.sendRuntime(runMeta, {
       type: 'subagent_start',
       id: subagentId,
       name: subagentName,
-      tasks: args.tasks || [args.goal || args.task || 'Task'],
+      tasks: taskList,
       tabId: lockedTabId ?? undefined,
       profile: profileName,
       whiteboardKeys: Array.isArray(args?.whiteboardKeys) ? args.whiteboardKeys : undefined,
     });
+    const taskLines = taskList.map((task, idx) => `${idx + 1}. ${task}`).join('\n');
 
-    try {
-      const pinnedToolBlocklist = new Set([
-        'openTab',
-        'closeTab',
-        'switchTab',
-        'focusTab',
-        'groupTabs',
-        'getTabs',
-        'describeSessionTabs',
-      ]);
-      const browserScopedTools = new Set([
-        'navigate',
-        'click',
-        'clickAt',
-        'type',
-        'pressKey',
-        'scroll',
-        'getContent',
-        'findHtml',
-        'screenshot',
-        'watchVideo',
-        'getVideoInfo',
-      ]);
-      const whiteboardContext = this.serializeWhiteboardForPrompt(sessionState, args?.whiteboardKeys);
-      const subAgentSystemPrompt = `${args.prompt || 'You are a focused sub-agent working under an orchestrator. Be concise and tool-driven.'}
+    const runSubagent = async () => {
+      try {
+        const pinnedToolBlocklist = new Set([
+          'openTab',
+          'closeTab',
+          'switchTab',
+          'focusTab',
+          'groupTabs',
+          'getTabs',
+          'describeSessionTabs',
+        ]);
+        const browserScopedTools = new Set([
+          'navigate',
+          'click',
+          'clickAt',
+          'type',
+          'pressKey',
+          'scroll',
+          'getContent',
+          'findHtml',
+          'screenshot',
+          'watchVideo',
+          'getVideoInfo',
+        ]);
+        const whiteboardContext = this.serializeWhiteboardForPrompt(sessionState, args?.whiteboardKeys);
+        const subAgentSystemPrompt = `${args.prompt || 'You are a focused sub-agent working under an orchestrator. Be concise and tool-driven.'}
 ${lockedTabId !== null ? `You are pinned to tabId ${lockedTabId}. Do not open, close, switch, focus, group, or inspect any other tabs.` : ''}
 ${whiteboardContext ? `Shared whiteboard context:\n${whiteboardContext}` : 'Shared whiteboard context is currently empty.'}
 Use whiteboard_get to read shared context and whiteboard_set to publish durable outputs for sibling tasks.
 Always cite evidence from tools. Finish by calling subagent_complete with a short summary and any structured findings.`;
 
-      let tools = this.getToolsForSession(profileSettings, false, [], this.isVisionModelProfile(profileSettings));
-      tools = tools.concat(this.getWhiteboardToolDefinitions());
-      tools = tools.filter((tool) => !pinnedToolBlocklist.has(tool.name) || lockedTabId === null);
-      const toolSet = buildToolSet(tools, async (toolName, toolArgs, options) => {
-        const nextArgs = toolArgs && typeof toolArgs === 'object' && !Array.isArray(toolArgs) ? { ...toolArgs } : {};
-        if (lockedTabId !== null) {
-          if (pinnedToolBlocklist.has(toolName)) {
-            return {
-              success: false,
-              error: `Sub-agent is pinned to tab ${lockedTabId}; tool ${toolName} is not available in pinned mode.`,
-            };
-          }
-          if (browserScopedTools.has(toolName)) {
-            if (
-              typeof (nextArgs as Record<string, any>).tabId === 'number' &&
-              (nextArgs as Record<string, any>).tabId !== lockedTabId
-            ) {
+        let tools = this.getToolsForSession(profileSettings, false, [], this.isVisionModelProfile(profileSettings));
+        tools = tools.concat(this.getWhiteboardToolDefinitions());
+        tools = tools.filter((tool) => !pinnedToolBlocklist.has(tool.name) || lockedTabId === null);
+        const toolSet = buildToolSet(tools, async (toolName, toolArgs, options) => {
+          const nextArgs =
+            toolArgs && typeof toolArgs === 'object' && !Array.isArray(toolArgs) ? { ...toolArgs } : {};
+          if (lockedTabId !== null) {
+            if (pinnedToolBlocklist.has(toolName)) {
               return {
                 success: false,
-                error: `Sub-agent is pinned to tab ${lockedTabId}; received mismatched tabId ${(nextArgs as Record<string, any>).tabId}.`,
+                error: `Sub-agent is pinned to tab ${lockedTabId}; tool ${toolName} is not available in pinned mode.`,
               };
             }
-            (nextArgs as Record<string, any>).tabId = lockedTabId;
+            if (browserScopedTools.has(toolName)) {
+              if (
+                typeof (nextArgs as Record<string, any>).tabId === 'number' &&
+                (nextArgs as Record<string, any>).tabId !== lockedTabId
+              ) {
+                return {
+                  success: false,
+                  error: `Sub-agent is pinned to tab ${lockedTabId}; received mismatched tabId ${(nextArgs as Record<string, any>).tabId}.`,
+                };
+              }
+              (nextArgs as Record<string, any>).tabId = lockedTabId;
+            }
+          }
+          return this.executeToolByName(
+            toolName,
+            nextArgs,
+            {
+              runMeta,
+              settings: settings || {},
+              visionProfile: this.isVisionModelProfile(profileSettings) ? profileSettings : null,
+              actor: 'subagent',
+            },
+            options.toolCallId,
+          );
+        });
+
+        const subHistory: Message[] = [
+          {
+            role: 'user',
+            content: `Task group:\n${taskLines || 'Follow the provided prompt and complete the goal.'}`,
+          },
+        ];
+
+        const subModel = resolveLanguageModel(profileSettings);
+        const abortSignal = this.activeRuns.get(runMeta.runId)?.controller.signal;
+        const result = streamText({
+          model: subModel,
+          system: subAgentSystemPrompt,
+          messages: toModelMessages(subHistory),
+          tools: toolSet,
+          abortSignal,
+          temperature: profileSettings.temperature ?? 0.4,
+          maxOutputTokens: profileSettings.maxTokens ?? 1024,
+          stopWhen: stepCountIs(24),
+        });
+
+        let summary: string;
+        try {
+          summary = (await result.text) || 'Sub-agent finished without a final summary.';
+        } catch (textError) {
+          const message = (textError as any)?.message || String(textError ?? '');
+          if (typeof message === 'string' && message.includes('No output generated')) {
+            summary = 'Sub-agent finished without generating output.';
+          } else {
+            throw textError;
           }
         }
-        return this.executeToolByName(
-          toolName,
-          nextArgs,
-          {
-            runMeta,
-            settings: settings || {},
-            visionProfile: this.isVisionModelProfile(profileSettings) ? profileSettings : null,
-            actor: 'subagent',
-          },
-          options.toolCallId,
-        );
-      });
 
-      const taskLines = Array.isArray(args.tasks)
-        ? args.tasks.map((t, idx) => `${idx + 1}. ${t}`).join('\n')
-        : args.goal || args.task || args.prompt || '';
+        this.updateSubagentRun(sessionState, subagentId, {
+          status: 'completed',
+          summary,
+          finishedAt: Date.now(),
+        });
+        this.sendRuntime(runMeta, {
+          type: 'subagent_complete',
+          id: subagentId,
+          success: true,
+          summary,
+          tabId: lockedTabId ?? undefined,
+          profile: profileName,
+        });
 
-      const subHistory: Message[] = [
-        {
-          role: 'user',
-          content: `Task group:\n${taskLines || 'Follow the provided prompt and complete the goal.'}`,
-        },
-      ];
+        return {
+          success: true,
+          source: 'subagent',
+          id: subagentId,
+          name: subagentName,
+          summary,
+          tasks: taskLines,
+          status: 'completed',
+          mode,
+          tabId: lockedTabId ?? undefined,
+          profile: profileName,
+        };
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : String(error ?? 'Unknown error');
+        console.error('[subagent] Error:', error);
+        const isAbort =
+          error instanceof Error && (error.name === 'AbortError' || /abort|cancel|stopped/i.test(error.message));
+        this.updateSubagentRun(sessionState, subagentId, {
+          status: isAbort ? 'cancelled' : 'failed',
+          error: errorMessage,
+          summary: `Sub-agent failed: ${errorMessage}`,
+          finishedAt: Date.now(),
+        });
+        this.sendRuntime(runMeta, {
+          type: 'subagent_complete',
+          id: subagentId,
+          success: false,
+          summary: `Sub-agent failed: ${errorMessage}`,
+          tabId: lockedTabId ?? undefined,
+          profile: profileName,
+        });
 
-      const subModel = resolveLanguageModel(profileSettings);
-      const abortSignal = this.activeRuns.get(runMeta.runId)?.controller.signal;
-      const result = streamText({
-        model: subModel,
-        system: subAgentSystemPrompt,
-        messages: toModelMessages(subHistory),
-        tools: toolSet,
-        abortSignal,
-        temperature: profileSettings.temperature ?? 0.4,
-        maxOutputTokens: profileSettings.maxTokens ?? 1024,
-        stopWhen: stepCountIs(24),
-      });
-
-      // Safely get text with error handling for "No output generated" errors
-      let summary: string;
-      try {
-        summary = (await result.text) || 'Sub-agent finished without a final summary.';
-      } catch (textError) {
-        const message = (textError as any)?.message || String(textError ?? '');
-        if (typeof message === 'string' && message.includes('No output generated')) {
-          summary = 'Sub-agent finished without generating output.';
-        } else {
-          throw textError;
-        }
+        return {
+          success: false,
+          source: 'subagent',
+          id: subagentId,
+          name: subagentName,
+          error: errorMessage,
+          summary: `Sub-agent failed: ${errorMessage}`,
+          status: isAbort ? 'cancelled' : 'failed',
+          mode,
+          tabId: lockedTabId ?? undefined,
+          profile: profileName,
+        };
+      } finally {
+        this.releaseTabLease(sessionState, subagentId, lockedTabId);
+        this.subagentPromisesById.delete(subagentId);
       }
+    };
 
-      this.sendRuntime(runMeta, {
-        type: 'subagent_complete',
-        id: subagentId,
-        success: true,
-        summary,
-        tabId: lockedTabId ?? undefined,
-        profile: profileName,
-      });
-
+    const subagentPromise = runSubagent();
+    this.subagentPromisesById.set(subagentId, subagentPromise);
+    if (mode === 'async') {
       return {
         success: true,
         source: 'subagent',
         id: subagentId,
         name: subagentName,
-        summary,
-        tasks: taskLines,
-        tabId: lockedTabId ?? undefined,
-        profile: profileName,
-      };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error ?? 'Unknown error');
-      console.error('[subagent] Error:', error);
-
-      this.sendRuntime(runMeta, {
-        type: 'subagent_complete',
-        id: subagentId,
-        success: false,
-        summary: `Sub-agent failed: ${errorMessage}`,
-        tabId: lockedTabId ?? undefined,
-        profile: profileName,
-      });
-
-      return {
-        success: false,
-        source: 'subagent',
-        id: subagentId,
-        name: subagentName,
-        error: errorMessage,
-        summary: `Sub-agent failed: ${errorMessage}`,
+        mode,
+        status: 'running',
+        tasks: taskList,
         tabId: lockedTabId ?? undefined,
         profile: profileName,
       };
     }
+    return await subagentPromise;
   }
 }
 
