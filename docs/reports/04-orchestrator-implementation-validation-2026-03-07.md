@@ -150,6 +150,11 @@ Run command:
 
 - `npm run test:orchestrator`
 
+CI gate:
+
+- `.github/workflows/ci.yml` now includes `orchestrator-validation` job
+- This job runs `npm run test:orchestrator` and uploads criteria artifacts
+
 ---
 
 ## 8) Commits included
