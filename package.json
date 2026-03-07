@@ -19,6 +19,7 @@
     "test:unit": "node scripts/build.mjs && node dist/tests/unit/run-unit-tests.js",
     "test:integration": "echo 'Load tests/integration/test-page.html in browser and run tests'",
     "test:api": "node scripts/build.mjs && node dist/tests/api/run-api-tests.js",
+    "test:orchestrator": "node scripts/build.mjs && node dist/tests/orchestrator/run-fixture-executor.js",
     "test:e2e": "node scripts/build.mjs && node dist/tests/e2e/run-e2e.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:repo-standards": "node scripts/check-repo-standards.mjs",

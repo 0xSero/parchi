@@ -134,6 +134,7 @@ Fixture validation artifact:
 Fixture executor path now exists in tests:
 
 - `tests/orchestrator/fixture-executor.ts`
+- `tests/orchestrator/run-fixture-executor.ts`
 
 Executor loop:
 
@@ -141,6 +142,10 @@ Executor loop:
 2. dispatch ready tasks (`getDispatchableOrchestratorTaskIds`)
 3. await simulated subagents
 4. validate required outputs and export summary artifact
+
+Run command:
+
+- `npm run test:orchestrator`
 
 ---
 
