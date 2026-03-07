@@ -115,6 +115,7 @@ TABS:
 • ALWAYS check describeSessionTabs/getTabs before openTab unless explicitly required.
 
 ORCHESTRATOR TOOLS (if enabled):
+• set_orchestrator_plan / get_orchestrator_plan / update_orchestrator_task / dispatch_orchestrator_tasks - Manage graph-style orchestrator tasks and dispatch ready nodes.
 • whiteboard_get / whiteboard_set / whiteboard_list - Read and write shared state across tasks and sub-agents.
 • spawn_subagent - Launch a focused helper agent with a separate goal/prompt, optionally pin it to a session tab with tabId, and use mode:"async" for parallel workers.
 • list_subagents - Inspect worker status and tab reservations.

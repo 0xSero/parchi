@@ -1,6 +1,13 @@
 import { APICallError } from '@ai-sdk/provider';
 import { generateText, stepCountIs, streamText } from 'ai';
-import type { WhiteboardEntry } from '../../shared/src/orchestrator.js';
+import {
+  buildOrchestratorPlan,
+  getDispatchableOrchestratorTaskIds,
+  getOrchestratorPlanValidationIssues,
+  getReadyOrchestratorTaskIds,
+  normalizeOrchestratorTaskStatus,
+} from '../../shared/src/orchestrator.js';
+import type { OrchestratorPlan, OrchestratorTaskStatus, WhiteboardEntry } from '../../shared/src/orchestrator.js';
 import { buildRunPlan } from '../../shared/src/plan.js';
 import type { RunPlan } from '../../shared/src/plan.js';
 import type { ComposedSkill } from '../../shared/src/recording.js';
@@ -66,6 +73,7 @@ type SubagentRunState = {
   name: string;
   status: SubagentRunStatus;
   tasks: string[];
+  taskId?: string;
   profile?: string;
   tabId?: number;
   startedAt: number;
@@ -77,6 +85,7 @@ type SubagentRunState = {
 type SessionState = {
   sessionId: string;
   currentPlan: RunPlan | null;
+  orchestratorPlan: OrchestratorPlan | null;
   subAgentCount: number;
   subAgentProfileCursor: number;
   subAgentRuns: Map<string, SubagentRunState>;
@@ -1772,6 +1781,167 @@ Rules:
       return result;
     }
 
+    if (toolName === 'set_orchestrator_plan') {
+      const raw = args?.plan && typeof args.plan === 'object' ? args.plan : args;
+      const nextPlan = buildOrchestratorPlan(
+        {
+          goal: (raw as Record<string, unknown>)?.goal,
+          assumptions: (raw as Record<string, unknown>)?.assumptions,
+          interviewQuestions: (raw as Record<string, unknown>)?.interviewQuestions,
+          tasks: (raw as Record<string, unknown>)?.tasks,
+          whiteboardKeys: (raw as Record<string, unknown>)?.whiteboardKeys,
+          maxConcurrentTabs: (raw as Record<string, unknown>)?.maxConcurrentTabs,
+        },
+        { existingPlan: sessionState.orchestratorPlan },
+      );
+      if (!nextPlan.goal || !nextPlan.tasks.length) {
+        const errorResult = {
+          success: false,
+          error: 'Invalid orchestrator plan. Provide goal and at least one task.',
+        };
+        sendResult(errorResult);
+        return errorResult;
+      }
+      sessionState.orchestratorPlan = nextPlan;
+      const snapshot = this.getOrchestratorPlanSnapshot(sessionState);
+      const result = {
+        success: true,
+        plan: snapshot.plan,
+        validationIssues: snapshot.validationIssues,
+        readyTaskIds: snapshot.readyTaskIds,
+        dispatchableTaskIds: snapshot.dispatchableTaskIds,
+      };
+      sendResult(result);
+      return result;
+    }
+
+    if (toolName === 'get_orchestrator_plan') {
+      const snapshot = this.getOrchestratorPlanSnapshot(sessionState);
+      const result = {
+        success: true,
+        plan: snapshot.plan,
+        validationIssues: snapshot.validationIssues,
+        readyTaskIds: snapshot.readyTaskIds,
+        dispatchableTaskIds: snapshot.dispatchableTaskIds,
+        runningTaskIds: snapshot.runningTaskIds || [],
+      };
+      sendResult(result);
+      return result;
+    }
+
+    if (toolName === 'update_orchestrator_task') {
+      const plan = sessionState.orchestratorPlan;
+      if (!plan) {
+        const errorResult = { success: false, error: 'No orchestrator plan is set.' };
+        sendResult(errorResult);
+        return errorResult;
+      }
+      const taskId = String(args?.id || args?.taskId || '').trim();
+      if (!taskId) {
+        const errorResult = { success: false, error: 'Missing task id.' };
+        sendResult(errorResult);
+        return errorResult;
+      }
+      const task = plan.tasks.find((entry) => entry.id === taskId);
+      if (!task) {
+        const errorResult = { success: false, error: `Task "${taskId}" not found.` };
+        sendResult(errorResult);
+        return errorResult;
+      }
+      if (typeof args?.status === 'string') {
+        task.status = normalizeOrchestratorTaskStatus(args.status);
+      }
+      if (typeof args?.notes === 'string' && args.notes.trim()) {
+        task.notes = args.notes.trim();
+      }
+      if (typeof args?.assignedProfile === 'string') {
+        task.assignedProfile = args.assignedProfile.trim() || undefined;
+      }
+      if (typeof args?.assignedTabId === 'number' && Number.isFinite(args.assignedTabId)) {
+        task.assignedTabId = args.assignedTabId;
+      }
+      plan.updatedAt = Date.now();
+      const snapshot = this.getOrchestratorPlanSnapshot(sessionState);
+      const result = {
+        success: true,
+        task,
+        validationIssues: snapshot.validationIssues,
+        readyTaskIds: snapshot.readyTaskIds,
+      };
+      sendResult(result);
+      return result;
+    }
+
+    if (toolName === 'dispatch_orchestrator_tasks') {
+      const plan = sessionState.orchestratorPlan;
+      if (!plan) {
+        const errorResult = { success: false, error: 'No orchestrator plan is set.' };
+        sendResult(errorResult);
+        return errorResult;
+      }
+      const onlyTaskIds = new Set(
+        (Array.isArray(args?.onlyTaskIds) ? args.onlyTaskIds : [])
+          .map((value: unknown) => String(value || '').trim())
+          .filter(Boolean),
+      );
+      const runningTaskIds = this.getRunningOrchestratorTaskIds(sessionState);
+      const availableSlots = Math.max(0, 5 - this.getRunningSubagentCount(sessionState));
+      const maxTasks = Math.max(
+        0,
+        Math.min(availableSlots, Number.isFinite(Number(args?.maxTasks)) ? Math.floor(Number(args.maxTasks)) : 5),
+      );
+      const dispatchableIds = getDispatchableOrchestratorTaskIds(plan, {
+        runningTaskIds,
+        maxSlots: maxTasks || 1,
+      }).filter((taskId) => (onlyTaskIds.size ? onlyTaskIds.has(taskId) : true));
+
+      const dispatched: Array<{ taskId: string; subagentId?: string; status: string; error?: string }> = [];
+      for (const taskId of dispatchableIds.slice(0, maxTasks)) {
+        const task = plan.tasks.find((entry) => entry.id === taskId);
+        if (!task) continue;
+        const spawnResult = await this.handleSpawnSubagent(
+          options.runMeta,
+          {
+            mode: 'async',
+            profile: task.assignedProfile,
+            tabId: task.assignedTabId,
+            prompt: task.prompt || `Complete task "${task.title}" and publish outputs to whiteboard.`,
+            tasks: [
+              task.title,
+              task.summary || '',
+              `Required outputs: ${task.outputs.map((output) => output.key).join(', ') || 'none'}`,
+            ].filter(Boolean),
+            whiteboardKeys: Array.from(new Set([...task.inputs.map((binding) => binding.key), ...task.outputs.map((binding) => binding.key)])),
+            taskId: task.id,
+            name: `Task ${task.id}`,
+          },
+          options.settings,
+        );
+        if (spawnResult?.success) {
+          this.updateOrchestratorTaskStatus(sessionState, task.id, 'running');
+          dispatched.push({ taskId: task.id, subagentId: spawnResult.id, status: 'running' });
+        } else {
+          this.updateOrchestratorTaskStatus(sessionState, task.id, 'blocked', String(spawnResult?.error || 'dispatch failed'));
+          dispatched.push({
+            taskId: task.id,
+            status: 'blocked',
+            error: String(spawnResult?.error || 'dispatch failed'),
+          });
+        }
+      }
+      const snapshot = this.getOrchestratorPlanSnapshot(sessionState);
+      const result = {
+        success: true,
+        dispatched,
+        readyTaskIds: snapshot.readyTaskIds,
+        dispatchableTaskIds: snapshot.dispatchableTaskIds,
+        runningTaskIds: snapshot.runningTaskIds || [],
+        validationIssues: snapshot.validationIssues,
+      };
+      sendResult(result);
+      return result;
+    }
+
     if (toolName === 'list_subagents') {
       const result = {
         success: true,
@@ -2450,6 +2620,53 @@ Rules:
     };
   }
 
+  private getRunningOrchestratorTaskIds(sessionState: SessionState) {
+    return Array.from(sessionState.subAgentRuns.values())
+      .filter((run) => run.status === 'running' && typeof run.taskId === 'string' && run.taskId)
+      .map((run) => run.taskId as string);
+  }
+
+  private updateOrchestratorTaskStatus(
+    sessionState: SessionState,
+    taskId: string,
+    status: OrchestratorTaskStatus,
+    notes?: string,
+  ) {
+    const plan = sessionState.orchestratorPlan;
+    if (!plan) return null;
+    const task = plan.tasks.find((entry) => entry.id === taskId);
+    if (!task) return null;
+    task.status = normalizeOrchestratorTaskStatus(status);
+    if (typeof notes === 'string' && notes.trim()) {
+      task.notes = notes.trim();
+    }
+    plan.updatedAt = Date.now();
+    return task;
+  }
+
+  private getOrchestratorPlanSnapshot(sessionState: SessionState) {
+    const plan = sessionState.orchestratorPlan;
+    if (!plan) {
+      return {
+        plan: null,
+        validationIssues: ['No orchestrator plan set.'],
+        readyTaskIds: [],
+        dispatchableTaskIds: [],
+      };
+    }
+    const runningTaskIds = this.getRunningOrchestratorTaskIds(sessionState);
+    return {
+      plan,
+      validationIssues: getOrchestratorPlanValidationIssues(plan),
+      readyTaskIds: getReadyOrchestratorTaskIds(plan),
+      dispatchableTaskIds: getDispatchableOrchestratorTaskIds(plan, {
+        runningTaskIds,
+        maxSlots: Math.max(1, 5 - this.getRunningSubagentCount(sessionState)),
+      }),
+      runningTaskIds,
+    };
+  }
+
   getToolPermissionCategory(toolName) {
     const mapping = {
       navigate: 'navigate',
@@ -2614,6 +2831,7 @@ Rules:
     const created: SessionState = {
       sessionId: id,
       currentPlan: null,
+      orchestratorPlan: null,
       subAgentCount: 0,
       subAgentProfileCursor: 0,
       subAgentRuns: new Map(),
@@ -2771,7 +2989,7 @@ If vision tools are enabled, use them when visual structure or media context can
       : '<vision_tools>Vision-capable tools are disabled for this model.</vision_tools>';
     const orchestratorToolSection = context.orchestratorEnabled
       ? availableToolNames.includes('spawn_subagent')
-        ? '<orchestrator_tools>Orchestrator tools enabled: spawn_subagent, list_subagents, await_subagent, subagent_complete, whiteboard_get, whiteboard_set, whiteboard_list. Use spawn_subagent({ mode: "async", tabId, ... }) to run parallel workers, whiteboard tools for shared memory, and await_subagent to join results before final synthesis.</orchestrator_tools>'
+        ? '<orchestrator_tools>Orchestrator tools enabled: set_orchestrator_plan, get_orchestrator_plan, update_orchestrator_task, dispatch_orchestrator_tasks, spawn_subagent, list_subagents, await_subagent, subagent_complete, whiteboard_get, whiteboard_set, whiteboard_list. Use orchestrator-plan tools to manage graph tasks, dispatch_orchestrator_tasks for ready nodes, and await_subagent to join before synthesis.</orchestrator_tools>'
         : '<orchestrator_tools>Orchestrator mode is enabled.</orchestrator_tools>'
       : '';
     const whiteboardSnapshot = this.serializeWhiteboardForPrompt(sessionState);
@@ -3186,6 +3404,92 @@ When a tool fails:
       tools = tools.concat([
         ...this.getWhiteboardToolDefinitions(),
         {
+          name: 'set_orchestrator_plan',
+          description:
+            'Set or replace the orchestrator task graph plan (goal, tasks, dependencies, whiteboard bindings).',
+          input_schema: {
+            type: 'object',
+            properties: {
+              goal: { type: 'string' },
+              assumptions: { type: 'array', items: { type: 'string' } },
+              interviewQuestions: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    question: { type: 'string' },
+                    answerKey: { type: 'string' },
+                    required: { type: 'boolean' },
+                  },
+                },
+              },
+              tasks: {
+                type: 'array',
+                items: {
+                  type: 'object',
+                  properties: {
+                    id: { type: 'string' },
+                    title: { type: 'string' },
+                    summary: { type: 'string' },
+                    kind: { type: 'string' },
+                    status: { type: 'string' },
+                    dependencies: { type: 'array', items: { type: 'string' } },
+                    sitePatterns: { type: 'array', items: { type: 'string' } },
+                    requiredSkills: { type: 'array', items: { type: 'string' } },
+                    assignedProfile: { type: 'string' },
+                    assignedTabId: { type: 'number' },
+                    prompt: { type: 'string' },
+                  },
+                  required: ['title'],
+                },
+              },
+              whiteboardKeys: { type: 'array', items: { type: 'string' } },
+              maxConcurrentTabs: { type: 'number' },
+            },
+            required: ['goal', 'tasks'],
+          },
+        },
+        {
+          name: 'get_orchestrator_plan',
+          description: 'Get orchestrator plan status, validation issues, and currently ready/dispatchable task ids.',
+          input_schema: {
+            type: 'object',
+            properties: {},
+          },
+        },
+        {
+          name: 'update_orchestrator_task',
+          description: 'Update one orchestrator task status or assignment.',
+          input_schema: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', description: 'Task id to update.' },
+              status: { type: 'string', description: 'pending|ready|running|blocked|completed|failed|cancelled' },
+              notes: { type: 'string' },
+              assignedProfile: { type: 'string' },
+              assignedTabId: { type: 'number' },
+            },
+            required: ['id'],
+          },
+        },
+        {
+          name: 'dispatch_orchestrator_tasks',
+          description:
+            'Dispatch ready orchestrator tasks as async sub-agents (tab-pinned when assignedTabId is set).',
+          input_schema: {
+            type: 'object',
+            properties: {
+              maxTasks: { type: 'number', description: 'Max tasks to dispatch this call (default: available slots).' },
+              onlyTaskIds: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'Optional allowlist of task ids to dispatch.',
+              },
+            },
+          },
+        },
+        {
           name: 'spawn_subagent',
           description: 'Start a focused sub-agent with its own goal, prompt, and optional profile override.',
           input_schema: {
@@ -3345,6 +3649,7 @@ When a tool fails:
       name: subagentName,
       status: 'running',
       tasks: taskList,
+      taskId: typeof args?.taskId === 'string' && args.taskId.trim() ? args.taskId.trim() : undefined,
       profile: profileName,
       tabId: lockedTabId ?? undefined,
       startedAt: Date.now(),
@@ -3467,6 +3772,11 @@ Always cite evidence from tools. Finish by calling subagent_complete with a shor
           summary,
           finishedAt: Date.now(),
         });
+        const taskId =
+          typeof args?.taskId === 'string' && args.taskId.trim() ? args.taskId.trim() : undefined;
+        if (taskId) {
+          this.updateOrchestratorTaskStatus(sessionState, taskId, 'completed');
+        }
         this.sendRuntime(runMeta, {
           type: 'subagent_complete',
           id: subagentId,
@@ -3499,6 +3809,16 @@ Always cite evidence from tools. Finish by calling subagent_complete with a shor
           summary: `Sub-agent failed: ${errorMessage}`,
           finishedAt: Date.now(),
         });
+        const taskId =
+          typeof args?.taskId === 'string' && args.taskId.trim() ? args.taskId.trim() : undefined;
+        if (taskId) {
+          this.updateOrchestratorTaskStatus(
+            sessionState,
+            taskId,
+            isAbort ? 'cancelled' : 'failed',
+            errorMessage,
+          );
+        }
         this.sendRuntime(runMeta, {
           type: 'subagent_complete',
           id: subagentId,
