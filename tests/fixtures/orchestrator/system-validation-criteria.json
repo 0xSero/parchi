@@ -1,0 +1,82 @@
+{
+  "version": "1.0.0",
+  "title": "Multitab Orchestrator System and Validation Criteria",
+  "updatedAt": "2026-03-07",
+  "systemContracts": [
+    {
+      "id": "tabs.max_concurrency",
+      "description": "Orchestrator must not run more than 5 concurrent tab-bound workers.",
+      "threshold": "<=5"
+    },
+    {
+      "id": "tabs.lease_exclusivity",
+      "description": "A running subagent pinned to a tab holds an exclusive tab lease until terminal.",
+      "threshold": "exclusive"
+    },
+    {
+      "id": "graph.valid_dag",
+      "description": "Plan graph must have no dependency cycles and no missing dependencies.",
+      "threshold": "0 validation issues"
+    },
+    {
+      "id": "graph.required_outputs",
+      "description": "All required output keys across tasks must be present before goal is complete.",
+      "threshold": "0 missing required output keys"
+    }
+  ],
+  "validationCriteria": [
+    {
+      "id": "goal.success",
+      "description": "Fixture execution must report success=true."
+    },
+    {
+      "id": "tasks.completed",
+      "description": "All tasks must end completed in deterministic fixture execution."
+    },
+    {
+      "id": "outputs.complete",
+      "description": "No missing output keys at end of run."
+    },
+    {
+      "id": "issues.none",
+      "description": "No plan validation issues in execution result."
+    },
+    {
+      "id": "timeline.present",
+      "description": "Execution timeline must include at least one event."
+    }
+  ],
+  "gateCriteria": [
+    {
+      "id": "gate.typecheck",
+      "command": "npm run typecheck",
+      "required": true
+    },
+    {
+      "id": "gate.orchestrator",
+      "command": "npm run test:orchestrator",
+      "required": true
+    },
+    {
+      "id": "gate.unit",
+      "command": "npm run test:unit",
+      "required": true
+    },
+    {
+      "id": "gate.e2e",
+      "command": "npm run test:e2e",
+      "required": true
+    },
+    {
+      "id": "gate.repo_standards",
+      "command": "npm run check:repo-standards",
+      "required": true
+    }
+  ],
+  "requiredArtifacts": [
+    "test-output/orchestrator-fixture-execution.json",
+    "test-output/orchestrator-fixture-execution.md",
+    "test-output/orchestrator-criteria-matrix.json",
+    "test-output/orchestrator-criteria-matrix.md"
+  ]
+}

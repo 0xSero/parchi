@@ -24,6 +24,7 @@ import type { Message } from '../../packages/extension/ai/message-schema.js';
 import { extractThinking } from '../../packages/extension/ai/message-utils.js';
 import { createExponentialBackoff, isValidFinalResponse } from '../../packages/extension/ai/retry-engine.js';
 import { executeOrchestratorFixture } from '../orchestrator/fixture-executor.js';
+import { loadSystemValidationCriteria } from '../orchestrator/validation-criteria.js';
 
 import {
   buildOrchestratorPlan,
@@ -971,7 +972,7 @@ function testOrchestratorPlanFixtures(runner: TestRunner) {
     const fixtureDir = path.resolve(process.cwd(), 'tests/fixtures/orchestrator');
     const fixtureFiles = fs
       .readdirSync(fixtureDir, { withFileTypes: true })
-      .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+      .filter((entry) => entry.isFile() && /-plan\.json$/i.test(entry.name))
       .map((entry) => entry.name)
       .sort();
 
@@ -1018,7 +1019,7 @@ function testOrchestratorFixtureExecutor(runner: TestRunner) {
     const fixtureDir = path.resolve(process.cwd(), 'tests/fixtures/orchestrator');
     const fixtureFiles = fs
       .readdirSync(fixtureDir, { withFileTypes: true })
-      .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+      .filter((entry) => entry.isFile() && /-plan\.json$/i.test(entry.name))
       .map((entry) => entry.name)
       .sort();
 
@@ -1042,6 +1043,31 @@ function testOrchestratorFixtureExecutor(runner: TestRunner) {
       JSON.stringify({ generatedAt: new Date().toISOString(), results }, null, 2),
     );
     runner.assertTrue(fs.existsSync(outPath), 'Fixture execution artifact should exist.');
+  });
+}
+
+function testOrchestratorSystemValidationCriteria(runner: TestRunner) {
+  log('\n=== Testing Orchestrator System Validation Criteria ===', 'info');
+
+  runner.test('system validation criteria file is complete and actionable', () => {
+    const criteria = loadSystemValidationCriteria();
+    runner.assertTrue(Boolean(criteria.version), 'Criteria should include version.');
+    runner.assertTrue(criteria.systemContracts.length > 0, 'Criteria should include system contracts.');
+    runner.assertTrue(criteria.validationCriteria.length > 0, 'Criteria should include validation criteria.');
+    runner.assertTrue(criteria.gateCriteria.length > 0, 'Criteria should include gate criteria.');
+    runner.assertTrue(criteria.requiredArtifacts.length > 0, 'Criteria should include required artifacts.');
+
+    const requiredGateCommands = [
+      'npm run typecheck',
+      'npm run test:orchestrator',
+      'npm run test:unit',
+      'npm run test:e2e',
+      'npm run check:repo-standards',
+    ];
+    const commands = new Set(criteria.gateCriteria.map((gate) => gate.command));
+    requiredGateCommands.forEach((command) => {
+      runner.assertTrue(commands.has(command), `Criteria is missing gate command: ${command}`);
+    });
   });
 }
 
@@ -1070,6 +1096,7 @@ function main() {
   testOrchestratorSimulation(runner);
   testOrchestratorPlanFixtures(runner);
   testOrchestratorFixtureExecutor(runner);
+  testOrchestratorSystemValidationCriteria(runner);
 
   const success = runner.printSummary();
   process.exit(success ? 0 : 1);

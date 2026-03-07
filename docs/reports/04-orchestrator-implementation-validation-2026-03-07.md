@@ -125,11 +125,14 @@ Added reusable orchestrator plan fixtures:
 
 - `tests/fixtures/orchestrator/cross-site-write-plan.json`
 - `tests/fixtures/orchestrator/youtube-publish-plan.json`
+- `tests/fixtures/orchestrator/system-validation-criteria.json`
 
 Fixture validation artifact:
 
 - `test-output/orchestrator-fixture-validation.json`
 - `test-output/orchestrator-fixture-execution.json`
+- `test-output/orchestrator-criteria-matrix.json`
+- `test-output/orchestrator-criteria-matrix.md`
 
 Fixture executor path now exists in tests:
 
