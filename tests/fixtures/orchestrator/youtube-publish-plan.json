@@ -1,0 +1,88 @@
+{
+  "goal": "Publish a Riverside recording to YouTube with trends and thumbnail parallelization",
+  "assumptions": [
+    "User is logged into Riverside and YouTube Studio",
+    "Thumbnail tooling account is available"
+  ],
+  "interviewQuestions": [
+    {
+      "id": "q-recording",
+      "question": "Which Riverside recording should be published?",
+      "answerKey": "recordingId",
+      "required": true
+    },
+    {
+      "id": "q-publish-mode",
+      "question": "Should the video be published as draft/private/public?",
+      "answerKey": "publishMode",
+      "required": true
+    }
+  ],
+  "maxConcurrentTabs": 4,
+  "tasks": [
+    {
+      "id": "interview",
+      "title": "Collect recording id and publish mode",
+      "kind": "handoff",
+      "status": "completed",
+      "outputs": [
+        { "key": "input.recordingId", "required": true },
+        { "key": "input.publishMode", "required": true }
+      ]
+    },
+    {
+      "id": "download_video",
+      "title": "Download finalized video from Riverside",
+      "kind": "browser",
+      "dependencies": ["interview"],
+      "assignedTabId": 1,
+      "sitePatterns": ["riverside.fm", "riverside.io"],
+      "outputs": [
+        { "key": "asset.videoFile", "required": true }
+      ]
+    },
+    {
+      "id": "research_trends",
+      "title": "Research search terms and trend angles",
+      "kind": "research",
+      "dependencies": ["interview"],
+      "assignedTabId": 2,
+      "sitePatterns": ["trends.google.com", "google.com"],
+      "outputs": [
+        { "key": "seo.keywords", "required": true }
+      ]
+    },
+    {
+      "id": "generate_thumbnail",
+      "title": "Create thumbnail using trend-informed brief",
+      "kind": "browser",
+      "dependencies": ["research_trends"],
+      "assignedTabId": 3,
+      "sitePatterns": ["canva.com"],
+      "outputs": [
+        { "key": "asset.thumbnail", "required": true }
+      ]
+    },
+    {
+      "id": "upload_and_publish",
+      "title": "Upload video, attach thumbnail, and apply metadata",
+      "kind": "browser",
+      "dependencies": ["download_video", "generate_thumbnail", "research_trends"],
+      "assignedTabId": 4,
+      "sitePatterns": ["studio.youtube.com"],
+      "inputs": [
+        { "key": "asset.videoFile", "fromTaskId": "download_video", "required": true },
+        { "key": "asset.thumbnail", "fromTaskId": "generate_thumbnail", "required": true },
+        { "key": "seo.keywords", "fromTaskId": "research_trends", "required": true },
+        { "key": "input.publishMode", "fromTaskId": "interview", "required": true }
+      ],
+      "outputs": [
+        { "key": "youtube.videoUrl", "required": true }
+      ],
+      "validations": [
+        { "kind": "url_includes", "value": "studio.youtube.com", "required": true },
+        { "kind": "whiteboard_key", "value": "youtube.videoUrl", "required": true }
+      ]
+    }
+  ]
+}

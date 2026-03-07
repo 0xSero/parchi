@@ -1,0 +1,86 @@
+{
+  "goal": "Synchronize Airtable and Notion records in parallel",
+  "assumptions": [
+    "User is already authenticated in both Airtable and Notion",
+    "Conflict policy is approved before dispatch"
+  ],
+  "interviewQuestions": [
+    {
+      "id": "q-mapping",
+      "question": "Which fields are authoritative between Airtable and Notion?",
+      "answerKey": "fieldMapping",
+      "required": true
+    },
+    {
+      "id": "q-conflicts",
+      "question": "How should critical conflicts be handled?",
+      "answerKey": "conflictPolicy",
+      "required": true
+    }
+  ],
+  "maxConcurrentTabs": 2,
+  "whiteboardKeys": [
+    "mapping.fields",
+    "policy.conflicts"
+  ],
+  "tasks": [
+    {
+      "id": "prepare",
+      "title": "Confirm mapping and conflict policy",
+      "kind": "handoff",
+      "status": "completed",
+      "dependencies": [],
+      "sitePatterns": ["airtable.com", "notion.so"],
+      "outputs": [
+        { "key": "mapping.fields", "required": true },
+        { "key": "policy.conflicts", "required": true }
+      ]
+    },
+    {
+      "id": "airtable_to_notion",
+      "title": "Write Airtable rows into Notion",
+      "kind": "browser",
+      "dependencies": ["prepare"],
+      "assignedTabId": 1,
+      "sitePatterns": ["airtable.com", "notion.so"],
+      "inputs": [
+        { "key": "mapping.fields", "fromTaskId": "prepare", "required": true },
+        { "key": "policy.conflicts", "fromTaskId": "prepare", "required": true }
+      ],
+      "outputs": [
+        { "key": "sync.airtable_to_notion", "required": true }
+      ]
+    },
+    {
+      "id": "notion_to_airtable",
+      "title": "Write Notion records into Airtable",
+      "kind": "browser",
+      "dependencies": ["prepare"],
+      "assignedTabId": 2,
+      "sitePatterns": ["notion.so", "airtable.com"],
+      "inputs": [
+        { "key": "mapping.fields", "fromTaskId": "prepare", "required": true },
+        { "key": "policy.conflicts", "fromTaskId": "prepare", "required": true }
+      ],
+      "outputs": [
+        { "key": "sync.notion_to_airtable", "required": true }
+      ]
+    },
+    {
+      "id": "reconcile",
+      "title": "Reconcile sync outputs and classify conflicts",
+      "kind": "validation",
+      "dependencies": ["airtable_to_notion", "notion_to_airtable"],
+      "inputs": [
+        { "key": "sync.airtable_to_notion", "fromTaskId": "airtable_to_notion", "required": true },
+        { "key": "sync.notion_to_airtable", "fromTaskId": "notion_to_airtable", "required": true }
+      ],
+      "outputs": [
+        { "key": "sync.conflicts", "required": true }
+      ],
+      "validations": [
+        { "kind": "whiteboard_key", "value": "sync.conflicts", "required": true }
+      ]
+    }
+  ]
+}

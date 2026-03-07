@@ -963,6 +963,53 @@ function testOrchestratorSimulation(runner: TestRunner) {
   });
 }
 
+function testOrchestratorPlanFixtures(runner: TestRunner) {
+  log('\n=== Testing Orchestrator Plan Fixtures ===', 'info');
+
+  runner.test('orchestrator fixture plans normalize and validate cleanly', () => {
+    const fixtureDir = path.resolve(process.cwd(), 'tests/fixtures/orchestrator');
+    const fixtureFiles = fs
+      .readdirSync(fixtureDir, { withFileTypes: true })
+      .filter((entry) => entry.isFile() && entry.name.endsWith('.json'))
+      .map((entry) => entry.name)
+      .sort();
+
+    runner.assertTrue(fixtureFiles.length > 0, 'Expected at least one orchestrator fixture plan.');
+
+    const summary: Array<Record<string, unknown>> = [];
+
+    for (const fileName of fixtureFiles) {
+      const filePath = path.join(fixtureDir, fileName);
+      const parsed = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      const plan = buildOrchestratorPlan(parsed);
+      const issues = getOrchestratorPlanValidationIssues(plan);
+
+      runner.assertEqual(issues, [], `Fixture ${fileName} should have zero validation issues.`);
+      runner.assertTrue(plan.goal.length > 0, `Fixture ${fileName} should include goal.`);
+      runner.assertTrue(plan.tasks.length > 0, `Fixture ${fileName} should include tasks.`);
+      runner.assertTrue(
+        plan.maxConcurrentTabs >= 1 && plan.maxConcurrentTabs <= 5,
+        `Fixture ${fileName} should clamp tab count to 1..5.`,
+      );
+
+      const readyTaskIds = getReadyOrchestratorTaskIds(plan);
+      summary.push({
+        fixture: fileName,
+        goal: plan.goal,
+        taskCount: plan.tasks.length,
+        maxConcurrentTabs: plan.maxConcurrentTabs,
+        readyTaskIds,
+      });
+    }
+
+    const outDir = path.resolve(process.cwd(), 'test-output');
+    fs.mkdirSync(outDir, { recursive: true });
+    const outPath = path.join(outDir, 'orchestrator-fixture-validation.json');
+    fs.writeFileSync(outPath, JSON.stringify({ generatedAt: new Date().toISOString(), fixtures: summary }, null, 2));
+    runner.assertTrue(fs.existsSync(outPath), 'Fixture validation artifact should exist.');
+  });
+}
+
 // Main test execution
 function main() {
   log('╔════════════════════════════════════════╗', 'info');
@@ -986,6 +1033,7 @@ function main() {
   testRetryHelpers(runner);
   testRuntimeMessages(runner);
   testOrchestratorSimulation(runner);
+  testOrchestratorPlanFixtures(runner);
 
   const success = runner.printSummary();
   process.exit(success ? 0 : 1);

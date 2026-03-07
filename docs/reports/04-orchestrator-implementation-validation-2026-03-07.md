@@ -119,7 +119,20 @@ All passed on March 7, 2026:
 
 ---
 
-## 7) Commits included
+## 7) Workflow fixture pack
+
+Added reusable orchestrator plan fixtures:
+
+- `tests/fixtures/orchestrator/cross-site-write-plan.json`
+- `tests/fixtures/orchestrator/youtube-publish-plan.json`
+
+Fixture validation artifact:
+
+- `test-output/orchestrator-fixture-validation.json`
+
+---
+
+## 8) Commits included
 
 - `1f969fa` — async subagent control + tab leases + await/list tools
 - `fdbd1b6` — E2E harness alignment to current runtime/UI contracts
@@ -128,12 +141,11 @@ All passed on March 7, 2026:
 
 ---
 
-## 8) Next concrete step
+## 9) Next concrete step
 
-Add a reusable **workflow fixture pack** for cross-site parallel writes that exercises:
+Implement a runtime **fixture executor** that can load these plan JSON fixtures and run them through:
 
-- orchestrator plan set/get/update/dispatch
-- two async subagents pinned to separate tabs
-- shared whiteboard contracts
-- deterministic validation gate
-
+- `set_orchestrator_plan`
+- `dispatch_orchestrator_tasks`
+- `await_subagent`
+- goal-level validation summary export
