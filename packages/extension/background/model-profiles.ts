@@ -211,6 +211,9 @@ export function isVisionModelProfile(profile: Record<string, any> | null | undef
   if (provider === 'openrouter' || provider === 'parchi') {
     return /(claude|gpt-4o|gpt-4-turbo|gemini|vision)/i.test(model);
   }
+  if (provider === 'ollama-cloud') {
+    return /(vision|vl|llava|gemini)/i.test(model);
+  }
   if (provider === 'openai') {
     return /gpt-4o|gpt-4\.1|gpt-4-turbo|gpt-4-vision|vision/.test(model);
   }

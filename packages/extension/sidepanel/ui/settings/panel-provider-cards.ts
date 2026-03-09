@@ -6,6 +6,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   anthropic: '\u{1F7E3}',
   openai: '\u{1F7E2}',
   kimi: '\u{1F535}',
+  'ollama-cloud': '\u{26C5}',
   openrouter: '\u{1F7E0}',
   parchi: '\u{1F7E1}',
   custom: '\u{26AA}',
@@ -100,7 +101,11 @@ sidePanelProto.openProviderEditor = function openProviderEditor(providerKey: str
     this.elements.providerEditorEndpoint.value = existingEndpoint || '';
     this.elements.providerEditorEndpoint.placeholder = def.defaultBaseUrl || 'https://...';
   }
-  const showEndpoint = providerKey === 'custom' || providerKey === 'kimi' || providerKey === 'openrouter';
+  const showEndpoint =
+    providerKey === 'custom' ||
+    providerKey === 'kimi' ||
+    providerKey === 'openrouter' ||
+    providerKey === 'ollama-cloud';
   if (this.elements.providerEditorEndpointGroup) {
     this.elements.providerEditorEndpointGroup.style.display = showEndpoint ? '' : 'none';
   }

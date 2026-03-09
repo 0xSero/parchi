@@ -24,6 +24,14 @@ export type SDKModelSettings = {
   oauthApiHeaders?: Record<string, string>;
 };
 
+function normalizeOpenAICompatibleBaseUrl(url: string): string {
+  return String(url || '')
+    .replace(/\/chat\/completions\/?$/i, '')
+    .replace(/\/v1\/messages\/?$/i, '')
+    .replace(/\/messages\/?$/i, '')
+    .replace(/\/+$/, '');
+}
+
 export function normalizeOpenRouterModelId(modelId: string): string {
   let model = modelId.trim();
   if (/^(parchi|openrouter)\//i.test(model)) {
@@ -208,13 +216,7 @@ export function resolveLanguageModel(settings: SDKModelSettings) {
     // - Remove /chat/completions suffix if present (SDK will add it)
     // - Remove /messages suffix if present
     // - Remove trailing slashes
-    const rawBase = settings.customEndpoint
-      ? settings.customEndpoint
-          .replace(/\/chat\/completions\/?$/i, '')
-          .replace(/\/v1\/messages\/?$/i, '')
-          .replace(/\/messages\/?$/i, '')
-          .replace(/\/+$/, '')
-      : '';
+    const rawBase = settings.customEndpoint ? normalizeOpenAICompatibleBaseUrl(settings.customEndpoint) : '';
 
     const baseURL = rawBase;
 
@@ -229,6 +231,17 @@ export function resolveLanguageModel(settings: SDKModelSettings) {
       headers: extraHeaders,
     });
     return customProvider(modelId);
+  }
+
+  if (provider === 'ollama-cloud') {
+    const baseURL = normalizeOpenAICompatibleBaseUrl(settings.customEndpoint || 'https://ollama.com/v1');
+    const ollamaCloudProvider = createOpenAICompatible({
+      name: 'ollama-cloud',
+      apiKey,
+      baseURL,
+      headers: extraHeaders,
+    });
+    return ollamaCloudProvider(modelId);
   }
 
   const providerInstance = createOpenAI({ apiKey, headers: extraHeaders });

@@ -14,6 +14,20 @@ function normalizeAnthropicBaseUrl(url: string): string {
   return base;
 }
 
+function resolveModelListingBaseUrl(baseUrl: string, mode: 'base' | 'origin' = 'base'): string {
+  const trimmed = String(baseUrl || '')
+    .trim()
+    .replace(/\/+$/, '');
+  if (!trimmed) return '';
+  if (mode !== 'origin') return trimmed;
+
+  try {
+    return new URL(trimmed).origin;
+  } catch {
+    return trimmed.replace(/\/v1$/i, '').replace(/\/api$/i, '');
+  }
+}
+
 export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
   anthropic: {
     key: 'anthropic',
@@ -88,6 +102,18 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
       { id: 'kimi-k2-0520', label: 'Kimi K2' },
       { id: 'kimi-for-coding', label: 'Kimi for Coding' },
     ],
+  },
+  'ollama-cloud': {
+    key: 'ollama-cloud',
+    name: 'Ollama Cloud',
+    type: 'api-key',
+    sdkType: 'openai-compatible',
+    defaultBaseUrl: 'https://ollama.com/v1',
+    authHeaderStyle: 'bearer',
+    supportsModelListing: true,
+    modelsEndpoint: '/api/tags',
+    modelListingBaseUrlMode: 'origin',
+    proxyProvider: 'openai',
   },
   'qwen-oauth': {
     key: 'qwen-oauth',
@@ -221,7 +247,7 @@ export async function fetchModelsForProvider(
   }
 
   const endpoint = def.modelsEndpoint || '/models';
-  let base = baseURL;
+  let base = resolveModelListingBaseUrl(baseURL, def.modelListingBaseUrlMode);
   if (base.endsWith('/v1') && endpoint.startsWith('/v1/')) {
     base = base.slice(0, -3);
   }

@@ -13,6 +13,7 @@ export interface ProviderDefinition {
   authHeaderStyle: AuthHeaderStyle;
   supportsModelListing: boolean;
   modelsEndpoint?: string;
+  modelListingBaseUrlMode?: 'base' | 'origin';
   defaultHeaders?: Record<string, string>;
   oauth?: OAuthProviderConfig;
   models?: OAuthProviderModel[];

@@ -17,6 +17,16 @@ type ModelCatalogTarget = {
   headers: Record<string, string>;
 };
 
+const PROVIDER_LABELS: Record<string, string> = {
+  anthropic: 'Anthropic',
+  openai: 'OpenAI',
+  kimi: 'Kimi',
+  'ollama-cloud': 'Ollama Cloud',
+  openrouter: 'OpenRouter',
+  parchi: 'Parchi',
+  custom: 'Custom',
+};
+
 const normalizeProvider = (provider: unknown) =>
   String(provider || '')
     .trim()
@@ -42,7 +52,9 @@ const normalizeEndpointBase = (provider: string, customEndpoint: string) => {
           ? 'https://api.anthropic.com/v1'
           : provider === 'kimi'
             ? 'https://api.kimi.com/coding/v1'
-            : '';
+            : provider === 'ollama-cloud'
+              ? 'https://ollama.com/v1'
+              : '';
 
   const base = (raw || fallback)
     .replace(/\/chat\/completions\/?$/i, '')
@@ -53,11 +65,20 @@ const normalizeEndpointBase = (provider: string, customEndpoint: string) => {
   return base;
 };
 
-const buildModelEndpointCandidates = (base: string): string[] => {
+const getModelCatalogProviderLabel = (provider: string) => PROVIDER_LABELS[provider] || provider;
+
+const buildModelEndpointCandidates = (provider: string, base: string): string[] => {
   const normalized = String(base || '')
     .trim()
     .replace(/\/+$/, '');
   if (!normalized) return [];
+  if (provider === 'ollama-cloud') {
+    try {
+      return [`${new URL(normalized).origin}/api/tags`];
+    } catch {
+      return [`${normalized.replace(/\/v1$/i, '').replace(/\/+$/, '')}/api/tags`];
+    }
+  }
   if (/\/v1$/i.test(normalized) || /\/api\/v1$/i.test(normalized)) {
     return [`${normalized}/models`];
   }
@@ -269,7 +290,7 @@ sidePanelProto.collectModelCatalogTargets = async function collectModelCatalogTa
 };
 
 sidePanelProto.fetchModelIdsForTarget = async function fetchModelIdsForTarget(target: ModelCatalogTarget) {
-  const urls = buildModelEndpointCandidates(target.endpointBase);
+  const urls = buildModelEndpointCandidates(target.provider, target.endpointBase);
   for (const url of urls) {
     try {
       const response = await withTimeout(
@@ -333,7 +354,7 @@ sidePanelProto.applyModelSuggestions = function applyModelSuggestions() {
     return;
   }
   if (providerModels.length > 0) {
-    this.elements.modelHint.textContent = `Discovered ${providerModels.length} models for ${activeProvider}.`;
+    this.elements.modelHint.textContent = `Discovered ${providerModels.length} models for ${getModelCatalogProviderLabel(activeProvider)}.`;
   }
 };
 

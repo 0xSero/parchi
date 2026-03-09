@@ -40,7 +40,14 @@ export function extractModelEntries(payload: unknown): ModelEntry[] {
         context_length?: unknown;
         contextWindow?: unknown;
       };
-      const id = typeof e.id === 'string' ? e.id.trim() : typeof e.slug === 'string' ? e.slug.trim() : '';
+      const id =
+        typeof e.id === 'string'
+          ? e.id.trim()
+          : typeof e.slug === 'string'
+            ? e.slug.trim()
+            : typeof e.name === 'string'
+              ? e.name.trim()
+              : '';
       if (!id) continue;
       out.push({
         id,

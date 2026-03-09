@@ -74,7 +74,8 @@ sidePanelProto.cancelSettings = async function cancelSettings() {
 
 sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
   const provider = this.elements.provider?.value;
-  const isCustom = provider === 'custom' || provider === 'kimi' || provider === 'openrouter';
+  const isCustom =
+    provider === 'custom' || provider === 'kimi' || provider === 'openrouter' || provider === 'ollama-cloud';
 
   // Always show the endpoint field, but highlight when required
   if (this.elements.customEndpointGroup) {
@@ -96,6 +97,15 @@ sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
       this.elements.customEndpoint.placeholder = 'https://openrouter.ai/api/v1';
       if (!this.elements.customEndpoint.value || this.elements.customEndpoint.value === 'https://api.kimi.com/coding') {
         this.elements.customEndpoint.value = 'https://openrouter.ai/api/v1';
+      }
+    } else if (provider === 'ollama-cloud') {
+      this.elements.customEndpoint.placeholder = 'https://ollama.com/v1';
+      if (
+        !this.elements.customEndpoint.value ||
+        this.elements.customEndpoint.value === 'https://api.kimi.com/coding' ||
+        this.elements.customEndpoint.value === 'https://openrouter.ai/api/v1'
+      ) {
+        this.elements.customEndpoint.value = 'https://ollama.com/v1';
       }
     } else if (isCustom) {
       this.elements.customEndpoint.placeholder = 'https://openrouter.ai/api/v1';
@@ -119,6 +129,9 @@ sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
         break;
       case 'kimi':
         modelHint.textContent = 'Recommended: kimi-for-coding (or your Kimi model ID)';
+        break;
+      case 'ollama-cloud':
+        modelHint.textContent = 'Examples: gpt-oss:120b, glm-4.7:cloud, minimax-m2.1:cloud';
         break;
       case 'openrouter':
         modelHint.textContent = 'e.g. anthropic/claude-sonnet-4, openai/gpt-4o, google/gemini-2.0-flash';
@@ -183,8 +196,21 @@ sidePanelProto.validateProfileEditorHeaders = function validateProfileEditorHead
 sidePanelProto.toggleProfileEditorEndpoint = function toggleProfileEditorEndpoint() {
   if (!this.elements.profileEditorEndpointGroup) return;
   const provider = this.elements.profileEditorProvider?.value;
+  if (this.elements.profileEditorEndpoint) {
+    if (provider === 'kimi') {
+      this.elements.profileEditorEndpoint.placeholder = 'https://api.kimi.com/coding';
+    } else if (provider === 'openrouter') {
+      this.elements.profileEditorEndpoint.placeholder = 'https://openrouter.ai/api/v1';
+    } else if (provider === 'ollama-cloud') {
+      this.elements.profileEditorEndpoint.placeholder = 'https://ollama.com/v1';
+    } else {
+      this.elements.profileEditorEndpoint.placeholder = 'https://...';
+    }
+  }
   this.elements.profileEditorEndpointGroup.style.display =
-    provider === 'custom' || provider === 'kimi' || provider === 'openrouter' ? 'block' : 'none';
+    provider === 'custom' || provider === 'kimi' || provider === 'openrouter' || provider === 'ollama-cloud'
+      ? 'block'
+      : 'none';
 };
 
 sidePanelProto.switchSettingsTab = function switchSettingsTab(
