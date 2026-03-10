@@ -1,0 +1,54 @@
+commands:
+  install: npm install
+  build: npm run build
+  build:firefox: npm run build:firefox
+  typecheck: npm run typecheck
+  test: npm run test
+  test:unit: npm run test:unit
+  test:integration: npm run test:integration
+  test:e2e: npm run test:e2e
+  test:coverage: npm run test:coverage
+  test:relay: npm run test:relay
+  lint: npm run lint
+  lint:fix: npm run lint:fix
+  knip: npm run knip
+  check:all: npm run check:all
+
+services:
+  postgres:
+    start: echo "Using existing PostgreSQL on 5432"
+    stop: echo "Not stopping shared PostgreSQL"
+    healthcheck: pg_isready -h localhost -p 5432
+    port: 5432
+    depends_on: []
+    note: "Existing service - do not modify"
+
+  redis:
+    start: echo "Using existing Redis on 6379"
+    stop: echo "Not stopping shared Redis"
+    healthcheck: redis-cli ping
+    port: 6379
+    depends_on: []
+    note: "Existing service - do not modify"
+
+  extension-dev:
+    start: npm run build -- --watch
+    stop: lsof -ti :3100 | xargs kill 2>/dev/null || true
+    healthcheck: test -d dist
+    port: null
+    depends_on: []
+    note: "Builds extension to dist/ for loading in browser"
+
+  relay-daemon:
+    start: PARCHI_RELAY_PORT=3173 PARCHI_RELAY_TOKEN=test-token npm run relay:daemon
+    stop: lsof -ti :3173 | xargs kill 2>/dev/null || true
+    healthcheck: curl -sf http://localhost:3173/v1/health 2>/dev/null || echo "Not running"
+    port: 3173
+    depends_on: []
+
+  test-server:
+    start: PORT=3150 node dist/tests/test-server.js
+    stop: lsof -ti :3150 | xargs kill 2>/dev/null || true
+    healthcheck: curl -sf http://localhost:3150/health 2>/dev/null || echo "Not running"
+    port: 3150
+    depends_on: [build]

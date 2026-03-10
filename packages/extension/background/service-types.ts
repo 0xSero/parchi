@@ -1,4 +1,4 @@
-import type { OrchestratorPlan, RunPlan, WhiteboardEntry as OrchestratorWhiteboardEntry } from '@parchi/shared';
+import type { OrchestratorPlan, WhiteboardEntry as OrchestratorWhiteboardEntry, RunPlan } from '@parchi/shared';
 
 export type RunMeta = {
   runId: string;

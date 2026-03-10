@@ -1296,15 +1296,21 @@
   transition: background var(--duration-fast) ease;
   cursor: default;
 }
-.provider-row:last-child { border-bottom: none; }
+.provider-row:last-child {
+  border-bottom: none;
+}
 .provider-row:hover {
   background: var(--ink-1);
   border-radius: 8px;
   margin: 0 -4px;
   padding: 10px 8px;
 }
-.provider-row.dim { opacity: 0.55; }
-.provider-row.dim:hover { opacity: 0.8; }
+.provider-row.dim {
+  opacity: 0.55;
+}
+.provider-row.dim:hover {
+  opacity: 0.8;
+}
 
 .provider-logo {
   width: 18px;
@@ -1313,10 +1319,18 @@
   opacity: 0.6;
   color: var(--muted);
 }
-.provider-row:hover .provider-logo { opacity: 0.9; }
-.provider-row.connected .provider-logo { opacity: 0.85; color: var(--foreground); }
+.provider-row:hover .provider-logo {
+  opacity: 0.9;
+}
+.provider-row.connected .provider-logo {
+  opacity: 0.85;
+  color: var(--foreground);
+}
 
-.provider-info { flex: 1; min-width: 0; }
+.provider-info {
+  flex: 1;
+  min-width: 0;
+}
 .provider-name {
   font-size: 13px;
   font-weight: 600;
@@ -1376,7 +1390,9 @@
   opacity: 0;
   transition: opacity 120ms ease;
 }
-.provider-row:hover .row-actions { opacity: 1; }
+.provider-row:hover .row-actions {
+  opacity: 1;
+}
 
 .icon-btn {
   width: 24px;
@@ -1391,8 +1407,14 @@
   cursor: pointer;
   transition: all 120ms ease;
 }
-.icon-btn:hover { color: var(--foreground); background: var(--ink-2); }
-.icon-btn.danger:hover { color: var(--error); background: rgb(var(--error-rgb) / 0.1); }
+.icon-btn:hover {
+  color: var(--foreground);
+  background: var(--ink-2);
+}
+.icon-btn.danger:hover {
+  color: var(--error);
+  background: rgb(var(--error-rgb) / 0.1);
+}
 
 /* ============================================================================
    v4 Model Selector Grid
@@ -1409,7 +1431,9 @@
   align-items: center;
   gap: 6px;
 }
-.model-group-label:first-child { padding-top: 0; }
+.model-group-label:first-child {
+  padding-top: 0;
+}
 
 .model-option {
   display: flex;
@@ -1420,7 +1444,9 @@
   cursor: pointer;
   transition: all 120ms ease;
 }
-.model-option:hover { background: var(--ink-1); }
+.model-option:hover {
+  background: var(--ink-1);
+}
 .model-option.active {
   background: rgb(var(--accent-rgb) / 0.08);
 }
@@ -1494,7 +1520,9 @@
   color: var(--accent-light);
 }
 
-.temp-row { padding: 4px 0; }
+.temp-row {
+  padding: 4px 0;
+}
 .temp-header {
   display: flex;
   justify-content: space-between;
@@ -1540,7 +1568,9 @@ input[type="range"]::-webkit-slider-thumb {
   font-size: 12px;
   color: var(--muted);
 }
-.cap-row:last-child { border-bottom: none; }
+.cap-row:last-child {
+  border-bottom: none;
+}
 
 /* ============================================================================
    v4 Advanced Tab — Collapsible
@@ -1558,7 +1588,9 @@ input[type="range"]::-webkit-slider-thumb {
   color: var(--muted);
   transition: color var(--duration-fast) ease;
 }
-.collapsible > summary::-webkit-details-marker { display: none; }
+.collapsible > summary::-webkit-details-marker {
+  display: none;
+}
 .collapsible > summary::before {
   content: "";
   width: 0;
@@ -1568,8 +1600,12 @@ input[type="range"]::-webkit-slider-thumb {
   border-bottom: 3px solid transparent;
   transition: transform var(--duration-fast) var(--ease-out-back);
 }
-.collapsible[open] > summary::before { transform: rotate(90deg); }
-.collapsible > summary:hover { color: var(--foreground); }
+.collapsible[open] > summary::before {
+  transform: rotate(90deg);
+}
+.collapsible > summary:hover {
+  color: var(--foreground);
+}
 .collapsible-body {
   padding: 4px 0 8px 0;
   display: flex;
@@ -1593,7 +1629,9 @@ input[type="range"]::-webkit-slider-thumb {
   border-top: 1px solid rgb(var(--accent-rgb) / 0.2);
   animation: fadeInUp var(--duration-normal) var(--ease-out-expo);
 }
-.add-provider-form.open { display: flex; }
+.add-provider-form.open {
+  display: flex;
+}
 .add-provider-form .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;

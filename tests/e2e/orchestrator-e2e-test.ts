@@ -74,36 +74,42 @@ export function registerOrchestratorE2ETests({ test, assert, repoRoot, sendRunti
         });
       });
 
-      const setPlan = await executeRuntimeTool(sendRuntimeMessageWithResponse, panel, sessionId, 'set_orchestrator_plan', {
-        goal: 'Run a deterministic two-tab local workflow and reconcile the outputs',
-        maxConcurrentTabs: 2,
-        tasks: [
-          {
-            id: 'tab1_form_submit',
-            title: 'Submit the form on the first local page',
-            kind: 'browser',
-            outputs: [{ key: 'form.identity', required: true }],
-          },
-          {
-            id: 'tab2_click_and_wait',
-            title: 'Trigger click + dynamic load on the second local page',
-            kind: 'browser',
-            outputs: [{ key: 'ui.dynamicLoaded', required: true }],
-          },
-          {
-            id: 'reconcile',
-            title: 'Reconcile the outcomes from both tabs',
-            kind: 'validation',
-            dependencies: ['tab1_form_submit', 'tab2_click_and_wait'],
-            inputs: [
-              { key: 'form.identity', fromTaskId: 'tab1_form_submit', required: true },
-              { key: 'ui.dynamicLoaded', fromTaskId: 'tab2_click_and_wait', required: true },
-            ],
-            outputs: [{ key: 'summary.final', required: true }],
-            validations: [{ kind: 'whiteboard_key', value: 'summary.final', required: true }],
-          },
-        ],
-      });
+      const setPlan = await executeRuntimeTool(
+        sendRuntimeMessageWithResponse,
+        panel,
+        sessionId,
+        'set_orchestrator_plan',
+        {
+          goal: 'Run a deterministic two-tab local workflow and reconcile the outputs',
+          maxConcurrentTabs: 2,
+          tasks: [
+            {
+              id: 'tab1_form_submit',
+              title: 'Submit the form on the first local page',
+              kind: 'browser',
+              outputs: [{ key: 'form.identity', required: true }],
+            },
+            {
+              id: 'tab2_click_and_wait',
+              title: 'Trigger click + dynamic load on the second local page',
+              kind: 'browser',
+              outputs: [{ key: 'ui.dynamicLoaded', required: true }],
+            },
+            {
+              id: 'reconcile',
+              title: 'Reconcile the outcomes from both tabs',
+              kind: 'validation',
+              dependencies: ['tab1_form_submit', 'tab2_click_and_wait'],
+              inputs: [
+                { key: 'form.identity', fromTaskId: 'tab1_form_submit', required: true },
+                { key: 'ui.dynamicLoaded', fromTaskId: 'tab2_click_and_wait', required: true },
+              ],
+              outputs: [{ key: 'summary.final', required: true }],
+              validations: [{ kind: 'whiteboard_key', value: 'summary.final', required: true }],
+            },
+          ],
+        },
+      );
       assert(setPlan?.success === true, 'set_orchestrator_plan should succeed');
       assert(
         Array.isArray(setPlan.readyTaskIds) &&
@@ -157,9 +163,18 @@ export function registerOrchestratorE2ETests({ test, assert, repoRoot, sendRunti
       assert(tabUrls.includes(pageA), 'expected orchestrator tab for local page A');
       assert(tabUrls.includes(pageB), 'expected orchestrator tab for local page B');
 
-      const awaitWaveOne = await executeRuntimeTool(sendRuntimeMessageWithResponse, panel, sessionId, 'await_subagent', {});
+      const awaitWaveOne = await executeRuntimeTool(
+        sendRuntimeMessageWithResponse,
+        panel,
+        sessionId,
+        'await_subagent',
+        {},
+      );
       assert(awaitWaveOne?.success === true, 'await_subagent should complete wave one');
-      assert(awaitWaveOne?.planSummary?.readyTaskIds?.includes('reconcile'), 'reconcile should unlock after the parallel branches');
+      assert(
+        awaitWaveOne?.planSummary?.readyTaskIds?.includes('reconcile'),
+        'reconcile should unlock after the parallel branches',
+      );
 
       const dispatchWaveTwo = await executeRuntimeTool(
         sendRuntimeMessageWithResponse,
@@ -184,10 +199,22 @@ export function registerOrchestratorE2ETests({ test, assert, repoRoot, sendRunti
       );
       assert(dispatchWaveTwo?.success === true, 'wave two dispatch should succeed');
 
-      const awaitWaveTwo = await executeRuntimeTool(sendRuntimeMessageWithResponse, panel, sessionId, 'await_agents', {});
+      const awaitWaveTwo = await executeRuntimeTool(
+        sendRuntimeMessageWithResponse,
+        panel,
+        sessionId,
+        'await_agents',
+        {},
+      );
       assert(awaitWaveTwo?.success === true, 'await_agents alias should complete the final branch');
 
-      const finalPlan = await executeRuntimeTool(sendRuntimeMessageWithResponse, panel, sessionId, 'get_orchestrator_plan', {});
+      const finalPlan = await executeRuntimeTool(
+        sendRuntimeMessageWithResponse,
+        panel,
+        sessionId,
+        'get_orchestrator_plan',
+        {},
+      );
       assert(finalPlan?.success === true, 'get_orchestrator_plan should succeed');
       assert(finalPlan?.taskCounts?.completed === 3, 'all orchestrator tasks should be completed');
       assert(

@@ -21,7 +21,14 @@ export async function executeBuiltinTool(
 ): Promise<BuiltinExecutionResult> {
   const sessionState = ctx.getSessionState(options.runMeta.sessionId);
 
-  const orchestratorBuiltin = await handleOrchestratorBuiltin(ctx, sessionState, toolName, args, options, executeNestedTool);
+  const orchestratorBuiltin = await handleOrchestratorBuiltin(
+    ctx,
+    sessionState,
+    toolName,
+    args,
+    options,
+    executeNestedTool,
+  );
   if (orchestratorBuiltin.handled) {
     return {
       handled: true,

@@ -23,7 +23,7 @@ const BOOL_BINDINGS: BoolBinding[] = [
 ];
 
 const parseNum = (raw: string, fallback: number, mode: 'int' | 'float') => {
-  const v = mode === 'float' ? parseFloat(raw) : parseInt(raw, 10);
+  const v = mode === 'float' ? Number.parseFloat(raw) : Number.parseInt(raw, 10);
   return Number.isFinite(v) ? v : fallback;
 };
 

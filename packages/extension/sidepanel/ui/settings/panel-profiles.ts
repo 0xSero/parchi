@@ -1,5 +1,9 @@
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
-import { ensureProviderModel, getProviderInstance, materializeProfileWithProvider } from '../../../state/provider-registry.js';
+import {
+  ensureProviderModel,
+  getProviderInstance,
+  materializeProfileWithProvider,
+} from '../../../state/provider-registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -200,7 +204,20 @@ sidePanelProto.createNewConfig = async function createNewConfig(name?: string) {
 sidePanelProto.resetAllProfiles = async function resetAllProfiles() {
   try {
     await chrome.runtime.sendMessage({ type: 'reset_all_profiles' });
-    this.configs = { default: { provider: '', apiKey: '', model: '', systemPrompt: this.getDefaultSystemPrompt(), temperature: 0.7, maxTokens: 4096, contextLimit: 200000, timeout: 30000, showThinking: true, streamResponses: true } };
+    this.configs = {
+      default: {
+        provider: '',
+        apiKey: '',
+        model: '',
+        systemPrompt: this.getDefaultSystemPrompt(),
+        temperature: 0.7,
+        maxTokens: 4096,
+        contextLimit: 200000,
+        timeout: 30000,
+        showThinking: true,
+        streamResponses: true,
+      },
+    };
     this.providers = {};
     this.currentConfig = 'default';
     this.refreshConfigDropdown();
@@ -318,7 +335,11 @@ sidePanelProto.renderProfileGrid = function renderProfileGrid() {
       card.classList.add('editing');
     }
     card.dataset.profile = name;
-    const config = materializeProfileWithProvider({ providers: this.providers, configs: this.configs }, name, this.configs[name] || {});
+    const config = materializeProfileWithProvider(
+      { providers: this.providers, configs: this.configs },
+      name,
+      this.configs[name] || {},
+    );
     const isOAuth = String(config.provider || '').endsWith('-oauth');
     if (isOAuth) card.classList.add('oauth-profile');
     const rolePills = ['main', 'vision', 'orchestrator', 'aux']
@@ -334,7 +355,8 @@ sidePanelProto.renderProfileGrid = function renderProfileGrid() {
       name !== 'default' && !isOAuth
         ? `<button class="agent-card-delete" data-delete-profile="${this.escapeHtml(name)}" title="Delete profile">&times;</button>`
         : '';
-    const providerLabel = config.providerLabel || (isOAuth ? config.provider.replace(/-oauth$/, '') : config.provider || 'Provider');
+    const providerLabel =
+      config.providerLabel || (isOAuth ? config.provider.replace(/-oauth$/, '') : config.provider || 'Provider');
     const oauthTag = isOAuth ? '<span class="oauth-badge">OAuth</span>' : '';
     card.innerHTML = `
         <div class="agent-card-header">
@@ -481,7 +503,11 @@ sidePanelProto.toggleAuxProfile = function toggleAuxProfile(profileName: string)
 sidePanelProto.editProfile = function editProfile(name: string, silent = false) {
   if (!name || !this.configs[name]) return;
   this.profileEditorTarget = name;
-  const config = materializeProfileWithProvider({ providers: this.providers, configs: this.configs }, name, this.configs[name]);
+  const config = materializeProfileWithProvider(
+    { providers: this.providers, configs: this.configs },
+    name,
+    this.configs[name],
+  );
   const isOAuth = String(config.provider || '').endsWith('-oauth');
   // Only update profile editor elements if they exist
   if (this.elements.profileEditorTitle) {

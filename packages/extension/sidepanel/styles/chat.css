@@ -540,7 +540,8 @@ body.sidebar-open .context-inspector-popover {
   font-size: 13px;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease, color var(--duration-fast) ease;
+  transition: border-color var(--duration-fast) ease, background var(--duration-fast) ease, color var(--duration-fast)
+    ease;
   text-align: left;
 }
 

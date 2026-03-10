@@ -1,13 +1,13 @@
 import { resolveProfile } from '../model-profiles.js';
 import type { ServiceContext } from '../service-context.js';
 import type { RunMeta, SubagentResult } from '../service-types.js';
+import { recordSubagentCompletion, recordSubagentStart } from './tool-executor-orchestrator.js';
 import type {
   NestedToolExecutor,
   ToolExecutionArgs,
   ToolExecutionOptions,
   ToolExecutionSettings,
 } from './tool-executor-shared.js';
-import { recordSubagentCompletion, recordSubagentStart } from './tool-executor-orchestrator.js';
 import { runSubagentLoop } from './tool-executor-subagent-runner.js';
 import { cleanupSubagentTab, createSubagentTab } from './tool-executor-subagent-tab.js';
 

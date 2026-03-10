@@ -45,7 +45,10 @@ export function normalizeOpenRouterModelId(modelId: string): string {
 }
 
 const toAnthropicBaseUrl = (value: string) => {
-  const base = value.replace(/\/v1\/messages\/?$/i, '').replace(/\/messages\/?$/i, '').replace(/\/+$/, '');
+  const base = value
+    .replace(/\/v1\/messages\/?$/i, '')
+    .replace(/\/messages\/?$/i, '')
+    .replace(/\/+$/, '');
   return /\/v1$/i.test(base) ? base : `${base}/v1`;
 };
 
@@ -131,7 +134,11 @@ export function resolveLanguageModel(settings: SDKModelSettings) {
         : provider === 'minimax'
           ? 'https://api.minimax.io/anthropic'
           : 'https://api.kimi.com/coding';
-    return createAnthropic({ apiKey, baseURL: toAnthropicBaseUrl(settings.customEndpoint || fallbackBase), headers: extraHeaders })(modelId);
+    return createAnthropic({
+      apiKey,
+      baseURL: toAnthropicBaseUrl(settings.customEndpoint || fallbackBase),
+      headers: extraHeaders,
+    })(modelId);
   }
 
   if (provider === 'openrouter' || provider === 'parchi') {

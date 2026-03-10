@@ -98,9 +98,14 @@ export async function handleMessage(
           message.args && typeof message.args === 'object' ? message.args : {},
           {
             runMeta: {
-              runId: typeof message.runId === 'string' && message.runId.trim() ? message.runId.trim() : `test-run-${Date.now()}`,
+              runId:
+                typeof message.runId === 'string' && message.runId.trim()
+                  ? message.runId.trim()
+                  : `test-run-${Date.now()}`,
               turnId:
-                typeof message.turnId === 'string' && message.turnId.trim() ? message.turnId.trim() : `test-turn-${Date.now()}`,
+                typeof message.turnId === 'string' && message.turnId.trim()
+                  ? message.turnId.trim()
+                  : `test-turn-${Date.now()}`,
               sessionId,
             },
             settings,

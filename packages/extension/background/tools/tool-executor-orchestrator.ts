@@ -1,7 +1,10 @@
-import { buildOrchestratorPlan, getDispatchableOrchestratorTaskIds, getOrchestratorPlanValidationIssues } from '@parchi/shared';
+import {
+  buildOrchestratorPlan,
+  getDispatchableOrchestratorTaskIds,
+  getOrchestratorPlanValidationIssues,
+} from '@parchi/shared';
 import type { ServiceContext } from '../service-context.js';
 import type { SessionState } from '../service-types.js';
-import { isObjectRecord, type NestedToolExecutor, type ToolExecutionArgs, type ToolExecutionOptions } from './tool-executor-shared.js';
 import {
   awaitSubagents,
   buildPlanSummary,
@@ -16,7 +19,16 @@ import {
   validateTaskAgainstWhiteboard,
   writeTaskOutputsToWhiteboard,
 } from './orchestrator-runtime-state.js';
-import { getSyntheticSubagentSpecs, spawnSyntheticSubagentForOrchestratorTest } from './tool-executor-orchestrator-test-mode.js';
+import {
+  getSyntheticSubagentSpecs,
+  spawnSyntheticSubagentForOrchestratorTest,
+} from './tool-executor-orchestrator-test-mode.js';
+import {
+  type NestedToolExecutor,
+  type ToolExecutionArgs,
+  type ToolExecutionOptions,
+  isObjectRecord,
+} from './tool-executor-shared.js';
 
 export { recordSubagentCompletion, recordSubagentStart } from './orchestrator-runtime-state.js';
 
@@ -150,7 +162,8 @@ export async function handleOrchestratorBuiltin(
     const runningTaskIds = Array.from(sessionState.runningSubagents.values())
       .map((entry) => entry.taskId)
       .filter((value): value is string => Boolean(value));
-    const requestedMax = typeof args.maxTasks === 'number' && Number.isFinite(args.maxTasks) ? Math.floor(args.maxTasks) : null;
+    const requestedMax =
+      typeof args.maxTasks === 'number' && Number.isFinite(args.maxTasks) ? Math.floor(args.maxTasks) : null;
     const remainingSlots = Math.max(0, plan.maxConcurrentTabs - runningTaskIds.length);
     const maxSlots = requestedMax === null ? remainingSlots : Math.max(0, Math.min(remainingSlots, requestedMax));
     const dispatchableTaskIds = getDispatchableOrchestratorTaskIds(plan, { runningTaskIds, maxSlots });
@@ -163,10 +176,13 @@ export async function handleOrchestratorBuiltin(
       task.status = 'running';
       const syntheticSpec = syntheticSpecs && isObjectRecord(syntheticSpecs[task.id]) ? syntheticSpecs[task.id] : null;
       const spawnResult = syntheticSpec
-        ? ((await spawnSyntheticSubagentForOrchestratorTest(ctx, sessionState, options.runMeta, task, syntheticSpec)) as Record<
-            string,
-            unknown
-          >)
+        ? ((await spawnSyntheticSubagentForOrchestratorTest(
+            ctx,
+            sessionState,
+            options.runMeta,
+            task,
+            syntheticSpec,
+          )) as Record<string, unknown>)
         : ((await executeNestedTool(
             'spawn_subagent',
             {
@@ -179,7 +195,9 @@ export async function handleOrchestratorBuiltin(
               tasks: [
                 task.title,
                 ...(task.summary ? [`Context: ${task.summary}`] : []),
-                ...(task.outputs.length ? [`Required outputs: ${task.outputs.map((output) => output.key).join(', ')}.`] : []),
+                ...(task.outputs.length
+                  ? [`Required outputs: ${task.outputs.map((output) => output.key).join(', ')}.`]
+                  : []),
               ],
               orchestratorTaskId: task.id,
             },
@@ -188,7 +206,12 @@ export async function handleOrchestratorBuiltin(
 
       if (spawnResult.success !== true) {
         task.status = 'failed';
-        dispatched.push({ taskId: task.id, taskTitle: task.title, success: false, error: spawnResult.error || 'spawn_subagent failed' });
+        dispatched.push({
+          taskId: task.id,
+          taskTitle: task.title,
+          success: false,
+          error: spawnResult.error || 'spawn_subagent failed',
+        });
         continue;
       }
       if (typeof spawnResult.tabId === 'number' && Number.isFinite(spawnResult.tabId)) {

@@ -1,8 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { getSessionState as getManagedSessionState } from '../../packages/extension/background/session-manager.js';
 import type { ServiceContext } from '../../packages/extension/background/service-context.js';
-import type { HistoricalSubagent, RunMeta, SessionState, SubagentResult } from '../../packages/extension/background/service-types.js';
+import type {
+  HistoricalSubagent,
+  RunMeta,
+  SessionState,
+  SubagentResult,
+} from '../../packages/extension/background/service-types.js';
+import { getSessionState as getManagedSessionState } from '../../packages/extension/background/session-manager.js';
 import { executeBuiltinTool } from '../../packages/extension/background/tools/tool-executor-builtins.js';
 import { recordSubagentStart } from '../../packages/extension/background/tools/tool-executor-orchestrator.js';
 
@@ -119,7 +124,13 @@ export async function callBuiltin(
     error: 'Nested tool execution not configured.',
   }),
 ) {
-  const result = await executeBuiltinTool(ctx, toolName, args, { runMeta: defaultRunMeta, settings: {} }, nestedToolExecutor);
+  const result = await executeBuiltinTool(
+    ctx,
+    toolName,
+    args,
+    { runMeta: defaultRunMeta, settings: {} },
+    nestedToolExecutor,
+  );
   if (!result.handled) throw new Error(`Builtin ${toolName} was not handled.`);
   return result.result as Record<string, any>;
 }

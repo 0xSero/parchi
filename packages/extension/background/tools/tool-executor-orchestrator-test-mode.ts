@@ -30,7 +30,8 @@ export async function spawnSyntheticSubagentForOrchestratorTest(
   const subTab = await createSubagentTab(ctx, runMeta, subagentSessionId, nextSubagentCount, spec.url);
   sessionState.subAgentCount = nextSubagentCount;
 
-  const summary = typeof spec.summary === 'string' && spec.summary.trim() ? spec.summary.trim() : `Completed ${task.id}`;
+  const summary =
+    typeof spec.summary === 'string' && spec.summary.trim() ? spec.summary.trim() : `Completed ${task.id}`;
   const promise = (async () => {
     if (Array.isArray(spec.script)) {
       for (const step of spec.script) {

@@ -302,11 +302,7 @@ sidePanelProto.setupEventListeners = function setupEventListeners() {
     document.addEventListener('click', (e: Event) => {
       const target = e.target as Node;
       const clickedMascot = mascotCorner?.contains(target) ?? false;
-      if (
-        !balancePopover.classList.contains('hidden') &&
-        !balancePopover.contains(target) &&
-        !clickedMascot
-      ) {
+      if (!balancePopover.classList.contains('hidden') && !balancePopover.contains(target) && !clickedMascot) {
         balancePopover.classList.add('hidden');
       }
     });
@@ -459,8 +455,13 @@ sidePanelProto.setupEventListeners = function setupEventListeners() {
     this.elements[id]?.addEventListener('change', genPersist);
   }
   for (const id of [
-    'genEnableScreenshots', 'genSendScreenshots', 'genStreamResponses',
-    'genShowThinking', 'genAutoScroll', 'genConfirmActions', 'genSaveHistory',
+    'genEnableScreenshots',
+    'genSendScreenshots',
+    'genStreamResponses',
+    'genShowThinking',
+    'genAutoScroll',
+    'genConfirmActions',
+    'genSaveHistory',
   ] as const) {
     this.elements[id]?.addEventListener('change', genPersist);
   }

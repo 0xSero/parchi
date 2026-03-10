@@ -1,12 +1,12 @@
 import { normalizeOpenRouterModelId } from '../ai/sdk-client.js';
 import { invalidateRuntimeAuthSession, isUsableRuntimeJwt, refreshRuntimeAuthSession } from '../convex/client.js';
-import { materializeProfileWithProvider } from '../state/provider-registry.js';
 import {
   getAccessToken as getOAuthAccessToken,
   getApiBaseUrl as getOAuthApiBaseUrl,
   getProviderConfig as getOAuthProviderConfig,
 } from '../oauth/manager.js';
 import type { OAuthProviderKey } from '../oauth/types.js';
+import { materializeProfileWithProvider } from '../state/provider-registry.js';
 
 export function hasOwnApiKey(profile: Record<string, any> | null | undefined) {
   return Boolean(String(profile?.apiKey || '').trim());

@@ -4,6 +4,7 @@ export * from './runtime-messages.js';
 export * from './tools.js';
 export * from './usage.js';
 export * from './settings.js';
+export * from './profile.js';
 export * from './providers.js';
 export * from './prompts.js';
 export * from './json-rpc.js';

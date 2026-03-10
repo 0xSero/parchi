@@ -1,9 +1,9 @@
 import {
-  getOrchestratorPlanValidationIssues,
-  getReadyOrchestratorTaskIds,
   type OrchestratorPlan,
   type OrchestratorTaskNode,
   type OrchestratorTaskStatus,
+  getOrchestratorPlanValidationIssues,
+  getReadyOrchestratorTaskIds,
 } from '@parchi/shared';
 import type { HistoricalSubagent, SessionState, SubagentResult } from '../service-types.js';
 import type { ToolExecutionArgs } from './tool-executor-shared.js';
@@ -170,7 +170,11 @@ export const validateTaskAgainstWhiteboard = (sessionState: SessionState, task: 
   return failures;
 };
 
-const updateSubagentHistory = (sessionState: SessionState, result: SubagentResult, status: HistoricalSubagent['status']) => {
+const updateSubagentHistory = (
+  sessionState: SessionState,
+  result: SubagentResult,
+  status: HistoricalSubagent['status'],
+) => {
   const existing = sessionState.subagentHistory.get(result.id);
   if (!existing) return;
   existing.status = status;

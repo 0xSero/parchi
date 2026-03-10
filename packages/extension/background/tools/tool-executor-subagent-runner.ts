@@ -224,7 +224,15 @@ export async function runSubagentLoop(
     });
 
     emitCompletion(ctx, parentRunMeta, runtimeMeta, loopCtx, true, summary);
-    return { id: subagentId, name: subagentName, success: true, summary, tabId, taskId: loopCtx.taskId, data: capturedData };
+    return {
+      id: subagentId,
+      name: subagentName,
+      success: true,
+      summary,
+      tabId,
+      taskId: loopCtx.taskId,
+      data: capturedData,
+    };
   } catch (error) {
     const errorMessage = formatToolExecutorError(error, 'Unknown error');
     console.error('[subagent] Error:', error);

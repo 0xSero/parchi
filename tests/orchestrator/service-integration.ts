@@ -6,9 +6,9 @@ import {
   callBuiltin,
   createHarnessContext,
   createNestedSpawnStub,
+  defaultRunMeta,
   getHistory,
   loadFixture,
-  defaultRunMeta,
 } from './service-integration-harness.js';
 
 const getTask = (plan: { tasks?: OrchestratorTaskNode[] } | null | undefined, taskId: string) =>
