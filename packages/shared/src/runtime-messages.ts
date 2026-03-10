@@ -1,39 +1,107 @@
+/**
+ * Unified runtime message module - re-exports all message types and utilities.
+ * This is the main entry point for runtime message types.
+ */
+// Re-export extracted helper types
 export {
-  RUNTIME_MESSAGE_SCHEMA_VERSION,
   runStatusPhases,
-  type AssistantFinal,
-  type AssistantResponse,
-  type AssistantStreamDelta,
-  type AssistantStreamStart,
-  type AssistantStreamStop,
-  type CompactionEvent,
-  type ContextCompacted,
-  type ReportImageCaptured,
-  type ReportImagesSelection,
-  type ReportImageSummary,
+  type ContextUsageSnapshot,
   type RetryCounts,
-  type RunError,
   type RunPhase,
-  type RunStatus,
-  type RunWarning,
   type RuntimeBenchmarkContext,
   type RuntimeLatencyMetrics,
-  type RuntimeMessage,
-  type RuntimeMessageBase,
-  type SessionTabsUpdate,
-  type SubagentComplete,
-  type SubagentTabAssigned,
-  type SubagentStart,
-  type TokenTraceEvent,
   type TokenTraceSnapshot,
-  type ToolExecutionResult,
-  type ToolExecutionStart,
-  type UserRunStart,
-  type ManualPlanUpdate,
-  type PlanUpdate,
-} from './runtime-message-definitions.js';
-import { RUNTIME_MESSAGE_SCHEMA_VERSION, type RuntimeMessage } from './runtime-message-definitions.js';
+  type TokenUsage,
+} from './runtime-types.js';
 
+// Re-export base types and early message variants
+export {
+  RUNTIME_MESSAGE_SCHEMA_VERSION,
+  type RuntimeMessageBase,
+  type UserRunStart,
+  type AssistantStreamStart,
+  type AssistantStreamDelta,
+  type AssistantStreamStop,
+  type ToolExecutionStart,
+  type ToolExecutionResult,
+  type PlanUpdate,
+  type ManualPlanUpdate,
+  type RunStatus,
+  type AssistantResponse,
+} from './runtime-messages-base.js';
+
+// Re-export extended message types
+export type {
+  AssistantFinal,
+  CompactionEvent,
+  ContextCompacted,
+  ReportImageCaptured,
+  ReportImageSummary,
+  ReportImagesSelection,
+  RunError,
+  RunWarning,
+  SessionTabsUpdate,
+  SubagentComplete,
+  SubagentStart,
+  SubagentTabAssigned,
+  TokenTraceEvent,
+} from './runtime-messages-extended.js';
+
+// Import for union type and type guard
+import { RUNTIME_MESSAGE_SCHEMA_VERSION } from './runtime-messages-base.js';
+import type {
+  AssistantResponse,
+  AssistantStreamDelta,
+  AssistantStreamStart,
+  AssistantStreamStop,
+  ManualPlanUpdate,
+  PlanUpdate,
+  RunStatus,
+  ToolExecutionResult,
+  ToolExecutionStart,
+  UserRunStart,
+} from './runtime-messages-base.js';
+import type {
+  AssistantFinal,
+  CompactionEvent,
+  ContextCompacted,
+  ReportImageCaptured,
+  ReportImagesSelection,
+  RunError,
+  RunWarning,
+  SessionTabsUpdate,
+  SubagentComplete,
+  SubagentStart,
+  SubagentTabAssigned,
+  TokenTraceEvent,
+} from './runtime-messages-extended.js';
+
+/** Union of all runtime message types (22 variants). */
+export type RuntimeMessage =
+  | UserRunStart
+  | AssistantStreamStart
+  | AssistantStreamDelta
+  | AssistantStreamStop
+  | ToolExecutionStart
+  | ToolExecutionResult
+  | PlanUpdate
+  | ManualPlanUpdate
+  | RunStatus
+  | AssistantResponse
+  | AssistantFinal
+  | RunError
+  | RunWarning
+  | TokenTraceEvent
+  | CompactionEvent
+  | ContextCompacted
+  | SubagentStart
+  | ReportImageCaptured
+  | ReportImagesSelection
+  | SubagentComplete
+  | SubagentTabAssigned
+  | SessionTabsUpdate;
+
+/** All valid runtime message type strings. */
 export const runtimeMessageTypes = [
   'user_run_start',
   'assistant_stream_start',
@@ -61,6 +129,7 @@ export const runtimeMessageTypes = [
 
 export type RuntimeMessageType = (typeof runtimeMessageTypes)[number];
 
+/** Type guard to validate runtime messages. */
 export function isRuntimeMessage(value: unknown): value is RuntimeMessage {
   if (!value || typeof value !== 'object') return false;
   const message = value as {
