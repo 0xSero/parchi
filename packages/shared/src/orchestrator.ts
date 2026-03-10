@@ -1,3 +1,15 @@
+/**
+ * Common task statuses shared between PlanStatus and OrchestratorTaskStatus.
+ * These represent the fundamental states that apply to both plan steps and orchestrator tasks.
+ */
+export const COMMON_TASK_STATUSES = ['pending', 'running', 'blocked'] as const;
+
+export type CommonTaskStatus = (typeof COMMON_TASK_STATUSES)[number];
+
+/**
+ * Extended task statuses for orchestrator tasks.
+ * Includes all common statuses plus orchestrator-specific states.
+ */
 export const ORCHESTRATOR_TASK_STATUSES = [
   'pending',
   'ready',
