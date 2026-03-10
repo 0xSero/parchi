@@ -1,6 +1,19 @@
-export type PlanStatus = 'pending' | 'running' | 'done' | 'blocked';
+import { COMMON_TASK_STATUSES, type CommonTaskStatus } from './orchestrator.js';
 
-export const PLAN_STATUSES = ['pending', 'running', 'done', 'blocked'] as const;
+/**
+ * Plan-specific statuses that extend the common task statuses.
+ * 'done' is unique to plans (orchestrator uses 'completed' instead).
+ */
+export const PLAN_SPECIFIC_STATUSES = ['done'] as const;
+
+export type PlanSpecificStatus = (typeof PLAN_SPECIFIC_STATUSES)[number];
+
+/**
+ * Full plan status values, combining common task statuses with plan-specific ones.
+ */
+export const PLAN_STATUSES = [...COMMON_TASK_STATUSES, ...PLAN_SPECIFIC_STATUSES] as const;
+
+export type PlanStatus = CommonTaskStatus | PlanSpecificStatus;
 
 const PLAN_STATUS_SET = new Set<PlanStatus>(PLAN_STATUSES);
 
@@ -97,4 +110,11 @@ export function buildRunPlan(
     createdAt,
     updatedAt: now,
   };
+}
+
+/**
+ * Returns true if the plan status is a terminal state (no further transitions).
+ */
+export function isPlanStatusTerminal(status: PlanStatus): boolean {
+  return status === 'done';
 }
