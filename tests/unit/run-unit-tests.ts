@@ -24,6 +24,9 @@ import { runOauthModelNormalizationSuite } from './suites/oauth-model-normalizat
 import { runOrchestratorNormalizationSuite } from './suites/orchestrator-normalization.test.js';
 import { runPanelSessionMemorySuite } from './suites/panel-session-memory.test.js';
 import { runPlanNormalizationSuite } from './suites/plan-normalization.test.js';
+import { runProfileCompatibilitySuite } from './suites/profile/compatibility.test.js';
+import { runProfileConnectionSuite } from './suites/profile/connection.test.js';
+import { runProfileCoreSuite } from './suites/profile/core.test.js';
 import { runRecordingSummarySuite } from './suites/recording-summary.test.js';
 import { runReportImagesSuite } from './suites/report-images.test.js';
 import { runRetryHelpersSuite } from './suites/retry-helpers.test.js';
@@ -64,6 +67,9 @@ export function runUnitTests() {
   runRecordingSummarySuite(runner);
   runPanelSessionMemorySuite(runner);
   runPlanNormalizationSuite(runner);
+  runProfileCoreSuite(runner);
+  runProfileConnectionSuite(runner);
+  runProfileCompatibilitySuite(runner);
   runRetryHelpersSuite(runner);
   runRuntimeMessagesSuite(runner);
   runRuntimeTypesSuite(runner);
