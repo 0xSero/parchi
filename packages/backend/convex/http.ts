@@ -1,13 +1,9 @@
 import { httpRouter } from 'convex/server';
 import { aiProxy } from './aiProxy.js';
 import { auth } from './auth.js';
-import {
-  createOpenRouterCheckout,
-  provisionOpenRouterKey,
-  recoverOpenRouterKey,
-  regenerateOpenRouterKey,
-  stripeWebhook,
-} from './payments.js';
+import { createOpenRouterCheckout } from './openrouter-checkout.js';
+import { provisionOpenRouterKey, recoverOpenRouterKey, regenerateOpenRouterKey } from './openrouter-provisioning.js';
+import { stripeWebhook } from './stripe-webhooks.js';
 
 const http = httpRouter();
 
