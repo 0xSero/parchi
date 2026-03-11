@@ -14,6 +14,7 @@ import {
   readNumberBindings,
 } from './profile-form-helpers.js';
 import { resizeProfilePromptInput } from './profile-json-editor.js';
+import { parseHeadersJson } from './settings-validation.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -99,17 +100,17 @@ sidePanelProto.collectProfileEditorData = function collectProfileEditorData() {
   const model = provider.endsWith('-oauth') ? normalizeOAuthModelIdForProvider(provider, rawModel) : rawModel;
   const numericValues = readNumberBindings(this.elements, PROFILE_EDITOR_NUMBER_BINDINGS);
   const booleanValues = readBooleanBindings(this.elements, PROFILE_EDITOR_BOOLEAN_BINDINGS);
+  const rawHeaders = this.elements.profileEditorHeaders?.value || '';
+  const extraHeaders = rawHeaders.trim() ? parseHeadersJson(rawHeaders) : {};
   return {
     providerId,
     providerLabel: providerInstance?.name || '',
     provider,
-    apiKey: providerInstance?.authType === 'api-key' ? providerInstance.apiKey || '' : '',
+    apiKey: this.elements.profileEditorApiKey?.value || '',
     modelId: model,
     model,
-    customEndpoint: providerInstance?.customEndpoint || '',
-    extraHeaders: (() => {
-      return providerInstance?.extraHeaders || {};
-    })(),
+    customEndpoint: this.elements.profileEditorEndpoint?.value || '',
+    extraHeaders,
     ...numericValues,
     ...booleanValues,
     screenshotQuality: this.elements.profileEditorScreenshotQuality.value || 'high',
