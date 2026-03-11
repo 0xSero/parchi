@@ -1,113 +1,60 @@
-import { RUNTIME_MESSAGE_SCHEMA_VERSION } from '@parchi/shared';
 import { BrowserTools } from '../tools/browser-tools.js';
 import { estimateDataUrlBytes, trimReportImages } from './report-images.js';
-import type { ServiceContext, TokenTracePayload } from './service-context.js';
-import type { RunMeta, SessionState, SessionTokenVisibility } from './service-types.js';
+import type { SessionState } from './service-types.js';
+import { defaultTokenVisibility } from './session-tokens.js';
 
 // Keep enough room for the primary session plus spawned subagent sessions
 // without evicting active orchestrator state mid-run.
 export const MAX_SESSIONS = 24;
 export const MAX_FAILURE_TRACKER_ENTRIES = 250;
 
-export function defaultTokenVisibility(): SessionTokenVisibility {
-  return {
-    providerInputTokens: null,
-    providerOutputTokens: null,
-    contextApproxTokens: null,
-    contextLimit: null,
-    contextPercent: null,
-    sessionInputTokens: 0,
-    sessionOutputTokens: 0,
-    sessionTotalTokens: 0,
-  };
-}
+// Re-export from session-tokens for backward compatibility
+export {
+  defaultTokenVisibility,
+  emitTokenTrace,
+  getTokenVisibilitySnapshot,
+  normalizeContextPercent,
+  updateSessionTokenVisibility,
+} from './session-tokens.js';
 
-export function normalizeContextPercent(tokens: number | null, limit: number | null): number | null {
-  if (typeof tokens !== 'number' || tokens < 0) return null;
-  if (typeof limit !== 'number' || limit <= 0) return null;
-  const raw = (tokens / Math.max(1, limit)) * 100;
-  return Math.max(0, Math.min(100, Math.round(raw)));
-}
+// Re-export from session-lifecycle for backward compatibility
+export {
+  cleanupRun,
+  isRunCancelled,
+  registerActiveRun,
+  sendRuntime,
+  stopAllSidepanelRuns,
+  stopRun,
+  stopRunBySession,
+} from './session-lifecycle.js';
 
-export function getTokenVisibilitySnapshot(sessionState: SessionState): SessionTokenVisibility {
-  return {
-    ...(sessionState.tokenVisibility || defaultTokenVisibility()),
-  };
-}
-
-export function updateSessionTokenVisibility(
-  sessionState: SessionState,
-  patch: Partial<SessionTokenVisibility>,
-): SessionTokenVisibility {
-  const current = sessionState.tokenVisibility || defaultTokenVisibility();
-  const merged: SessionTokenVisibility = {
-    ...current,
-    ...patch,
-  };
-  merged.sessionInputTokens = Math.max(0, Number(merged.sessionInputTokens || 0));
-  merged.sessionOutputTokens = Math.max(0, Number(merged.sessionOutputTokens || 0));
-  merged.sessionTotalTokens = Math.max(0, Number(merged.sessionTotalTokens || 0));
-  if (typeof merged.contextPercent !== 'number') {
-    merged.contextPercent = normalizeContextPercent(merged.contextApproxTokens, merged.contextLimit);
-  } else {
-    merged.contextPercent = Math.max(0, Math.min(100, Math.round(merged.contextPercent)));
+function ensureSessionCollections(existing: SessionState) {
+  if (!Array.isArray(existing.reportImages)) existing.reportImages = [];
+  if (!(existing.selectedReportImageIds instanceof Set)) {
+    existing.selectedReportImageIds = new Set<string>();
   }
-  sessionState.tokenVisibility = merged;
-  return getTokenVisibilitySnapshot(sessionState);
-}
-
-export function emitTokenTrace(
-  ctx: ServiceContext,
-  runMeta: RunMeta,
-  sessionState: SessionState,
-  payload: TokenTracePayload,
-) {
-  const before = payload.before || getTokenVisibilitySnapshot(sessionState);
-  const after = payload.afterPatch
-    ? updateSessionTokenVisibility(sessionState, payload.afterPatch)
-    : getTokenVisibilitySnapshot(sessionState);
-  ctx.sendRuntime(runMeta, {
-    type: 'token_trace',
-    action: payload.action,
-    reason: payload.reason,
-    note: payload.note,
-    before,
-    after,
-    details: payload.details,
-  });
+  if (!Number.isFinite(existing.reportImageBytes)) {
+    existing.reportImageBytes = existing.reportImages.reduce(
+      (sum, image) => sum + estimateDataUrlBytes(String(image?.dataUrl || '')),
+      0,
+    );
+  }
+  if (!existing.tokenVisibility || typeof existing.tokenVisibility !== 'object') {
+    existing.tokenVisibility = defaultTokenVisibility();
+  }
+  if (!existing.runningSubagents) existing.runningSubagents = new Map();
+  if (!existing.subagentHistory) existing.subagentHistory = new Map();
+  if (!existing.orchestratorWhiteboard) existing.orchestratorWhiteboard = new Map();
+  if (!Object.prototype.hasOwnProperty.call(existing, 'orchestratorPlan')) {
+    existing.orchestratorPlan = null;
+  }
 }
 
 export function getSessionState(sessionStateById: Map<string, SessionState>, sessionId: string): SessionState {
   const id = typeof sessionId === 'string' && sessionId.trim() ? sessionId : 'default';
   const existing = sessionStateById.get(id);
   if (existing) {
-    if (!Array.isArray(existing.reportImages)) existing.reportImages = [];
-    if (!(existing.selectedReportImageIds instanceof Set)) {
-      existing.selectedReportImageIds = new Set<string>();
-    }
-    if (!Number.isFinite(existing.reportImageBytes)) {
-      existing.reportImageBytes = existing.reportImages.reduce(
-        (sum, image) => sum + estimateDataUrlBytes(String(image?.dataUrl || '')),
-        0,
-      );
-    }
-    if (!existing.tokenVisibility || typeof existing.tokenVisibility !== 'object') {
-      existing.tokenVisibility = defaultTokenVisibility();
-    } else {
-      updateSessionTokenVisibility(existing, {});
-    }
-    if (!existing.runningSubagents) {
-      existing.runningSubagents = new Map();
-    }
-    if (!existing.subagentHistory) {
-      existing.subagentHistory = new Map();
-    }
-    if (!existing.orchestratorWhiteboard) {
-      existing.orchestratorWhiteboard = new Map();
-    }
-    if (!Object.prototype.hasOwnProperty.call(existing, 'orchestratorPlan')) {
-      existing.orchestratorPlan = null;
-    }
+    ensureSessionCollections(existing);
     trimReportImages(existing);
     return existing;
   }
@@ -159,97 +106,4 @@ export function getBrowserTools(
   }
   browserToolsBySessionId.set(id, created);
   return created;
-}
-
-export function isRunCancelled(cancelledRunIds: Set<string>, runId: string) {
-  return cancelledRunIds.has(runId);
-}
-
-export function stopRun(ctx: ServiceContext, runId: string, note = 'Stopped') {
-  const active = ctx.activeRuns.get(runId);
-  if (!active) return;
-
-  ctx.sendRuntime(active.runMeta, {
-    type: 'run_status',
-    phase: 'stopped',
-    attempts: { api: 0, tool: 0, finalize: 0 },
-    maxRetries: { api: 0, tool: 0, finalize: 0 },
-    note,
-  });
-
-  ctx.cancelledRunIds.add(runId);
-
-  try {
-    active.controller.abort(note);
-  } catch {}
-
-  if (active.origin === 'relay') {
-    ctx.relayActiveRunIds.delete(runId);
-    if (ctx.relay.isConnected()) {
-      ctx.relay.notify('run.done', { runId, status: 'stopped', note });
-    }
-  }
-}
-
-export function stopRunBySession(ctx: ServiceContext, sessionId: string, note = 'Stopped') {
-  const runId = ctx.activeRunIdBySessionId.get(sessionId);
-  if (runId) {
-    stopRun(ctx, runId, note);
-    return true;
-  }
-  return false;
-}
-
-export function stopAllSidepanelRuns(ctx: ServiceContext, note = 'Stopped') {
-  for (const [runId, active] of ctx.activeRuns.entries()) {
-    if (active.origin !== 'sidepanel') continue;
-    stopRun(ctx, runId, note);
-  }
-}
-
-export function registerActiveRun(
-  ctx: ServiceContext,
-  runMeta: RunMeta,
-  origin: 'sidepanel' | 'relay',
-): AbortController {
-  stopRunBySession(ctx, runMeta.sessionId, 'Superseded by a new message');
-  const controller = new AbortController();
-  ctx.activeRuns.set(runMeta.runId, { runMeta, origin, controller });
-  ctx.activeRunIdBySessionId.set(runMeta.sessionId, runMeta.runId);
-  return controller;
-}
-
-export function cleanupRun(ctx: ServiceContext, runMeta: RunMeta, origin: 'sidepanel' | 'relay') {
-  const active = ctx.activeRuns.get(runMeta.runId);
-  if (active && active.origin === origin) {
-    ctx.activeRuns.delete(runMeta.runId);
-  }
-  const mapped = ctx.activeRunIdBySessionId.get(runMeta.sessionId);
-  if (mapped === runMeta.runId) {
-    ctx.activeRunIdBySessionId.delete(runMeta.sessionId);
-  }
-  ctx.cancelledRunIds.delete(runMeta.runId);
-}
-
-export function sendRuntime(ctx: ServiceContext, runMeta: RunMeta, payload: Record<string, unknown>) {
-  if (isRunCancelled(ctx.cancelledRunIds, runMeta.runId)) return;
-  const message = {
-    schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
-    runId: runMeta.runId,
-    turnId: runMeta.turnId,
-    sessionId: runMeta.sessionId,
-    timestamp: Date.now(),
-    ...payload,
-  };
-  ctx.sendToSidePanel(message);
-
-  if (ctx.relayActiveRunIds.has(runMeta.runId) && ctx.relay.isConnected()) {
-    ctx.relay.notify('run.event', { runId: runMeta.runId, event: message });
-    const type = typeof payload.type === 'string' ? payload.type : '';
-    if (type === 'assistant_final') {
-      ctx.relay.notify('run.done', { runId: runMeta.runId, status: 'completed', final: message });
-    } else if (type === 'run_error') {
-      ctx.relay.notify('run.done', { runId: runMeta.runId, status: 'failed', error: message });
-    }
-  }
 }
