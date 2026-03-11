@@ -1,6 +1,6 @@
 {
   "milestone": "foundation",
-  "round": 1,
+  "round": 2,
   "status": "fail",
   "validatorsRun": {
     "test": {
@@ -20,80 +20,68 @@
     }
   },
   "reviewsSummary": {
-    "total": 6,
+    "total": 5,
     "passed": 1,
-    "failed": 5,
+    "failed": 4,
     "failedFeatures": [
-      "shared-consolidate-runtime-messages",
-      "shared-consolidate-orchestrator-types",
-      "shared-consolidate-profile-types",
-      "shared-consolidate-json-rpc",
-      "shared-refactor-orchestrator"
+      "fix-runtime-messages-test-coverage",
+      "fix-profile-test-coverage",
+      "fix-json-rpc-test-coverage",
+      "fix-version-bump-issues"
     ]
   },
   "blockingIssues": [
     {
       "featureId": "multiple",
       "severity": "blocking",
-      "description": "Five reviewed foundation refactor features bundled unrelated package/manifest version bumps into shared-type changes, widening feature scope and changing release metadata outside the feature requirements. Affected features: shared-consolidate-runtime-messages, shared-consolidate-orchestrator-types, shared-consolidate-profile-types, shared-consolidate-json-rpc, and shared-refactor-orchestrator."
+      "description": "Version-metadata violations remain unresolved across the rerun fixes: `fix-runtime-messages-test-coverage`, `fix-profile-test-coverage`, and `fix-json-rpc-test-coverage` each bundled unrelated package/manifest version bumps, and `fix-version-bump-issues` still leaves `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json` at `0.4.61` instead of the documented pre-refactor baseline `0.4.60`."
     },
     {
-      "featureId": "shared-consolidate-runtime-messages",
+      "featureId": "fix-profile-test-coverage",
       "severity": "blocking",
-      "description": "The runtime-message serialization coverage is incomplete: the review found four declared message variants (`assistant_response`, `report_image_captured`, `report_images_selection`, and `session_tabs_update`) missing from the feature's regression coverage, so VAL-TYPES-001 is not fully evidenced."
+      "description": "The original `shared-consolidate-profile-types` blocker is still unresolved: `packages/shared/src/provider-instance.ts` does not make `ProviderInstance` truly share the extracted base shape with `ProfileConfig`, so the rerun added evidence without fixing the underlying type-sharing mismatch."
     },
     {
-      "featureId": "shared-consolidate-orchestrator-types",
+      "featureId": "fix-profile-test-coverage",
       "severity": "blocking",
-      "description": "The reviewed feature commit did not fully complete the promised PlanStatus/CommonTaskStatus alignment because `plan.ts` still carried its own inline status source during that feature range."
+      "description": "The rerun adds two profile suites over the mission hard limit: `tests/unit/suites/profile/core.test.ts` (240 lines) and `tests/unit/suites/profile/connection.test.ts` (238 lines)."
     },
     {
-      "featureId": "shared-consolidate-profile-types",
+      "featureId": "fix-json-rpc-test-coverage",
       "severity": "blocking",
-      "description": "The provider/profile refactor only partially extracted the shared base typing and still lacks dedicated unit-test evidence for `createProfile`, `resolveProfile`, and profile/provider compatibility required by VAL-TYPES-004."
-    },
-    {
-      "featureId": "shared-consolidate-json-rpc",
-      "severity": "blocking",
-      "description": "The JSON-RPC consolidation lacks dedicated unit-test coverage for `isJsonRpcRequest`, `isJsonRpcNotification`, and `isJsonRpcResponse`, so VAL-TYPES-005 is not adequately substantiated."
+      "description": "The rerun adds `tests/unit/suites/json-rpc-type-guards.test.ts` at 285 lines, violating the mission and skill 200-line file limit."
     }
   ],
-  "appliedUpdates": [
-    {
-      "target": "library",
-      "description": "Added `.factory/library/shared-foundation-notes.md` documenting the current shared-package module layout, the runtime-message entrypoint and 22-variant union, the `ToolDefinition` move into `json-rpc.ts`, and the fact that `npm run test:unit` ignores extra CLI filters like `-- --grep` because `tests/unit/run-unit-tests.ts` hard-codes suite registration.",
-      "sourceFeature": "multiple foundation shared refactors"
-    }
-  ],
+  "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "refactor-worker skill",
-      "suggestion": "Replace the `npm run test:unit -- --grep '<pattern>'` guidance with repo-accurate instructions that explain the current unit runner ignores CLI grep filters, and require workers to add/register a focused suite when a validation contract depends on specific unit-test evidence.",
-      "evidence": "shared-consolidate-profile-types and shared-consolidate-json-rpc both relied on grep-style guidance even though `tests/unit/run-unit-tests.ts` hard-codes suites; both reviews also flagged missing contract-specific unit-test evidence.",
+      "suggestion": "Add an explicit final diff review step that rejects package/manifest version bumps outside release work, enforces the 200-line limit for every touched file (including tests), and forbids `followedProcedure: true` unless the full documented validation sequence is actually recorded in the handoff.",
+      "evidence": "Rerun reviews for `fix-runtime-messages-test-coverage`, `fix-profile-test-coverage`, and `fix-json-rpc-test-coverage` all found forbidden version bumps; the latter two also shipped over-limit test files, and all three handoffs still implied procedure compliance despite missing parts of the documented validation sequence.",
       "isSystemic": true
     },
     {
       "target": "refactor-worker skill",
-      "suggestion": "Add `npm run check:repo-standards` to the required final validation sequence and explicitly require workers to record deviations when they skip any listed validator.",
-      "evidence": "shared-consolidate-orchestrator-types and shared-refactor-orchestrator reviews both flagged the missing repo-standards check; shared-consolidate-plan-types also showed a mismatch between the skill's stated validation procedure and the worker's recorded `followedProcedure: true` handoff.",
-      "isSystemic": true
+      "suggestion": "Document how no-op fixes should record provenance: when the defect was already resolved earlier in branch history, workers should cite the actual resolving commit (or explicitly mark the fix as no-op) rather than attaching the current HEAD commit to the handoff.",
+      "evidence": "The `fix-orchestrator-planstatus-alignment` review passed on current code state, but the worker session made no code changes and still reported unrelated HEAD commit `75fbc10` as the fix commit, obscuring where the alignment actually landed.",
+      "isSystemic": false
     },
     {
       "target": "AGENTS.md",
-      "suggestion": "Add a mission-wide guardrail that non-release refactor features must not bundle package or manifest version bumps unless the feature explicitly changes release/versioning metadata.",
-      "evidence": "Unrelated version bumps were reported in five reviewed foundation features: shared-consolidate-runtime-messages, shared-consolidate-orchestrator-types, shared-consolidate-profile-types, shared-consolidate-json-rpc, and shared-refactor-orchestrator.",
+      "suggestion": "Tighten the version-cleanup guardrail to say that when a fix must preserve an exact historical version, workers should bypass auto-bumping hooks (`--no-verify` or equivalent) instead of relying on staging only the version files.",
+      "evidence": "The `fix-version-bump-issues` worker staged only `package.json` and the two manifests, but the pre-commit hook rebumped them from `0.4.60` to `0.4.61`, leaving the original blocking issue unresolved.",
       "isSystemic": true
     }
   ],
   "rejectedObservations": [
     {
-      "observation": "The runtime-message review noted that the handoff commitId pointed to a cleanup commit instead of the substantive implementation commit.",
-      "reason": "single-case process issue; not enough evidence yet to codify as a systemic rule change"
+      "observation": "Runtime-message shared-state docs still disagree about whether the entrypoint is `runtime-message-definitions.ts` or `runtime-messages.ts` and whether there are 21 or 22 variants.",
+      "reason": "already-documented and partly mission-scoped; `.factory/library/shared-foundation-notes.md` already records the current runtime-message structure, and updating mission contract/docs is outside this validator run."
     },
     {
-      "observation": "The runtime-message review also cited stale mission validation-contract wording that still says 21 runtime message variants.",
-      "reason": "mission artifact is outside the validator's low-risk apply-now scope; the actionable repo knowledge was captured in the new library note instead"
+      "observation": "`.factory/library/architecture.md` still points to removed shared provider/layout files such as `providers.ts` and older orchestrator structure.",
+      "reason": "duplicate with existing library coverage in `.factory/library/shared-foundation-notes.md`; no additional low-risk service/library update was required during this rerun."
     }
   ],
-  "previousRound": null
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.round-1.json"
 }
