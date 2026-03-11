@@ -179,6 +179,11 @@ check_unit_tests() {
 }
 
 bump_version() {
+  if [ "${DISABLE_VERSION_BUMP:-0}" = "1" ]; then
+    log_info "Version bump disabled via DISABLE_VERSION_BUMP=1"
+    return 0
+  fi
+
   log_info "Incrementing version..."
   node scripts/bump-version.mjs 2>&1
   local new_version
