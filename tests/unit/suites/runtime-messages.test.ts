@@ -204,4 +204,166 @@ export function runRuntimeMessagesSuite(runner: TestRunner) {
       'Should reject non-numeric timestamps',
     );
   });
+
+  runner.test('assistant_response message serializes and deserializes correctly', () => {
+    const message = {
+      schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
+      type: 'assistant_response' as const,
+      runId: 'run-test',
+      sessionId: 'session-test',
+      turnId: 'turn-1',
+      timestamp: Date.now(),
+      content: 'This is the assistant response content',
+      thinking: 'I should respond thoughtfully',
+      model: 'claude-3-5-sonnet',
+    };
+    const json = JSON.stringify(message);
+    const parsed = JSON.parse(json);
+    runner.assertTrue(isRuntimeMessage(parsed), 'assistant_response should validate');
+    runner.assertEqual(parsed.type, 'assistant_response', 'Type should be preserved');
+    runner.assertEqual(parsed.content, message.content, 'Content should be preserved');
+    runner.assertEqual(parsed.thinking, message.thinking, 'Thinking should be preserved');
+    runner.assertEqual(parsed.model, message.model, 'Model should be preserved');
+  });
+
+  runner.test('assistant_response message handles minimal variant', () => {
+    const message = {
+      schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
+      type: 'assistant_response' as const,
+      runId: 'run-test',
+      sessionId: 'session-test',
+      timestamp: Date.now(),
+      content: 'Simple response',
+    };
+    const json = JSON.stringify(message);
+    const parsed = JSON.parse(json);
+    runner.assertTrue(isRuntimeMessage(parsed), 'Minimal assistant_response should validate');
+    runner.assertEqual(parsed.content, 'Simple response', 'Content should be preserved');
+  });
+
+  runner.test('report_image_captured message serializes and deserializes correctly', () => {
+    const message = {
+      schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
+      type: 'report_image_captured' as const,
+      runId: 'run-test',
+      sessionId: 'session-test',
+      timestamp: Date.now(),
+      image: {
+        id: 'img-123',
+        dataUrl:
+          'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==',
+        capturedAt: Date.now(),
+        toolCallId: 'tool-456',
+        tabId: 42,
+        url: 'https://example.com/page',
+        title: 'Example Page',
+        visionDescription: 'A screenshot of the example page',
+        selected: true,
+      },
+      images: [
+        {
+          id: 'img-123',
+          capturedAt: Date.now(),
+          url: 'https://example.com/page',
+          title: 'Example Page',
+          tabId: 42,
+          visionDescription: 'A screenshot of the example page',
+          selected: true,
+        },
+      ],
+      selectedImageIds: ['img-123'],
+    };
+    const json = JSON.stringify(message);
+    const parsed = JSON.parse(json);
+    runner.assertTrue(isRuntimeMessage(parsed), 'report_image_captured should validate');
+    runner.assertEqual(parsed.type, 'report_image_captured', 'Type should be preserved');
+    runner.assertEqual(parsed.image.id, 'img-123', 'Image ID should be preserved');
+    runner.assertEqual(parsed.image.selected, true, 'Selected flag should be preserved');
+    runner.assertEqual(parsed.selectedImageIds.length, 1, 'Selected image IDs should be preserved');
+  });
+
+  runner.test('report_images_selection message serializes and deserializes correctly', () => {
+    const message = {
+      schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
+      type: 'report_images_selection' as const,
+      runId: 'run-test',
+      sessionId: 'session-test',
+      timestamp: Date.now(),
+      images: [
+        {
+          id: 'img-1',
+          capturedAt: Date.now() - 1000,
+          url: 'https://example.com/page1',
+          title: 'Page 1',
+          tabId: 1,
+          visionDescription: 'First screenshot',
+          selected: false,
+        },
+        {
+          id: 'img-2',
+          capturedAt: Date.now(),
+          url: 'https://example.com/page2',
+          title: 'Page 2',
+          tabId: 2,
+          visionDescription: 'Second screenshot',
+          selected: true,
+        },
+      ],
+      selectedImageIds: ['img-2'],
+    };
+    const json = JSON.stringify(message);
+    const parsed = JSON.parse(json);
+    runner.assertTrue(isRuntimeMessage(parsed), 'report_images_selection should validate');
+    runner.assertEqual(parsed.type, 'report_images_selection', 'Type should be preserved');
+    runner.assertEqual(parsed.images.length, 2, 'Images array should be preserved');
+    runner.assertEqual(parsed.selectedImageIds[0], 'img-2', 'Selected image IDs should be preserved');
+    runner.assertEqual(parsed.images[0].selected, false, 'First image should be unselected');
+    runner.assertEqual(parsed.images[1].selected, true, 'Second image should be selected');
+  });
+
+  runner.test('session_tabs_update message serializes and deserializes correctly', () => {
+    const message = {
+      schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
+      type: 'session_tabs_update' as const,
+      runId: 'run-test',
+      sessionId: 'session-test',
+      timestamp: Date.now(),
+      tabs: [
+        { id: 1, title: 'Tab One', url: 'https://example.com/one' },
+        { id: 2, title: 'Tab Two', url: 'https://example.com/two' },
+        { id: 3, title: 'Tab Three', url: 'https://example.com/three' },
+      ],
+      activeTabId: 2,
+      maxTabs: 10,
+      groupTitle: 'My Tab Group',
+    };
+    const json = JSON.stringify(message);
+    const parsed = JSON.parse(json);
+    runner.assertTrue(isRuntimeMessage(parsed), 'session_tabs_update should validate');
+    runner.assertEqual(parsed.type, 'session_tabs_update', 'Type should be preserved');
+    runner.assertEqual(parsed.tabs.length, 3, 'Tabs array should be preserved');
+    runner.assertEqual(parsed.activeTabId, 2, 'Active tab ID should be preserved');
+    runner.assertEqual(parsed.maxTabs, 10, 'Max tabs should be preserved');
+    runner.assertEqual(parsed.groupTitle, 'My Tab Group', 'Group title should be preserved');
+    runner.assertEqual(parsed.tabs[0].title, 'Tab One', 'Tab title should be preserved');
+    runner.assertEqual(parsed.tabs[0].url, 'https://example.com/one', 'Tab URL should be preserved');
+  });
+
+  runner.test('session_tabs_update message handles minimal variant', () => {
+    const message = {
+      schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
+      type: 'session_tabs_update' as const,
+      runId: 'run-test',
+      sessionId: 'session-test',
+      timestamp: Date.now(),
+      tabs: [],
+      activeTabId: null,
+      maxTabs: 5,
+    };
+    const json = JSON.stringify(message);
+    const parsed = JSON.parse(json);
+    runner.assertTrue(isRuntimeMessage(parsed), 'Minimal session_tabs_update should validate');
+    runner.assertEqual(parsed.tabs.length, 0, 'Empty tabs array should be preserved');
+    runner.assertEqual(parsed.activeTabId, null, 'Null activeTabId should be preserved');
+  });
 }
