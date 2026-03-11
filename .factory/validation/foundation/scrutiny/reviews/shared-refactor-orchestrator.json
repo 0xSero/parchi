@@ -1,0 +1,45 @@
+{
+  "featureId": "shared-refactor-orchestrator",
+  "reviewedAt": "2026-03-11T00:39:43Z",
+  "commitId": "7a01fac35e9c83e212a4e21a63c3036f1b99b3a7",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The orchestrator split itself is clean and behavior-preserving, but the commit also bumps package and extension versions, which is unrelated release metadata outside this feature's scope.",
+    "issues": [
+      {
+        "file": "package.json",
+        "line": 3,
+        "severity": "blocking",
+        "description": "This refactor commit unexpectedly changes the package version from 0.5.6 to 0.5.7 even though the feature is only about splitting orchestrator helpers. Release version bumps should not be bundled into an internal shared-module refactor."
+      },
+      {
+        "file": "packages/extension/manifest.json",
+        "line": 4,
+        "severity": "blocking",
+        "description": "The Chrome extension manifest version is bumped from 0.5.6 to 0.5.7 as part of this refactor commit. That changes shipped extension metadata without being part of the feature requirements."
+      },
+      {
+        "file": "packages/extension/manifest.firefox.json",
+        "line": 15,
+        "severity": "blocking",
+        "description": "The Firefox manifest version is also bumped from 0.5.6 to 0.5.7 in this refactor commit. This is another release-scoped side effect unrelated to the orchestrator split."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The refactor-worker skill's final validation procedure omits `npm run check:repo-standards`, so a worker can follow the skill and still miss a repo-mandated guardrail before handoff.",
+      "evidence": "Repo AGENTS.md:8 requires `npm run check:repo-standards` before handoff; .factory/skills/refactor-worker/SKILL.md:88-102 lists typecheck, unit tests, lint, and build only; the reviewed transcript/handoff verification shows those commands but not `check:repo-standards`."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The shared architecture notes are now stale for orchestrator organization: they still describe `shared/src/orchestrator.ts` as the orchestration module and do not mention the new helper modules introduced by this feature.",
+      "evidence": ".factory/library/architecture.md:97 lists only `orchestrator.ts`; commit 7a01fac adds `orchestrator-types.ts`, `task-status-helpers.ts`, `plan-builders.ts`, and `validation-helpers.ts`."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Review failed. The orchestrator helper split looks behavior-preserving, but the commit also includes unrelated package/manifest version bumps that should be removed from this feature before merge."
+}
