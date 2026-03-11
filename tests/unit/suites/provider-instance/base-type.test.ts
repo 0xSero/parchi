@@ -40,12 +40,13 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     runner.assertEqual(baseFields.length, CONNECTION_CONFIG_FIELDS.length);
   });
 
-  runner.test('ProviderInstance extends Partial<ProviderInstanceBase>', () => {
+  runner.test('ProviderInstance extends Partial<ProviderInstanceBase> except provider', () => {
     // ProviderInstance should accept partial base fields since auth types vary
+    // but 'provider' is now required as the canonical field
     const minimalProvider: ProviderInstance = {
       id: 'test',
       name: 'Test',
-      providerType: 'openai',
+      provider: 'openai',
       authType: 'managed',
       isConnected: false,
       models: [],
@@ -53,8 +54,9 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
       updatedAt: Date.now(),
     };
 
-    // No connection fields required for managed auth
-    runner.assertEqual(minimalProvider.provider, undefined);
+    // provider is required and canonical
+    runner.assertEqual(minimalProvider.provider, 'openai');
+    // Other connection fields optional for managed auth
     runner.assertEqual(minimalProvider.model, undefined);
     runner.assertEqual(minimalProvider.apiKey, undefined);
   });
@@ -63,11 +65,10 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     const fullProvider: ProviderInstance = {
       id: 'full',
       name: 'Full Provider',
-      providerType: 'openai',
+      provider: 'openai',
       authType: 'api-key',
       isConnected: true,
       models: [{ id: 'gpt-4o' }],
-      provider: 'openai',
       model: 'gpt-4o',
       apiKey: 'sk-test',
       customEndpoint: 'https://api.openai.com',
@@ -94,15 +95,14 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
       extraHeaders: {},
     });
 
-    // ProviderInstance has same fields but as Partial
+    // ProviderInstance has same fields but as Partial (except provider which is required)
     const provider: ProviderInstance = {
       id: 'anthropic-provider',
       name: 'Anthropic',
-      providerType: 'anthropic',
+      provider: 'anthropic',
       authType: 'api-key',
       isConnected: true,
       models: [{ id: 'claude-3-opus' }],
-      provider: 'anthropic',
       model: 'claude-3-opus',
       apiKey: 'sk-ant-test',
       customEndpoint: '',
@@ -129,7 +129,7 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'openai-provider',
       name: 'OpenAI',
-      providerType: 'openai',
+      provider: 'openai',
       authType: 'api-key',
       isConnected: true,
       models: [{ id: 'gpt-4o' }],
@@ -152,11 +152,11 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     runner.assertEqual(profileConnection.extraHeaders?.['X-Key'], providerConnection.extraHeaders?.['X-Key']);
   });
 
-  runner.test('providerType maps to provider field in extraction', () => {
+  runner.test('provider field is used directly in extraction', () => {
     const provider: ProviderInstance = {
       id: 'test',
       name: 'Test',
-      providerType: 'anthropic',
+      provider: 'anthropic',
       authType: 'api-key',
       isConnected: true,
       models: [],
@@ -166,6 +166,6 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
 
     const connection = extractConnectionFromProvider(provider);
     runner.assertEqual(connection.provider, 'anthropic');
-    runner.assertEqual(provider.providerType, 'anthropic');
+    runner.assertEqual(provider.provider, 'anthropic');
   });
 }

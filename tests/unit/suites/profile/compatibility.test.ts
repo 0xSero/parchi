@@ -60,7 +60,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     const providerInstance: ProviderInstance = {
       id: 'migrated-provider',
       name: 'Migrated Provider',
-      providerType: oldProfileFormat.provider,
+      provider: oldProfileFormat.provider,
       authType: 'api-key',
       isConnected: true,
       models: [{ id: oldProfileFormat.model }],
@@ -104,7 +104,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'test',
       name: 'Test',
-      providerType: 'anthropic',
+      provider: 'anthropic',
       authType: 'api-key',
       isConnected: true,
       models: [],

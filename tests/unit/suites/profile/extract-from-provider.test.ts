@@ -9,7 +9,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'test-provider',
       name: 'Test Provider',
-      providerType: 'openai',
+      provider: 'openai',
       authType: 'api-key',
       isConnected: true,
       models: [{ id: 'gpt-4o' }],
@@ -30,11 +30,11 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     runner.assertEqual(connection.extraHeaders?.['X-Auth'], 'token');
   });
 
-  runner.test('extractConnectionFromProvider maps providerType to provider field', () => {
+  runner.test('extractConnectionFromProvider uses provider field directly', () => {
     const provider: ProviderInstance = {
       id: 'anthropic-provider',
       name: 'Anthropic',
-      providerType: 'anthropic',
+      provider: 'anthropic',
       authType: 'api-key',
       isConnected: true,
       models: [],
@@ -50,7 +50,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'test-provider',
       name: 'Test',
-      providerType: 'openai',
+      provider: 'openai',
       authType: 'api-key',
       isConnected: true,
       models: [{ id: 'gpt-4o' }],
@@ -67,7 +67,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'minimal-provider',
       name: 'Minimal',
-      providerType: 'managed',
+      provider: 'managed',
       authType: 'managed',
       isConnected: false,
       models: [],
@@ -88,7 +88,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'oauth-provider',
       name: 'OAuth Provider',
-      providerType: 'copilot-oauth',
+      provider: 'copilot-oauth',
       authType: 'oauth',
       oauthProviderKey: 'github',
       oauthEmail: 'user@example.com',
@@ -109,7 +109,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'full-provider',
       name: 'Full Provider',
-      providerType: 'openai',
+      provider: 'openai',
       authType: 'oauth',
       oauthProviderKey: 'google',
       oauthEmail: 'test@example.com',

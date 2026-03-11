@@ -18,11 +18,10 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'complete',
       name: 'Complete Provider',
-      providerType: 'custom',
+      provider: 'custom',
       authType: 'api-key',
       isConnected: true,
       models: [{ id: 'custom-model' }],
-      provider: 'custom',
       model: 'custom-model',
       apiKey: 'key123',
       customEndpoint: 'https://custom.api.com',
@@ -33,7 +32,7 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
 
     const connection = extractConnectionFromProvider(provider);
 
-    runner.assertEqual(connection.provider, provider.providerType);
+    runner.assertEqual(connection.provider, provider.provider);
     runner.assertEqual(connection.model, provider.model);
     runner.assertEqual(connection.apiKey, provider.apiKey);
     runner.assertEqual(connection.customEndpoint, provider.customEndpoint);
@@ -52,11 +51,10 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
     const provider: ProviderInstance = {
       id: 'derived-from-profile',
       name: 'OpenRouter from Profile',
-      providerType: profile.provider,
+      provider: profile.provider,
       authType: 'api-key',
       isConnected: true,
       models: [{ id: profile.model }],
-      provider: profile.provider,
       model: profile.model,
       apiKey: profile.apiKey,
       customEndpoint: profile.customEndpoint,
@@ -65,7 +63,7 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
       updatedAt: Date.now(),
     };
 
-    runner.assertEqual(provider.providerType, 'openrouter');
+    runner.assertEqual(provider.provider, 'openrouter');
     runner.assertEqual(provider.model, 'meta-llama/llama-3-70b');
 
     const profileConn = extractConnectionConfig(profile);
@@ -79,7 +77,7 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
     const oauthProvider: ProviderInstance = {
       id: 'oauth-test',
       name: 'OAuth Provider',
-      providerType: 'copilot-oauth',
+      provider: 'copilot-oauth',
       authType: 'oauth',
       oauthProviderKey: 'github',
       oauthEmail: 'user@example.com',
