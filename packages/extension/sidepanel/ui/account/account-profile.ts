@@ -1,88 +1,24 @@
-// Account panel module entry point - imports all account submodules
-import { CONVEX_DEPLOYMENT_URL, getAuthState, hasActiveSubscription } from '../../../convex/client.js';
+import { CONVEX_DEPLOYMENT_URL, getAuthState, hasActiveSubscription, isUsableRuntimeJwt } from '../../../convex/client.js';
+import { buildProviderInstanceId } from '../../../state/provider-registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
-// Import submodules (side-effect registration)
-import './account-auth.js';
-import './account-billing.js';
-import './account-profile.js';
-
-import { ACCOUNT_MODE_KEY, ACCOUNT_MODE_PAID } from './account-mode.js';
+import { ACCOUNT_MODE_BYOK, ACCOUNT_MODE_KEY, ACCOUNT_MODE_PAID, hasConfiguredByokProvider } from './account-mode.js';
 import {
+  ACCOUNT_SETUP_STORAGE_KEYS,
+  collectCandidateProfiles,
   formatCreditBalance,
-  renderLedgerRows,
-  renderUsageCharts,
+  hasConfiguredModel,
+  isManagedProvider,
+  isRecord,
+  MANAGED_PROFILE_NAME,
+  normalizeManagedModelId,
+  PARCHI_PAID_DEFAULT_MODEL,
+  PARCHI_RUNTIME_STATUS_KEY,
+  PARCHI_RUNTIME_STATUS_TTL_MS,
   setHidden,
-  toUsageLabel,
   updateStatusCopy,
 } from './account-utils.js';
-
-sidePanelProto.setAccountUiBusy = function setAccountUiBusy(busy: boolean) {
-  const buttonIds = [
-    'accountSignInBtn',
-    'accountSignUpBtn',
-    'accountGoogleBtn',
-    'accountGithubBtn',
-    'accountUpgradeBtn',
-    'accountManageBtn',
-    'accountRefreshBtn',
-    'accountSignOutBtn',
-    'accountChooseByokBtn',
-    'accountChoosePaidBtn',
-    'setupAccessBtn',
-  ];
-  buttonIds.forEach((id) => {
-    const button = this.elements[id] as HTMLButtonElement | null;
-    if (button) {
-      button.disabled = busy;
-    }
-  });
-};
-
-sidePanelProto.bindAccountEventListeners = function bindAccountEventListeners() {
-  if (this._accountListenersBound) return;
-  this._accountListenersBound = true;
-
-  this.elements.accountChooseByokBtn?.addEventListener('click', () => {
-    void this.chooseAccountMode(ACCOUNT_MODE_BYOK);
-  });
-  this.elements.accountChoosePaidBtn?.addEventListener('click', () => {
-    void this.chooseAccountMode(ACCOUNT_MODE_PAID);
-  });
-  this.elements.accountSignInBtn?.addEventListener('click', () => {
-    void this.handleAccountPasswordAuth('signIn');
-  });
-  this.elements.accountSignUpBtn?.addEventListener('click', () => {
-    void this.handleAccountPasswordAuth('signUp');
-  });
-  this.elements.accountGoogleBtn?.addEventListener('click', () => {
-    void this.handleAccountOAuth('google');
-  });
-  this.elements.accountGithubBtn?.addEventListener('click', () => {
-    void this.handleAccountOAuth('github');
-  });
-  this.elements.accountUpgradeBtn?.addEventListener('click', () => {
-    void this.startAccountCheckout();
-  });
-  this.elements.accountManageBtn?.addEventListener('click', () => {
-    void this.openAccountBillingPortal();
-  });
-  this.elements.accountRefreshBtn?.addEventListener('click', () => {
-    void this.refreshAccountPanel();
-  });
-  this.elements.accountSignOutBtn?.addEventListener('click', () => {
-    void this.signOutFromAccount();
-  });
-
-  // Credit buy buttons (delegated from the row)
-  this.elements.accountBuyCreditsRow?.addEventListener('click', (e: Event) => {
-    const btn = (e.target as HTMLElement)?.closest('.credit-buy-btn') as HTMLElement | null;
-    if (!btn) return;
-    const cents = Number(btn.dataset.cents || 0);
-    if (cents > 0) void this.startCreditCheckout(cents);
-  });
-};
 
 sidePanelProto.ensureManagedProviderDefaults = async function ensureManagedProviderDefaults(
   options: { forceActivate?: boolean } = {},
@@ -114,7 +50,7 @@ sidePanelProto.ensureManagedProviderDefaults = async function ensureManagedProvi
   const activeModelCandidate =
     activeProvider === 'openrouter' || activeProvider === 'parchi' ? String(activeProfile.model || '').trim() : '';
   const existingManagedModel = String(existingManaged.model || '').trim();
-  const prefersLegacyManagedDefault = existingManagedModel === LEGACY_MANAGED_DEFAULT_MODEL;
+  const prefersLegacyManagedDefault = existingManagedModel === 'openai/gpt-4o-mini';
   const resolvedModel = String(
     (existingManagedModel && !prefersLegacyManagedDefault ? existingManagedModel : '') ||
       activeModelCandidate ||
@@ -195,7 +131,13 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
   const hasConfiguredProvider = hasConfiguredByokProvider(stored);
   const profiles = collectCandidateProfiles(stored);
   const hasAnyModel = profiles.some((profile) => hasConfiguredModel(profile));
-  const byokReady = hasRunnableByokProfile(profiles);
+  const byokReady = profiles.some((profile) => {
+    if (!hasConfiguredModel(profile)) return false;
+    const provider = String(profile?.provider || '').trim().toLowerCase();
+    if (!provider || isManagedProvider(provider)) return false;
+    const isOAuth = provider.endsWith('-oauth');
+    return isOAuth || Boolean(String(profile?.apiKey || '').trim());
+  });
   const activeConfig = String(stored.activeConfig || 'default');
   const configs = isRecord(stored.configs) ? stored.configs : {};
   const activeProfile = isRecord(configs[activeConfig]) ? configs[activeConfig] : {};
@@ -426,14 +368,6 @@ sidePanelProto.handleSetupAccessClick = async function handleSetupAccessClick() 
   this.updateStatus('Finish provider setup by adding your API key and model.', 'active');
 };
 
-sidePanelProto.initAccountPanel = async function initAccountPanel() {
-  this.bindAccountEventListeners();
-  await this.refreshAccountPanel({ silent: true });
-  await this.showAccountOnboardingIfNeeded();
-  await this.refreshSetupFlowUi();
-  this.renderOAuthProviderGrid?.();
-};
-
 sidePanelProto.showAccountOnboardingIfNeeded = async function showAccountOnboardingIfNeeded() {
   const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
   const hasChoice = stored[ACCOUNT_MODE_KEY] === ACCOUNT_MODE_BYOK || stored[ACCOUNT_MODE_KEY] === ACCOUNT_MODE_PAID;
@@ -480,264 +414,10 @@ sidePanelProto.chooseAccountMode = async function chooseAccountMode(mode: 'byok'
   await this.refreshSetupFlowUi();
 };
 
-sidePanelProto.handleAccountPasswordAuth = async function handleAccountPasswordAuth(mode: 'signIn' | 'signUp') {
-  const email = String(this.elements.accountEmailInput?.value || '').trim();
-  const password = String(this.elements.accountPasswordInput?.value || '').trim();
-  if (!email || !password) {
-    updateStatusCopy(this, 'Email and password are required.');
-    return;
-  }
-
-  this.setAccountUiBusy(true);
-  try {
-    if (mode === 'signIn') {
-      await signInWithPassword(email, password);
-    } else {
-      await signUpWithPassword(email, password);
-    }
-    await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_PAID });
-    await this.refreshAccountPanel();
-    this.updateStatus(mode === 'signIn' ? 'Signed in' : 'Account created', 'success');
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error ?? 'Unknown auth error');
-    updateStatusCopy(this, message);
-    this.updateStatus('Authentication failed', 'error');
-  } finally {
-    this.setAccountUiBusy(false);
-    await this.refreshSetupFlowUi();
-  }
-};
-
-sidePanelProto.handleAccountOAuth = async function handleAccountOAuth(provider: 'google' | 'github') {
-  this.setAccountUiBusy(true);
-  const previousStoredMode = await chrome.storage.local.get([ACCOUNT_MODE_KEY]);
-  const previousMode = String(previousStoredMode[ACCOUNT_MODE_KEY] || '').toLowerCase();
-  let keepPaidMode = false;
-  try {
-    // OAuth is the paid/proxy path.
-    await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_PAID });
-    const result = await signInWithOAuth(provider);
-
-    if (result?.completed) {
-      keepPaidMode = true;
-      await this.refreshAccountPanel({ silent: true });
-      updateStatusCopy(this, `${provider} sign-in complete. Buy credits to enable Parchi managed access.`);
-      this.updateStatus('Signed in with OAuth', 'success');
-      return;
-    }
-
-    keepPaidMode = true;
-    const redirect = String(result?.redirect || '');
-    if (redirect) {
-      await chrome.tabs.create({ url: redirect });
-      updateStatusCopy(this, `Opened ${provider} sign-in. Complete login in the new tab, then click Refresh.`);
-    } else {
-      updateStatusCopy(this, `Started ${provider} sign-in flow.`);
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error ?? 'OAuth failed');
-    updateStatusCopy(this, message);
-    this.updateStatus('OAuth failed', 'error');
-  } finally {
-    if (!keepPaidMode) {
-      if (previousMode === ACCOUNT_MODE_BYOK || previousMode === ACCOUNT_MODE_PAID) {
-        await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: previousMode });
-      } else {
-        await chrome.storage.local.remove([ACCOUNT_MODE_KEY]);
-      }
-    }
-    this.setAccountUiBusy(false);
-    await this.refreshSetupFlowUi();
-  }
-};
-
-sidePanelProto.startAccountCheckout = async function startAccountCheckout() {
-  // Default upgrade goes to $15 credit pack
-  return this.startCreditCheckout(1500);
-};
-
-sidePanelProto.pollForCreditBalanceIncrease = async function pollForCreditBalanceIncrease(initialCreditCents: number) {
-  const runId = Number(this._creditRefreshRunId || 0) + 1;
-  this._creditRefreshRunId = runId;
-
-  for (let attempt = 0; attempt < CREDIT_REFRESH_ATTEMPTS; attempt += 1) {
-    await delay(CREDIT_REFRESH_POLL_MS);
-    if (this._creditRefreshRunId !== runId) return;
-
-    try {
-      const state = await getAuthState({
-        reconcileCredits: true,
-        forceCreditReconcile: attempt === 0 || attempt === CREDIT_REFRESH_ATTEMPTS - 1,
-      });
-      const currentCredits = Number(state.subscription?.creditBalanceCents ?? 0);
-      if (currentCredits > initialCreditCents) {
-        await this.refreshAccountPanel({ silent: true });
-        updateStatusCopy(this, `Credits applied. New balance: ${formatCreditBalance(currentCredits)}.`);
-        this.updateStatus('Credits synced', 'success');
-        return;
-      }
-    } catch {
-      // Ignore polling failures and continue attempts.
-    }
-  }
-
-  if (this._creditRefreshRunId === runId) {
-    updateStatusCopy(this, 'Checkout completed. If balance is unchanged, click Refresh to sync credits.');
-  }
-};
-
-sidePanelProto.startCreditCheckout = async function startCreditCheckout(packageCents: number) {
-  this.setAccountUiBusy(true);
-  try {
-    const currentState = await getAuthState({ reconcileCredits: true });
-    if (!currentState.authenticated) {
-      throw new Error('Sign in first, then buy credits for Parchi managed access.');
-    }
-    const initialCreditCents = Number(currentState.subscription?.creditBalanceCents ?? 0);
-    const result = await createCreditCheckout(packageCents);
-    if (result?.url) {
-      await chrome.tabs.create({ url: String(result.url) });
-      updateStatusCopy(this, 'Stripe checkout opened. Waiting for payment confirmation...');
-      void this.pollForCreditBalanceIncrease(initialCreditCents);
-    } else {
-      throw new Error('Checkout URL was not returned.');
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error ?? 'Checkout failed');
-    updateStatusCopy(this, message);
-    this.updateStatus('Unable to open checkout', 'error');
-  } finally {
-    this.setAccountUiBusy(false);
-  }
-};
-
-sidePanelProto.openAccountBillingPortal = async function openAccountBillingPortal() {
-  this.setAccountUiBusy(true);
-  try {
-    const result = await manageSubscription();
-    if (result?.url) {
-      await chrome.tabs.create({ url: String(result.url) });
-      updateStatusCopy(this, 'Billing portal opened in a new tab.');
-    } else {
-      throw new Error('Billing portal URL was not returned.');
-    }
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error ?? 'Billing portal failed');
-    updateStatusCopy(this, message);
-    this.updateStatus('Unable to open billing portal', 'error');
-  } finally {
-    this.setAccountUiBusy(false);
-  }
-};
-
-sidePanelProto.signOutFromAccount = async function signOutFromAccount() {
-  this.setAccountUiBusy(true);
-  try {
-    this._creditRefreshRunId = Number(this._creditRefreshRunId || 0) + 1;
-    await signOutAccount();
-    const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
-    if (hasConfiguredByokProvider(stored)) {
-      await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_BYOK });
-    } else {
-      await chrome.storage.local.remove([ACCOUNT_MODE_KEY]);
-    }
-    await this.refreshAccountPanel({ silent: true });
-    await this.showAccountOnboardingIfNeeded();
-    updateStatusCopy(this, 'Signed out.');
-    this.updateStatus('Signed out', 'success');
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error ?? 'Sign-out failed');
-    updateStatusCopy(this, message);
-    this.updateStatus('Sign out failed', 'error');
-  } finally {
-    this.setAccountUiBusy(false);
-    await this.refreshSetupFlowUi();
-  }
-};
-
-sidePanelProto.refreshAccountPanel = async function refreshAccountPanel({ silent = false } = {}) {
-  if (!CONVEX_DEPLOYMENT_URL) {
-    setHidden(this.elements.accountAuthUnavailable, false);
-    setHidden(this.elements.accountAuthSignedOut, true);
-    setHidden(this.elements.accountAuthSignedIn, true);
-    updateStatusCopy(this, 'Paid mode unavailable in this build. Use BYOK or set CONVEX_URL and rebuild.');
-    this.syncAccountAvatar?.();
-    await this.refreshSetupFlowUi();
-    return;
-  }
-
-  setHidden(this.elements.accountAuthUnavailable, true);
-  this.setAccountUiBusy(true);
-
-  try {
-    const state = await getAuthState({ reconcileCredits: true, forceCreditReconcile: !silent });
-    if (!state.authenticated) {
-      setHidden(this.elements.accountAuthSignedOut, false);
-      setHidden(this.elements.accountAuthSignedIn, true);
-      updateStatusCopy(this, 'Not signed in. Sign in and buy credits, or use BYOK in Setup.');
-      this.syncAccountAvatar?.();
-      if (!silent) this.updateStatus('Account: signed out', 'warning');
-      return;
-    }
-
-    setHidden(this.elements.accountAuthSignedOut, true);
-    setHidden(this.elements.accountAuthSignedIn, false);
-
-    const userEmail = String(state.user?.email || 'Unknown user');
-    const sub = state.subscription || null;
-    const creditCents = Number(sub?.creditBalanceCents ?? 0);
-    const hasCredits = creditCents > 0;
-    const paidActive = hasActiveSubscription(sub);
-    const hasAccess = hasCredits || paidActive;
-    const planLabel = paidActive ? 'Pro (active)' : hasCredits ? 'Credits' : `Free (${sub?.status || 'inactive'})`;
-    const monthSpendCents = Number(sub?.cost?.netSpendCents ?? 0);
-    const recentTransactions = Array.isArray(sub?.recentTransactions) ? sub.recentTransactions : [];
-    const lastDebitTx = recentTransactions.find(
-      (transaction) =>
-        String(transaction?.direction || '').toLowerCase() === 'debit' && transaction?.status !== 'denied',
-    );
-
-    if (this.elements.accountUserValue) this.elements.accountUserValue.textContent = userEmail;
-    if (this.elements.accountCreditBalance)
-      this.elements.accountCreditBalance.textContent = formatCreditBalance(creditCents);
-    if (this.elements.accountPlanValue) this.elements.accountPlanValue.textContent = planLabel;
-    if (this.elements.accountUsageValue) this.elements.accountUsageValue.textContent = toUsageLabel(sub?.usage);
-    if (this.elements.accountCostMonthValue)
-      this.elements.accountCostMonthValue.textContent = formatCreditBalance(monthSpendCents);
-    if (this.elements.accountLastChargeValue) {
-      this.elements.accountLastChargeValue.textContent = lastDebitTx
-        ? `${formatCreditBalance(Number(lastDebitTx?.amountCents ?? 0))} · ${toReadableTransactionType(String(lastDebitTx?.type || 'charge'))}`
-        : '-';
-    }
-    renderLedgerRows(this.elements.accountLedgerList, recentTransactions);
-    renderUsageCharts(this, { transactions: recentTransactions, usage: sub?.usage });
-
-    if (hasAccess) {
-      const stored = await chrome.storage.local.get([ACCOUNT_MODE_KEY]);
-      if (stored[ACCOUNT_MODE_KEY] !== ACCOUNT_MODE_PAID) {
-        await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_PAID });
-      }
-      // Only ensure the managed profile exists; don't force-switch if user picked another profile
-      await this.ensureManagedProviderDefaults();
-    }
-
-    // Show "Buy Credits" row always; hide legacy upgrade if user has credits or a subscription
-    setHidden(this.elements.accountUpgradeBtn, hasAccess);
-    setHidden(this.elements.accountManageBtn, !paidActive);
-    const statusMsg = hasCredits
-      ? `${formatCreditBalance(creditCents)} remaining. Parchi managed route available.`
-      : paidActive
-        ? 'Paid plan active. Parchi managed route available.'
-        : 'No credits. Buy credits or use BYOK to continue.';
-    updateStatusCopy(this, statusMsg);
-    if (!silent) this.updateStatus('Account refreshed', 'success');
-    this.syncAccountAvatar?.();
-  } catch (error) {
-    const message = error instanceof Error ? error.message : String(error ?? 'Failed to refresh account');
-    updateStatusCopy(this, message);
-    if (!silent) this.updateStatus('Unable to load account state', 'error');
-  } finally {
-    this.setAccountUiBusy(false);
-    await this.refreshSetupFlowUi();
-  }
+sidePanelProto.initAccountPanel = async function initAccountPanel() {
+  this.bindAccountEventListeners();
+  await this.refreshAccountPanel({ silent: true });
+  await this.showAccountOnboardingIfNeeded();
+  await this.refreshSetupFlowUi();
+  this.renderOAuthProviderGrid?.();
 };
