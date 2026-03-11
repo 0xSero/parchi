@@ -1,20 +1,11 @@
-import { buildToolSet, resolveLanguageModel } from '../../ai/sdk-client.js';
-import { patchSettingsSnapshot, readSettingsSnapshot } from '../../state/persistence/settings-repository.js';
-import {
-  applyConvexProxyProfile,
-  hasOwnApiKey,
-  injectOAuthTokens,
-  isVisionModelProfile,
-  refreshConvexProxyAuthSession,
-  resolveProfile,
-  resolveRuntimeModelProfile,
-  resolveTeamProfiles,
-} from '../model-profiles.js';
-import { OAUTH_PROVIDER_MAP, inferModelFamily } from './agent-loop-model-selection.js';
+import { readSettingsSnapshot } from '../../state/persistence/settings-repository.js';
+import { isVisionModelProfile } from '../model-profiles.js';
+import { assemblePreparedAgentLoop } from './agent-loop-assembly.js';
+import { buildAgentLoopContext, checkKimiHeaderRequirement, parseBooleanSetting } from './agent-loop-context.js';
+import { buildModelConfig } from './agent-loop-model.js';
+import { inferModelFamilyFromId, resolveAgentProfiles, resolveOauthProviderKey } from './agent-loop-profile.js';
 import type {
-  AgentLoopContext,
   AgentLoopDiagnostics,
-  AgentProfile,
   AgentSettings,
   PreparedAgentLoopBlocked,
   PreparedAgentLoopRun,
@@ -36,14 +27,7 @@ export async function prepareAgentLoopRun(
 ): Promise<PreparedAgentLoopRun | PreparedAgentLoopBlocked> {
   const sessionState = ctx.getSessionState(sessionId);
   const browserTools = ctx.getBrowserTools(sessionId);
-  const settings = (await readSettingsSnapshot()) as AgentSettings;
-
-  settings.enableScreenshots ??= true;
-  settings.sendScreenshotsAsImages ??= false;
-  settings.visionBridge ??= true;
-  settings.toolPermissions ??= { read: true, interact: true, navigate: true, tabs: true, screenshots: true };
-  settings.allowedDomains ??= '';
-  if (!Array.isArray(settings.auxAgentProfiles)) settings.auxAgentProfiles = [];
+  const settings = await loadAgentSettings();
 
   ctx.currentSettings = settings;
   ctx.currentSessionId = sessionId;
@@ -54,129 +38,117 @@ export async function prepareAgentLoopRun(
     console.warn('Failed to configure session tabs:', error);
   }
 
-  const activeProfileName = String(settings.activeConfig || 'default');
-  const orchestratorProfileName = String(settings.orchestratorProfile || activeProfileName);
-  const visionProfileName = settings.visionProfile ? String(settings.visionProfile) : null;
+  const profilesResult = await resolveAgentProfiles(settings, diagnostics, ctx, runMeta, sessionState);
+  if ('blocked' in profilesResult) return profilesResult;
+
+  const { activeProfile, orchestratorProfile, visionProfile, runtimeProfileResolution, teamProfiles } = profilesResult;
   const orchestratorEnabled = settings.useOrchestrator === true;
-  const teamProfiles = resolveTeamProfiles(settings);
-  const activeProfile = resolveProfile(settings, activeProfileName) as AgentProfile;
-  let orchestratorProfile = (
-    orchestratorEnabled ? resolveProfile(settings, orchestratorProfileName) : activeProfile
-  ) as AgentProfile;
-  let visionProfile = (
-    settings.visionBridge !== false ? resolveProfile(settings, visionProfileName || activeProfileName) : null
-  ) as AgentProfile | null;
 
-  if (!hasOwnApiKey(orchestratorProfile)) await refreshConvexProxyAuthSession(settings);
+  checkKimiHeaderRequirement(
+    { active: activeProfile, orchestrator: orchestratorProfile, vision: visionProfile },
+    ctx,
+    sessionId,
+    ctx.sendRuntime.bind(ctx),
+    runMeta,
+  );
 
-  let runtimeProfileResolution = resolveRuntimeModelProfile(
+  const streamEnabled = parseBooleanSetting(settings.streamResponses as boolean | string | undefined, true);
+  const showThinking = parseBooleanSetting(settings.showThinking as boolean | string | undefined, true);
+  diagnostics.streamResponsesEnabled = streamEnabled;
+
+  const context = await buildAgentLoopContext(
+    ctx,
+    settings,
+    orchestratorProfile,
+    teamProfiles,
+    orchestratorEnabled,
+    showThinking,
+  );
+  const matchedSkillsResult = await getMatchedSkills(String(context.currentUrl || ''));
+  const preparedHistory = prepareConversationHistory(userMessage, conversationHistory, recordedContext);
+
+  emitHistoryPrepared(ctx, runMeta, sessionState, preparedHistory);
+
+  const tools = ctx.getToolsForSession(
+    settings,
+    orchestratorEnabled,
+    teamProfiles,
+    isVisionModelProfile(orchestratorProfile),
+  );
+  const modelRetryOrder = buildModelRetryOrder(
+    String(orchestratorProfile.model || settings.model || ''),
+    orchestratorProfile.provider || '',
+  );
+  const oauthProviderKey = resolveOauthProviderKey(orchestratorProfile.provider || '');
+  const requestedModelFamily = inferModelFamilyFromId(String(orchestratorProfile.model || settings.model || ''));
+  const openRouterLikeProvider = ['openrouter', 'parchi'].includes(
+    String(orchestratorProfile.provider || '').toLowerCase(),
+  );
+
+  const modelConfig = buildModelConfig(
     orchestratorProfile,
     settings,
-  ) as PreparedAgentLoopRun['runtimeProfileResolution'];
-  diagnostics.benchmarkRoute = runtimeProfileResolution.route;
-  diagnostics.benchmarkProvider = String(orchestratorProfile?.provider || '');
-  diagnostics.benchmarkModel = String(orchestratorProfile?.model || settings.model || '');
-  if (!runtimeProfileResolution.allowed) {
-    return {
-      blocked: true,
-      message: runtimeProfileResolution.errorMessage || 'Please configure your API key in settings',
-    };
-  }
-  if (runtimeProfileResolution.route === 'oauth') {
-    try {
-      orchestratorProfile = (await injectOAuthTokens(runtimeProfileResolution.profile)) as AgentProfile;
-    } catch (error) {
-      const canFallbackToActiveProfile = orchestratorEnabled && orchestratorProfileName !== activeProfileName;
-      if (!canFallbackToActiveProfile) throw error;
-      const activeRuntimeProfile = resolveRuntimeModelProfile(
-        activeProfile,
-        settings,
-      ) as PreparedAgentLoopRun['runtimeProfileResolution'];
-      if (!activeRuntimeProfile.allowed) throw error;
-      ctx.sendRuntime(runMeta, {
-        type: 'run_warning',
-        message: `Orchestrator profile OAuth session is unavailable. Falling back to active profile "${activeProfileName}".`,
-      });
-      ctx.emitTokenTrace(runMeta, sessionState, {
-        action: 'profile_fallback',
-        reason: 'history_sanitized',
-        note: `Orchestrator OAuth unavailable. Falling back to active profile "${activeProfileName}".`,
-        details: {
-          fromProfile: orchestratorProfileName,
-          toProfile: activeProfileName,
-          route: runtimeProfileResolution.route,
-        },
-      });
-      runtimeProfileResolution = activeRuntimeProfile;
-      orchestratorProfile =
-        activeRuntimeProfile.route === 'oauth'
-          ? ((await injectOAuthTokens(activeRuntimeProfile.profile)) as AgentProfile)
-          : activeRuntimeProfile.profile;
-      diagnostics.benchmarkRoute = runtimeProfileResolution.route;
-      diagnostics.benchmarkProvider = String(orchestratorProfile?.provider || diagnostics.benchmarkProvider);
-      diagnostics.benchmarkModel = String(orchestratorProfile?.model || diagnostics.benchmarkModel);
-    }
-  } else {
-    orchestratorProfile = runtimeProfileResolution.profile;
-  }
+    tools,
+    ctx,
+    runMeta,
+    visionProfile,
+    modelRetryOrder,
+  );
 
   diagnostics.latestErrorContext = {
     route: runtimeProfileResolution.route,
     provider: String(orchestratorProfile?.provider || ''),
     proxyProvider: String(orchestratorProfile.proxyProvider || ''),
-    model: String(orchestratorProfile?.model || settings.model || ''),
+    model: String(orchestratorProfile?.model || modelConfig.activeModelId || ''),
     useProxy: Boolean(orchestratorProfile.useProxy),
   };
-  if (visionProfile && !hasOwnApiKey(visionProfile) && runtimeProfileResolution.route === 'proxy') {
-    visionProfile = applyConvexProxyProfile(visionProfile, settings) as AgentProfile;
+
+  return assemblePreparedAgentLoop({
+    ctx,
+    runMeta,
+    abortSignal,
+    settings,
+    sessionState,
+    browserTools,
+    profiles: { activeProfile, orchestratorProfile, visionProfile, runtimeProfileResolution },
+    flags: { streamEnabled, showThinking, openRouterLikeProvider, oauthProviderKey, requestedModelFamily },
+    context,
+    matchedSkillsResult,
+    preparedHistory: {
+      normalizedHistory: preparedHistory.normalizedHistory,
+      recordedImages: preparedHistory.recordedImages,
+    },
+    modelConfig,
+    diagnostics,
+  });
+}
+
+async function loadAgentSettings(): Promise<AgentSettings> {
+  const settings = (await readSettingsSnapshot()) as AgentSettings;
+  settings.enableScreenshots ??= true;
+  settings.sendScreenshotsAsImages ??= false;
+  settings.visionBridge ??= true;
+  settings.toolPermissions ??= { read: true, interact: true, navigate: true, tabs: true, screenshots: true };
+  settings.allowedDomains ??= '';
+  if (!Array.isArray(settings.auxAgentProfiles)) settings.auxAgentProfiles = [];
+  return settings;
+}
+
+function buildModelRetryOrder(activeModelId: string, provider: string): string[] {
+  const order = [activeModelId];
+  if (['openrouter', 'parchi'].includes(provider.toLowerCase())) {
+    if (!order.includes('openrouter/auto')) order.push('openrouter/auto');
+    if (!order.includes('openai/gpt-4o-mini')) order.push('openai/gpt-4o-mini');
   }
+  return order;
+}
 
-  const kimiInUse =
-    activeProfile?.provider === 'kimi' ||
-    orchestratorProfile?.provider === 'kimi' ||
-    visionProfile?.provider === 'kimi';
-  if (kimiInUse && !ctx.kimiHeaderRuleOk && !sessionState.kimiWarningSent) {
-    sessionState.kimiWarningSent = true;
-    ctx.sendRuntime(runMeta, {
-      type: 'run_warning',
-      message:
-        'Kimi requires User-Agent "coding-agent". This browser runtime could not configure a compatible header rewrite path (DNR/webRequest), so requests may fail. Use a build with header rewrite support or route through a proxy that sets this header.',
-    });
-  }
-
-  const visionToolsEnabled = isVisionModelProfile(orchestratorProfile);
-  const tools = ctx.getToolsForSession(settings, orchestratorEnabled, teamProfiles, visionToolsEnabled);
-  const streamEnabled = settings.streamResponses !== false && settings.streamResponses !== 'false';
-  diagnostics.streamResponsesEnabled = streamEnabled;
-  const showThinking = settings.showThinking !== false && settings.showThinking !== 'false';
-  const enableAnthropicThinking =
-    showThinking &&
-    (orchestratorProfile.provider === 'anthropic' ||
-      orchestratorProfile.provider === 'kimi' ||
-      ((orchestratorProfile.provider === 'openrouter' || orchestratorProfile.provider === 'parchi') &&
-        /claude/i.test(orchestratorProfile.model || '')));
-
-  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const sessionTabs = browserTools.getSessionTabSummaries();
-  const workingTabId: number | null = browserTools.getCurrentSessionTabId() ?? activeTab?.id ?? null;
-  const workingTab = sessionTabs.find((tab) => tab.id === workingTabId);
-  const context: AgentLoopContext = {
-    currentUrl: workingTab?.url || activeTab?.url || 'unknown',
-    currentTitle: workingTab?.title || activeTab?.title || 'unknown',
-    tabId: workingTabId,
-    availableTabs: sessionTabs
-      .filter((tab) => typeof tab.id === 'number')
-      .map((tab) => ({ id: tab.id as number, title: tab.title, url: tab.url })),
-    orchestratorEnabled,
-    teamProfiles,
-    provider: orchestratorProfile.provider || '',
-    model: orchestratorProfile.model || settings.model || '',
-    toolCatalog: tools.map((tool) => ({ name: tool.name, description: tool.description || '' })),
-    showThinking,
-  };
-  const matchedSkillsResult = await getMatchedSkills(String(context.currentUrl || ''));
-  const preparedHistory = prepareConversationHistory(userMessage, conversationHistory, recordedContext);
-
+function emitHistoryPrepared(
+  ctx: PreparedAgentLoopRun['ctx'],
+  runMeta: PreparedAgentLoopRun['runMeta'],
+  sessionState: PreparedAgentLoopRun['sessionState'],
+  preparedHistory: ReturnType<typeof prepareConversationHistory>,
+) {
   ctx.emitTokenTrace(runMeta, sessionState, {
     action: 'history_prepared',
     reason: 'history_sanitized',
@@ -189,102 +161,4 @@ export async function prepareAgentLoopRun(
       replacedLastUserMessage: preparedHistory.shouldReplaceLastUserMessage,
     },
   });
-
-  const activeModelId = String(orchestratorProfile.model || settings.model || '').trim();
-  const model = resolveLanguageModel(orchestratorProfile);
-  const modelRetryOrder = [activeModelId];
-  const oauthProviderKey =
-    OAUTH_PROVIDER_MAP[
-      String(orchestratorProfile.provider || '')
-        .trim()
-        .toLowerCase()
-    ] || null;
-  const requestedModelFamily = inferModelFamily(activeModelId);
-  const openRouterLikeProvider = ['openrouter', 'parchi'].includes(
-    String(orchestratorProfile.provider || '').toLowerCase(),
-  );
-  if (openRouterLikeProvider) {
-    if (!modelRetryOrder.includes('openrouter/auto')) modelRetryOrder.push('openrouter/auto');
-    if (!modelRetryOrder.includes('openai/gpt-4o-mini')) modelRetryOrder.push('openai/gpt-4o-mini');
-  }
-
-  const prepared = {} as PreparedAgentLoopRun;
-  const executeTool = (toolName: string, args: Record<string, unknown>, options: { toolCallId?: string }) =>
-    ctx.executeToolByName(
-      toolName,
-      args,
-      { runMeta, settings, visionProfile: prepared.visionProfile },
-      options.toolCallId,
-    );
-
-  Object.assign(prepared, {
-    ctx,
-    runMeta,
-    abortSignal,
-    settings,
-    sessionState,
-    browserTools,
-    activeProfile,
-    orchestratorProfile,
-    visionProfile,
-    runtimeProfileResolution,
-    streamEnabled,
-    showThinking,
-    enableAnthropicThinking,
-    context,
-    matchedSkillsResult,
-    currentHistory: preparedHistory.normalizedHistory,
-    recordedImages: preparedHistory.recordedImages,
-    activeModelId,
-    model,
-    modelRetryOrder,
-    oauthProviderKey,
-    oauthFallbackCandidatesLoaded: false,
-    requestedModelFamily,
-    enforceSameFamilyOAuthFallback: oauthProviderKey === 'copilot' && requestedModelFamily.length > 0,
-    openRouterLikeProvider,
-    toolSet: buildToolSet(tools, (toolName, args, options) => executeTool(toolName, args, options)),
-    switchActiveModel(nextModelId: string) {
-      const trimmed = String(nextModelId || '').trim();
-      if (!trimmed) return false;
-      if (trimmed === prepared.activeModelId) return true;
-      prepared.orchestratorProfile = { ...prepared.orchestratorProfile, model: trimmed };
-      prepared.activeModelId = trimmed;
-      prepared.model = resolveLanguageModel(prepared.orchestratorProfile);
-      diagnostics.benchmarkModel = trimmed;
-      return true;
-    },
-    async persistRecoveredModelSelection(nextModelId: string) {
-      if (!prepared.openRouterLikeProvider) return;
-      const trimmed = String(nextModelId || '').trim();
-      if (!trimmed) return;
-      try {
-        const stored = await readSettingsSnapshot();
-        const configName = String(stored.activeConfig || settings.activeConfig || 'default');
-        const configs =
-          stored.configs && typeof stored.configs === 'object' && !Array.isArray(stored.configs)
-            ? { ...stored.configs }
-            : {};
-        const activeConfig =
-          configs[configName] && typeof configs[configName] === 'object' && !Array.isArray(configs[configName])
-            ? { ...configs[configName] }
-            : {};
-        activeConfig.model = trimmed;
-        configs[configName] = activeConfig;
-        await patchSettingsSnapshot({ model: trimmed, configs });
-      } catch {}
-    },
-    captureErrorClassificationContext() {
-      diagnostics.latestErrorContext = {
-        route: prepared.runtimeProfileResolution.route,
-        provider: String(prepared.orchestratorProfile?.provider || ''),
-        proxyProvider: String(prepared.orchestratorProfile.proxyProvider || ''),
-        model: prepared.activeModelId,
-        useProxy: Boolean(prepared.orchestratorProfile.useProxy),
-      };
-      return diagnostics.latestErrorContext;
-    },
-  });
-
-  return prepared;
 }
