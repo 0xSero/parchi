@@ -1,27 +1,27 @@
+/**
+ * Relay Commands - Relay service CLI commands using shared protocol
+ */
+import {
+  executeRelayRun,
+  executeRelayToolCall,
+  executeRelayToolsList,
+  parseJsonFlag,
+  parseTabSelection,
+  printJson,
+} from './relay-protocol.js';
 import { fetchRpc } from './rpc-client.js';
-
-const print = (value: unknown) => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
 
 const die = (msg: string) => {
   console.error(msg);
   process.exit(1);
 };
 
-const readJsonFlag = (raw: string | undefined, fallback: unknown) => {
-  if (!raw) return fallback;
-  try {
-    return JSON.parse(raw);
-  } catch (err) {
-    die(`Invalid JSON: ${err instanceof Error ? err.message : String(err ?? '')}`);
-  }
-};
-
 export async function cmdRelayRpc(positional: string[], flags: Record<string, string>) {
   const method = positional[1];
   if (!method) die('relay rpc: missing method');
-  const params = readJsonFlag(flags.params, undefined);
+  const params = parseJsonFlag(flags.params, undefined);
   const result = await fetchRpc({ method, params });
-  print(result);
+  printJson(result);
 }
 
 export async function cmdRelayDoctor(flags: Record<string, string>) {
@@ -46,7 +46,7 @@ export async function cmdRelayDoctor(flags: Record<string, string>) {
     report.checks.ping = { ok: true, result: ping };
   } catch (err) {
     fail('ping', err);
-    print(report);
+    printJson(report);
     process.exit(2);
   }
 
@@ -95,10 +95,11 @@ export async function cmdRelayDoctor(flags: Record<string, string>) {
 
   if (!skipTool) {
     try {
-      const params = resolvedAgentId
-        ? { agentId: resolvedAgentId, tool: 'getTabs', args: {} }
-        : { tool: 'getTabs', args: {} };
-      const result = await fetchRpc({ method: 'tool.call', params });
+      const result = await executeRelayToolCall({
+        tool: 'getTabs',
+        args: {},
+        agentId: resolvedAgentId ?? undefined,
+      });
       report.checks.forwarding = { ok: true, tool: 'getTabs', result };
     } catch (err) {
       fail('forwarding', err);
@@ -107,72 +108,64 @@ export async function cmdRelayDoctor(flags: Record<string, string>) {
     report.checks.forwarding = { ok: true, skipped: true };
   }
 
-  print(report);
+  printJson(report);
   if (!report.ok) process.exit(2);
 }
 
 export async function cmdRelayAgents() {
   const result = await fetchRpc({ method: 'agents.list' });
-  print(result);
+  printJson(result);
 }
 
 export async function cmdRelayDefaultAgent(positional: string[]) {
   const action = positional[1] || '';
   if (action === 'get') {
-    print(await fetchRpc({ method: 'agents.default.get' }));
+    printJson(await fetchRpc({ method: 'agents.default.get' }));
     return;
   }
   if (action === 'set') {
     const agentId = positional[2];
     if (!agentId) die('relay default-agent set: missing agentId');
-    print(await fetchRpc({ method: 'agents.default.set', params: { agentId } }));
+    printJson(await fetchRpc({ method: 'agents.default.set', params: { agentId } }));
     return;
   }
   die('relay default-agent: expected get|set');
 }
 
 export async function cmdRelayTools(flags: Record<string, string>) {
-  const agentId = flags.agentId;
-  const params = agentId ? { agentId } : undefined;
-  const result = await fetchRpc({ method: 'tools.list', params });
-  print(result);
+  const result = await executeRelayToolsList(flags.agentId);
+  printJson(result);
 }
 
 export async function cmdRelayTool(positional: string[], flags: Record<string, string>) {
   const tool = positional[1];
   if (!tool) die('relay tool: missing toolName');
-  const args = readJsonFlag(flags.args, {});
-  const agentId = flags.agentId;
-  const params = agentId ? { agentId, tool, args } : { tool, args };
-  const result = await fetchRpc({ method: 'tool.call', params });
-  print(result);
+  const args = parseJsonFlag(flags.args, {}) as Record<string, unknown>;
+  const result = await executeRelayToolCall({
+    tool,
+    args,
+    agentId: flags.agentId,
+  });
+  printJson(result);
 }
 
 export async function cmdRelayRun(positional: string[], flags: Record<string, string>) {
   const prompt = positional.slice(1).join(' ').trim();
   if (!prompt) die('relay run: missing prompt');
 
-  const agentId = flags.agentId;
-  const tabsRaw = flags.tabs || 'active';
+  const selectedTabIds = parseTabSelection(flags.tabs);
   const timeoutMs = Number(flags.timeoutMs || 600_000);
-  const selectedTabIds =
-    tabsRaw === 'active'
-      ? null
-      : tabsRaw
-          .split(',')
-          .map((p) => Number(p.trim()))
-          .filter((n) => Number.isFinite(n) && n > 0);
 
-  const startParams: Record<string, unknown> = { prompt };
-  if (selectedTabIds && selectedTabIds.length) startParams.selectedTabIds = selectedTabIds;
-  if (agentId) startParams.agentId = agentId;
+  const result = await executeRelayRun({
+    prompt,
+    agentId: flags.agentId,
+    timeoutMs,
+    selectedTabIds,
+  });
 
-  const started = (await fetchRpc({ method: 'agent.run', params: startParams })) as { runId?: string };
-  const runId = typeof started?.runId === 'string' ? started.runId : '';
-  if (!runId) {
-    print(started);
+  if (!result) {
+    printJson({ error: 'Failed to start run - no runId returned' });
     return;
   }
-  const waited = await fetchRpc({ method: 'run.wait', params: { runId, timeoutMs } });
-  print(waited);
+  printJson(result);
 }

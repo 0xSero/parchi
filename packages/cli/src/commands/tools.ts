@@ -1,12 +1,11 @@
-import { fetchRpc } from '../rpc-client.js';
-
-const print = (value: unknown) => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
+/**
+ * Tools Command - CLI tools command using shared relay protocol
+ */
+import { executeRelayToolCall, executeRelayToolsList, parseJsonFlag, printJson } from '../relay-protocol.js';
 
 export async function cmdTools(flags: Record<string, string>) {
-  const agentId = flags.agentId;
-  const params = agentId ? { agentId } : undefined;
-  const result = await fetchRpc({ method: 'tools.list', params });
-  print(result);
+  const result = await executeRelayToolsList(flags.agentId);
+  printJson(result);
 }
 
 export async function cmdTool(positional: string[], flags: Record<string, string>) {
@@ -15,17 +14,11 @@ export async function cmdTool(positional: string[], flags: Record<string, string
     console.error("Usage: parchi tool <name> [--args='{...}']");
     process.exit(1);
   }
-  let args: unknown = {};
-  if (flags.args) {
-    try {
-      args = JSON.parse(flags.args);
-    } catch {
-      console.error('Invalid JSON for --args');
-      process.exit(1);
-    }
-  }
-  const agentId = flags.agentId;
-  const params = agentId ? { agentId, tool: toolName, args } : { tool: toolName, args };
-  const result = await fetchRpc({ method: 'tool.call', params });
-  print(result);
+  const args = parseJsonFlag(flags.args, {}, 'Invalid JSON for --args') as Record<string, unknown>;
+  const result = await executeRelayToolCall({
+    tool: toolName,
+    args,
+    agentId: flags.agentId,
+  });
+  printJson(result);
 }
