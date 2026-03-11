@@ -11,39 +11,41 @@ export interface ProviderModelEntry {
 }
 
 /**
- * Connection fields shared between ProviderInstance and ProviderConnectionConfig.
- * ProviderInstance uses optional fields since not all auth types require all fields.
+ * Base connection shape shared between ProviderInstance and ProfileConfig.
+ * This type represents the common fields from ProviderConnectionConfig that
+ * are used by both ProfileConfig (direct extension) and ProviderInstance (via ProviderInstanceBase).
  *
- * Note: This extends ProviderConnectionConfig but makes all fields optional
- * to support OAuth and managed auth types that don't require explicit configuration.
+ * @see ProviderConnectionConfig - The full connection config with all fields required
+ * @see ProfileConfig - Extends ProviderConnectionConfig directly for runtime profiles
+ * @see ProviderInstanceBase - Uses this base shape for provider storage
  */
-export interface ProviderInstanceConnection extends Partial<ProviderConnectionConfig> {
-  /** Model identifier (optional for provider instances) */
-  model?: string;
-  /** API key for authentication (optional, required for api-key auth type) */
-  apiKey?: string;
-  /** Custom API endpoint URL (optional) */
-  customEndpoint?: string;
-  /** Additional HTTP headers to include in requests */
-  extraHeaders?: Record<string, string>;
-}
+export type ProviderInstanceBase = Pick<
+  ProviderConnectionConfig,
+  'provider' | 'model' | 'apiKey' | 'customEndpoint' | 'extraHeaders'
+>;
 
 /**
  * A provider instance represents a configured AI provider connection.
  * Contains connection details, authentication state, and available models.
  *
- * The connection fields (model, apiKey, customEndpoint, extraHeaders) correspond
- * to ProviderConnectionConfig but are optional since different auth types
- * require different fields.
+ * ProviderInstance shares the same base connection shape as ProfileConfig:
+ * - Both use provider/model/apiKey/customEndpoint/extraHeaders fields
+ * - ProfileConfig extends ProviderConnectionConfig directly (all fields required)
+ * - ProviderInstance makes these fields optional to support OAuth/managed auth
  *
- * Note: providerType maps to ProviderConnectionConfig.provider for storage compatibility.
+ * Note: The 'provider' field in the base maps to 'providerType' conceptually,
+ * but is stored as 'providerType' for historical compatibility.
  */
-export interface ProviderInstance extends ProviderInstanceConnection {
+export interface ProviderInstance extends Partial<ProviderInstanceBase> {
   /** Unique identifier for this provider instance */
   id: string;
   /** Human-readable name for this provider */
   name: string;
-  /** Provider type identifier (e.g., 'openai', 'anthropic', 'openrouter') - maps to ProviderConnectionConfig.provider */
+  /**
+   * Provider type identifier (e.g., 'openai', 'anthropic', 'openrouter').
+   * Conceptually maps to ProviderInstanceBase.provider / ProviderConnectionConfig.provider.
+   * Stored as 'providerType' for historical storage compatibility.
+   */
   providerType: string;
   /** Authentication method used */
   authType: ProviderInstanceAuthType;
@@ -71,7 +73,9 @@ export interface ProviderInstance extends ProviderInstanceConnection {
  * Extracts connection config fields from a ProviderInstance.
  * Useful for creating a ProviderConnectionConfig from a provider instance.
  *
- * Note: providerType is mapped to provider for compatibility with ProviderConnectionConfig.
+ * Maps ProviderInstance fields to ProviderConnectionConfig:
+ * - providerType → provider (conceptual mapping for storage compatibility)
+ * - model, apiKey, customEndpoint, extraHeaders → passed through
  */
 export function extractConnectionFromProvider(
   provider: ProviderInstance,

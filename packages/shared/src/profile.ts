@@ -10,7 +10,7 @@ export {
 export type {
   ProviderInstance,
   ProviderInstanceAuthType,
-  ProviderInstanceConnection,
+  ProviderInstanceBase,
   ProviderModelEntry,
 } from './provider-instance.js';
 export { extractConnectionFromProvider } from './provider-instance.js';
