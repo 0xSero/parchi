@@ -1,7 +1,7 @@
 {
   "milestone": "sidepanel-ui",
-  "round": 1,
-  "status": "fail",
+  "round": 2,
+  "status": "pass",
   "validatorsRun": {
     "test": {
       "passed": true,
@@ -25,54 +25,19 @@
     }
   },
   "reviewsSummary": {
-    "total": 7,
-    "passed": 5,
-    "failed": 2,
-    "failedFeatures": [
-      "sidepanel-refactor-panel-settings",
-      "sidepanel-refactor-panels-remaining"
-    ]
+    "total": 3,
+    "passed": 3,
+    "failed": 0,
+    "failedFeatures": []
   },
-  "blockingIssues": [
-    {
-      "featureId": "sidepanel-refactor-panel-settings",
-      "severity": "blocking",
-      "description": "`collectProfileEditorData()` rebuilds `apiKey`, `customEndpoint`, and `extraHeaders` from `providerInstance` instead of reading the profile editor inputs, so `saveProfileEdits()` discards edited provider credentials, custom endpoint, and headers instead of persisting them."
-    },
-    {
-      "featureId": "sidepanel-refactor-panels-remaining",
-      "severity": "blocking",
-      "description": "`persistHistory()` no longer stores `contextTranscript`; `loadSession()` and workflow generation still consume `session.contextTranscript` / `contextHistory`, so sessions saved after the refactor lose raw context on reload and downstream workflow generation."
-    }
-  ],
+  "blockingIssues": [],
   "appliedUpdates": [],
-  "suggestedGuidanceUpdates": [
-    {
-      "target": "refactor-worker skill",
-      "suggestion": "For features whose verification steps or fulfilled assertions require manual/browser/e2e evidence, require recorded `interactiveChecks` (or an explicit deviation) before workers can report `followedProcedure: true`.",
-      "evidence": "Reviews for `sidepanel-refactor-panel-core`, `sidepanel-refactor-panel-account`, `sidepanel-refactor-panel-chat`, and `sidepanel-refactor-panel-status` all found e2e-backed UI contracts (`VAL-UI-001`, `VAL-UI-003`, `VAL-CROSS-001`, `VAL-CROSS-005`, `VAL-UI-005`) but no feature-specific interactive verification in the handoffs.",
-      "isSystemic": true
-    },
-    {
-      "target": "mission-worker-base / mission state handling",
-      "suggestion": "Do not leave scrutiny pointed at stale handoff commits: when a later corrective feature-scoped commit supersedes an earlier incomplete handoff, update the recorded completion artifact, and do not mark a feature completed when its handoff returns to the orchestrator with unfinished work.",
-      "evidence": "`sidepanel-refactor-panel-core` was marked completed with handoff commit `28a625d` even though that handoff said oversized files remained and `returnToOrchestrator: true`; a later commit `8ba4387 refactor(panel-core): split 1542-line panel-core.ts into 19 focused modules` brought the files under 200 lines, but mission metadata never advanced to that artifact, so the original scrutiny review targeted the wrong commit.",
-      "isSystemic": false
-    }
-  ],
+  "suggestedGuidanceUpdates": [],
   "rejectedObservations": [
     {
-      "observation": "Treat the original panel-core file-size findings from `.factory/validation/sidepanel-ui/scrutiny/reviews/sidepanel-refactor-panel-core.json` as an open blocker for the current milestone state.",
-      "reason": "Superseded by later feature-scoped commit `8ba4387c4ac7611187e41a7f2cc25142bf3a518f` and confirmed by the supplemental pass review plus current file sizes (`state-manager.ts` 119, `event-handler.ts` 31, `message-processor.ts` 103)."
-    },
-    {
-      "observation": "Recommend a new guidance update about the 200-line mission limit versus `check:repo-standards` using `maxLines=300`.",
-      "reason": "Already documented in `.factory/library/extension-core-notes.md` and prior extension-core scrutiny synthesis; no new action beyond the existing recommendation."
-    },
-    {
-      "observation": "Recommend another generic guidance update that workers must not mark `followedProcedure: true` when required validators or diff reviews were skipped.",
-      "reason": "Already captured repeatedly in prior foundation and extension-core scrutiny syntheses; the sidepanel-ui reviews add more evidence but not a materially different remedy."
+      "observation": "The re-review fix reports again show `refactor-worker` handoffs marking `followedProcedure: true` without the full documented validation sequence, especially the required `npm run test:integration`.",
+      "reason": "already-documented across `.factory/validation/foundation/scrutiny/synthesis.json`, `.factory/validation/extension-core/scrutiny/synthesis.round-2.json`, and the prior sidepanel-ui synthesis; this rerun adds more evidence but not a new remedy."
     }
   ],
-  "previousRound": null
+  "previousRound": ".factory/validation/sidepanel-ui/scrutiny/synthesis.round-1.json"
 }
