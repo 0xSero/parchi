@@ -17,6 +17,7 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   type: 'interact',
   pressKey: 'interact',
   scroll: 'interact',
+  evaluate: 'read',
   getContent: 'read',
   findHtml: 'read',
   screenshot: 'screenshots',

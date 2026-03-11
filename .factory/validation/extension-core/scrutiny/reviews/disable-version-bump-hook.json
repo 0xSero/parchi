@@ -1,0 +1,33 @@
+{
+  "featureId": "disable-version-bump-hook",
+  "reviewedAt": "2026-03-11T11:48:11Z",
+  "commitId": "5f282b716e54da004e37c15d1e8091c68a4b5f77",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Commit `5f282b716e54da004e37c15d1e8091c68a4b5f77` cleanly adds a forward-looking escape hatch for future commits by short-circuiting `bump_version()` when `DISABLE_VERSION_BUMP=1` is set and documenting that workflow in `AGENTS.md`. However, this feature does not address the actual blocker from `fix-ext-version-bumps`: it does not create clean replacement commits or otherwise remove the original bundled version-bump edits from git history, so the historical scope violations called out in the prior review remain unresolved.",
+    "issues": [
+      {
+        "file": ".husky/pre-commit-security.sh",
+        "line": 182,
+        "severity": "blocking",
+        "description": "The new `DISABLE_VERSION_BUMP` guard only affects future executions of `bump_version()`. It does not repair the failed `fix-ext-version-bumps` work: the original offending commits `b2af1aaf5d8acde300b1b777930048db957615a0`, `80a94959b2c822cd9cecb3360c65e50d10350fd5`, `a1c32b9bd31f6c722e58a02aa6bc96430e369731`, `0f8b3ee4480885306977832351478b6313d2c387`, and `b2ce138f06ce8647606cdb940fd1963e01b9e0bd` still remain in history with bundled edits to `package.json:3`, `packages/extension/manifest.json:4`, and `packages/extension/manifest.firefox.json:15`. Because no clean replacement commits were created, the original version-bump scope blocker is still open."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "Repo guidance now has a safer, hook-specific way to avoid version bumps (`DISABLE_VERSION_BUMP=1`), but the `refactor-worker` skill still only tells workers to use `git commit --no-verify` when version metadata changes appear. That leaves workers following the skill alone without the narrower workflow this feature introduced.",
+      "evidence": "AGENTS.md:12-25 documents `DISABLE_VERSION_BUMP=1`, while `.factory/skills/refactor-worker/SKILL.md:123-125` only says to use `git commit --no-verify` to bypass auto-bumping hooks."
+    },
+    {
+      "area": "skills",
+      "observation": "The worker marked `followedProcedure: true` even though the handoff omitted several validations that the assigned `refactor-worker` skill declares mandatory. Either the skill needs an explicit exception path for shell/config-only work or handoffs need to record deviations instead of claiming full procedure compliance.",
+      "evidence": "The disable-version-bump-hook handoff lists only `npm run lint`, `npm run check:repo-standards`, `bash -n .husky/pre-commit-security.sh`, `wc -l`, and `git diff --cached --stat`, yet `.factory/skills/refactor-worker/SKILL.md:93-111` requires typecheck, unit tests, integration tests, lint, repo-standards, build, `git diff --cached --stat`, and `git diff --stat`; the handoff still sets `skillFeedback.followedProcedure: true`."
+    }
+  ],
+  "addressesFailureFrom": "/Users/sero/projects/browser-ai/.factory/validation/extension-core/scrutiny/reviews/fix-ext-version-bumps.json",
+  "summary": "Fail. I reviewed the disable-version-bump-hook handoff/transcript, commit `5f282b7`, and the prior `fix-ext-version-bumps` failure. The new hook flag is a useful process change for future commits, but it does not rewrite or replace the original offending refactor commits, so the historical version-bump scope problem remains unresolved."
+}

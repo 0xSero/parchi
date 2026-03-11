@@ -1,7 +1,7 @@
 import { clickAtTool, clickTool } from './browser-click-tools.js';
 import { pressKeyTool, scrollTool, typeTool } from './browser-input-tools.js';
 import { getVideoInfoTool, screenshotTool, watchVideoTool } from './browser-media-tools.js';
-import { findHtmlTool, getContentTool } from './browser-read-tools.js';
+import { evaluateTool, findHtmlTool, getContentTool } from './browser-read-tools.js';
 import {
   closeTabTool,
   describeSessionTabsTool,
@@ -33,6 +33,7 @@ export function createToolHandlers(delegate: BrowserToolsDelegate): ToolHandlerM
     type: (args) => typeTool(delegate, args),
     pressKey: (args) => pressKeyTool(delegate, args),
     scroll: (args) => scrollTool(delegate, args),
+    evaluate: (args) => evaluateTool(delegate, args),
     getContent: (args) => getContentTool(delegate, args),
     findHtml: (args) => findHtmlTool(delegate, args),
     screenshot: (args) => screenshotTool(delegate, args),

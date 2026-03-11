@@ -3,6 +3,27 @@ import type { ToolDefinition } from '@parchi/shared';
 /** Content extraction and reading tools */
 export const READ_TOOLS = [
   {
+    name: 'evaluate',
+    description: 'Execute JavaScript in the page context and return a JSON-serializable result.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        script: {
+          type: 'string',
+          description:
+            'JavaScript source to execute. It may be an expression or function body. Use return for multi-line bodies.',
+        },
+        args: {
+          type: 'array',
+          description: 'Optional JSON-serializable arguments exposed to the script as args.',
+          items: {},
+        },
+        tabId: { type: 'number', description: 'Optional tab id.' },
+      },
+      required: ['script'],
+    },
+  },
+  {
     name: 'getContent',
     description: 'Extract page content.',
     input_schema: {

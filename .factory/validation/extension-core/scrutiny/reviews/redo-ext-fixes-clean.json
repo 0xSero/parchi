@@ -1,0 +1,21 @@
+{
+  "featureId": "redo-ext-fixes-clean",
+  "reviewedAt": "2026-03-11T11:49:12Z",
+  "commitId": "193c304c5a2e28610dea3fd039d109ae39c00314",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "Reviewed the redo feature definition, redo handoff/transcript skeleton, prior synthesis, prior reviews for `fix-ext-recording-await` and `fix-ext-message-factory-compat`, the original failed fix handoffs, and the clean redo commit chain `fd7b043` -> `4b37c99` -> `193c304`. The original blocking issues are resolved: `packages/extension/background/message-handlers-recording.ts:23-33` again awaits `recordingCoordinator.selectImages()` inside an async try/catch, and `packages/extension/ai/message-factory.ts:5-12,131-136` again accepts legacy top-level `arguments` plus `func`/`tool` aliases when normalizing tool calls. Scope/version-bump concerns are also resolved: `git show --stat` for `4b37c99` and `193c304` shows only the relevant functional file changed in each commit, and current version metadata remains `0.4.60` in `package.json:3`, `packages/extension/manifest.json:4`, and `packages/extension/manifest.firefox.json:15`. No remaining blocking or non-blocking code issues were identified in this redo.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The repo guidance and the refactor-worker skill are now out of sync on how to avoid auto version bumps. This redo succeeded by using the newer `DISABLE_VERSION_BUMP=1` flow, but the skill still tells workers to use `--no-verify` when version bumps appear.",
+      "evidence": "`AGENTS.md:12-22` documents `DISABLE_VERSION_BUMP=1 git commit ...` as the supported way to make clean commits after the hook change, while `.factory/skills/refactor-worker/SKILL.md:123-125` still says to bypass auto-bumping hooks with `--no-verify`."
+    }
+  ],
+  "addressesFailureFrom": "/Users/sero/projects/browser-ai/.factory/validation/extension-core/scrutiny/synthesis.json",
+  "summary": "Pass. The clean redo fully resolves the two prior fix-review blockers: the recording await/error-path behavior and the message-factory legacy alias compatibility are both restored, and the replacement commits no longer bundle any package or manifest version bumps."
+}
