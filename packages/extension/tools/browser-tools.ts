@@ -1,7 +1,4 @@
-import { clickAtTool, clickTool } from './browser-click-tools.js';
-import { pressKeyTool, scrollTool, typeTool } from './browser-input-tools.js';
-import { getVideoInfoTool, screenshotTool, watchVideoTool } from './browser-media-tools.js';
-import { findHtmlTool, getContentTool } from './browser-read-tools.js';
+import { runInAllFrames, runInTab, sendOverlay } from './browser-script-execution.js';
 import {
   captureActiveTabState,
   configureSessionTabsState,
@@ -11,31 +8,20 @@ import {
   resolveSessionWindowIdState,
   updateGroupTitleState,
 } from './browser-session-state.js';
-import {
-  closeTabTool,
-  describeSessionTabsTool,
-  focusTabTool,
-  getTabsTool,
-  groupTabsTool,
-  navigateTool,
-  openTabTool,
-} from './browser-tab-tools.js';
 import { type BrowserToolName, getBrowserToolDefinitions, getBrowserToolMap } from './browser-tool-definitions.js';
+import { type ToolHandlerMap, createToolHandlers, executeTool } from './browser-tool-handlers.js';
 import {
   type ActionOverlayPayload,
   type BrowserToolArgs,
-  type BrowserToolResult,
   DEFAULT_SESSION_GROUP,
   type GroupOptions,
   MAX_SESSION_TABS,
   type SessionTabSummary,
-  formatToolError,
-  isToolSuccess,
 } from './browser-tool-shared.js';
 
 export class BrowserTools {
   tools: Partial<Record<BrowserToolName, true>>;
-  toolHandlers: Record<BrowserToolName, (args: BrowserToolArgs) => Promise<unknown>>;
+  toolHandlers: ToolHandlerMap;
   sessionTabs: Map<number, SessionTabSummary>;
   currentSessionTabId: number | null;
   sessionTabGroupId: number | null;
@@ -50,30 +36,7 @@ export class BrowserTools {
       typeof globalThis.chrome?.tabs?.group === 'function' &&
       typeof globalThis.chrome?.tabGroups?.update === 'function';
     this.tools = getBrowserToolMap(this.supportsTabGroups);
-    this.toolHandlers = {
-      navigate: (args) => navigateTool(this, args),
-      openTab: (args) => openTabTool(this, args),
-      click: (args) => clickTool(this, args),
-      clickAt: (args) => clickAtTool(this, args),
-      type: (args) => typeTool(this, args),
-      pressKey: (args) => pressKeyTool(this, args),
-      scroll: (args) => scrollTool(this, args),
-      getContent: (args) => getContentTool(this, args),
-      findHtml: (args) => findHtmlTool(this, args),
-      screenshot: (args) => screenshotTool(this, args),
-      getTabs: () => getTabsTool(),
-      closeTab: (args) => closeTabTool(this, args),
-      switchTab: (args) => focusTabTool(this, args),
-      focusTab: (args) => focusTabTool(this, args),
-      groupTabs: (args) => groupTabsTool(this, args),
-      describeSessionTabs: () => describeSessionTabsTool(this),
-      watchVideo: (args) => watchVideoTool(this, args),
-      getVideoInfo: (args) => getVideoInfoTool(this, args),
-    };
-  }
-
-  private hasToolHandler(toolName: string): toolName is BrowserToolName {
-    return Object.hasOwn(this.toolHandlers, toolName);
+    this.toolHandlers = createToolHandlers(this);
   }
 
   getToolDefinitions(): ReturnType<typeof getBrowserToolDefinitions> {
@@ -146,19 +109,7 @@ export class BrowserTools {
   }
 
   async executeTool(toolName: string, args: BrowserToolArgs = {}) {
-    try {
-      if (!this.hasToolHandler(toolName)) {
-        return { success: false, error: `Unknown tool: ${toolName}` };
-      }
-      return await this.toolHandlers[toolName](args);
-    } catch (error) {
-      console.error(`Tool execution error (${toolName}):`, error);
-      return {
-        success: false,
-        error: `Tool "${toolName}" failed: ${formatToolError(error)}`,
-        hint: 'Try a different approach or check the arguments.',
-      };
-    }
+    return executeTool(this.toolHandlers, toolName, args);
   }
 
   async resolveTabId(args: BrowserToolArgs = {}) {
@@ -191,56 +142,20 @@ export class BrowserTools {
     tabId: number,
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
-  ): Promise<BrowserToolResult<TResult>> {
-    try {
-      const results = await chrome.scripting.executeScript({
-        target: { tabId },
-        func: func as (...args: unknown[]) => unknown,
-        args: [...args],
-      });
-      return (results?.[0]?.result ?? null) as TResult;
-    } catch (error) {
-      return {
-        success: false,
-        error: 'executeScript failed.',
-        details: formatToolError(error),
-      };
-    }
+  ) {
+    return runInTab(tabId, func, args);
   }
 
   async runInAllFrames<TArgs extends unknown[], TResult>(
     tabId: number,
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
-  ): Promise<BrowserToolResult<TResult>> {
-    try {
-      const results = await chrome.scripting.executeScript({
-        target: { tabId, allFrames: true },
-        func: func as (...args: unknown[]) => unknown,
-        args: [...args],
-      });
-      const successEntry = results.find((entry) => isToolSuccess(entry?.result));
-      if (successEntry?.result) return successEntry.result as TResult;
-      const first = results.find((entry) => entry?.result);
-      return (first?.result ?? null) as TResult;
-    } catch (error) {
-      return {
-        success: false,
-        error: 'executeScript failed (allFrames).',
-        details: formatToolError(error),
-      };
-    }
+  ) {
+    return runInAllFrames(tabId, func, args);
   }
 
   async sendOverlay(tabId: number, payload: ActionOverlayPayload, retries = 0) {
-    try {
-      await chrome.tabs.sendMessage(tabId, { action: 'action_overlay', ...payload });
-    } catch (error) {
-      if (retries > 0) {
-        await new Promise((resolve) => setTimeout(resolve, 300));
-        return this.sendOverlay(tabId, payload, retries - 1);
-      }
-    }
+    return sendOverlay(tabId, payload, retries);
   }
 
   async resolveSessionWindowId(): Promise<number | undefined> {
