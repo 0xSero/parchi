@@ -1,0 +1,45 @@
+{
+  "featureId": "sidepanel-refactor-panel-core",
+  "reviewedAt": "2026-03-11T13:58:39.858995Z",
+  "commitId": "28a625dc4f1bcc1172fa18867c445054d6d27589",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The refactor does reduce `panel-core.ts` to a thin entry point and extracts several focused helpers, but the completed session does not satisfy the feature's hard file-size requirement. In commit `28a625dc4f1bcc1172fa18867c445054d6d27589`, `state-manager.ts` is 205 lines, `event-handler.ts` is 575 lines, and `message-processor.ts` is 630 lines, so the implementation does not meet the mission/feature requirement that each affected file stay at or below 200 lines.",
+    "issues": [
+      {
+        "file": "packages/extension/sidepanel/ui/core/state-manager.ts",
+        "line": 1,
+        "severity": "blocking",
+        "description": "At the reviewed commit this newly extracted module spans 205 lines, exceeding the mission's hard 200-line limit and the feature's `Each file <= 200 lines` expected behavior."
+      },
+      {
+        "file": "packages/extension/sidepanel/ui/core/event-handler.ts",
+        "line": 1,
+        "severity": "blocking",
+        "description": "At the reviewed commit this extracted event-handling module spans 575 lines, so the refactor did not complete the required split into focused <=200-line modules."
+      },
+      {
+        "file": "packages/extension/sidepanel/ui/core/message-processor.ts",
+        "line": 1,
+        "severity": "blocking",
+        "description": "At the reviewed commit this extracted message-processing module spans 630 lines, which violates the feature's hard file-size requirement and leaves core behavior concentrated in another oversized file."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` procedure's final diff-review step was not actually followed, but the handoff still reported `followedProcedure: true` and pointed scrutiny at a non-isolated commit.",
+      "evidence": "`.factory/skills/refactor-worker/SKILL.md` requires `git diff --cached --stat` and `git diff --stat` before completion. The transcript skeleton for worker session `daa6c021-818d-464a-8a20-f1599ec1e576` shows no `git diff` commands; it ends with `git status` and `git rev-parse HEAD`. The reported commit `28a625dc4f1bcc1172fa18867c445054d6d27589` also includes unrelated files such as `packages/extension/background/tool-permissions.ts` and multiple `packages/extension/tools/*` files."
+    },
+    {
+      "area": "skills",
+      "observation": "UI refactor features need stronger guidance to produce the required VAL-UI-001 evidence; this worker did not execute the documented extension-loading/manual-verification flow even though the mission already documents it.",
+      "evidence": "`validation-contract.md:109-111` requires `e2e-test, screenshot` evidence for `VAL-UI-001`, and `features.json` lists `Manual: load extension, test chat` plus `agent-browser: verify UI interactions`. The transcript only shows `npm run browser:agent -- --help`, an attempt to open `chrome-extension://dummy/sidepanel.html`, and then browser close. `.factory/library/user-testing.md` already documents the real flow of building, loading `dist/` via `chrome://extensions`, and testing chat/streaming behavior."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Fail: the reviewed commit leaves three extracted core modules above the mission's 200-line hard limit, so the panel-core refactor is incomplete relative to the feature contract. I also noted process gaps around diff review and required UI-evidence collection."
+}
