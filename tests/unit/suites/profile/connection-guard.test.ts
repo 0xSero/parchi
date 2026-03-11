@@ -1,4 +1,4 @@
-import { type ProviderConnectionConfig, isProviderConnectionConfig } from '../../../../packages/shared/src/profile.js';
+import { type ProviderConnectionConfig, isProviderConnectionConfig } from '@parchi/shared';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 

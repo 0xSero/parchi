@@ -1,4 +1,4 @@
-import { DEFAULT_PROFILE, type ProfileConfig, createProfile } from '../../../../packages/shared/src/profile.js';
+import { DEFAULT_PROFILE, type ProfileConfig, createProfile } from '@parchi/shared';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
