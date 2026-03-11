@@ -4,17 +4,8 @@ import type { Message } from '../../ai/message-schema.js';
 import type { ServiceContext } from '../service-context.js';
 import type { SessionState } from '../service-types.js';
 import { captureCompaction, captureMessage } from '../telemetry.js';
+import { assembleCompactedMessages, buildContinuationMessage } from './compaction-messages.js';
 import type { CompactionCheckSnapshot, RunContextCompactionOptions } from './compaction-shared.js';
-import { buildToolTraceMessage, messageSignature, toContentPreview } from './compaction-trace.js';
-
-function isSafeAnchorMessage(message: Message | null | undefined): message is Message {
-  if (!message) return false;
-  if (message.role === 'tool') return false;
-  if (message.role === 'assistant' && Array.isArray(message.toolCalls) && message.toolCalls.length > 0) {
-    return false;
-  }
-  return true;
-}
 
 export async function applyCompactionResult(
   ctx: ServiceContext,
@@ -38,45 +29,8 @@ export async function applyCompactionResult(
     source: options.source || 'auto',
   };
 
-  const firstAnchor = nextHistory.find((message) => isSafeAnchorMessage(message)) || null;
-  const lastAnchor = [...nextHistory].reverse().find((message) => isSafeAnchorMessage(message)) || null;
-  const toolTraceMessage = buildToolTraceMessage(nextHistory);
-  const latestUserMessage = [...nextHistory].reverse().find((message) => message.role === 'user');
-  const continuationMessage: Message = {
-    role: 'system',
-    content: [
-      'Compaction checkpoint:',
-      '- Continue from the latest user objective.',
-      '- Use this summary + preserved anchors + mini tool traces as source of truth.',
-      '- Do not resend full old history unless explicitly requested.',
-      latestUserMessage ? `Latest user request: ${toContentPreview(latestUserMessage.content, 280)}` : '',
-    ]
-      .filter(Boolean)
-      .join('\n'),
-    meta: {
-      kind: 'summary',
-      summaryOfCount: 1,
-      source: options.source || 'auto',
-    },
-  };
-
-  const compactedCandidates: Array<Message | null> = [
-    summaryMessage,
-    continuationMessage,
-    toolTraceMessage,
-    firstAnchor,
-    ...preserved,
-    lastAnchor,
-  ];
-  const compacted: Message[] = [];
-  const compactedSeen = new Set<string>();
-  for (const candidate of compactedCandidates) {
-    if (!candidate) continue;
-    const signature = messageSignature(candidate);
-    if (compactedSeen.has(signature)) continue;
-    compactedSeen.add(signature);
-    compacted.push(candidate);
-  }
+  const continuationMessage = buildContinuationMessage(nextHistory, options.source || 'auto');
+  const compacted = assembleCompactedMessages(summaryMessage, continuationMessage, nextHistory, preserved);
   const preservedCount = compacted.filter((message) => message.role !== 'system').length;
 
   const newSessionId = `session-${Date.now()}`;
