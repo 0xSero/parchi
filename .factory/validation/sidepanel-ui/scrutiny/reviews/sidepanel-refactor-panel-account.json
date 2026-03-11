@@ -1,0 +1,26 @@
+{
+  "featureId": "sidepanel-refactor-panel-account",
+  "reviewedAt": "2026-03-11T14:00:19Z",
+  "commitId": "09db8b5825a03fedc190faa50397eebfe0f40e52",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "Pass. The commit is a behavior-preserving extraction of the old account panel logic into focused modules: `account-auth.ts` keeps the OAuth/password/sign-out flows, `account-billing.ts` keeps checkout and billing portal handling, `account-profile.ts` plus `account-setup-state.ts` keep the onboarding/setup-state logic, `account-managed.ts` keeps managed-profile/runtime-health handling, and `panel-account.ts` still owns account refresh/login-state rendering. Comparing the extracted modules against the pre-refactor `panel-account.ts`/`account-utils.ts` shows the VAL-UI-003 paths are still covered, and all touched account files are under the 200-line mission limit.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "This feature required UI/auth evidence beyond automated checks, but the refactor workflow did not capture any interactive verification. The validation contract for `VAL-UI-003` expects account auth evidence, and the feature itself required a manual login/logout test, yet the handoff recorded no `interactiveChecks`.",
+      "evidence": "/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/validation-contract.md:117-119 requires account-panel auth evidence for `VAL-UI-003`; /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/features.json:1446-1449 requires `Manual: test login/logout flow`; handoff /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T12-31-06-851Z__sidepanel-refactor-panel-account__3b606825-26b6-4727-8b25-51cfa21a3768.json:20-51 lists only automated commands and line 51 shows `\"interactiveChecks\": []`."
+    },
+    {
+      "area": "skills",
+      "observation": "The handoff marks `followedProcedure: true`, but the transcript does not show the refactor-worker's required baseline unit-test run or final diff review before commit. That makes the skill compliance signal unreliable for scrutiny.",
+      "evidence": "/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md:30-34 requires a baseline `npm run test:unit`, and lines 114-122 require the final diff review checklist before completion. In the transcript skeleton for session `3b606825-26b6-4727-8b25-51cfa21a3768`, /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/worker-transcripts.jsonl lines 85-117 show work starting after file reads with only a `wc -l` baseline, the first `npm run typecheck` appears later at lines 427-431, the first `npm run test:unit` does not appear until lines 675-680 after the refactor was already complete, and lines 762-783 go from `git status --short` directly to `git add` and commit with no `git diff --stat` / `git diff --cached --stat`. The handoff still sets `followedProcedure` to true at /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T12-31-06-851Z__sidepanel-refactor-panel-account__3b606825-26b6-4727-8b25-51cfa21a3768.json:58-60."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed the feature transcript skeleton, handoff, shared-state files, and commit `09db8b5`. The refactor cleanly repartitions the old account-panel logic into focused auth, billing, profile/setup, managed-provider, and rendering modules without changing the underlying authentication or billing flows, so the feature passes code review. I recorded two skill/process observations about missing manual auth evidence and overstated `followedProcedure` reporting."
+}
