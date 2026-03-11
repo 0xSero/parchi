@@ -20,9 +20,17 @@ export async function handleRecordingStop(
   sendResponse({ success: true });
 }
 
-export function handleRecordingSelectImages(ctx: ServiceContext, message: any, sendResponse: (response?: any) => void) {
-  ctx.recordingCoordinator.selectImages(message.selectedIds);
-  sendResponse({ success: true });
+export async function handleRecordingSelectImages(
+  ctx: ServiceContext,
+  message: any,
+  sendResponse: (response?: any) => void,
+) {
+  try {
+    await ctx.recordingCoordinator.selectImages(message.selectedIds);
+    sendResponse({ success: true });
+  } catch (err: any) {
+    sendResponse({ success: false, error: err.message || 'No active recording session' });
+  }
 }
 
 export function handleRecordingDiscard(ctx: ServiceContext, _message: unknown, sendResponse: (response?: any) => void) {
