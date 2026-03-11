@@ -1,70 +1,10 @@
-import {
-  DEFAULT_PROFILE,
-  type ProfileConfig,
-  type ProviderConnectionConfig,
-  type ProviderInstance,
-  extractConnectionConfig,
-  extractConnectionFromProvider,
-  isProviderConnectionConfig,
-} from '../../../../packages/shared/src/profile.js';
+import { type ProviderInstance, extractConnectionFromProvider } from '../../../../packages/shared/src/profile.js';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runProfileConnectionSuite(runner: TestRunner) {
-  log('\n=== Testing Profile Connection Functions ===', 'info');
+export function runExtractFromProviderSuite(runner: TestRunner) {
+  log('\n=== Testing extractConnectionFromProvider ===', 'info');
 
-  // ===== extractConnectionConfig Tests =====
-  runner.test('extractConnectionConfig extracts connection fields from profile', () => {
-    const profile: ProfileConfig = {
-      ...DEFAULT_PROFILE,
-      provider: 'openai',
-      model: 'gpt-4o',
-      apiKey: 'placeholder-api-key',
-      customEndpoint: 'https://api.openai.com',
-      extraHeaders: { 'X-Custom': 'header' },
-    };
-
-    const connection = extractConnectionConfig(profile);
-
-    runner.assertEqual(connection.provider, 'openai');
-    runner.assertEqual(connection.model, 'gpt-4o');
-    runner.assertEqual(connection.apiKey, 'placeholder-api-key');
-    runner.assertEqual(connection.customEndpoint, 'https://api.openai.com');
-    runner.assertEqual(connection.extraHeaders['X-Custom'], 'header');
-  });
-
-  runner.test('extractConnectionConfig excludes non-connection fields', () => {
-    const profile: ProfileConfig = {
-      ...DEFAULT_PROFILE,
-      provider: 'anthropic',
-      systemPrompt: 'This should not be in connection',
-      temperature: 0.5,
-      maxTokens: 4096,
-    };
-
-    const connection = extractConnectionConfig(profile);
-
-    // Connection fields present
-    runner.assertEqual(connection.provider, 'anthropic');
-    // Non-connection fields excluded
-    runner.assertTrue(!('systemPrompt' in connection));
-    runner.assertTrue(!('temperature' in connection));
-    runner.assertTrue(!('maxTokens' in connection));
-  });
-
-  runner.test('extractConnectionConfig handles extraHeaders undefined', () => {
-    const profile: ProfileConfig = {
-      ...DEFAULT_PROFILE,
-      provider: 'test',
-      // extraHeaders is required but could be empty
-      extraHeaders: {},
-    };
-
-    const connection = extractConnectionConfig(profile);
-    runner.assertEqual(Object.keys(connection.extraHeaders).length, 0);
-  });
-
-  // ===== extractConnectionFromProvider Tests =====
   runner.test('extractConnectionFromProvider extracts config from provider instance', () => {
     const provider: ProviderInstance = {
       id: 'test-provider',
@@ -103,7 +43,6 @@ export function runProfileConnectionSuite(runner: TestRunner) {
     };
 
     const connection = extractConnectionFromProvider(provider);
-
     runner.assertEqual(connection.provider, 'anthropic');
   });
 
@@ -121,7 +60,6 @@ export function runProfileConnectionSuite(runner: TestRunner) {
     };
 
     const connection = extractConnectionFromProvider(provider, 'gpt-3.5-turbo');
-
     runner.assertEqual(connection.model, 'gpt-3.5-turbo');
   });
 
@@ -196,43 +134,5 @@ export function runProfileConnectionSuite(runner: TestRunner) {
     runner.assertEqual(connection.provider, 'openai');
     runner.assertEqual(connection.model, 'gpt-4o');
     runner.assertEqual(connection.extraHeaders?.['X-Request-ID'], '123');
-  });
-
-  // ===== isProviderConnectionConfig Tests =====
-  runner.test('isProviderConnectionConfig accepts valid connection config', () => {
-    const valid: ProviderConnectionConfig = {
-      provider: 'openai',
-      model: 'gpt-4o',
-      apiKey: 'placeholder-api-key',
-      customEndpoint: '',
-      extraHeaders: {},
-    };
-
-    runner.assertTrue(isProviderConnectionConfig(valid));
-  });
-
-  runner.test('isProviderConnectionConfig rejects non-object values', () => {
-    runner.assertFalse(isProviderConnectionConfig(null));
-    runner.assertFalse(isProviderConnectionConfig(undefined));
-    runner.assertFalse(isProviderConnectionConfig('string'));
-    runner.assertFalse(isProviderConnectionConfig(123));
-    runner.assertFalse(isProviderConnectionConfig(true));
-  });
-
-  runner.test('isProviderConnectionConfig rejects objects with wrong types', () => {
-    runner.assertFalse(isProviderConnectionConfig({ provider: 123 }));
-    runner.assertFalse(isProviderConnectionConfig({ model: null }));
-    runner.assertFalse(isProviderConnectionConfig({ apiKey: true }));
-  });
-
-  runner.test('isProviderConnectionConfig accepts config with missing extraHeaders', () => {
-    const withoutHeaders = {
-      provider: 'openai',
-      model: 'gpt-4o',
-      apiKey: 'placeholder-api-key',
-      customEndpoint: '',
-    };
-
-    runner.assertTrue(isProviderConnectionConfig(withoutHeaders));
   });
 }

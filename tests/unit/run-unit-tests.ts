@@ -14,7 +14,10 @@ import { runCodexOauthConfigSuite } from './suites/codex-oauth-config.test.js';
 import { runConversationCompactionSuite } from './suites/conversation-compaction.test.js';
 import { runErrorHandlingSuite } from './suites/error-handling.test.js';
 import { runInputValidationSuite } from './suites/input-validation.test.js';
-import { runJsonRpcTypeGuardsSuite } from './suites/json-rpc-type-guards.test.js';
+import { runJsonRpcMutualExclusivitySuite } from './suites/json-rpc/mutual-exclusivity.test.js';
+import { runJsonRpcNotificationSuite } from './suites/json-rpc/notification.test.js';
+import { runJsonRpcRequestSuite } from './suites/json-rpc/request.test.js';
+import { runJsonRpcResponseSuite } from './suites/json-rpc/response.test.js';
 import { runMessageSchemaSuite } from './suites/message-schema.test.js';
 import { runMessageUtilsSuite } from './suites/message-utils.test.js';
 import { runModelListingSuite } from './suites/model-listing.test.js';
@@ -25,8 +28,12 @@ import { runOrchestratorNormalizationSuite } from './suites/orchestrator-normali
 import { runPanelSessionMemorySuite } from './suites/panel-session-memory.test.js';
 import { runPlanNormalizationSuite } from './suites/plan-normalization.test.js';
 import { runProfileCompatibilitySuite } from './suites/profile/compatibility.test.js';
-import { runProfileConnectionSuite } from './suites/profile/connection.test.js';
-import { runProfileCoreSuite } from './suites/profile/core.test.js';
+import { runConnectionGuardSuite } from './suites/profile/connection-guard.test.js';
+import { runCreateProfileSuite } from './suites/profile/create-profile.test.js';
+import { runExtractConnectionConfigSuite } from './suites/profile/extract-connection-config.test.js';
+import { runExtractFromProviderSuite } from './suites/profile/extract-from-provider.test.js';
+import { runResolveProfileSuite } from './suites/profile/resolve-profile.test.js';
+import { runVisionSettingsSuite } from './suites/profile/vision-settings.test.js';
 import { runRecordingSummarySuite } from './suites/recording-summary.test.js';
 import { runReportImagesSuite } from './suites/report-images.test.js';
 import { runRetryHelpersSuite } from './suites/retry-helpers.test.js';
@@ -67,8 +74,12 @@ export function runUnitTests() {
   runRecordingSummarySuite(runner);
   runPanelSessionMemorySuite(runner);
   runPlanNormalizationSuite(runner);
-  runProfileCoreSuite(runner);
-  runProfileConnectionSuite(runner);
+  runCreateProfileSuite(runner);
+  runResolveProfileSuite(runner);
+  runVisionSettingsSuite(runner);
+  runExtractConnectionConfigSuite(runner);
+  runExtractFromProviderSuite(runner);
+  runConnectionGuardSuite(runner);
   runProfileCompatibilitySuite(runner);
   runRetryHelpersSuite(runner);
   runRuntimeMessagesSuite(runner);
@@ -76,7 +87,10 @@ export function runUnitTests() {
   runStatePersistenceSuite(runner);
   runXmlToolParserSuite(runner);
   runOrchestratorNormalizationSuite(runner);
-  runJsonRpcTypeGuardsSuite(runner);
+  runJsonRpcRequestSuite(runner);
+  runJsonRpcNotificationSuite(runner);
+  runJsonRpcResponseSuite(runner);
+  runJsonRpcMutualExclusivitySuite(runner);
 
   return runner.printSummary();
 }
