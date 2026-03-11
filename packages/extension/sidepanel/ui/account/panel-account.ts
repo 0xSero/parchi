@@ -445,14 +445,14 @@ sidePanelProto.ensureManagedProviderDefaults = async function ensureManagedProvi
   const managedProviderId =
     String(existingManaged.providerId || '') ||
     buildProviderInstanceId({
-      providerType: 'parchi',
+      provider: 'parchi',
       authType: 'managed',
       name: 'Parchi Managed',
     });
   providers[managedProviderId] = {
     id: managedProviderId,
     name: 'Parchi Managed',
-    providerType: 'parchi',
+    provider: 'parchi',
     authType: 'managed',
     isConnected: true,
     models: [{ id: normalizeManagedModelId(resolvedModel), label: normalizeManagedModelId(resolvedModel) }],

@@ -518,7 +518,7 @@ sidePanelProto.populateModelSelect = function populateModelSelect() {
   for (const provider of providers) {
     const optgroup = document.createElement('optgroup');
     optgroup.label = provider.name;
-    const indicator = providerIndicators[provider.providerType.replace(/-oauth$/, '').toLowerCase()] || '◇';
+    const indicator = providerIndicators[provider.provider.replace(/-oauth$/, '').toLowerCase()] || '◇';
     for (const model of provider.models) {
       const option = document.createElement('option');
       option.value = encodeModelSelectValue(provider.id, model.id);
@@ -554,7 +554,7 @@ sidePanelProto.refreshModelCatalogForProfileEditor = async function refreshModel
 
   const providerId = String(providerEl.value || '').trim();
   const providerInstance = getProviderInstance({ providers: this.providers }, providerId);
-  const provider = String(providerInstance?.providerType || '')
+  const provider = String(providerInstance?.provider || '')
     .trim()
     .toLowerCase();
   const currentModel = String(modelInput?.value || modelSelect?.value || '').trim();

@@ -77,7 +77,7 @@ sidePanelProto.renderModelSelectorGrid = function renderModelSelectorGrid() {
   const activeProviderId = activeConfig.providerId || '';
 
   for (const provider of providers) {
-    const svg = getProviderSvg(provider.providerType);
+    const svg = getProviderSvg(provider.provider);
     const label = document.createElement('div');
     label.className = 'model-group-label';
     label.innerHTML = `<span class="provider-logo" style="width:14px;height:14px">${svg}</span> ${this.escapeHtml(provider.name)}`;
@@ -108,7 +108,7 @@ sidePanelProto.selectModelFromGrid = function selectModelFromGrid(providerId: st
   const provider = this.providers?.[providerId];
   if (!provider) return;
 
-  const def = getProviderDefinition(provider.providerType);
+  const def = getProviderDefinition(provider.provider);
   const modelInfo = provider.models?.find((m: any) => m.id === modelId);
   const activeProfile = materializeProfileWithProvider(
     { providers: this.providers, configs: this.configs },
@@ -117,7 +117,7 @@ sidePanelProto.selectModelFromGrid = function selectModelFromGrid(providerId: st
   );
   const shouldRerouteFromOAuthProfile =
     String(this.currentConfig || '').startsWith(OAUTH_PROFILE_PREFIX) &&
-    String(activeProfile?.provider || '').trim() !== provider.providerType;
+    String(activeProfile?.provider || '').trim() !== provider.provider;
   const targetConfigName = shouldRerouteFromOAuthProfile ? 'default' : this.currentConfig;
   if (!this.configs?.[targetConfigName]) {
     this.configs[targetConfigName] = {};
@@ -126,7 +126,7 @@ sidePanelProto.selectModelFromGrid = function selectModelFromGrid(providerId: st
   // Update active config with selected provider + model
   const config = this.configs?.[targetConfigName] || {};
   config.providerId = providerId;
-  config.provider = provider.providerType;
+  config.provider = provider.provider;
   config.providerLabel = provider.name;
   config.apiKey = provider.authType === 'api-key' ? provider.apiKey || '' : '';
   config.modelId = modelId;

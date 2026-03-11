@@ -25,11 +25,11 @@ const slugify = (value: string) =>
     .replace(/^-+|-+$/g, '')
     .slice(0, 60) || 'provider';
 
-const hashBasis = (providerType: string, authType: string, endpoint: string, key: string, name: string) =>
-  `${providerType}|${authType}|${endpoint}|${key}|${name}`.toLowerCase();
+const hashBasis = (provider: string, authType: string, endpoint: string, key: string, name: string) =>
+  `${provider}|${authType}|${endpoint}|${key}|${name}`.toLowerCase();
 
 export const buildProviderInstanceId = (input: {
-  providerType: string;
+  provider: string;
   authType: ProviderInstance['authType'];
   customEndpoint?: string;
   apiKey?: string;
@@ -37,7 +37,7 @@ export const buildProviderInstanceId = (input: {
   name?: string;
 }) => {
   const basis = hashBasis(
-    input.providerType,
+    input.provider,
     input.authType,
     asString(input.customEndpoint),
     input.authType === 'oauth' ? asString(input.oauthProviderKey) : asString(input.apiKey),
@@ -48,13 +48,16 @@ export const buildProviderInstanceId = (input: {
     hash ^= basis.charCodeAt(i);
     hash = Math.imul(hash, 16777619);
   }
-  return `${slugify(input.name || input.providerType)}-${Math.abs(hash >>> 0).toString(36)}`;
+  return `${slugify(input.name || input.provider)}-${Math.abs(hash >>> 0).toString(36)}`;
 };
 
 const normalizeProviderInstance = (value: unknown): ProviderInstance | null => {
   const provider = asRecord(value) as ProviderInstance;
   const id = asString(provider.id);
-  const providerType = normalizeProviderType(provider.providerType);
+  // Support both new 'provider' field and legacy 'providerType' for backward compatibility
+  const providerType = normalizeProviderType(
+    provider.provider ?? (provider as unknown as Record<string, string>).providerType,
+  );
   if (!id || !providerType) return null;
 
   const authType: ProviderInstance['authType'] = providerType.endsWith('-oauth')
@@ -73,7 +76,7 @@ const normalizeProviderInstance = (value: unknown): ProviderInstance | null => {
     ...provider,
     id,
     name: asString(provider.name) || getProviderDefinition(providerType)?.name || id,
-    providerType,
+    provider: providerType,
     authType,
     apiKey: authType === 'api-key' ? apiKey : '',
     customEndpoint: asString(provider.customEndpoint),
@@ -114,7 +117,7 @@ const buildProviderFromProfile = (
   const id =
     asString(profile.providerId) ||
     buildProviderInstanceId({
-      providerType,
+      provider: providerType,
       authType,
       customEndpoint,
       apiKey,
@@ -131,7 +134,7 @@ const buildProviderFromProfile = (
   return {
     id,
     name: providerName,
-    providerType,
+    provider: providerType,
     authType,
     apiKey: authType === 'api-key' ? apiKey : '',
     customEndpoint,
@@ -202,7 +205,7 @@ export const materializeProfileWithProvider = (
     ...profile,
     providerId,
     modelId: modelId || profile.model || '',
-    provider: provider.providerType,
+    provider: provider.provider,
     providerLabel: provider.name,
     apiKey: provider.authType === 'api-key' ? asString(provider.apiKey) : '',
     customEndpoint: asString(provider.customEndpoint),

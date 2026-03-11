@@ -563,7 +563,7 @@ sidePanelProto.editProfile = function editProfile(name: string, silent = false) 
 sidePanelProto.collectProfileEditorData = function collectProfileEditorData() {
   const providerId = String(this.elements.profileEditorProvider.value || '').trim();
   const providerInstance = getProviderInstance({ providers: this.providers }, providerId);
-  const provider = String(providerInstance?.providerType || '').trim();
+  const provider = String(providerInstance?.provider || '').trim();
   const rawModel = (
     this.elements.profileEditorModelInput?.value ||
     this.elements.profileEditorModel.value ||

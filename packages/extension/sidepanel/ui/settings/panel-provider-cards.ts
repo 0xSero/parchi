@@ -29,13 +29,13 @@ sidePanelProto.renderApiProviderGrid = function renderApiProviderGrid() {
   const providers = listProviderInstances({ providers: this.providers }).filter(
     (provider) => provider.authType === 'api-key',
   );
-  const configuredTypes = new Set(providers.map((provider) => provider.providerType));
+  const configuredTypes = new Set(providers.map((provider) => provider.provider));
 
   for (const provider of providers) {
     const row = document.createElement('div');
     row.className = `provider-row${provider.isConnected ? ' connected' : ' dim'}`;
     row.dataset.providerId = provider.id;
-    const svg = getProviderSvg(provider.providerType);
+    const svg = getProviderSvg(provider.provider);
     row.innerHTML = `
       <span class="provider-logo">${svg}</span>
       <div class="provider-info">
@@ -84,7 +84,7 @@ sidePanelProto.openProviderEditor = function openProviderEditor(providerKeyOrId:
   if (!editor) return;
 
   const provider = getProviderInstance({ providers: this.providers }, providerKeyOrId);
-  const providerType = provider?.providerType || providerKeyOrId;
+  const providerType = provider?.provider || providerKeyOrId;
   const def = PROVIDER_REGISTRY[providerType];
   if (!def) return;
 
@@ -130,7 +130,7 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
   const providerId =
     existing?.id ||
     buildProviderInstanceId({
-      providerType,
+      provider: providerType,
       authType: 'api-key',
       customEndpoint: endpoint,
       apiKey,
@@ -152,7 +152,7 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
     {
       id: providerId,
       name: existing?.name || def.name,
-      providerType,
+      provider: providerType,
       authType: 'api-key',
       apiKey,
       customEndpoint: endpoint,
@@ -186,7 +186,7 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
         if (fetched.length > 0) {
           const updated = {
             ...this.providers[provider.id],
-            models: mergeProviderModels(provider.providerType, this.providers[provider.id]?.models || [], fetched),
+            models: mergeProviderModels(provider.provider, this.providers[provider.id]?.models || [], fetched),
             updatedAt: Date.now(),
           };
           this.providers = { ...(this.providers || {}), [provider.id]: updated };
@@ -244,7 +244,7 @@ sidePanelProto.populateProviderDropdown = function populateProviderDropdown() {
   for (const provider of providers) {
     const option = document.createElement('option');
     option.value = provider.id;
-    option.textContent = `${provider.name} · ${provider.providerType}`;
+    option.textContent = `${provider.name} · ${provider.provider}`;
     select.appendChild(option);
   }
 

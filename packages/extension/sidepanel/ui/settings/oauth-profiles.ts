@@ -67,7 +67,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       discoveredModels[0] || config.models[0]?.id || '',
     );
     const providerId = buildProviderInstanceId({
-      providerType: `${config.key}-oauth`,
+      provider: `${config.key}-oauth`,
       authType: 'oauth',
       oauthProviderKey: config.key,
       name: config.name,
@@ -77,7 +77,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       {
         id: providerId,
         name: config.name,
-        providerType: `${config.key}-oauth`,
+        provider: `${config.key}-oauth`,
         authType: 'oauth',
         oauthProviderKey: config.key,
         oauthEmail: state?.email,
