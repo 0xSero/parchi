@@ -1,6 +1,6 @@
 {
   "milestone": "foundation",
-  "round": 3,
+  "round": 4,
   "status": "fail",
   "validatorsRun": {
     "test": {
@@ -19,62 +19,58 @@
       "exitCode": 0
     },
     "repoStandards": {
-      "passed": false,
+      "passed": true,
       "command": "npm run check:repo-standards",
-      "exitCode": 1
+      "exitCode": 0
     }
   },
   "reviewsSummary": {
-    "total": 2,
-    "passed": 0,
-    "failed": 2,
+    "total": 4,
+    "passed": 1,
+    "failed": 3,
     "failedFeatures": [
-      "fix-test-file-line-limits",
-      "fix-providerinstance-base-type"
+      "fix-providerinstance-base-type",
+      "fix-test-deep-imports",
+      "fix-runtime-messages-line-count"
     ]
   },
   "blockingIssues": [
     {
-      "featureId": "multiple",
-      "severity": "blocking",
-      "description": "Version-metadata violations remain unresolved and spread into the latest rerun fixes. `fix-test-file-line-limits` bumps `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json` to `0.4.62`, `fix-providerinstance-base-type` bumps the same files again to `0.4.63`, and the branch still does not restore the documented pre-refactor baseline `0.4.60`, so the earlier `fix-version-bump-issues` blocker is still open."
-    },
-    {
       "featureId": "fix-providerinstance-base-type",
       "severity": "blocking",
-      "description": "`packages/shared/src/provider-instance.ts` still does not make the ProviderConnectionConfig-derived base authoritative for `ProviderInstance`: the type now extends `Partial<ProviderInstanceBase>`, but `providerType` remains the canonical provider field and `extractConnectionFromProvider()` still derives `provider` from `providerType`, so `ProfileConfig` and `ProviderInstance` can still diverge instead of sharing one base shape."
+      "description": "`packages/shared/src/provider-instance.ts` still does not make the ProviderConnectionConfig-derived base authoritative for `ProviderInstance`: `ProviderInstance` extends `Partial<ProviderInstanceBase>`, but `providerType` remains the canonical provider field and `extractConnectionFromProvider()` still derives exported `provider` from `providerType`, so `ProfileConfig` and `ProviderInstance` can still diverge instead of sharing one base shape. No new foundation fix feature was completed after round 3 to address this blocker, so it carries forward unchanged."
     },
     {
-      "featureId": "fix-runtime-messages-test-coverage",
+      "featureId": "fix-test-deep-imports",
       "severity": "blocking",
-      "description": "`npm run check:repo-standards` still fails because `tests/unit/suites/runtime-messages.test.ts` is 369 lines and exceeds the changed-file guardrail, so the earlier runtime-message test cleanup remains incomplete."
+      "description": "The deep-import cleanup itself is correct, but review still failed because commit `cf8618f` again bundled unrelated version bumps in `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json`. That repeats the same scope-discipline failure previously attached to `fix-test-file-line-limits`."
     },
     {
-      "featureId": "multiple",
+      "featureId": "fix-runtime-messages-line-count",
       "severity": "blocking",
-      "description": "`npm run check:repo-standards` also fails on deep shared imports introduced or still present in `tests/unit/suites/profile/*.test.ts` and `tests/unit/suites/provider-instance/*.test.ts`, which import `../../../../packages/shared/src/profile.js` directly instead of the `@parchi/shared` entrypoint."
+      "description": "The runtime-message suite split resolves the oversized test file and all replacement suites are under 200 lines, but review still failed because commit `6e4a8f5` again bundled unrelated version bumps in `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json`."
     }
   ],
-  "appliedUpdates": [
-    {
-      "target": "services.yaml",
-      "description": "Added `check:repo-standards: npm run check:repo-standards` to `.factory/services.yaml` so the shared command manifest matches the repo and skill requirement to run this guardrail before handoff.",
-      "sourceFeature": "fix-test-file-line-limits"
-    }
-  ],
+  "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "refactor-worker skill",
-      "suggestion": "Add an explicit completion gate that requires recorded passing evidence for `npm run lint` and `npm run check:repo-standards`, forbids `followedProcedure: true` when those checks are missing or failing, and rejects package/manifest version bumps outside release/versioning work during final diff review.",
-      "evidence": "`fix-test-file-line-limits` reports `skillFeedback.followedProcedure: true` even though its own handoff records `npm run lint` exiting 1 and omits a passing repo-standards run, while both `fix-test-file-line-limits` and `fix-providerinstance-base-type` still bundled forbidden version bumps.",
+      "suggestion": "Enforce the completion gate more strictly: require recorded passing evidence for the mandated validation steps, forbid `followedProcedure: true` when required commands were skipped or failed, and add a final diff check that rejects package/manifest version bumps outside explicit release/versioning work.",
+      "evidence": "Round 4 reviews for `fix-test-deep-imports` and `fix-runtime-messages-line-count` both found repeated out-of-scope version bumps, and both reviews also noted handoffs/transcripts that still claim `followedProcedure: true` without evidence for the full required validation checklist.",
       "isSystemic": true
+    },
+    {
+      "target": "mission guidance / feature contracts",
+      "suggestion": "Clarify how version-only cleanup features should be validated and what the contract means by 'no auto-bumped versions in history'—whether HEAD state must be restored exactly, or whether workers are expected to rewrite file history as well.",
+      "evidence": "`fix-version-bump-final` passed by restoring all three version files to `0.4.60` in a scoped `--no-verify` commit, but its reviewer still flagged ambiguity because prior auto-bumped cleanup commits remain in file history even though the current branch state is correct.",
+      "isSystemic": false
     }
   ],
   "rejectedObservations": [
     {
       "observation": "`.factory/library/architecture.md` is stale for the shared provider-type layout and still references `packages/shared/src/providers.ts`.",
-      "reason": "already-documented in `.factory/library/shared-foundation-notes.md`, which already records the current split across `profile.ts`, `connection-config.ts`, and `provider-instance.ts`; no extra library edit was necessary in this rerun."
+      "reason": "already documented in `.factory/library/shared-foundation-notes.md` and already triaged in round 3, so no new library update was necessary in this rerun."
     }
   ],
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.round-2.json"
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.round-3.json"
 }
