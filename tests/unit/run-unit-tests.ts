@@ -14,6 +14,7 @@ import { runCodexOauthConfigSuite } from './suites/codex-oauth-config.test.js';
 import { runConversationCompactionSuite } from './suites/conversation-compaction.test.js';
 import { runErrorHandlingSuite } from './suites/error-handling.test.js';
 import { runInputValidationSuite } from './suites/input-validation.test.js';
+import { runJsonRpcTypeGuardsSuite } from './suites/json-rpc-type-guards.test.js';
 import { runMessageSchemaSuite } from './suites/message-schema.test.js';
 import { runMessageUtilsSuite } from './suites/message-utils.test.js';
 import { runModelListingSuite } from './suites/model-listing.test.js';
@@ -69,6 +70,7 @@ export function runUnitTests() {
   runStatePersistenceSuite(runner);
   runXmlToolParserSuite(runner);
   runOrchestratorNormalizationSuite(runner);
+  runJsonRpcTypeGuardsSuite(runner);
 
   return runner.printSummary();
 }
