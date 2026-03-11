@@ -51,7 +51,7 @@ sidePanelProto.loadHistoryList = async function loadHistoryList() {
       item.className = 'history-item';
       item.dataset.title = (session.title || '').toLowerCase();
       const date = new Date(session.updatedAt || session.startedAt || Date.now());
-      const msgCount = session.messageCount || 0;
+      const msgCount = session.messageCount ?? session.transcript?.length ?? 0;
       const timeAgo = this.formatTimeAgo(date);
 
       const rawTitle = session.title || 'Untitled Session';
