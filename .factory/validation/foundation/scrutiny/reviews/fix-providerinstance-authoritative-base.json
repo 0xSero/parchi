@@ -1,0 +1,45 @@
+{
+  "featureId": "fix-providerinstance-authoritative-base",
+  "reviewedAt": "2026-03-11T08:43:07Z",
+  "commitId": "74ad48b51888fcedd3d9715d0eaf1665be277dd4",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "Compared with the prior failed review `fix-providerinstance-base-type`, commit `74ad48b` does fix the actual provider-authority bug: `ProviderInstance` now requires canonical `provider` while inheriting the rest of `ProviderInstanceBase` via `Omit<Partial<ProviderInstanceBase>, 'provider'>` (`packages/shared/src/provider-instance.ts:37-46`), `extractConnectionFromProvider()` now exports `provider.provider` directly (`packages/shared/src/provider-instance.ts:81-90`), the registry normalizer keeps `providerType` only as a legacy-input fallback while rewriting instances to `provider` (`packages/extension/state/provider-registry.ts:54-95`), and the updated suites explicitly cover the provider-field extraction/shared-base behavior (`tests/unit/suites/provider-instance/base-type.test.ts:43-170`, `tests/unit/suites/profile/extract-from-provider.test.ts:33-47`). However, the fix commit still bundles unrelated version bumps in `package.json` and both extension manifests, which mission AGENTS explicitly forbids for non-release refactor features, so the rerun still fails scrutiny overall despite resolving the original code blocker.",
+    "issues": [
+      {
+        "file": "package.json",
+        "line": 3,
+        "severity": "blocking",
+        "description": "Commit `74ad48b` bumps the package version from `0.4.60` to `0.4.61` even though this feature is only about ProviderInstance/provider authority. Mission AGENTS forbids package/manifest version bumps in non-release refactor features (`/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/AGENTS.md:214-219`), so this unrelated release-metadata change remains a blocking scope violation."
+      },
+      {
+        "file": "packages/extension/manifest.json",
+        "line": 4,
+        "severity": "blocking",
+        "description": "The same commit also bumps the Chrome manifest version from `0.4.60` to `0.4.61`, repeating the out-of-scope release-metadata problem in a feature that should only touch provider-instance, caller, and test logic."
+      },
+      {
+        "file": "packages/extension/manifest.firefox.json",
+        "line": 15,
+        "severity": "blocking",
+        "description": "The Firefox manifest version is bumped in `74ad48b` as well. Because the rerun still carries unrelated manifest version changes, the feature does not pass scrutiny even though the ProviderInstance authority fix itself is correct."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` completion contract still is not being enforced against version-bump regressions. This fix's handoff reports `skillFeedback.followedProcedure: true`, but the committed diff still contains the exact package/manifest version bumps that the skill's final checklist says must be absent.",
+      "evidence": "`/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md:116-121` requires the final diff review to verify 'NO version bumps in package.json or manifest files'; `/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T08-27-18-409Z__fix-providerinstance-authoritative-base__0e1c9f11-7c83-45b3-9f94-1b50542c1d0c.json:52-54` records `followedProcedure: true`; `git show --stat 74ad48b51888fcedd3d9715d0eaf1665be277dd4` lists `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json` in the commit."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The shared-library architecture note is still stale for provider types. It still points workers to `packages/shared/src/providers.ts`, while the repo now uses `profile.ts`, `connection-config.ts`, and `provider-instance.ts` for this area.",
+      "evidence": "`/Users/sero/projects/browser-ai/.factory/library/architecture.md:100` still lists `providers.ts`, while `/Users/sero/projects/browser-ai/.factory/library/shared-foundation-notes.md:4` and the current source tree use `packages/shared/src/profile.ts`, `packages/shared/src/connection-config.ts`, and `packages/shared/src/provider-instance.ts`."
+    }
+  ],
+  "addressesFailureFrom": "/Users/sero/projects/browser-ai/.factory/validation/foundation/scrutiny/reviews/fix-providerinstance-base-type.json",
+  "summary": "Fail. The rerun does resolve the prior ProviderConnectionConfig-derived-base authority blocker by making `provider` canonical and updating extraction, registry normalization, callers, and tests around that field. But commit `74ad48b` still bundles forbidden package/manifest version bumps, so a blocking scope issue remains and the feature cannot pass scrutiny."
+}
