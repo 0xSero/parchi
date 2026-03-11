@@ -29,8 +29,8 @@ Read the feature description carefully. Identify:
 
 Before making changes:
 ```bash
-# Run tests to establish baseline
-npm run test:unit -- --grep '<relevant-pattern>'
+# Run all unit tests (NOTE: --grep filters are ignored by the current test runner)
+npm run test:unit
 
 # Check current file sizes
 wc -l <files-to-refactor>
@@ -40,6 +40,8 @@ npm run typecheck
 ```
 
 Document any pre-existing test failures or issues.
+
+**IMPORTANT**: The unit test runner (`tests/unit/run-unit-tests.ts`) hard-codes suite registration and ignores CLI grep filters. To test specific functionality, add a focused test suite that tests exactly what you need.
 
 ### 3. Plan the Refactoring
 
@@ -98,9 +100,14 @@ npm run test:integration
 # Lint check
 npm run lint
 
+# Repo standards check (file size limits, etc.)
+npm run check:repo-standards
+
 # Build check
 npm run build
 ```
+
+**IMPORTANT**: All validation steps must pass. If any step fails, fix the issue before completing the feature.
 
 ### 9. Document Changes
 
