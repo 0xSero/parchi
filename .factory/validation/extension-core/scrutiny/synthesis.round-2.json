@@ -1,0 +1,72 @@
+{
+  "milestone": "extension-core",
+  "round": 2,
+  "status": "fail",
+  "generatedAt": "2026-03-11T11:24:46Z",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "npm run test",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "npm run lint",
+      "exitCode": 0
+    },
+    "repoStandards": {
+      "passed": true,
+      "command": "npm run check:repo-standards",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 3,
+    "passed": 0,
+    "failed": 3,
+    "failedFeatures": [
+      "fix-ext-recording-await",
+      "fix-ext-message-factory-compat",
+      "fix-ext-version-bumps"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "fix-ext-recording-await",
+      "severity": "blocking",
+      "description": "The code change restores the missing await/error-path behavior for recording_select_images, but commit 87c8881fe53b824f8422aaac712a2251d8ddba82 again bundled out-of-scope version bumps in package.json, packages/extension/manifest.json, and packages/extension/manifest.firefox.json."
+    },
+    {
+      "featureId": "fix-ext-message-factory-compat",
+      "severity": "blocking",
+      "description": "The message-factory alias compatibility regression is fixed, but commit ef83ed72ba2d90b4a0b3221327191aebbd117bab again bundled out-of-scope version bumps in package.json, packages/extension/manifest.json, and packages/extension/manifest.firefox.json."
+    },
+    {
+      "featureId": "fix-ext-version-bumps",
+      "severity": "blocking",
+      "description": "Commit d38896db0846c26d5b39b34c39faf75ed3885a67 restores HEAD version metadata to 0.4.60, but it does not create clean replacement commits for extension-refactor-agent-loop, extension-refactor-tool-executor, extension-refactor-error-handling, extension-refactor-ai-sdk, and extension-refactor-tools, so the original per-feature version-bump scope violations remain in git history."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "refactor-worker skill",
+      "suggestion": "Add a hard post-commit/HEAD diff gate for non-release refactors and fixes that rejects any change to package.json, packages/extension/manifest.json, and packages/extension/manifest.firefox.json before workers can declare success.",
+      "evidence": "Round 1 already failed five extension-core refactors for bundled version bumps, and round 2 repeated the same scope violation in fix commits 87c8881fe53b824f8422aaac712a2251d8ddba82 and ef83ed72ba2d90b4a0b3221327191aebbd117bab. Restoring the versions later in d38896db0846c26d5b39b34c39faf75ed3885a67 still left the original offending commits in history.",
+      "isSystemic": true
+    },
+    {
+      "target": "refactor-worker skill",
+      "suggestion": "Do not allow `skillFeedback.followedProcedure: true` unless the handoff explicitly lists every mandated final validator (including integration test when required, lint, check:repo-standards, and final diff review), or require an explicit deviation entry for each skipped step.",
+      "evidence": "The prior extension-core scrutiny round already found a worker claiming `followedProcedure: true` without integration-test evidence, and round 2 repeated the pattern in fix-ext-recording-await: its handoff listed only typecheck, unit tests, build, grep, and wc -l while still claiming full procedure compliance.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [],
+  "previousRound": ".factory/validation/extension-core/scrutiny/synthesis.round-1.json"
+}

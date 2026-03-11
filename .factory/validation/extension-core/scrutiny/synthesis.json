@@ -1,8 +1,8 @@
 {
   "milestone": "extension-core",
-  "round": 2,
+  "round": 3,
   "status": "fail",
-  "generatedAt": "2026-03-11T11:24:46Z",
+  "generatedAt": "2026-03-11T11:51:01Z",
   "validatorsRun": {
     "test": {
       "passed": true,
@@ -26,47 +26,35 @@
     }
   },
   "reviewsSummary": {
-    "total": 3,
-    "passed": 0,
-    "failed": 3,
+    "total": 2,
+    "passed": 1,
+    "failed": 1,
     "failedFeatures": [
-      "fix-ext-recording-await",
-      "fix-ext-message-factory-compat",
-      "fix-ext-version-bumps"
+      "disable-version-bump-hook"
     ]
   },
   "blockingIssues": [
     {
-      "featureId": "fix-ext-recording-await",
+      "featureId": "disable-version-bump-hook",
       "severity": "blocking",
-      "description": "The code change restores the missing await/error-path behavior for recording_select_images, but commit 87c8881fe53b824f8422aaac712a2251d8ddba82 again bundled out-of-scope version bumps in package.json, packages/extension/manifest.json, and packages/extension/manifest.firefox.json."
-    },
-    {
-      "featureId": "fix-ext-message-factory-compat",
-      "severity": "blocking",
-      "description": "The message-factory alias compatibility regression is fixed, but commit ef83ed72ba2d90b4a0b3221327191aebbd117bab again bundled out-of-scope version bumps in package.json, packages/extension/manifest.json, and packages/extension/manifest.firefox.json."
-    },
-    {
-      "featureId": "fix-ext-version-bumps",
-      "severity": "blocking",
-      "description": "Commit d38896db0846c26d5b39b34c39faf75ed3885a67 restores HEAD version metadata to 0.4.60, but it does not create clean replacement commits for extension-refactor-agent-loop, extension-refactor-tool-executor, extension-refactor-error-handling, extension-refactor-ai-sdk, and extension-refactor-tools, so the original per-feature version-bump scope violations remain in git history."
+      "description": "Commit 5f282b716e54da004e37c15d1e8091c68a4b5f77 adds a useful `DISABLE_VERSION_BUMP=1` escape hatch for future commits, but it does not create clean replacement commits for the original offending extension-core refactors. The historical version-bump scope violations in commits b2af1aaf5d8acde300b1b777930048db957615a0, 80a94959b2c822cd9cecb3360c65e50d10350fd5, a1c32b9bd31f6c722e58a02aa6bc96430e369731, 0f8b3ee4480885306977832351478b6313d2c387, and b2ce138f06ce8647606cdb940fd1963e01b9e0bd therefore remain unresolved."
     }
   ],
   "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "refactor-worker skill",
-      "suggestion": "Add a hard post-commit/HEAD diff gate for non-release refactors and fixes that rejects any change to package.json, packages/extension/manifest.json, and packages/extension/manifest.firefox.json before workers can declare success.",
-      "evidence": "Round 1 already failed five extension-core refactors for bundled version bumps, and round 2 repeated the same scope violation in fix commits 87c8881fe53b824f8422aaac712a2251d8ddba82 and ef83ed72ba2d90b4a0b3221327191aebbd117bab. Restoring the versions later in d38896db0846c26d5b39b34c39faf75ed3885a67 still left the original offending commits in history.",
+      "suggestion": "Update the version-bump guidance to prefer `DISABLE_VERSION_BUMP=1 git commit ...` as the normal way to keep non-release commits clean after the hook change, and reserve `--no-verify` for explicit fallback scenarios where the hook itself is being repaired.",
+      "evidence": "Both round 3 review reports noted that repo AGENTS.md now documents `DISABLE_VERSION_BUMP=1`, and the passing `redo-ext-fixes-clean` feature relied on that flow successfully, but `.factory/skills/refactor-worker/SKILL.md` still only instructs workers to use `git commit --no-verify` when version metadata changes appear.",
       "isSystemic": true
     },
     {
       "target": "refactor-worker skill",
-      "suggestion": "Do not allow `skillFeedback.followedProcedure: true` unless the handoff explicitly lists every mandated final validator (including integration test when required, lint, check:repo-standards, and final diff review), or require an explicit deviation entry for each skipped step.",
-      "evidence": "The prior extension-core scrutiny round already found a worker claiming `followedProcedure: true` without integration-test evidence, and round 2 repeated the pattern in fix-ext-recording-await: its handoff listed only typecheck, unit tests, build, grep, and wc -l while still claiming full procedure compliance.",
+      "suggestion": "Do not allow `skillFeedback.followedProcedure: true` unless the handoff explicitly records every required final validation step, or require a deviation entry for each skipped validator so shell/config-only work does not silently claim full procedural compliance.",
+      "evidence": "The new `disable-version-bump-hook` handoff again marked `followedProcedure: true` while omitting several validations that `.factory/skills/refactor-worker/SKILL.md` lists as mandatory, repeating the same compliance-reporting problem that round 2 already surfaced.",
       "isSystemic": true
     }
   ],
   "rejectedObservations": [],
-  "previousRound": ".factory/validation/extension-core/scrutiny/synthesis.round-1.json"
+  "previousRound": ".factory/validation/extension-core/scrutiny/synthesis.round-2.json"
 }
