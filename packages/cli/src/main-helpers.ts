@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 
-type AuthConfig = {
+export type AuthConfig = {
   token: string;
   port: number;
   createdAt: string;

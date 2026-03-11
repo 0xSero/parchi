@@ -1,7 +1,12 @@
-import { DEFAULT_PORT, generateToken, isDaemonRunning, readAuth, readPid, removePid, writeAuth } from './auth.js';
+import { DEFAULT_PORT, generateToken, isDaemonRunning, readAuth, writeAuth } from './auth.js';
+import { cmdInit } from './commands/init.js';
+import { cmdRun } from './commands/run.js';
+import { cmdStatus } from './commands/status.js';
+import { cmdStop } from './commands/stop.js';
+import { cmdTool, cmdTools } from './commands/tools.js';
 import { startDaemon } from './daemon-args.js';
 import { cmdElectron } from './electron.js';
-import { isNativeMessagingMode, parseArgs, runInitFlow } from './main-helpers.js';
+import { isNativeMessagingMode, parseArgs } from './main-helpers.js';
 import { handleNativeMessaging } from './native-host.js';
 import {
   cmdRelayAgents,
@@ -14,126 +19,7 @@ import {
 } from './relay-commands.js';
 import { fetchRpc } from './rpc-client.js';
 
-// ── Printing ────────────────────────────────────────────────────────────────
 const print = (value: unknown) => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`);
-
-// ── Commands ────────────────────────────────────────────────────────────────
-
-async function cmdInit(flags: Record<string, string>) {
-  await runInitFlow({
-    flags,
-    authDeps: {
-      defaultPort: DEFAULT_PORT,
-      generateToken,
-      readAuth,
-      writeAuth,
-      isDaemonRunning,
-    },
-  });
-}
-
-async function cmdStatus() {
-  const auth = readAuth();
-  if (!auth) {
-    print({ configured: false, hint: 'Run `parchi init` first.' });
-    return;
-  }
-
-  const daemonRunning = isDaemonRunning();
-  const result: Record<string, unknown> = {
-    configured: true,
-    port: auth.port,
-    daemon: daemonRunning ? 'running' : 'stopped',
-    pid: readPid(),
-  };
-
-  if (daemonRunning) {
-    try {
-      const ping = await fetchRpc({ method: 'relay.ping' });
-      result.relay = ping;
-    } catch (err) {
-      result.relay = { error: err instanceof Error ? err.message : String(err) };
-    }
-  }
-
-  print(result);
-}
-
-async function cmdStop() {
-  const pid = readPid();
-  if (!pid) {
-    console.log('Daemon is not running.');
-    return;
-  }
-  try {
-    process.kill(pid, 'SIGTERM');
-    removePid();
-    console.log(`Daemon (PID ${pid}) stopped.`);
-  } catch {
-    removePid();
-    console.log('Daemon was not running (stale PID removed).');
-  }
-}
-
-async function cmdTools(flags: Record<string, string>) {
-  const agentId = flags.agentId;
-  const params = agentId ? { agentId } : undefined;
-  const result = await fetchRpc({ method: 'tools.list', params });
-  print(result);
-}
-
-async function cmdTool(positional: string[], flags: Record<string, string>) {
-  const toolName = positional[1];
-  if (!toolName) {
-    console.error("Usage: parchi tool <name> [--args='{...}']");
-    process.exit(1);
-  }
-  let args: unknown = {};
-  if (flags.args) {
-    try {
-      args = JSON.parse(flags.args);
-    } catch {
-      console.error('Invalid JSON for --args');
-      process.exit(1);
-    }
-  }
-  const agentId = flags.agentId;
-  const params = agentId ? { agentId, tool: toolName, args } : { tool: toolName, args };
-  const result = await fetchRpc({ method: 'tool.call', params });
-  print(result);
-}
-
-async function cmdRun(positional: string[], flags: Record<string, string>) {
-  const prompt = positional.slice(1).join(' ').trim();
-  if (!prompt) {
-    console.error('Usage: parchi run <prompt>');
-    process.exit(1);
-  }
-
-  const agentId = flags.agentId;
-  const timeoutMs = Number(flags.timeoutMs || 600_000);
-  const tabsRaw = flags.tabs || 'active';
-  const selectedTabIds =
-    tabsRaw === 'active'
-      ? null
-      : tabsRaw
-          .split(',')
-          .map((p) => Number(p.trim()))
-          .filter((n) => Number.isFinite(n) && n > 0);
-
-  const startParams: Record<string, unknown> = { prompt };
-  if (selectedTabIds?.length) startParams.selectedTabIds = selectedTabIds;
-  if (agentId) startParams.agentId = agentId;
-
-  const started = (await fetchRpc({ method: 'agent.run', params: startParams })) as Record<string, unknown>;
-  const runId = typeof started?.runId === 'string' ? started.runId : '';
-  if (!runId) {
-    print(started);
-    return;
-  }
-  const waited = await fetchRpc({ method: 'run.wait', params: { runId, timeoutMs } });
-  print(waited);
-}
 
 // ── Main ────────────────────────────────────────────────────────────────────
 
@@ -163,7 +49,14 @@ Commands:
     return;
   }
 
-  if (cmd === 'init') return cmdInit(flags);
+  if (cmd === 'init')
+    return cmdInit(flags, {
+      defaultPort: DEFAULT_PORT,
+      generateToken,
+      readAuth,
+      writeAuth,
+      isDaemonRunning,
+    });
   if (cmd === 'daemon') return startDaemon({ foreground: true });
   if (cmd === 'status') return cmdStatus();
   if (cmd === 'stop') return cmdStop();

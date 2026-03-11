@@ -1,11 +1,12 @@
 import crypto from 'node:crypto';
 import http, { type IncomingMessage } from 'node:http';
-import { type JsonRpcRequest, isJsonRpcNotification, isJsonRpcResponse } from '@parchi/shared';
-import { type WebSocket, WebSocketServer } from 'ws';
+import { WebSocketServer } from 'ws';
 import { removePid, writePid } from './auth.js';
 import { handleDaemonHttpRequest } from './daemon-http.js';
 import { handleDaemonRpc } from './daemon-rpc.js';
-import { type AgentConnection, type AgentHello, type RunRecord, asRecord, now } from './daemon-shared.js';
+import type { AgentConnection, RunRecord } from './daemon-shared.js';
+import { callAgentRpc } from './daemon/rpc-caller.js';
+import { handleWebSocketConnection } from './daemon/websocket-handler.js';
 
 export class ParchiDaemon {
   private token: string;
@@ -74,146 +75,17 @@ export class ParchiDaemon {
     return agent;
   }
 
-  private ensureRun(runId: string, agentId: string) {
-    const existing = this.runs.get(runId);
-    if (existing) return existing;
-    const rec: RunRecord = {
-      runId,
-      agentId,
-      createdAt: now(),
-      updatedAt: now(),
-      events: [],
-      done: null,
-      waiters: [],
-    };
-    this.runs.set(runId, rec);
-    return rec;
-  }
-
-  private resolveRunWait(run: RunRecord) {
-    const waiters = run.waiters.slice();
-    run.waiters.length = 0;
-    waiters.forEach((fn) => fn(run));
-  }
-
-  private onExtensionWs(ws: WebSocket) {
-    let agentId: string | null = null;
-
-    ws.on('message', (data) => {
-      let parsed: unknown;
-      try {
-        parsed = JSON.parse(String(data));
-      } catch {
-        return;
-      }
-
-      if (isJsonRpcResponse(parsed)) {
-        if (!agentId) return;
-        const agent = this.agents.get(agentId);
-        if (!agent) return;
-        agent.lastSeenAt = now();
-        const pending = agent.pending.get(parsed.id);
-        if (!pending) return;
-        clearTimeout(pending.timeoutId);
-        agent.pending.delete(parsed.id);
-        if ('error' in parsed) {
-          pending.reject(new Error(parsed.error.message));
-        } else {
-          pending.resolve(parsed.result);
-        }
-        return;
-      }
-
-      if (isJsonRpcNotification(parsed)) {
-        if (parsed.method === 'agent.hello') {
-          const hello = (parsed.params || {}) as AgentHello;
-          if (!hello || typeof hello.agentId !== 'string' || !hello.agentId.trim()) return;
-          agentId = hello.agentId;
-          const existing = this.agents.get(agentId);
-          if (existing) {
-            try {
-              existing.ws.close();
-            } catch {}
-          }
-          const conn: AgentConnection = {
-            agentId,
-            ws,
-            hello,
-            connectedAt: now(),
-            lastSeenAt: now(),
-            pending: new Map(),
-          };
-          this.agents.set(agentId, conn);
-          if (!this.defaultAgentId) this.defaultAgentId = agentId;
-          return;
-        }
-
-        if (parsed.method === 'run.event') {
-          const params = asRecord(parsed.params) || {};
-          const runId = typeof params.runId === 'string' ? params.runId : '';
-          if (!runId) return;
-          const agent = agentId ? this.agents.get(agentId) : null;
-          const rec = this.ensureRun(runId, agent?.agentId || 'unknown');
-          rec.updatedAt = now();
-          rec.events.push(params.event);
-          return;
-        }
-
-        if (parsed.method === 'run.done') {
-          const params = asRecord(parsed.params) || {};
-          const runId = typeof params.runId === 'string' ? params.runId : '';
-          if (!runId) return;
-          const agent = agentId ? this.agents.get(agentId) : null;
-          const rec = this.ensureRun(runId, agent?.agentId || 'unknown');
-          rec.updatedAt = now();
-          rec.done = {
-            status: params.status === 'completed' || params.status === 'stopped' ? params.status : 'failed',
-            final: params.final,
-            error: params.error,
-          };
-          this.resolveRunWait(rec);
-          return;
-        }
-      }
+  private onExtensionWs(ws: import('ws').WebSocket) {
+    handleWebSocketConnection(ws, {
+      agents: this.agents,
+      runs: this.runs,
+      defaultAgentId: this.defaultAgentId,
+      setDefaultAgentId: (id) => {
+        this.defaultAgentId = id;
+      },
+      getDefaultAgentOrThrow: (agentId) => this.getDefaultAgentOrThrow(agentId),
+      callAgentRpc: (agent, method, params) => callAgentRpc(agent, method, params),
     });
-
-    ws.on('close', () => {
-      if (!agentId) return;
-      const agent = this.agents.get(agentId);
-      if (!agent) return;
-      if (agent.ws !== ws) return;
-      this.agents.delete(agentId);
-      if (this.defaultAgentId === agentId) this.defaultAgentId = null;
-      for (const p of agent.pending.values()) {
-        clearTimeout(p.timeoutId);
-        p.reject(new Error('Agent disconnected'));
-      }
-      agent.pending.clear();
-    });
-  }
-
-  private async callAgentRpc(agent: AgentConnection, method: string, params: unknown, timeoutMs = 120_000) {
-    const id = `${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-    const req: JsonRpcRequest = { jsonrpc: '2.0', id, method, params };
-
-    const result = await new Promise((resolve, reject) => {
-      const timeoutId = setTimeout(() => {
-        agent.pending.delete(id);
-        reject(new Error(`Timed out waiting for agent response (${method})`));
-      }, timeoutMs);
-
-      agent.pending.set(id, { resolve, reject, timeoutId });
-
-      try {
-        agent.ws.send(JSON.stringify(req));
-      } catch (err) {
-        clearTimeout(timeoutId);
-        agent.pending.delete(id);
-        reject(err instanceof Error ? err : new Error(String(err ?? 'send failed')));
-      }
-    });
-
-    return result;
   }
 
   private async handleRpc(method: string, params: unknown) {
@@ -226,7 +98,7 @@ export class ParchiDaemon {
           this.defaultAgentId = agentId;
         },
         getDefaultAgentOrThrow: (agentId) => this.getDefaultAgentOrThrow(agentId),
-        callAgentRpc: (agent, methodName, rpcParams) => this.callAgentRpc(agent, methodName, rpcParams),
+        callAgentRpc: (agent, methodName, rpcParams) => callAgentRpc(agent, methodName, rpcParams),
       },
       method,
       params,
