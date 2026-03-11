@@ -1,0 +1,26 @@
+{
+  "featureId": "sidepanel-refactor-panel-chat",
+  "reviewedAt": "2026-03-11T13:59:13Z",
+  "commitId": "49c1eabd4fe345b35d803faf3cf8e9d4c033f351",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "Pass. Commit `49c1eab` cleanly splits the 937-line chat panel into focused modules while preserving the existing `SidePanelUI` prototype wiring. I compared the extracted compaction, send-message, user-message display, assistant-rendering, empty-state, and pruning paths against the pre-refactor `panel-chat.ts`, and the logic remains materially the same after extraction. `panel-modules.ts` still loads `panel-chat`, `panel-streaming`, and `panel-workflows`, so chat, streaming, and workflow entrypoints remain wired, and the touched chat files in the commit are all under the 200-line mission limit.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill requires final validation to include `npm run test:integration` and `npm run lint`, and says `followedProcedure` should only be true when all validation steps actually ran and passed. This feature handoff still marked `followedProcedure: true` after recording only typecheck, build, unit tests, repo-standards, and a line-count check.",
+      "evidence": "/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md:90-130 requires `npm run test:integration`, `npm run lint`, and truthful `followedProcedure`; /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T12-47-57-941Z__sidepanel-refactor-panel-chat__3399545d-3697-48d6-8f4b-73fc6163737c.json:13-50 records no integration or lint run and still sets `followedProcedure` to true."
+    },
+    {
+      "area": "conventions",
+      "observation": "The feature metadata requires `Manual: test chat interactions` for a refactor that claims `VAL-CROSS-001` and `VAL-CROSS-005`, but the worker handoff recorded no interactive/manual verification. The current mission artifacts make it easy to skip feature-specific manual checks without surfacing that gap in `skillFeedback`.",
+      "evidence": "/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/features.json:1475-1482 lists `Manual: test chat interactions` and cross-flow assertions; /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T12-47-57-941Z__sidepanel-refactor-panel-chat__3399545d-3697-48d6-8f4b-73fc6163737c.json:13-40 records only non-interactive commands."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed the feature entry, worker transcript skeleton, refactor-worker skill, mission shared-state files, and commit `49c1eab`. The refactor appears behavior-preserving and keeps the chat/streaming/workflow module wiring intact, so I marked it pass with no code issues. I also recorded shared-state observations about validation procedure reporting and missing feature-level manual verification evidence."
+}
