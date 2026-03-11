@@ -1,7 +1,7 @@
 {
   "milestone": "foundation",
-  "round": 4,
-  "status": "fail",
+  "round": 5,
+  "status": "pass",
   "validatorsRun": {
     "test": {
       "passed": true,
@@ -25,52 +25,27 @@
     }
   },
   "reviewsSummary": {
-    "total": 4,
-    "passed": 1,
-    "failed": 3,
-    "failedFeatures": [
-      "fix-providerinstance-base-type",
-      "fix-test-deep-imports",
-      "fix-runtime-messages-line-count"
-    ]
+    "total": 2,
+    "passed": 2,
+    "failed": 0,
+    "failedFeatures": []
   },
-  "blockingIssues": [
-    {
-      "featureId": "fix-providerinstance-base-type",
-      "severity": "blocking",
-      "description": "`packages/shared/src/provider-instance.ts` still does not make the ProviderConnectionConfig-derived base authoritative for `ProviderInstance`: `ProviderInstance` extends `Partial<ProviderInstanceBase>`, but `providerType` remains the canonical provider field and `extractConnectionFromProvider()` still derives exported `provider` from `providerType`, so `ProfileConfig` and `ProviderInstance` can still diverge instead of sharing one base shape. No new foundation fix feature was completed after round 3 to address this blocker, so it carries forward unchanged."
-    },
-    {
-      "featureId": "fix-test-deep-imports",
-      "severity": "blocking",
-      "description": "The deep-import cleanup itself is correct, but review still failed because commit `cf8618f` again bundled unrelated version bumps in `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json`. That repeats the same scope-discipline failure previously attached to `fix-test-file-line-limits`."
-    },
-    {
-      "featureId": "fix-runtime-messages-line-count",
-      "severity": "blocking",
-      "description": "The runtime-message suite split resolves the oversized test file and all replacement suites are under 200 lines, but review still failed because commit `6e4a8f5` again bundled unrelated version bumps in `package.json`, `packages/extension/manifest.json`, and `packages/extension/manifest.firefox.json`."
-    }
-  ],
+  "blockingIssues": [],
   "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "refactor-worker skill",
-      "suggestion": "Enforce the completion gate more strictly: require recorded passing evidence for the mandated validation steps, forbid `followedProcedure: true` when required commands were skipped or failed, and add a final diff check that rejects package/manifest version bumps outside explicit release/versioning work.",
-      "evidence": "Round 4 reviews for `fix-test-deep-imports` and `fix-runtime-messages-line-count` both found repeated out-of-scope version bumps, and both reviews also noted handoffs/transcripts that still claim `followedProcedure: true` without evidence for the full required validation checklist.",
+      "suggestion": "Enforce the completion gate more strictly: require the final diff review to reject package/manifest version bumps before workers report `followedProcedure: true`, and make later cleanup/rewrite requirements explicit when a worker's original commit violates that rule.",
+      "evidence": "The round 5 re-review for `fix-providerinstance-authoritative-base` passed only after a later history rewrite moved the real code change to clean commit `1d7c344` and isolated version metadata in `7c6cb22`; the original worker handoff for obsolete commit `74ad48b` still reported `followedProcedure: true` even though that commit bundled forbidden version bumps.",
       "isSystemic": true
     },
     {
-      "target": "mission guidance / feature contracts",
-      "suggestion": "Clarify how version-only cleanup features should be validated and what the contract means by 'no auto-bumped versions in history'—whether HEAD state must be restored exactly, or whether workers are expected to rewrite file history as well.",
-      "evidence": "`fix-version-bump-final` passed by restoring all three version files to `0.4.60` in a scoped `--no-verify` commit, but its reviewer still flagged ambiguity because prior auto-bumped cleanup commits remain in file history even though the current branch state is correct.",
+      "target": "mission-worker-base / handoff guidance",
+      "suggestion": "Validate recorded commit IDs with `git rev-parse` before persisting worker handoffs so scrutiny reviewers can inspect the exact commit without manual repair.",
+      "evidence": "The `fix-version-bump-isolation` handoff stored malformed full hash `b704036ed978544f7d9d4d09f0fb15a2b558a6e4`; review had to recover the real commit with `git rev-parse b704036`, which resolved to `b70403648b11f779c8a845d4b7d86d39693d90f2`.",
       "isSystemic": false
     }
   ],
-  "rejectedObservations": [
-    {
-      "observation": "`.factory/library/architecture.md` is stale for the shared provider-type layout and still references `packages/shared/src/providers.ts`.",
-      "reason": "already documented in `.factory/library/shared-foundation-notes.md` and already triaged in round 3, so no new library update was necessary in this rerun."
-    }
-  ],
-  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.round-3.json"
+  "rejectedObservations": [],
+  "previousRound": ".factory/validation/foundation/scrutiny/synthesis.round-4.json"
 }
