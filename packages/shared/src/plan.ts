@@ -1,4 +1,4 @@
-import { COMMON_TASK_STATUSES, type CommonTaskStatus } from './orchestrator.js';
+import { COMMON_TASK_STATUSES, type CommonTaskStatus } from './orchestrator-types.js';
 
 /**
  * Plan-specific statuses that extend the common task statuses.
