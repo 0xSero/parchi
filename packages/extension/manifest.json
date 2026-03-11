@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Parchi",
-  "version": "0.4.66",
+  "version": "0.4.67",
   "description": "Warm-paper browser automation assistant with configurable LLM/vision profiles and enterprise-ready controls",
   "permissions": [
     "sidePanel",
