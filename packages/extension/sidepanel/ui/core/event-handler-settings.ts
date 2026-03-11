@@ -3,8 +3,8 @@
  * Settings panel event handlers
  */
 
-import { SidePanelUI } from './panel-ui.js';
 import { debounce } from './dom-utils.js';
+import { SidePanelUI } from './panel-ui.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 

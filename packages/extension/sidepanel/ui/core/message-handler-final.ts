@@ -3,17 +3,20 @@
  * Handles assistant final message and usage tracking
  */
 
-import { SidePanelUI } from './panel-ui.js';
-import { recordUsage } from '../settings/usage-store.js';
 import { appendTrace } from '../chat/trace-store.js';
+import { recordUsage } from '../settings/usage-store.js';
 import { clampHistoryTurnMap } from './history-manager.js';
+import { SidePanelUI } from './panel-ui.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 
 /**
  * Handle assistant final message
  */
-export const handleAssistantFinal = function handleAssistantFinal(this: SidePanelUI & Record<string, unknown>, message: any) {
+export const handleAssistantFinal = function handleAssistantFinal(
+  this: SidePanelUI & Record<string, unknown>,
+  message: any,
+) {
   if (!this.isReplayingHistory && this.pendingTurnDraft?.userMessage) {
     const now = Date.now();
     const turnId = message.turnId || `turn-${now}`;

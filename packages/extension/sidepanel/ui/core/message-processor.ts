@@ -22,7 +22,10 @@ const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<st
  * Handle incoming runtime messages from the background service
  * Routes to specialized handler methods
  */
-export const handleRuntimeMessage = function handleRuntimeMessage(this: SidePanelUI & Record<string, unknown>, message: any) {
+export const handleRuntimeMessage = function handleRuntimeMessage(
+  this: SidePanelUI & Record<string, unknown>,
+  message: any,
+) {
   this._lastRuntimeMessageAt = Date.now();
 
   // Delegate subagent messages

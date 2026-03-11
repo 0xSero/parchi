@@ -3,8 +3,8 @@
  * Handles plan update messages
  */
 
-import { SidePanelUI } from './panel-ui.js';
 import { appendTrace } from '../chat/trace-store.js';
+import { SidePanelUI } from './panel-ui.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 
@@ -42,7 +42,10 @@ sidePanelProto.handlePlanUpdate = handlePlanUpdate;
 /**
  * Handle manual plan update
  */
-export const handleManualPlanUpdate = function handleManualPlanUpdate(this: SidePanelUI & Record<string, unknown>, message: any) {
+export const handleManualPlanUpdate = function handleManualPlanUpdate(
+  this: SidePanelUI & Record<string, unknown>,
+  message: any,
+) {
   this.applyManualPlanUpdate(message.steps);
 };
 

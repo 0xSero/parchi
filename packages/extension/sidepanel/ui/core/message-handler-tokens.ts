@@ -3,8 +3,8 @@
  * Handles token trace and compaction event messages
  */
 
-import { SidePanelUI } from './panel-ui.js';
 import { appendTrace } from '../chat/trace-store.js';
+import { SidePanelUI } from './panel-ui.js';
 import { sanitizeTracePayload } from './trace-sanitizer.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
@@ -32,8 +32,10 @@ export const handleTokenTrace = function handleTokenTrace(this: SidePanelUI & Re
     details,
   });
 
-  const beforeSnapshot = before && typeof before === 'object' ? (before as Record<string, unknown>) : ({} as Record<string, unknown>);
-  const afterSnapshot = after && typeof after === 'object' ? (after as Record<string, unknown>) : ({} as Record<string, unknown>);
+  const beforeSnapshot =
+    before && typeof before === 'object' ? (before as Record<string, unknown>) : ({} as Record<string, unknown>);
+  const afterSnapshot =
+    after && typeof after === 'object' ? (after as Record<string, unknown>) : ({} as Record<string, unknown>);
 
   const nextSessionInput = Number(afterSnapshot.sessionInputTokens);
   const nextSessionOutput = Number(afterSnapshot.sessionOutputTokens);
@@ -69,13 +71,17 @@ sidePanelProto.handleTokenTrace = handleTokenTrace;
 /**
  * Handle compaction event messages
  */
-export const handleCompactionEvent = function handleCompactionEvent(this: SidePanelUI & Record<string, unknown>, message: any) {
+export const handleCompactionEvent = function handleCompactionEvent(
+  this: SidePanelUI & Record<string, unknown>,
+  message: any,
+) {
   const stage = typeof message.stage === 'string' ? message.stage : '';
   const note = typeof message.note === 'string' ? message.note : '';
   const source = typeof message.source === 'string' ? message.source : 'auto';
-  const details = message.details && typeof message.details === 'object'
-    ? (sanitizeTracePayload(message.details) as Record<string, unknown>)
-    : {};
+  const details =
+    message.details && typeof message.details === 'object'
+      ? (sanitizeTracePayload(message.details) as Record<string, unknown>)
+      : {};
 
   this.setContextCompactionState?.({
     lastEvent: { stage, note: note || null, source, details, timestamp: Date.now() },

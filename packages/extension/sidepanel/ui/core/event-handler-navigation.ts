@@ -3,9 +3,9 @@
  * Navigation-related event handlers
  */
 
-import { SidePanelUI } from './panel-ui.js';
-import { bindSidebarNavigation } from './panel-navigation.js';
 import { debounce } from './dom-utils.js';
+import { bindSidebarNavigation } from './panel-navigation.js';
+import { SidePanelUI } from './panel-ui.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 

@@ -3,10 +3,10 @@
  * Handles tool execution messages
  */
 
-import { SidePanelUI } from './panel-ui.js';
 import { appendTrace } from '../chat/trace-store.js';
+import { capTurnToolEvents, clampHistoryTurnMap } from './history-manager.js';
+import { SidePanelUI } from './panel-ui.js';
 import { sanitizeTracePayload } from './trace-sanitizer.js';
-import { clampHistoryTurnMap, capTurnToolEvents } from './history-manager.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 

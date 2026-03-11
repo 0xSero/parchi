@@ -10,7 +10,10 @@ const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<st
 /**
  * Handle run status messages
  */
-export const handleRunStatusMessage = function handleRunStatusMessage(this: SidePanelUI & Record<string, unknown>, message: any) {
+export const handleRunStatusMessage = function handleRunStatusMessage(
+  this: SidePanelUI & Record<string, unknown>,
+  message: any,
+) {
   const phase = typeof message.phase === 'string' ? message.phase : '';
   const isCompactionStage = String(message.stage || '') === 'compaction';
 
@@ -64,14 +67,15 @@ export const handleRunStatusMessage = function handleRunStatusMessage(this: Side
     this.updateStatus(message.note || 'Ready', 'success');
   } else if (phase === 'planning' || phase === 'executing' || phase === 'finalizing') {
     const phaseLabel = phase.charAt(0).toUpperCase() + phase.slice(1);
-    const retryInfo = message.attempts && message.maxRetries
-      ? (() => {
-          const parts: string[] = [];
-          if (message.attempts.api > 0) parts.push(`api ${message.attempts.api}/${message.maxRetries.api}`);
-          if (message.attempts.tool > 0) parts.push(`tool ${message.attempts.tool}/${message.maxRetries.tool}`);
-          return parts.length ? ` (retries: ${parts.join(', ')})` : '';
-        })()
-      : '';
+    const retryInfo =
+      message.attempts && message.maxRetries
+        ? (() => {
+            const parts: string[] = [];
+            if (message.attempts.api > 0) parts.push(`api ${message.attempts.api}/${message.maxRetries.api}`);
+            if (message.attempts.tool > 0) parts.push(`tool ${message.attempts.tool}/${message.maxRetries.tool}`);
+            return parts.length ? ` (retries: ${parts.join(', ')})` : '';
+          })()
+        : '';
     this.updateStatus(message.note || `${phaseLabel}${retryInfo}`, 'active');
   } else if (phase) {
     this.updateStatus(message.note || phase, 'active');
