@@ -2,7 +2,7 @@ import crypto from 'node:crypto';
 import http, { type IncomingMessage } from 'node:http';
 import { type JsonRpcRequest, isJsonRpcNotification, isJsonRpcResponse } from '@parchi/shared';
 import { type WebSocket, WebSocketServer } from 'ws';
-import { readAuth, removePid, writePid } from './auth.js';
+import { removePid, writePid } from './auth.js';
 import { handleDaemonHttpRequest } from './daemon-http.js';
 import { handleDaemonRpc } from './daemon-rpc.js';
 import { type AgentConnection, type AgentHello, type RunRecord, asRecord, now } from './daemon-shared.js';
@@ -52,6 +52,11 @@ export class ParchiDaemon {
     const bb = Buffer.from(String(b));
     if (aa.length !== bb.length) return false;
     return crypto.timingSafeEqual(aa, bb);
+  }
+
+  private isLoopbackRequest(req: IncomingMessage) {
+    const remote = String(req.socket.remoteAddress || '').toLowerCase();
+    return remote === '127.0.0.1' || remote === '::1' || remote === '::ffff:127.0.0.1';
   }
 
   private isAuthorized(req: IncomingMessage) {
@@ -233,6 +238,8 @@ export class ParchiDaemon {
       req,
       res,
       agentCount: this.agents.size,
+      token: this.token,
+      isLoopbackRequest: (request) => this.isLoopbackRequest(request),
       isAuthorized: (request) => this.isAuthorized(request),
       handleRpc: (method, params) => this.handleRpc(method, params),
     });
@@ -258,18 +265,4 @@ export class ParchiDaemon {
     console.log(`[parchi] daemon listening on http://${this.host}:${this.port}`);
     console.log(`[parchi] ws extension endpoint ws://${this.host}:${this.port}/v1/extension?token=...`);
   }
-}
-
-export async function startDaemon(_opts?: { foreground?: boolean }) {
-  const auth = readAuth();
-  if (!auth) {
-    console.error('No auth config found. Run `parchi init` first.');
-    process.exit(1);
-  }
-  const daemon = new ParchiDaemon({
-    token: auth.token,
-    host: '127.0.0.1',
-    port: auth.port,
-  });
-  await daemon.start();
 }

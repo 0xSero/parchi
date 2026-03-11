@@ -1,49 +1,8 @@
 import type http from 'node:http';
 import type { IncomingMessage } from 'node:http';
-import type { JsonRpcId } from '@parchi/shared';
-import type { WebSocket } from 'ws';
+import type { AgentConnection, AgentHello, RunRecord } from '@parchi/shared';
 
-export type AgentHello = {
-  agentId: string;
-  name?: string;
-  version?: string;
-  browser?: string;
-  userAgent?: string;
-  capabilities?: {
-    tools?: boolean;
-    agentRun?: boolean;
-  };
-};
-
-export type AgentConnection = {
-  agentId: string;
-  ws: WebSocket;
-  hello: AgentHello;
-  connectedAt: number;
-  lastSeenAt: number;
-  pending: Map<
-    JsonRpcId,
-    {
-      resolve: (value: unknown) => void;
-      reject: (err: Error) => void;
-      timeoutId: ReturnType<typeof setTimeout>;
-    }
-  >;
-};
-
-export type RunRecord = {
-  runId: string;
-  agentId: string;
-  createdAt: number;
-  updatedAt: number;
-  events: unknown[];
-  done: null | {
-    status: 'completed' | 'failed' | 'stopped';
-    final?: unknown;
-    error?: unknown;
-  };
-  waiters: Array<(value: RunRecord) => void>;
-};
+export type { AgentHello, AgentConnection, RunRecord };
 
 export const json = (res: http.ServerResponse, status: number, payload: unknown) => {
   const body = JSON.stringify(payload);

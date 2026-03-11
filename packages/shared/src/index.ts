@@ -8,6 +8,7 @@ export * from './provider-instance.js';
 export * from './profile.js';
 export * from './prompts.js';
 export * from './json-rpc.js';
+export * from './relay-types.js';
 export * from './recording.js';
 export * from './utils/json.js';
 export * from './utils/html.js';

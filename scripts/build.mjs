@@ -99,7 +99,6 @@ const copyDirFiltered = (src, dest, filter) => {
 
 const run = async () => {
   cleanDir(distDir);
-  cleanDir(relayDistDir);
   cleanDir(cliDistDir);
   cleanDir(electronAgentDistDir);
 
@@ -172,28 +171,8 @@ const run = async () => {
     external: ['chromium-bidi/lib/cjs/bidiMapper/BidiMapper', 'chromium-bidi/lib/cjs/cdp/CdpConnection'],
   });
 
-  // Build relay daemon + CLI (Node-only; separate dist folder so it isn't shipped with the extension bundle)
-  await esbuild.build({
-    entryPoints: {
-      'relay-daemon': path.join(rootDir, 'packages', 'relay-service', 'src', 'relay-daemon.ts'),
-      relay: path.join(rootDir, 'packages', 'relay-service', 'src', 'cli.ts'),
-    },
-    outdir: relayDistDir,
-    bundle: true,
-    format: 'esm',
-    platform: 'node',
-    target: 'es2022',
-    sourcemap: true,
-    logLevel: 'info',
-    define: buildDefines,
-    alias: workspaceAlias,
-    packages: 'external',
-    banner: {
-      js: '#!/usr/bin/env node',
-    },
-  });
-
   // Build parchi CLI (single file, Node.js)
+  // This now includes both the daemon and relay functionality (merged from relay-service)
   await esbuild.build({
     entryPoints: {
       parchi: path.join(rootDir, 'packages', 'cli', 'src', 'main.ts'),
@@ -232,6 +211,53 @@ const run = async () => {
       js: '#!/usr/bin/env node',
     },
   });
+
+  // Create backward-compatible relay wrappers in dist-relay
+  // These delegate to the unified CLI binary
+  cleanDir(relayDistDir);
+  const cliPath = path.join(cliDistDir, 'parchi.js');
+
+  // relay-daemon.js wrapper - delegates to parchi daemon
+  fs.writeFileSync(
+    path.join(relayDistDir, 'relay-daemon.js'),
+    `#!/usr/bin/env node
+// Backward-compatible wrapper - relay-service merged into CLI
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const cliPath = path.join(__dirname, '..', 'dist-cli', 'parchi.js');
+// Pass through original arguments directly to daemon
+const child = spawn(process.execPath, [cliPath, 'daemon', ...process.argv.slice(2)], {
+  stdio: 'inherit',
+});
+child.on('exit', (code) => process.exit(code ?? 0));
+`,
+  );
+
+  // relay.js wrapper - delegates to parchi relay
+  fs.writeFileSync(
+    path.join(relayDistDir, 'relay.js'),
+    `#!/usr/bin/env node
+// Backward-compatible wrapper - relay-service merged into CLI
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const cliPath = path.join(__dirname, '..', 'dist-cli', 'parchi.js');
+const args = ['relay', ...process.argv.slice(2)];
+const child = spawn(process.execPath, [cliPath, ...args], {
+  stdio: 'inherit',
+});
+child.on('exit', (code) => process.exit(code ?? 0));
+`,
+  );
 
   const manifestPath = path.join(extensionRoot, manifestName);
   const fallbackManifestPath = path.join(extensionRoot, 'manifest.json');

@@ -7,6 +7,8 @@ type HandleDaemonHttpRequestArgs = {
   req: IncomingMessage;
   res: ServerResponse;
   agentCount: number;
+  token: string;
+  isLoopbackRequest: (req: IncomingMessage) => boolean;
   isAuthorized: (req: IncomingMessage) => boolean;
   handleRpc: (method: string, params: unknown) => Promise<unknown>;
 };
@@ -15,13 +17,24 @@ export async function handleDaemonHttpRequest({
   req,
   res,
   agentCount,
+  token,
+  isLoopbackRequest,
   isAuthorized,
   handleRpc,
 }: HandleDaemonHttpRequestArgs) {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`);
 
-  if (url.pathname === '/healthz' || url.pathname === '/v1/pair') {
-    json(res, 200, { ok: true, paired: agentCount > 0 });
+  if (url.pathname === '/healthz') {
+    json(res, 200, { ok: true });
+    return;
+  }
+
+  if (url.pathname === '/v1/pair') {
+    const payload: Record<string, unknown> = { ok: true, paired: agentCount > 0 };
+    // Auto-pair is for localhost-only setup flows. Do not expose token to
+    // non-loopback clients.
+    if (isLoopbackRequest(req)) payload.token = token;
+    json(res, 200, payload);
     return;
   }
 
