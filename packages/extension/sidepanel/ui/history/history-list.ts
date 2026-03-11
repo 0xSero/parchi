@@ -1,4 +1,4 @@
-import { hydrateSessionHistoryStore, getSessionHistoryEntries } from '../../../state/stores/session-history-store.js';
+import { getSessionHistoryEntries, hydrateSessionHistoryStore } from '../../../state/stores/session-history-store.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
