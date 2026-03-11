@@ -1,0 +1,45 @@
+{
+  "featureId": "fix-test-file-line-limits",
+  "reviewedAt": "2026-03-11T01:54:06Z",
+  "commitId": "b6b13674fc2c0a1b60f82c402cb2d0ce05e63e96",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The rerun fix resolves the two prior oversized-test blockers: commit `b6b1367` removes the three over-limit suites, registers ten focused replacements in `tests/unit/run-unit-tests.ts:17-20,31-36,77-93`, and every replacement file in the commit is within the 200-line cap (29-138 lines). The feature still fails review overall because the same commit bundles unrelated version bumps in `package.json` and both extension manifests, which mission AGENTS forbids for non-release refactor work.",
+    "issues": [
+      {
+        "file": "package.json",
+        "line": 3,
+        "severity": "blocking",
+        "description": "Although the line-limit fix itself is complete, commit `b6b1367` also bumps the package version from `0.4.61` to `0.4.62`. Mission AGENTS marks package/manifest version bumps as out of scope for non-release refactor features, so this introduces a new blocking scope violation unrelated to splitting test files."
+      },
+      {
+        "file": "packages/extension/manifest.json",
+        "line": 4,
+        "severity": "blocking",
+        "description": "The same test-only fix commit also bumps the Chrome manifest version from `0.4.61` to `0.4.62`. That metadata change is unrelated to resolving the oversized profile/JSON-RPC test files and is explicitly prohibited by mission guidance for refactor features."
+      },
+      {
+        "file": "packages/extension/manifest.firefox.json",
+        "line": 15,
+        "severity": "blocking",
+        "description": "The Firefox manifest version is bumped in the fix commit as well, repeating the same forbidden release-metadata side effect. Because the feature scope was limited to splitting oversized test files, this remains a blocking scrutiny issue even though the file-size defects are fixed."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill's completion contract is still not being enforced consistently. This handoff records `skillFeedback.followedProcedure: true` even though its own verification block shows `npm run lint` exited 1 and does not record a passing `check:repo-standards`, while the skill says to mark `followedProcedure` true only after all validation steps passed and were recorded.",
+      "evidence": "`/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md:90-130` vs `/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T01-37-37-496Z__fix-test-file-line-limits__925bdf06-c921-4c04-a1d9-4ab194d05c11.json:13-40,319-321`"
+    },
+    {
+      "area": "services",
+      "observation": "Shared command state still omits `check:repo-standards` even though both repo AGENTS and the `refactor-worker` skill require it as a final validation step. That omission may be contributing to workers under-reporting or skipping this guardrail in handoffs.",
+      "evidence": "`/Users/sero/projects/browser-ai/.factory/services.yaml:1-15` vs `/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/AGENTS.md:210-219` and `/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md:100-105`"
+    }
+  ],
+  "addressesFailureFrom": "Multiple prior reviews: /Users/sero/projects/browser-ai/.factory/validation/foundation/scrutiny/reviews/fix-profile-test-coverage.json; /Users/sero/projects/browser-ai/.factory/validation/foundation/scrutiny/reviews/fix-json-rpc-test-coverage.json",
+  "summary": "The fix does what it was meant to do for the original blockers: the oversized profile and JSON-RPC test suites are split into ten focused modules and all committed replacements are under 200 lines. Review still fails because commit `b6b1367` introduces new blocking scope violations by bumping `package.json` plus both Chrome/Firefox manifest versions in a test-only refactor feature."
+}
