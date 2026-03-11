@@ -1,0 +1,21 @@
+{
+  "featureId": "fix-history-persistence",
+  "reviewedAt": "2026-03-11T14:27:28Z",
+  "commitId": "5d1dcc9da9b33dcbcec7cb886ffeb503918c9d95",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "The original blocking regression from `6871d15` was that `persistHistory` stopped writing `contextTranscript` even though `history-session-loader.ts` still restores `session.contextTranscript` and workflow generation reads `this.contextHistory`. Fix commit `5d1dcc9` restores that field in `packages/extension/sidepanel/ui/history/history-persistence.ts`, so sessions saved after the fix once again round-trip the extra context needed by `loadSession()` and `generateWorkflowFromSession()`. The value being persisted comes from `contextHistory`, which the sidepanel already populates through normalized message creation/normalization paths, so this targeted change adequately addresses the original blocking failure. I did not find any remaining blocking code issues in this fix.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` final-validation procedure is still easy to skip in practice: this fix session completed without running all required end-of-task validations from the skill.",
+      "evidence": "`.factory/skills/refactor-worker/SKILL.md:64-86,98-107,130` requires final `npm run test:integration` and `npm run build` runs before completion. The transcript skeleton for worker session `cb086a2c-51c5-49a8-ac4f-8c8a8c96d4c6` shows `npm run typecheck`, `npm run test:unit`, `npm run lint`, `npm run check:repo-standards`, and `wc -l`, but no `npm run test:integration` or `npm run build` before commit/handoff."
+    }
+  ],
+  "addressesFailureFrom": "sidepanel-refactor-panels-remaining",
+  "summary": "Pass: this fix resolves the prior blocking history-persistence regression by restoring saved `contextTranscript`, which lets session reloads and workflow generation recover the full context again. I did not find any remaining blocking code issues in the targeted fix, though I noted the recurring validation-procedure gap in the worker skill usage."
+}

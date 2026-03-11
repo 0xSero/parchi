@@ -1,0 +1,21 @@
+{
+  "featureId": "fix-profile-editor-save",
+  "reviewedAt": "2026-03-11T14:27:15Z",
+  "commitId": "47020bbdace8f7f444744939887f5ed2c508041f",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "Pass. The prior blocking failure in `sidepanel-refactor-panel-settings` was that `collectProfileEditorData()` rebuilt `apiKey`, `customEndpoint`, and `extraHeaders` from `providerInstance`, so `saveProfileEdits()` discarded profile-editor changes when it merged that helper output. Commit `47020bb` directly fixes that path in `packages/extension/sidepanel/ui/settings/profile-editor.ts`: it imports `parseHeadersJson`, reads `profileEditorApiKey` and `profileEditorEndpoint` from the editor inputs, parses `profileEditorHeaders`, and still feeds the result into `saveProfileEdits()`'s existing merge/persist flow. That adequately addresses the original failure, and I did not find a new code issue in the touched save path.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill still says final validation must include `npm run test:integration` and that `followedProcedure` can only be true when all required validation steps actually ran, but this fix handoff again marked `followedProcedure: true` without any integration-test run. The skill-compliance signal remains overstated.",
+      "evidence": "/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md:96-101 requires `npm run test:integration`, and line 130 says to set `followedProcedure: true` only if all validation steps actually ran and passed. The fix handoff /Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T14-16-32-095Z__fix-profile-editor-save__95a956a0-01f9-4652-819a-1685b60c9122.json:15-48 records only typecheck, test:unit, lint, check:repo-standards, and build, yet line 48 still sets `\"followedProcedure\": true`."
+    }
+  ],
+  "addressesFailureFrom": "sidepanel-refactor-panel-settings",
+  "summary": "Reviewed the prior failed review, feature metadata, fix handoff, transcript skeleton, shared-state files, and commit `47020bbdace8f7f444744939887f5ed2c508041f`. The fix updates the exact helper and fields cited in the prior blocking finding, so edited provider credentials, custom endpoint, and headers now flow through the profile-editor save path; I marked the fix pass and recorded one shared-state observation about overstated `followedProcedure` reporting."
+}
