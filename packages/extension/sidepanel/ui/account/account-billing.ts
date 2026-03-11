@@ -8,7 +8,7 @@ import {
   delay,
   formatCreditBalance,
   updateStatusCopy,
-} from './account-utils.js';
+} from './account-formatters.js';
 
 sidePanelProto.startAccountCheckout = async function startAccountCheckout() {
   // Default upgrade goes to $15 credit pack

@@ -1,14 +1,9 @@
-import {
-  signInWithOAuth,
-  signInWithPassword,
-  signOutAccount,
-  signUpWithPassword,
-} from '../../../convex/client.js';
+import { signInWithOAuth, signInWithPassword, signOutAccount, signUpWithPassword } from '../../../convex/client.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
+import { ACCOUNT_SETUP_STORAGE_KEYS, updateStatusCopy } from './account-formatters.js';
 import { ACCOUNT_MODE_BYOK, ACCOUNT_MODE_KEY, ACCOUNT_MODE_PAID, hasConfiguredByokProvider } from './account-mode.js';
-import { ACCOUNT_SETUP_STORAGE_KEYS, updateStatusCopy } from './account-utils.js';
 
 sidePanelProto.handleAccountPasswordAuth = async function handleAccountPasswordAuth(mode: 'signIn' | 'signUp') {
   const email = String(this.elements.accountEmailInput?.value || '').trim();
