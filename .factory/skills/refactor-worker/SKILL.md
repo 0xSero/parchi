@@ -87,7 +87,7 @@ Ensure all imports are updated:
 2. Export statements in new modules
 3. Index files if applicable
 
-### 8. Final Validation
+### 8. Final Validation and Diff Review
 
 ```bash
 # Full typecheck
@@ -105,9 +105,29 @@ npm run check:repo-standards
 
 # Build check
 npm run build
+
+# Final diff review - check what files will be committed
+git diff --cached --stat
+git diff --stat
 ```
 
-**IMPORTANT**: All validation steps must pass. If any step fails, fix the issue before completing the feature.
+**CRITICAL - Final Diff Review Checklist:**
+
+Before marking the feature complete, verify:
+
+1. **NO version bumps in package.json or manifest files** - unless the feature is explicitly about release/versioning
+2. **ALL touched files are ≤ 200 lines** - this includes test files, config files, and source files
+3. **Only relevant files staged** - no accidental changes to unrelated files
+4. **All validation steps passed** - typecheck, lint, repo-standards, build
+
+**If version bumps are detected:**
+- Unstage them: `git reset HEAD package.json packages/extension/manifest*.json`
+- Or commit with `--no-verify` to bypass auto-bumping hooks
+
+**If any file exceeds 200 lines:**
+- Split it into smaller focused modules before committing
+
+**IMPORTANT**: Only set `followedProcedure: true` in the handoff if ALL validation steps were actually run and passed. Record the actual commands and their output in the handoff.
 
 ### 9. Document Changes
 
