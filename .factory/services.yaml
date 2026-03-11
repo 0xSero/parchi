@@ -11,6 +11,7 @@ commands:
   test:relay: npm run test:relay
   lint: npm run lint
   lint:fix: npm run lint:fix
+  check:repo-standards: npm run check:repo-standards
   knip: npm run knip
   check:all: npm run check:all
 
