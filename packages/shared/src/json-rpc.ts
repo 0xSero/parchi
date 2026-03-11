@@ -23,6 +23,17 @@ export type JsonRpcResponse =
   | { jsonrpc: '2.0'; id: JsonRpcId; result: unknown }
   | { jsonrpc: '2.0'; id: JsonRpcId; error: JsonRpcError };
 
+/** Tool definition for AI SDK tool calling */
+export type ToolDefinition = {
+  name: string;
+  description?: string;
+  input_schema?: {
+    type: 'object';
+    properties: Record<string, unknown>;
+    required?: string[];
+  };
+};
+
 export function isObject(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === 'object' && !Array.isArray(value);
 }
