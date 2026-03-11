@@ -26,6 +26,7 @@ sidePanelProto.persistHistory = async function persistHistory() {
     title: this.firstUserMessage || 'Session',
     messageCount: this.displayHistory.length,
     transcript: this.displayHistory.slice(-200),
+    contextTranscript: this.contextHistory.slice(-200),
     turns,
   };
 
