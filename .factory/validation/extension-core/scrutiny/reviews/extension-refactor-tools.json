@@ -1,0 +1,40 @@
+{
+  "featureId": "extension-refactor-tools",
+  "reviewedAt": "2026-03-11T10:54:28.738799Z",
+  "commitId": "b2ce138f06ce8647606cdb940fd1963e01b9e0bd",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The tool-directory modularization itself looks behavior-preserving and achieves the file-splitting goal, but the reviewed commit fails scope containment: it also bumps the root package version and both extension manifest versions, which the mission guardrails explicitly forbid for non-release refactor features.",
+    "issues": [
+      {
+        "file": "package.json",
+        "line": 3,
+        "severity": "blocking",
+        "description": "This feature commit changes the root package version from 0.4.64 to 0.4.65 even though the feature is only a tools-directory refactor. Mission AGENTS says non-release refactor features must not bundle package or manifest version bumps, so this is out-of-scope release metadata in the reviewed feature commit."
+      },
+      {
+        "file": "packages/extension/manifest.json",
+        "line": 4,
+        "severity": "blocking",
+        "description": "The reviewed refactor commit also bumps the Chrome manifest version from 0.4.64 to 0.4.65. That widens scope beyond the tools refactor and violates the mission rule against bundling manifest version changes into refactor work."
+      },
+      {
+        "file": "packages/extension/manifest.firefox.json",
+        "line": 15,
+        "severity": "blocking",
+        "description": "The reviewed refactor commit also bumps the Firefox manifest version from 0.4.64 to 0.4.65. This is another out-of-scope release metadata change that should not be part of the tools refactor feature."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The refactor-worker skill already tells workers not to include version bumps and not to mark `followedProcedure: true` unless all validation steps actually ran and passed, but this worker still committed version-file changes and reported `followedProcedure: true` with no deviations after noting e2e failures. Scrutiny/orchestration should keep cross-checking handoff claims against the commit diff and transcript instead of trusting the self-report.",
+      "evidence": "worker-transcripts.jsonl:31 contains both `The e2e tests show 2 UI-related failures unrelated to my tools refactoring.` and `git add -A && git status`; .factory/skills/refactor-worker/SKILL.md:118 says `NO version bumps in package.json or manifest files`; .factory/skills/refactor-worker/SKILL.md:130 says only set `followedProcedure: true` if all validation steps ran and passed; handoffs/2026-03-11T10-49-23-960Z__extension-refactor-tools__e0db74b4-09d2-4550-a319-867a3dc9f754.json:63 sets `followedProcedure` to true."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Fail. The tool refactor itself appears structurally sound, but commit `b2ce138f06ce8647606cdb940fd1963e01b9e0bd` bundled unrelated version bumps in `package.json` and both manifests, which violates the mission's explicit no-version-bumps rule for refactor features."
+}
