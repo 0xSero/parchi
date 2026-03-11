@@ -6,10 +6,7 @@ interface OpenAIToolCall {
   id?: string;
   name?: string;
   args?: Record<string, unknown>;
-  arguments?: string;
   function?: { name?: string; arguments?: string };
-  func?: { name?: string; arguments?: string };
-  tool?: { name?: string; arguments?: string };
 }
 
 function createMessageId(): string {
@@ -131,12 +128,15 @@ export function toProviderMessages(history: Message[] = []): ProviderMessage[] {
 function normalizeToolCalls(toolCalls: Array<ToolCall | OpenAIToolCall> = []): ToolCall[] {
   return toolCalls.map((call) => {
     const openAiCall = call as OpenAIToolCall;
-    const funcLike = openAiCall?.function ?? openAiCall?.func ?? openAiCall?.tool;
-    const name = typeof call?.name === 'string' ? call.name : typeof funcLike?.name === 'string' ? funcLike.name : '';
     return {
       id: typeof call?.id === 'string' ? call.id : createMessageId(),
-      name,
-      args: normalizeArgs((call as ToolCall)?.args ?? openAiCall?.arguments ?? funcLike?.arguments),
+      name:
+        typeof call?.name === 'string'
+          ? call.name
+          : typeof openAiCall?.function?.name === 'string'
+            ? openAiCall.function.name
+            : '',
+      args: normalizeArgs((call as ToolCall)?.args ?? openAiCall?.function?.arguments),
     };
   });
 }
