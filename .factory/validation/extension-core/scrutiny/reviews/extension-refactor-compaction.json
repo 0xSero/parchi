@@ -1,0 +1,31 @@
+{
+  "featureId": "extension-refactor-compaction",
+  "reviewedAt": "2026-03-11T10:53:16Z",
+  "commitId": "0229708",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "Reviewed the recorded handoff, transcript skeleton, commit 0229708, and current branch state for the compaction refactor. The change is a behavior-preserving extraction: decision logic moved into compaction-decision.ts, telemetry emission into compaction-telemetry.ts, and message assembly helpers into compaction-messages.ts, while compaction-core.ts and compaction-apply.ts retain the same control flow and data passed into context_compacted/runtime telemetry. I did not find any correctness regressions or scope violations in the implementation relative to the feature description and expected behavior.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "The mission feature verification step still tells workers to run `npm run test:unit -- --grep 'compaction'`, but the current unit-test runner ignores grep filters. That makes the feature-level verification instruction misleading and forces workers to infer the real validation behavior from the skill file instead of shared state.",
+      "evidence": "features.json:1292-1295 lists `npm run test:unit -- --grep 'compaction'`; .factory/skills/refactor-worker/SKILL.md:30-33 says grep filters are ignored by the current test runner; `.factory/library/` has no note documenting this mismatch."
+    },
+    {
+      "area": "skills",
+      "observation": "The refactor-worker skill requires a final `npm run test:integration`, but this feature handoff recorded only `npm run test:unit` and still marked `followedProcedure: true`. Either the skill should explicitly allow scoped validation for pure refactors, or the handoff/validator contract should stop treating skipped integration tests as fully following procedure.",
+      "evidence": ".factory/skills/refactor-worker/SKILL.md:96-98 requires `npm run test:unit` and `npm run test:integration`; handoff JSON records `\"command\": \"npm run test:unit\"` at line 21, no `test:integration` entry, and `\"followedProcedure\": true` at lines 53-55."
+    },
+    {
+      "area": "conventions",
+      "observation": "Mission guidance says refactored files must stay at 200 lines, but the shared repo-standards guardrail defaults to 300 lines. Workers have to remember to run separate `wc -l` checks to satisfy the mission, so the documented guardrail and the enforced guardrail are currently out of sync.",
+      "evidence": "Mission AGENTS.md:9,13,39,182 all state a 200-line hard limit; scripts/check-repo-standards.mjs:7 sets `DEFAULT_MAX_LINES = 300`; the feature handoff explicitly recorded a separate `wc -l packages/extension/background/agent/compaction-*.ts` check to prove compliance."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Pass. Commit 0229708 cleanly refactors compaction orchestration into smaller modules without changing the underlying compaction flow, preserved-message assembly, or telemetry behavior. I found no code-level regressions in scope, but I did note shared-state gaps around validation instructions and the mismatch between the mission's 200-line rule and the repo-standards 300-line default."
+}
