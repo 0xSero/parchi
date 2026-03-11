@@ -39,7 +39,13 @@ import { runProviderInstanceFeaturesSuite } from './suites/provider-instance/fea
 import { runRecordingSummarySuite } from './suites/recording-summary.test.js';
 import { runReportImagesSuite } from './suites/report-images.test.js';
 import { runRetryHelpersSuite } from './suites/retry-helpers.test.js';
-import { runRuntimeMessagesSuite } from './suites/runtime-messages.test.js';
+import {
+  runRuntimeMessagesCoreSuite,
+  runRuntimeMessagesImagesSuite,
+  runRuntimeMessagesSessionSuite,
+  runRuntimeMessagesStreamingSuite,
+  runRuntimeMessagesValidationSuite,
+} from './suites/runtime-messages/index.js';
 import { runRuntimeProfileRoutingSuite } from './suites/runtime-profile-routing.test.js';
 import { runRuntimeTypesSuite } from './suites/runtime-types.test.js';
 import { runStatePersistenceSuite } from './suites/state-persistence.test.js';
@@ -86,7 +92,11 @@ export function runUnitTests() {
   runProviderInstanceBaseTypeSuite(runner);
   runProviderInstanceFeaturesSuite(runner);
   runRetryHelpersSuite(runner);
-  runRuntimeMessagesSuite(runner);
+  runRuntimeMessagesCoreSuite(runner);
+  runRuntimeMessagesValidationSuite(runner);
+  runRuntimeMessagesStreamingSuite(runner);
+  runRuntimeMessagesImagesSuite(runner);
+  runRuntimeMessagesSessionSuite(runner);
   runRuntimeTypesSuite(runner);
   runStatePersistenceSuite(runner);
   runXmlToolParserSuite(runner);
