@@ -4,7 +4,7 @@
  */
 
 import { SidePanelUI } from './panel-ui.js';
-import { autoResizeTextArea, debounce } from './dom-utils.js';
+import { autoResizeTextArea } from './dom-utils.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 
