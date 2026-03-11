@@ -1,0 +1,21 @@
+{
+  "featureId": "fix-history-messagecount-fallback",
+  "reviewedAt": "2026-03-11T14:27:12Z",
+  "commitId": "10f24fcca579c2b5b70819546a8b5b661b7c0a72",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "The original refactor commit `6871d15` regressed the history badge by replacing the previous transcript-length fallback with `session.messageCount || 0`, so legacy sessions without `messageCount` rendered as `0 messages`. The fix commit `10f24fcc` restores the fallback in `history-list.ts` by using `session.messageCount ?? session.transcript?.length ?? 0`, which correctly covers stored sessions missing `messageCount` while preserving explicit zero values. I did not find any new code issues introduced by this targeted change.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill still invites inaccurate `followedProcedure` reporting: this fix handoff marked `followedProcedure: true` even though the skill's required final validation steps were not all run.",
+      "evidence": "`.factory/skills/refactor-worker/SKILL.md:96-107,130` requires `npm run test:unit`, `npm run test:integration`, `npm run lint`, and `npm run build`, and says `followedProcedure: true` is only valid if all validation steps actually ran. Handoff `/Users/sero/.factory/missions/fdd24bf3-fc74-45b3-a646-4179615c1e31/handoffs/2026-03-11T14-22-24-885Z__fix-history-messagecount-fallback__4351830d-2a78-4acc-a43c-e6f2311fcdd6.json` records only `npm run typecheck`, `npm run lint`, `npm run check:repo-standards`, and `wc -l`, yet still sets `skillFeedback.followedProcedure` to true."
+    }
+  ],
+  "addressesFailureFrom": "sidepanel-refactor-panels-remaining",
+  "summary": "Pass: this fix cleanly resolves the earlier non-blocking legacy message-count regression in the history list without introducing new code problems. I also noted the recurring shared-state gap where `refactor-worker` handoffs mark `followedProcedure: true` despite skipped required validation steps."
+}
