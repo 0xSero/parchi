@@ -3,6 +3,41 @@ import type { ToolDefinition } from '@parchi/shared';
 /** Content extraction and reading tools */
 export const READ_TOOLS = [
   {
+    name: 'waitFor',
+    description: 'Wait for a selector or page JavaScript condition to become true.',
+    input_schema: {
+      type: 'object',
+      properties: {
+        selector: {
+          type: 'string',
+          description: 'Optional selector to wait for.',
+        },
+        text: {
+          type: 'string',
+          description: 'Optional text that must appear in the matched element or page scope.',
+        },
+        script: {
+          type: 'string',
+          description: 'Optional JavaScript expression or function body that must evaluate truthy.',
+        },
+        args: {
+          type: 'array',
+          description: 'Optional JSON-serializable arguments exposed to the script as args.',
+          items: {},
+        },
+        pollIntervalMs: {
+          type: 'number',
+          description: 'Polling interval in milliseconds. Defaults to 250.',
+        },
+        timeoutMs: {
+          type: 'number',
+          description: 'Maximum wait time in milliseconds.',
+        },
+        tabId: { type: 'number', description: 'Optional tab id.' },
+      },
+    },
+  },
+  {
     name: 'evaluate',
     description: 'Execute JavaScript in the page context and return a JSON-serializable result.',
     input_schema: {

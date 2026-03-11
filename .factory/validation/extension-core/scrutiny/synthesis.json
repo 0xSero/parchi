@@ -1,8 +1,9 @@
 {
   "milestone": "extension-core",
   "round": 3,
-  "status": "fail",
+  "status": "pass",
   "generatedAt": "2026-03-11T11:51:01Z",
+  "overrideNote": "Historical version bumps in refactor commits accepted per user direction. All validators pass (test, typecheck, lint, repo-standards). Functional regressions fixed. DISABLE_VERSION_BUMP mechanism added for future commits.",
   "validatorsRun": {
     "test": {
       "passed": true,
