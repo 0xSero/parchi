@@ -1,4 +1,4 @@
-import type { ProviderConnectionConfig } from './profile.js';
+import type { ProviderConnectionConfig } from './connection-config.js';
 
 export type ProviderInstanceAuthType = 'api-key' | 'oauth' | 'managed';
 
@@ -13,8 +13,11 @@ export interface ProviderModelEntry {
 /**
  * Connection fields shared between ProviderInstance and ProviderConnectionConfig.
  * ProviderInstance uses optional fields since not all auth types require all fields.
+ *
+ * Note: This extends ProviderConnectionConfig but makes all fields optional
+ * to support OAuth and managed auth types that don't require explicit configuration.
  */
-export interface ProviderInstanceConnection {
+export interface ProviderInstanceConnection extends Partial<ProviderConnectionConfig> {
   /** Model identifier (optional for provider instances) */
   model?: string;
   /** API key for authentication (optional, required for api-key auth type) */
@@ -32,13 +35,15 @@ export interface ProviderInstanceConnection {
  * The connection fields (model, apiKey, customEndpoint, extraHeaders) correspond
  * to ProviderConnectionConfig but are optional since different auth types
  * require different fields.
+ *
+ * Note: providerType maps to ProviderConnectionConfig.provider for storage compatibility.
  */
 export interface ProviderInstance extends ProviderInstanceConnection {
   /** Unique identifier for this provider instance */
   id: string;
   /** Human-readable name for this provider */
   name: string;
-  /** Provider type identifier (e.g., 'openai', 'anthropic', 'openrouter') */
+  /** Provider type identifier (e.g., 'openai', 'anthropic', 'openrouter') - maps to ProviderConnectionConfig.provider */
   providerType: string;
   /** Authentication method used */
   authType: ProviderInstanceAuthType;
@@ -65,6 +70,8 @@ export interface ProviderInstance extends ProviderInstanceConnection {
 /**
  * Extracts connection config fields from a ProviderInstance.
  * Useful for creating a ProviderConnectionConfig from a provider instance.
+ *
+ * Note: providerType is mapped to provider for compatibility with ProviderConnectionConfig.
  */
 export function extractConnectionFromProvider(
   provider: ProviderInstance,
