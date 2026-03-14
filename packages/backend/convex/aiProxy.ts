@@ -1,7 +1,6 @@
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { anyApi, httpActionGeneric } from 'convex/server';
 import { corsHeaders, jsonResponse } from './ai-proxy-config.js';
-import { createCreditHandlers } from './ai-proxy-credits.js';
 import {
   createProxyContext,
   createStreamingTransform,
@@ -11,6 +10,7 @@ import {
 } from './ai-proxy-handlers.js';
 import { resolveProviderTarget } from './ai-proxy-providers.js';
 import { asRecord } from './ai-proxy-utils.js';
+import { reportTokenUsageToStripe } from './stripeMetering.js';
 
 export const aiProxy = httpActionGeneric(async (ctx, request) => {
   if (request.method === 'OPTIONS') {
@@ -37,10 +37,14 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
   }
 
   const subscription = await ctx.runQuery(anyApi.subscriptions.getByUserId, { userId });
-  const creditBalance = subscription?.creditBalanceCents ?? 0;
-  const hasLegacySub = Boolean(subscription && subscription.plan === 'pro' && subscription.status === 'active');
-  if (creditBalance <= 0 && !hasLegacySub) {
-    return jsonResponse(402, { error: 'Insufficient credits. Purchase credits to continue.' });
+  const hasActiveSubscription = Boolean(
+    subscription && subscription.plan === 'pro' && subscription.status === 'active',
+  );
+  const stripeCustomerId = String(subscription?.stripeCustomerId || '').trim();
+  if (!hasActiveSubscription || !stripeCustomerId) {
+    return jsonResponse(402, {
+      error: 'Managed billing is not active. Open Account & Billing to start or manage your Stripe plan.',
+    });
   }
 
   let payload: Record<string, unknown>;
@@ -56,35 +60,9 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
   }
 
   // Create proxy context with all request parameters
-  const proxyCtx = createProxyContext(userId, payload, providerTarget, hasLegacySub);
-  const {
-    requestId,
-    estimatedTokens,
-    estimatedCostCents,
-    shouldTrackCredits,
-    providerTarget: target,
-    settledModel: initialModel,
-  } = proxyCtx;
+  const proxyCtx = createProxyContext(userId, payload, providerTarget);
+  const { requestId, estimatedTokens, providerTarget: target, settledModel: initialModel } = proxyCtx;
   let settledModel = initialModel;
-
-  // Reserve credits if needed
-  if (shouldTrackCredits) {
-    const reservation = await ctx.runMutation(anyApi.subscriptions.reserveCredits, {
-      userId,
-      amountCents: estimatedCostCents,
-      requestId,
-      provider: target.provider,
-      model: settledModel,
-      tokenEstimate: estimatedTokens,
-      note: 'Reserved before forwarding to upstream provider',
-    });
-    if (!reservation?.success) {
-      return jsonResponse(402, {
-        error: 'Insufficient credits for this request. Purchase more credits to continue.',
-        remainingCents: Number(reservation?.remainingCents ?? 0),
-      });
-    }
-  }
 
   await ctx.runMutation(anyApi.subscriptions.recordUsage, {
     userId,
@@ -92,16 +70,26 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
     tokenEstimate: estimatedTokens,
   });
 
-  // Create credit settlement handlers
-  const { settleCredits, releaseCredits } = createCreditHandlers(ctx, {
-    userId,
-    requestId,
-    estimatedTokens,
-    estimatedCostCents,
-    provider: target.provider,
-    settledModel,
-    shouldTrackCredits,
-  });
+  const syncFinalUsage = async (tokens: number) => {
+    const finalTokens = Math.max(0, Math.floor(Number(tokens || 0)));
+    const tokenDelta = finalTokens - estimatedTokens;
+    try {
+      if (tokenDelta !== 0) {
+        await ctx.runMutation(anyApi.subscriptions.adjustUsageTokens, {
+          userId,
+          tokenDelta,
+        });
+      }
+      await reportTokenUsageToStripe({
+        customerId: stripeCustomerId,
+        tokens: finalTokens,
+        identifier: requestId,
+      });
+    } catch (error) {
+      console.error('[aiProxy] Failed to report Stripe metered usage', { requestId, finalTokens, error });
+    }
+    return finalTokens;
+  };
 
   // Prepare and make upstream request
   const { body, makeRequest } = prepareUpstreamRequest(request, payload, target);
@@ -111,7 +99,6 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
   try {
     upstream = await makeRequest(body);
   } catch {
-    await releaseCredits('Upstream network error before response');
     return jsonResponse(502, {
       error: 'Upstream provider request failed before a response was received.',
       requestId,
@@ -146,20 +133,11 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
   const cacheControl = upstream.headers.get('cache-control');
   if (cacheControl) responseHeaders.set('cache-control', cacheControl);
   responseHeaders.set('x-parchi-request-id', requestId);
-  responseHeaders.set('x-parchi-estimated-cost-cents', String(estimatedCostCents));
+  responseHeaders.set('x-parchi-estimated-tokens', String(estimatedTokens));
 
   // Handle upstream error
   if (!upstream.ok) {
-    await releaseCredits(`Upstream responded with HTTP ${upstream.status}`);
     return new Response(upstreamErrorBodyText ?? upstream.body, {
-      status: upstream.status,
-      headers: responseHeaders,
-    });
-  }
-
-  // Skip credit tracking for legacy subscribers
-  if (!shouldTrackCredits) {
-    return new Response(upstream.body, {
       status: upstream.status,
       headers: responseHeaders,
     });
@@ -169,13 +147,8 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
   const isStreaming = String(contentType || '').includes('text/event-stream');
   if (!isStreaming) {
     const usageTokens = await extractUsageFromResponse(upstream);
-    const finalCostCents = await settleCredits(
-      usageTokens ?? estimatedTokens,
-      usageTokens !== null ? 'Settled from JSON response usage' : 'Settled using token estimate (usage missing)',
-    );
-    if (finalCostCents !== null) {
-      responseHeaders.set('x-parchi-final-cost-cents', String(finalCostCents));
-    }
+    const finalTokens = await syncFinalUsage(usageTokens ?? estimatedTokens);
+    responseHeaders.set('x-parchi-final-tokens', String(finalTokens));
     return new Response(upstream.body, {
       status: upstream.status,
       headers: responseHeaders,
@@ -185,10 +158,8 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
   // Handle streaming response
   const upstreamBody = upstream.body;
   if (!upstreamBody) {
-    const finalCostCents = await settleCredits(estimatedTokens, 'Settled using estimate (empty streaming body)');
-    if (finalCostCents !== null) {
-      responseHeaders.set('x-parchi-final-cost-cents', String(finalCostCents));
-    }
+    const finalTokens = await syncFinalUsage(estimatedTokens);
+    responseHeaders.set('x-parchi-final-tokens', String(finalTokens));
     return new Response(null, {
       status: upstream.status,
       headers: responseHeaders,
@@ -197,9 +168,8 @@ export const aiProxy = httpActionGeneric(async (ctx, request) => {
 
   const transform = createStreamingTransform({
     estimatedTokens,
-    shouldTrackCredits,
-    onSettle: async (tokens, note) => {
-      await settleCredits(tokens, note);
+    onSettle: async (tokens) => {
+      await syncFinalUsage(tokens);
     },
   });
 

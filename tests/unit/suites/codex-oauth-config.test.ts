@@ -3,7 +3,7 @@ import {
   CODEX_OAUTH_BASE_URL,
   buildCodexOAuthProviderOptions,
   isCodexOAuthProvider,
-} from '../../../packages/extension/ai/sdk-client.js';
+} from '../../../packages/extension/ai/sdk/index.js';
 import { OAUTH_PROVIDERS } from '../../../packages/extension/oauth/providers.js';
 import { type TestRunner, log } from '../shared/runner.js';
 

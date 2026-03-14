@@ -24,8 +24,6 @@ export type ProviderTarget = {
   upstreamApiKey: string;
 };
 
-export const COST_CENTS_PER_TOKEN = Number(process.env.CREDIT_COST_CENTS_PER_TOKEN || 0.003);
-export const MIN_REQUEST_COST_CENTS = 1;
 export const CHARS_PER_TOKEN_ESTIMATE = 4;
 export const OPENROUTER_SAFE_FALLBACK_MODEL =
   String(process.env.OPENROUTER_FALLBACK_MODEL || 'openrouter/auto').trim() || 'openrouter/auto';

@@ -66,6 +66,14 @@ export const getStripeClient = () => {
   return new Stripe(key);
 };
 
+export const stripeMeteredPriceId = () => {
+  const priceId = String(process.env.STRIPE_TOKEN_BILLING_PRICE_ID || '').trim();
+  if (!priceId) {
+    throw new Error('Missing STRIPE_TOKEN_BILLING_PRICE_ID');
+  }
+  return priceId;
+};
+
 export const mapStripeStatus = (status: string | null | undefined): 'active' | 'canceled' | 'past_due' | 'inactive' => {
   switch (String(status || '').toLowerCase()) {
     case 'active':

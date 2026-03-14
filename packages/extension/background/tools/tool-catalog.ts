@@ -1,5 +1,5 @@
 import type { ComposedSkill, ToolDefinition } from '@parchi/shared';
-import { getOrchestratorToolDefinitions } from './orchestrator-tool-definitions.js';
+import { getOrchestratorToolDefinitions } from './orchestrator/tool-definitions.js';
 
 type BrowserToolProvider = {
   getToolDefinitions(): ToolDefinition[];

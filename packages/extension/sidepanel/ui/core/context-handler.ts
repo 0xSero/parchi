@@ -3,8 +3,8 @@
  * Handles context compaction and message appending
  */
 
-import { createMessage, normalizeConversationHistory } from '../../../ai/message-schema.js';
-import type { Message } from '../../../ai/message-schema.js';
+import { createMessage, normalizeConversationHistory } from '../../../ai/messages/schema.js';
+import type { Message } from '../../../ai/messages/schema.js';
 import { appendTrace } from '../chat/trace-store.js';
 import { clampContextHistory, clearReportImages, clearToolCallViews } from './panel-session-memory.js';
 import { SidePanelUI } from './panel-ui.js';

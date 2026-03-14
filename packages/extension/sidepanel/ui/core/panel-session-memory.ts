@@ -1,4 +1,4 @@
-import type { Message } from '../../../ai/message-schema.js';
+import type { Message } from '../../../ai/messages/schema.js';
 
 export const CONTEXT_HISTORY_SOFT_CAP = 600;
 

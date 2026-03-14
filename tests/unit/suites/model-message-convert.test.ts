@@ -1,5 +1,5 @@
-import type { Message } from '../../../packages/extension/ai/message-schema.js';
-import { toModelMessages } from '../../../packages/extension/ai/model-convert.js';
+import type { Message } from '../../../packages/extension/ai/messages/schema.js';
+import { toModelMessages } from '../../../packages/extension/ai/models/convert.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runModelMessageConvertSuite(runner: TestRunner) {

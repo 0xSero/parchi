@@ -1,6 +1,6 @@
 import { streamText } from 'ai';
-import { extractTextFromResponseMessages } from '../ai/message-utils.js';
-import { buildCodexOAuthProviderOptions, isCodexOAuthProvider, resolveLanguageModel } from '../ai/sdk-client.js';
+import { extractTextFromResponseMessages } from '../ai/messages/utils.js';
+import { buildCodexOAuthProviderOptions, isCodexOAuthProvider, resolveLanguageModel } from '../ai/sdk/index.js';
 import { readSettingsSnapshot } from '../state/persistence/settings-repository.js';
 import {
   hasOwnApiKey,
@@ -57,11 +57,15 @@ export async function runApiSmokeTest(
       runtimeProfile.route === 'oauth' ? await injectOAuthTokens(runtimeProfile.profile) : runtimeProfile.profile;
     const model = resolveLanguageModel(resolvedProfile as any);
     const smokeUsesCodexOAuth = profileUsesCodexOAuth(resolvedProfile as any);
+    const smokeProvider = String(
+      (resolvedProfile as Record<string, any>)?.provider || settings.provider || '',
+    ).toLowerCase();
+    const maxOutputTokens = smokeUsesCodexOAuth ? undefined : smokeProvider === 'minimax' ? 256 : 64;
 
     const result = streamText({
       model,
       messages: [{ role: 'user', content: prompt }],
-      maxOutputTokens: smokeUsesCodexOAuth ? undefined : 64,
+      maxOutputTokens,
       temperature: 0,
       providerOptions: smokeUsesCodexOAuth ? buildCodexOAuthProviderOptions('You are a concise assistant.') : undefined,
     });

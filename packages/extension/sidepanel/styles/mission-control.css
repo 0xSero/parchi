@@ -12,30 +12,14 @@
 }
 
 .mission-control-fab {
-  width: 34px;
-  height: 34px;
-  border-radius: 999px;
-  border: none;
-  background: var(--card);
-  color: var(--foreground);
   display: none; /* hidden until subagents exist */
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 220ms var(--ease-spring);
-  opacity: 0.65;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3);
+  --ui-fab-hover-bg: var(--card-hover);
+  --ui-fab-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3);
   position: relative;
 }
 
 .mission-control-fab.visible {
   display: flex;
-}
-
-.mission-control-fab:hover {
-  transform: scale(1.04);
-  opacity: 1;
-  background: var(--card-hover);
 }
 
 .mission-control-fab.has-running {
@@ -64,14 +48,10 @@
 
 /* ---- Overlay panel ---- */
 .mission-control-scrim {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(3px);
-  z-index: 80;
+  --overlay-scrim-blur: 3px;
+  --overlay-scrim-z: 80;
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--duration-normal) var(--ease-out-expo);
 }
 
 .mission-control-scrim.open {
@@ -124,22 +104,13 @@
 }
 
 .mc-close-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 150ms ease;
+  --icon-btn-size: 28px;
+  --icon-btn-radius: 6px;
 }
 
 .mc-close-btn:hover {
-  background: var(--ink-2);
-  color: var(--foreground);
+  --icon-btn-hover-bg: var(--ink-2);
+  --icon-btn-hover-color: var(--foreground);
 }
 
 /* ---- Agent list (left column when detail view isn't open) ---- */

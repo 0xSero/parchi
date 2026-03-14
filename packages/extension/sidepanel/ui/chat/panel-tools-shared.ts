@@ -72,6 +72,7 @@ Object.assign(toolIcons, {
   type: toolIcons.browser_type,
   pressKey: toolIcons.browser_press_key,
   scroll: toolIcons.browser_scroll,
+  evaluate: toolIcons.browser_execute_script,
   getContent: toolIcons.browser_get_page_text,
   findHtml: toolIcons.browser_find_element,
   screenshot: toolIcons.browser_screenshot,

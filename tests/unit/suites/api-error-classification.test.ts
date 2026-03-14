@@ -1,4 +1,4 @@
-import { classifyApiError } from '../../../packages/extension/ai/error-classifier.js';
+import { classifyApiError } from '../../../packages/extension/ai/errors/classifier.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runApiErrorClassificationSuite(runner: TestRunner) {
@@ -26,7 +26,8 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     const classified = classifyApiError({
       statusCode: 402,
       message: 'Payment Required',
-      responseBody: '{"error":"Insufficient credits. Purchase credits to continue."}',
+      responseBody:
+        '{"error":"Managed billing is not active. Open Account & Billing to start or manage your Stripe plan."}',
     });
     runner.assertEqual(classified.category, 'auth');
     runner.assertTrue(

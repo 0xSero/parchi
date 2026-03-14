@@ -1,4 +1,4 @@
-import { createExponentialBackoff, isValidFinalResponse } from '../../../packages/extension/ai/retry-engine.js';
+import { createExponentialBackoff, isValidFinalResponse } from '../../../packages/extension/ai/models/retry-engine.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runRetryHelpersSuite(runner: TestRunner) {

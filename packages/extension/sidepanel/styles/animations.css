@@ -4,14 +4,6 @@
    ============================================================================ */
 
 :root {
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-out-back: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-in-out-sine: cubic-bezier(0.37, 0, 0.63, 1);
-  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
-
-  --duration-fast: 150ms;
-  --duration-normal: 250ms;
-  --duration-slow: 400ms;
   --duration-slower: 600ms;
 }
 
@@ -266,64 +258,6 @@
 
 .nav-item:hover svg {
   transform: scale(1.1);
-}
-
-/* --------------------------------------------------------------------------
-   Buttons
-   -------------------------------------------------------------------------- */
-
-.btn {
-  position: relative;
-  overflow: hidden;
-  transition: all var(--duration-fast) var(--ease-out-expo);
-}
-
-.btn::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), transparent);
-  opacity: 0;
-  transition: opacity var(--duration-fast);
-}
-
-.btn:hover {
-  transform: translateY(-1px);
-}
-
-.btn:hover::after {
-  opacity: 0;
-}
-
-.btn:active {
-  transform: translateY(0);
-}
-
-.btn-primary {
-  transition: all var(--duration-fast) var(--ease-out-expo);
-}
-
-.btn-primary:hover {
-  border-color: rgb(var(--accent-rgb) / 0.7);
-  box-shadow: 0 0 16px rgb(var(--accent-rgb) / 0.15);
-}
-
-.icon-btn {
-  position: relative;
-  overflow: hidden;
-  transition: all var(--duration-fast) var(--ease-out-expo);
-}
-
-.icon-btn::before {
-  display: none;
-}
-
-.icon-btn:hover {
-  transform: none;
-}
-
-.icon-btn:active {
-  transform: scale(0.98);
 }
 
 .send-btn {
@@ -604,17 +538,6 @@
 .hover-lift:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-}
-
-/* --------------------------------------------------------------------------
-   Focus Ring
-   -------------------------------------------------------------------------- */
-
-button:focus-visible,
-input:focus-visible,
-select:focus-visible {
-  outline: none;
-  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgb(var(--accent-rgb) / 0.2);
 }
 
 /* --------------------------------------------------------------------------

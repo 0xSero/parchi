@@ -6,8 +6,8 @@
  */
 
 import { streamText } from 'ai';
-import { extractTextFromResponseMessages } from '../../packages/extension/ai/message-utils.js';
-import { resolveLanguageModel } from '../../packages/extension/ai/sdk-client.js';
+import { extractTextFromResponseMessages } from '../../packages/extension/ai/messages/utils.js';
+import { resolveLanguageModel } from '../../packages/extension/ai/sdk/index.js';
 
 const colors = {
   info: '\x1b[36m',

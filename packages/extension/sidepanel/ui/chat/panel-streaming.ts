@@ -1,5 +1,5 @@
 import type { RunPlan } from '@parchi/shared';
-import { dedupeThinking, extractThinking } from '../../../ai/message-utils.js';
+import { dedupeThinking, extractThinking } from '../../../ai/messages/utils.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { formatStreamingElapsed, nextStreamingVerb } from './panel-streaming-helpers.js';
 

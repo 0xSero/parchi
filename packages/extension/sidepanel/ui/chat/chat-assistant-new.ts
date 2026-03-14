@@ -1,4 +1,4 @@
-import { dedupeThinking } from '../../../ai/message-utils.js';
+import { dedupeThinking } from '../../../ai/messages/utils.js';
 import type { SidePanelUI } from '../core/panel-ui.js';
 
 export function renderNewAssistantMessage(

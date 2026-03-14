@@ -42,6 +42,23 @@ export type BrowserToolSuccessResult = {
   [key: string]: unknown;
 };
 
+export type BrowserNetworkLogEntry = {
+  url: string;
+  method: string;
+  status?: number;
+  statusText?: string;
+  resourceType?: string;
+  mimeType?: string;
+  requestHeaders?: Record<string, string>;
+  responseHeaders?: Record<string, string>;
+  body?: string;
+  bodyTruncated?: boolean;
+  failed?: boolean;
+  errorText?: string;
+  startedAt: number;
+  finishedAt?: number;
+};
+
 export interface BrowserToolsDelegate {
   sessionTabs: Map<number, SessionTabSummary>;
   currentSessionTabId: number | null;
@@ -65,6 +82,18 @@ export interface BrowserToolsDelegate {
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
   ): Promise<BrowserToolResult<TResult>>;
+  watchNetwork(tabId: number, clearExisting?: boolean): Promise<BrowserToolResult>;
+  readNetworkLog(
+    tabId: number,
+    options?: {
+      urlIncludes?: string;
+      method?: string;
+      status?: number;
+      limit?: number;
+      includeBody?: boolean;
+      clearAfterRead?: boolean;
+    },
+  ): Promise<BrowserToolResult<{ success: true; entries: BrowserNetworkLogEntry[] }>>;
   sendOverlay(tabId: number, payload: ActionOverlayPayload, retries?: number): Promise<void>;
 }
 

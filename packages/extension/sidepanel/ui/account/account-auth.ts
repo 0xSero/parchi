@@ -46,7 +46,7 @@ sidePanelProto.handleAccountOAuth = async function handleAccountOAuth(provider: 
     if (result?.completed) {
       keepPaidMode = true;
       await this.refreshAccountPanel({ silent: true });
-      updateStatusCopy(this, `${provider} sign-in complete. Buy credits to enable Parchi managed access.`);
+      updateStatusCopy(this, `${provider} sign-in complete. Open billing to enable Parchi managed access.`);
       this.updateStatus('Signed in with OAuth', 'success');
       return;
     }
@@ -79,7 +79,6 @@ sidePanelProto.handleAccountOAuth = async function handleAccountOAuth(provider: 
 sidePanelProto.signOutFromAccount = async function signOutFromAccount() {
   this.setAccountUiBusy(true);
   try {
-    this._creditRefreshRunId = Number(this._creditRefreshRunId || 0) + 1;
     await signOutAccount();
     const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
     if (hasConfiguredByokProvider(stored)) {

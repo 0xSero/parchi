@@ -3,7 +3,6 @@
 import { OPENROUTER_SAFE_FALLBACK_MODEL, type ProviderTarget } from './ai-proxy-config.js';
 import { buildUpstreamHeaders, resolveForwardPath } from './ai-proxy-providers.js';
 import {
-  costFromTokens,
   createRequestId,
   estimatePromptTokens,
   extractUsageTokens,
@@ -16,24 +15,20 @@ export interface ProxyContext {
   userId: string;
   requestId: string;
   estimatedTokens: number;
-  estimatedCostCents: number;
   providerTarget: ProviderTarget;
   settledModel: string;
-  shouldTrackCredits: boolean;
 }
 
 export function createProxyContext(
   userId: string,
   payload: Record<string, unknown>,
   providerTarget: ProviderTarget,
-  hasLegacySub: boolean,
 ): ProxyContext {
   const requestId = createRequestId();
   const settledModel = String(payload?.model || '').trim();
   const promptTokens = estimatePromptTokens(payload);
   const maxTokens = toSafeInt(payload?.max_tokens || payload?.maxTokens || 4096) || 4096;
   const estimatedTokens = Math.max(1, promptTokens + maxTokens);
-  const estimatedCostCents = costFromTokens(estimatedTokens);
 
   // Enable usage tracking in stream_options for supported providers
   if (payload?.stream === true && (providerTarget.provider === 'openai' || providerTarget.provider === 'openrouter')) {
@@ -47,10 +42,8 @@ export function createProxyContext(
     userId,
     requestId,
     estimatedTokens,
-    estimatedCostCents,
     providerTarget,
     settledModel,
-    shouldTrackCredits: !hasLegacySub,
   };
 }
 
@@ -117,21 +110,11 @@ export async function tryFallbackModel(
 
 export interface StreamingTransformContext {
   estimatedTokens: number;
-  shouldTrackCredits: boolean;
-  onSettle: (actualTokens: number, note: string) => Promise<void>;
+  onSettle: (actualTokens: number) => Promise<void>;
 }
 
 export function createStreamingTransform(context: StreamingTransformContext): TransformStream<Uint8Array, Uint8Array> {
-  const { estimatedTokens, shouldTrackCredits, onSettle } = context;
-
-  if (!shouldTrackCredits) {
-    // Pass-through transform when not tracking credits
-    return new TransformStream<Uint8Array, Uint8Array>({
-      transform(chunk, controller) {
-        controller.enqueue(chunk);
-      },
-    });
-  }
+  const { estimatedTokens, onSettle } = context;
 
   const decoder = new TextDecoder();
   let streamBuffer = '';
@@ -170,12 +153,7 @@ export function createStreamingTransform(context: StreamingTransformContext): Tr
         const usageFromTail = parseSseUsageTokens(streamBuffer);
         if (usageFromTail !== null) detectedUsageTokens = usageFromTail;
       }
-      await onSettle(
-        detectedUsageTokens !== null ? detectedUsageTokens : estimatedTokens,
-        detectedUsageTokens !== null
-          ? 'Settled from SSE stream usage'
-          : 'Settled using token estimate (SSE usage missing)',
-      );
+      await onSettle(detectedUsageTokens !== null ? detectedUsageTokens : estimatedTokens);
     },
   });
 }

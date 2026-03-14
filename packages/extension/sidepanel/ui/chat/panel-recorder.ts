@@ -11,6 +11,18 @@ const formatTime = (ms: number): string => {
   return `${min}:${String(sec).padStart(2, '0')}`;
 };
 
+const syncRecordButtonState = (button: HTMLButtonElement | null, recording: boolean) => {
+  if (!button) return;
+  button.classList.toggle('recording', recording);
+  button.setAttribute('aria-pressed', recording ? 'true' : 'false');
+  button.title = recording ? 'Stop recording' : 'Record context';
+  if (recording) {
+    button.setAttribute('data-tooltip', 'Stop recording');
+  } else {
+    button.setAttribute('data-tooltip', 'Record context');
+  }
+};
+
 // ──────────────────────────────────────────────────────────────────────
 // Recording start / stop / timer (unchanged)
 // ──────────────────────────────────────────────────────────────────────
@@ -20,7 +32,7 @@ sidePanelProto.startRecording = async function startRecording() {
   this.recordingState.status = 'recording';
   this.recordingState.elapsedMs = 0;
 
-  this.elements.recordBtn?.classList.add('recording');
+  syncRecordButtonState(this.elements.recordBtn, true);
   this.showRecordingTimer();
   this.updateStatus('Recording started. Click again to stop.', 'active');
 
@@ -61,7 +73,7 @@ sidePanelProto.stopRecording = async function stopRecording() {
     this.recordingState.timerId = null;
   }
 
-  this.elements.recordBtn?.classList.remove('recording');
+  syncRecordButtonState(this.elements.recordBtn, false);
   this.hideRecordingTimer();
   this.updateStatus('Recording stopped. Preparing review...', 'active');
 
@@ -80,7 +92,7 @@ sidePanelProto.cleanupRecordingUI = function cleanupRecordingUI() {
   }
   this.recordingState = { status: 'idle', elapsedMs: 0, timerId: null };
   this.reviewState = null;
-  this.elements.recordBtn?.classList.remove('recording');
+  syncRecordButtonState(this.elements.recordBtn, false);
   this.hideRecordingTimer();
 };
 
@@ -376,7 +388,7 @@ sidePanelProto.removeRecordedContext = function removeRecordedContext() {
 
 sidePanelProto.showRecordedContextBadge = function showRecordedContextBadge() {
   const badge = this.elements.recordedContextBadge;
-  if (badge) badge.classList.add('hidden');
+  if (badge) badge.classList.remove('hidden');
 };
 
 sidePanelProto.hideRecordedContextBadge = function hideRecordedContextBadge() {

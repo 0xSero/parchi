@@ -1,4 +1,4 @@
-import { createMessage } from '../../../ai/message-schema.js';
+import { createMessage } from '../../../ai/messages/schema.js';
 import { getActiveTab } from '../../../utils/active-tab.js';
 import { clampContextHistory } from '../core/panel-session-memory.js';
 import { SidePanelUI } from '../core/panel-ui.js';

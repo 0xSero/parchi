@@ -183,11 +183,9 @@ select:focus-visible {
 
 .icon-btn:focus-visible,
 .context-inspector-fab:focus-visible,
-.settings-fab:focus-visible,
-.history-fab:focus-visible,
-.new-session-fab:focus-visible {
+.ui-fab:focus-visible {
   outline: none;
-  box-shadow: none;
+  box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px rgb(var(--accent-rgb) / 0.2);
 }
 
 /* Disabled */

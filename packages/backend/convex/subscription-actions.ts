@@ -1,17 +1,13 @@
 import { getAuthUserId } from '@convex-dev/auth/server';
 import { actionGeneric, anyApi } from 'convex/server';
-import { baseSiteUrl, getStripeClient } from './stripe-utils.js';
+import { baseSiteUrl, getStripeClient, stripeMeteredPriceId } from './stripe-utils.js';
 
 export const createCheckoutSession = actionGeneric(async (ctx) => {
   const userId = await getAuthUserId(ctx);
   if (!userId) throw new Error('Unauthorized');
 
-  const stripePriceId = process.env.STRIPE_PRO_PRICE_ID;
-  if (!stripePriceId) {
-    throw new Error('Missing STRIPE_PRO_PRICE_ID');
-  }
-
   const stripe = getStripeClient();
+  const stripePriceId = stripeMeteredPriceId();
   const user = await ctx.runQuery(anyApi.users.me, {});
   const existing = await ctx.runQuery(anyApi.subscriptions.getByUserId, { userId });
 

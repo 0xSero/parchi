@@ -108,7 +108,7 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
     type: 'api-key',
     sdkType: 'anthropic',
     defaultBaseUrl: 'https://api.minimax.io/anthropic',
-    authHeaderStyle: 'x-api-key',
+    authHeaderStyle: 'bearer',
     supportsModelListing: false,
     normalizeBaseUrl: normalizeAnthropicBaseUrl,
     models: [{ id: 'MiniMax-M2.5', label: 'MiniMax M2.5', contextWindow: 1000000 }],

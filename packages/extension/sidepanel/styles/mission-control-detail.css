@@ -37,23 +37,14 @@
 }
 
 .mc-detail-back {
-  width: 26px;
-  height: 26px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 150ms ease;
+  --icon-btn-size: 26px;
+  --icon-btn-radius: 6px;
   flex-shrink: 0;
 }
 
 .mc-detail-back:hover {
-  background: var(--ink-2);
-  color: var(--foreground);
+  --icon-btn-hover-bg: var(--ink-2);
+  --icon-btn-hover-color: var(--foreground);
 }
 
 .mc-detail-name {

@@ -1,4 +1,5 @@
 @import url("./styles/base.css");
+@import url("./styles/shared.css");
 @import url("./styles/layout.css");
 @import url("./styles/chat.css");
 @import url("./styles/composer.css");

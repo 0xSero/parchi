@@ -2,6 +2,7 @@
 import { createAnthropic } from '@ai-sdk/anthropic';
 import { createOpenAI } from '@ai-sdk/openai';
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
+import { buildAnthropicCompatibleHeaders } from '../sdk/provider-utils.js';
 import type { ProviderCredentials, ProviderDefinition } from './types.js';
 
 export function resolveProviderSdk(def: ProviderDefinition, credentials: ProviderCredentials) {
@@ -12,7 +13,11 @@ export function resolveProviderSdk(def: ProviderDefinition, credentials: Provide
   switch (def.sdkType) {
     case 'anthropic': {
       const resolvedBase = def.normalizeBaseUrl ? def.normalizeBaseUrl(baseURL) : baseURL;
-      const provider = createAnthropic({ apiKey, baseURL: resolvedBase, headers });
+      const provider = createAnthropic({
+        apiKey,
+        baseURL: resolvedBase,
+        headers: buildAnthropicCompatibleHeaders(def.key, apiKey, headers),
+      });
       return provider;
     }
     case 'openai': {

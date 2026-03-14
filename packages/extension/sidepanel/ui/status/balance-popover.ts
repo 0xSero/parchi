@@ -1,4 +1,4 @@
-// Balance popover - displays account credits and subscription status
+// Balance popover - displays account billing and subscription status
 
 import { materializeProfileWithProvider } from '../../../state/provider-registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
@@ -30,21 +30,16 @@ sidePanelProto.toggleBalancePopover = async function toggleBalancePopover() {
 
   // Try to fetch live balance from storage
   try {
-    const stored = await chrome.storage.local.get([
-      'convexCreditBalanceCents',
-      'convexSubscriptionPlan',
-      'convexSubscriptionStatus',
-    ]);
-    const creditCents = Number(stored.convexCreditBalanceCents || 0);
+    const stored = await chrome.storage.local.get(['convexSubscriptionPlan', 'convexSubscriptionStatus']);
     const plan = String(stored.convexSubscriptionPlan || '').toLowerCase();
     const status = String(stored.convexSubscriptionStatus || '').toLowerCase();
-    const planLabel = plan === 'pro' && status === 'active' ? 'Pro (active)' : creditCents > 0 ? 'Credits' : 'Free';
+    const planLabel = plan === 'pro' && status === 'active' ? 'Metered (active)' : 'Free';
 
     const creditsEl = document.getElementById('balanceCreditsValue');
     const planEl = document.getElementById('balancePlanValue');
     const spendEl = document.getElementById('balanceSpendValue');
 
-    if (creditsEl) creditsEl.textContent = creditCents > 0 ? `$${(creditCents / 100).toFixed(2)}` : '$0.00';
+    if (creditsEl) creditsEl.textContent = plan === 'pro' && status === 'active' ? 'Stripe billing' : 'Inactive';
     if (planEl) planEl.textContent = planLabel;
 
     // Get active profile info for provider context

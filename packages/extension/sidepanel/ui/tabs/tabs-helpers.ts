@@ -45,12 +45,15 @@ sidePanelProto.updateSelectedTabsBar = function updateSelectedTabsBar() {
 
 sidePanelProto.updateTabSelectorButton = function updateTabSelectorButton() {
   const count = this.selectedTabs.size;
-  if (count > 0) {
-    this.elements.tabSelectorBtn.classList.add('has-selection');
-    this.elements.tabSelectorBtn.dataset.count = String(count);
-  } else {
-    this.elements.tabSelectorBtn.classList.remove('has-selection');
-    delete this.elements.tabSelectorBtn.dataset.count;
+  const button = this.elements.tabSelectorBtn as HTMLElement | null;
+  if (button) {
+    if (count > 0) {
+      button.classList.add('has-selection');
+      button.dataset.count = String(count);
+    } else {
+      button.classList.remove('has-selection');
+      delete button.dataset.count;
+    }
   }
   if (this.elements.tabSelectorSummary) {
     this.elements.tabSelectorSummary.textContent = count > 0 ? `${count} selected` : 'No tabs selected';

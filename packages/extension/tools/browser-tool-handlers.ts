@@ -1,4 +1,5 @@
 import { clickAtTool, clickTool } from './browser-click-tools.js';
+import { getNetworkLogTool, watchNetworkTool } from './browser-debug-tools.js';
 import { pressKeyTool, scrollTool, typeTool } from './browser-input-tools.js';
 import { getVideoInfoTool, screenshotTool, watchVideoTool } from './browser-media-tools.js';
 import { evaluateTool, findHtmlTool, getContentTool } from './browser-read-tools.js';
@@ -47,6 +48,8 @@ export function createToolHandlers(delegate: BrowserToolsDelegate): ToolHandlerM
     describeSessionTabs: () => describeSessionTabsTool(delegate),
     watchVideo: (args) => watchVideoTool(delegate, args),
     getVideoInfo: (args) => getVideoInfoTool(delegate, args),
+    watchNetwork: (args) => watchNetworkTool(delegate, args),
+    getNetworkLog: (args) => getNetworkLogTool(delegate, args),
   };
 }
 

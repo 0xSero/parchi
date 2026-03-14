@@ -3,7 +3,7 @@ import {
   estimateTokensFromContent,
   extractTextFromResponseMessages,
   extractThinkingFromResponseMessages,
-} from '../../../packages/extension/ai/message-utils.js';
+} from '../../../packages/extension/ai/messages/utils.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runMessageUtilsSuite(runner: TestRunner) {

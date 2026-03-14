@@ -1,25 +1,26 @@
-import { handleCompactContext, handleRelayReconfigure, handleUserMessage } from './message-handlers-core.js';
+import { handleCompactContext, handleRelayReconfigure, handleUserMessage } from './message-handlers/core.js';
 import {
   handleRecordingDiscard,
   handleRecordingEvent,
   handleRecordingSelectImages,
   handleRecordingStart,
   handleRecordingStop,
-} from './message-handlers-recording.js';
-import { handleStopRun } from './message-handlers-run.js';
+} from './message-handlers/recording.js';
+import { handleStopRun } from './message-handlers/run.js';
 import {
   handleContentPerfEvent,
   handleContentScriptReady,
   handleGenerateWorkflow,
   handleResetAllProfiles,
-} from './message-handlers-system.js';
-import { handleClearTelemetry, handleGetTelemetry } from './message-handlers-telemetry.js';
-import { handleApiSmokeTest, handleConfigureSessionTabsTest, handlePingTest } from './message-handlers-test.js';
+} from './message-handlers/system.js';
+import { handleClearTelemetry, handleGetTelemetry } from './message-handlers/telemetry.js';
+import { handleApiSmokeTest, handleConfigureSessionTabsTest, handlePingTest } from './message-handlers/test.js';
 import {
   handleExecuteRuntimeToolTest,
   handleExecuteTool,
   handleSubagentInstruction,
-} from './message-handlers-tools.js';
+} from './message-handlers/tools.js';
+import { createResponseController, serializeRuntimeError } from './message-response.js';
 import type { ServiceContext } from './service-context.js';
 
 const HANDLERS: Record<
@@ -56,27 +57,41 @@ export async function handleMessage(
   sendResponse: (response?: any) => void,
   applyRelayConfig: () => Promise<void>,
 ) {
+  const response = createResponseController(sendResponse);
   try {
     const handler = HANDLERS[message.type];
-    if (handler) {
-      // Relay reconfigure needs special handling for applyRelayConfig
-      if (message.type === 'relay_reconfigure') {
-        await handleRelayReconfigure(ctx, message, sendResponse, applyRelayConfig);
-      } else if (message.type === 'content_perf_event' || message.type === 'content_script_ready') {
-        // These handlers need the sender
-        await handler(ctx, message, sendResponse, sender);
-      } else {
-        await handler(ctx, message, sendResponse);
-      }
+    if (!handler) {
+      const unknownType = typeof message?.type === 'string' ? message.type : '<missing>';
+      console.warn('Unknown message type:', unknownType);
+      response.respond({ success: false, error: `Unknown message type: ${unknownType}` });
+      return;
+    }
+
+    // Relay reconfigure needs special handling for applyRelayConfig
+    if (message.type === 'relay_reconfigure') {
+      await handleRelayReconfigure(ctx, message, response.respond, applyRelayConfig);
+    } else if (message.type === 'content_perf_event' || message.type === 'content_script_ready') {
+      // These handlers need the sender
+      await handler(ctx, message, response.respond, sender);
     } else {
-      console.warn('Unknown message type:', message.type);
+      await handler(ctx, message, response.respond);
+    }
+
+    if (!response.hasResponded()) {
+      response.respond({
+        success: false,
+        error: `Handler completed without response: ${String(message?.type || '<missing>')}`,
+      });
     }
   } catch (error) {
     console.error('Error handling message:', error);
+    const serialized = serializeRuntimeError(error);
     ctx.sendToSidePanel({
       type: 'error',
-      message: (error as any).message,
+      message: serialized.message,
+      errorName: serialized.name,
+      errorStack: serialized.stack,
     });
-    sendResponse({ success: false, error: (error as any).message });
+    response.fail(error);
   }
 }

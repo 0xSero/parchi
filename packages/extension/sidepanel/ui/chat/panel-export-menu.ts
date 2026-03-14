@@ -1,4 +1,4 @@
-import type { Message } from '../../../ai/message-schema.js';
+import type { Message } from '../../../ai/messages/schema.js';
 import { sidePanelProto } from './panel-export-shared.js';
 
 sidePanelProto.showExportMenu = function showExportMenu(): void {

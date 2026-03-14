@@ -25,7 +25,6 @@ sidePanelProto.ensureManagedProviderDefaults = async function ensureManagedProvi
     'apiKey',
     'model',
     ACCOUNT_MODE_KEY,
-    'convexCreditBalanceCents',
     'convexSubscriptionPlan',
     'convexSubscriptionStatus',
   ]);

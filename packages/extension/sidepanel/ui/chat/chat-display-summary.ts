@@ -1,4 +1,4 @@
-import type { Message } from '../../../ai/message-schema.js';
+import type { Message } from '../../../ai/messages/schema.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;

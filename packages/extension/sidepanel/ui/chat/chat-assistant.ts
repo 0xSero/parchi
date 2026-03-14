@@ -1,5 +1,5 @@
-import { createMessage } from '../../../ai/message-schema.js';
-import { extractThinking } from '../../../ai/message-utils.js';
+import { createMessage } from '../../../ai/messages/schema.js';
+import { extractThinking } from '../../../ai/messages/utils.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import type { UsagePayload } from '../types/panel-types.js';
 import { renderNewAssistantMessage } from './chat-assistant-new.js';

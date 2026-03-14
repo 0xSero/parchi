@@ -65,40 +65,6 @@
   gap: 12px;
 }
 
-.account-overview-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  border: 1px solid var(--ink-1);
-  border-radius: 12px;
-  padding: 14px;
-  background: linear-gradient(135deg, rgb(var(--accent-rgb) / 0.08), transparent 55%), var(--card);
-}
-
-.account-overview-eyebrow {
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--accent-light);
-}
-
-.account-overview-title {
-  margin-top: 4px;
-  font-size: 14px;
-  line-height: 1.4;
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.account-auth-block-panel {
-  border: 1px solid var(--ink-1);
-  border-radius: 12px;
-  background: var(--card);
-  padding: 14px;
-}
-
 .account-auth-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -109,144 +75,6 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 8px;
-}
-
-.account-usage-panels {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 8px;
-}
-
-.account-chart-card {
-  border: 1px solid var(--ink-1);
-  border-radius: 10px;
-  padding: 8px 10px;
-  background: var(--card);
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.account-chart-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 11px;
-  color: var(--foreground);
-  font-weight: 600;
-}
-
-.account-chart-meta {
-  font-size: 10px;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  color: var(--muted);
-}
-
-.account-credit-flow-bar {
-  display: flex;
-  width: 100%;
-  height: 8px;
-  border-radius: 999px;
-  background: color-mix(in oklab, var(--ink-1) 65%, transparent);
-  overflow: hidden;
-}
-
-.account-credit-fill {
-  display: block;
-  height: 100%;
-  min-width: 2px;
-}
-
-.account-credit-fill.debit {
-  background: color-mix(in oklab, #ef5350 80%, #b71c1c);
-}
-
-.account-credit-fill.credit {
-  background: color-mix(in oklab, #66bb6a 80%, #2e7d32);
-}
-
-.account-chart-legend {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.account-legend-item {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.legend-swatch {
-  width: 7px;
-  height: 7px;
-  border-radius: 999px;
-  display: inline-block;
-}
-
-.legend-swatch.debit {
-  background: #ef5350;
-}
-
-.legend-swatch.credit {
-  background: #66bb6a;
-}
-
-.account-spend-chart {
-  display: grid;
-  grid-template-columns: repeat(7, minmax(0, 1fr));
-  gap: 4px;
-  align-items: end;
-  min-height: 48px;
-}
-
-.account-spend-bar {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 3px;
-  min-height: 48px;
-}
-
-.account-spend-bar-fill {
-  width: 100%;
-  min-height: 2px;
-  border-radius: 6px;
-  background: linear-gradient(180deg, rgb(var(--accent-rgb) / 0.95), rgb(var(--accent-rgb) / 0.35));
-}
-
-.account-spend-bar-label {
-  font-size: 9px;
-  color: var(--muted-dim);
-  text-transform: uppercase;
-}
-
-.account-density-row {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 8px;
-  align-items: center;
-  font-size: 10px;
-  color: var(--muted);
-}
-
-.account-density-track {
-  width: 100%;
-  height: 7px;
-  border-radius: 999px;
-  overflow: hidden;
-  background: color-mix(in oklab, var(--ink-1) 65%, transparent);
-}
-
-.account-density-fill {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.95), rgb(var(--accent-rgb) / 0.45));
 }
 
 .account-stat {
@@ -272,101 +100,6 @@
   color: var(--foreground);
   font-weight: 600;
   text-align: right;
-}
-
-.account-ledger {
-  border: 1px solid var(--ink-1);
-  border-radius: 10px;
-  background: var(--card);
-  padding: 8px;
-}
-
-.account-ledger-header {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: var(--foreground);
-  font-weight: 600;
-}
-
-.account-ledger-subtitle {
-  font-size: 10px;
-  color: var(--muted-dim);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.account-ledger-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 170px;
-  overflow-y: auto;
-}
-
-.account-ledger-row {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  gap: 8px;
-  align-items: center;
-  border: 1px solid color-mix(in oklab, var(--ink-1) 75%, transparent);
-  border-radius: 8px;
-  padding: 6px 8px;
-  background: color-mix(in oklab, var(--background) 20%, var(--card));
-}
-
-.account-ledger-time {
-  font-size: 10px;
-  color: var(--muted-dim);
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-.account-ledger-main {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.account-ledger-type {
-  font-size: 11px;
-  color: var(--foreground);
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.account-ledger-meta {
-  font-size: 10px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.account-ledger-amount {
-  font-size: 11px;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.account-ledger-amount.credit {
-  color: #2e7d32;
-}
-
-.account-ledger-amount.debit {
-  color: #b71c1c;
-}
-
-.account-ledger-empty {
-  font-size: 11px;
-  color: var(--muted);
-  padding: 8px 4px;
 }
 
 @media (max-width: 540px) {
@@ -557,13 +290,15 @@
    OAuth Provider Cards - unified with profile cards
    ============================================================================ */
 
-.oauth-provider-grid {
+.oauth-provider-grid,
+.provider-card-grid {
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
 
-.oauth-provider-card {
+.oauth-provider-card,
+.provider-card {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -575,12 +310,14 @@
   transition: all 150ms ease;
 }
 
-.oauth-provider-card:hover {
+.oauth-provider-card:hover,
+.provider-card:hover {
   background: var(--card-hover);
   border-color: var(--ink-2);
 }
 
-.oauth-provider-card.connected {
+.oauth-provider-card.connected,
+.provider-card.connected {
   border-color: rgb(var(--accent-rgb) / 0.32);
   box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.08);
 }
@@ -593,32 +330,44 @@
   flex: 1;
 }
 
-.oauth-provider-card-name {
+.oauth-provider-card-name,
+.provider-card-name {
   font-size: 14px;
   font-weight: 600;
   color: var(--foreground);
 }
 
-.oauth-provider-card-status {
+.oauth-provider-card-status,
+.provider-card-status {
   font-size: 12px;
   color: var(--muted);
+}
+
+.oauth-provider-card-status {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-.oauth-provider-card.connected .oauth-provider-card-status {
+.provider-card-status {
+  margin-top: 2px;
+}
+
+.oauth-provider-card.connected .oauth-provider-card-status,
+.provider-card-status.status-connected {
   color: var(--accent);
 }
 
-.oauth-provider-card-actions {
+.oauth-provider-card-actions,
+.provider-card-actions {
   display: flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
 }
 
-.oauth-provider-card .btn {
+.oauth-provider-card .btn,
+.provider-card-actions .btn {
   padding: 5px 11px;
   font-size: 11px;
   font-weight: 500;
@@ -763,34 +512,6 @@
 
 /* Provider card grid (API key providers) - unified with profile cards */
 
-.provider-card-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.provider-card {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px;
-  background: var(--card);
-  border: 1px solid var(--ink-1);
-  border-radius: var(--radius-sm);
-  transition: all 150ms ease;
-}
-
-.provider-card:hover {
-  background: var(--card-hover);
-  border-color: var(--ink-2);
-}
-
-.provider-card.connected {
-  border-color: rgb(var(--accent-rgb) / 0.32);
-  box-shadow: inset 0 0 0 1px rgb(var(--accent-rgb) / 0.08);
-}
-
 .provider-card-row {
   display: flex;
   align-items: flex-start;
@@ -801,35 +522,6 @@
 .provider-card-icon {
   font-size: 14px;
   flex-shrink: 0;
-}
-
-.provider-card-name {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--foreground);
-}
-
-.provider-card-status {
-  font-size: 12px;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-.provider-card-status.status-connected {
-  color: var(--accent);
-}
-
-.provider-card-actions {
-  display: flex;
-  gap: 6px;
-  flex-shrink: 0;
-}
-
-.provider-card-actions .btn {
-  padding: 5px 11px;
-  font-size: 11px;
-  font-weight: 500;
-  border-radius: 9999px;
 }
 
 .provider-inline-editor {

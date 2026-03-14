@@ -10,15 +10,18 @@ import './account-managed.js';
 import './account-profile.js';
 import './account-setup-state.js';
 
-import {
-  formatCreditBalance,
-  setHidden,
-  toReadableTransactionType,
-  toUsageLabel,
-  updateStatusCopy,
-} from './account-formatters.js';
+import { setHidden, toUsageLabel, updateStatusCopy } from './account-formatters.js';
 import { ACCOUNT_MODE_KEY, ACCOUNT_MODE_PAID } from './account-mode.js';
-import { renderLedgerRows, renderUsageCharts } from './account-rendering.js';
+
+const formatDateTime = (value: unknown) => {
+  const timestamp = Number(value || 0);
+  if (!Number.isFinite(timestamp) || timestamp <= 0) return '-';
+  try {
+    return new Date(timestamp).toLocaleString();
+  } catch {
+    return '-';
+  }
+};
 
 sidePanelProto.setAccountUiBusy = function setAccountUiBusy(busy: boolean) {
   const buttonIds = [
@@ -76,14 +79,6 @@ sidePanelProto.bindAccountEventListeners = function bindAccountEventListeners() 
   this.elements.accountSignOutBtn?.addEventListener('click', () => {
     void this.signOutFromAccount();
   });
-
-  // Credit buy buttons (delegated from the row)
-  this.elements.accountBuyCreditsRow?.addEventListener('click', (e: Event) => {
-    const btn = (e.target as HTMLElement)?.closest('.credit-buy-btn') as HTMLElement | null;
-    if (!btn) return;
-    const cents = Number(btn.dataset.cents || 0);
-    if (cents > 0) void this.startCreditCheckout(cents);
-  });
 };
 
 sidePanelProto.refreshAccountPanel = async function refreshAccountPanel({ silent = false } = {}) {
@@ -101,11 +96,11 @@ sidePanelProto.refreshAccountPanel = async function refreshAccountPanel({ silent
   this.setAccountUiBusy(true);
 
   try {
-    const state = await getAuthState({ reconcileCredits: true, forceCreditReconcile: !silent });
+    const state = await getAuthState();
     if (!state.authenticated) {
       setHidden(this.elements.accountAuthSignedOut, false);
       setHidden(this.elements.accountAuthSignedIn, true);
-      updateStatusCopy(this, 'Not signed in. Sign in and buy credits, or use BYOK in Setup.');
+      updateStatusCopy(this, 'Not signed in. Sign in and start billing, or use BYOK in Setup.');
       this.syncAccountAvatar?.();
       if (!silent) this.updateStatus('Account: signed out', 'warning');
       return;
@@ -116,50 +111,38 @@ sidePanelProto.refreshAccountPanel = async function refreshAccountPanel({ silent
 
     const userEmail = String(state.user?.email || 'Unknown user');
     const sub = state.subscription || null;
-    const creditCents = Number(sub?.creditBalanceCents ?? 0);
-    const hasCredits = creditCents > 0;
     const paidActive = hasActiveSubscription(sub);
-    const hasAccess = hasCredits || paidActive;
-    const planLabel = paidActive ? 'Pro (active)' : hasCredits ? 'Credits' : `Free (${sub?.status || 'inactive'})`;
-    const monthSpendCents = Number(sub?.cost?.netSpendCents ?? 0);
-    const recentTransactions = Array.isArray(sub?.recentTransactions) ? sub.recentTransactions : [];
-    const lastDebitTx = recentTransactions.find(
-      (transaction) =>
-        String(transaction?.direction || '').toLowerCase() === 'debit' && transaction?.status !== 'denied',
-    );
+    const hasAccess = paidActive;
+    const usageLabel = toUsageLabel(sub?.usage);
+    const currentPeriodEnd = formatDateTime(sub?.currentPeriodEnd);
 
     if (this.elements.accountUserValue) this.elements.accountUserValue.textContent = userEmail;
-    if (this.elements.accountCreditBalance)
-      this.elements.accountCreditBalance.textContent = formatCreditBalance(creditCents);
-    if (this.elements.accountPlanValue) this.elements.accountPlanValue.textContent = planLabel;
-    if (this.elements.accountUsageValue) this.elements.accountUsageValue.textContent = toUsageLabel(sub?.usage);
-    if (this.elements.accountCostMonthValue)
-      this.elements.accountCostMonthValue.textContent = formatCreditBalance(monthSpendCents);
-    if (this.elements.accountLastChargeValue) {
-      this.elements.accountLastChargeValue.textContent = lastDebitTx
-        ? `${formatCreditBalance(Number(lastDebitTx?.amountCents ?? 0))} · ${toReadableTransactionType(String(lastDebitTx?.type || 'charge'))}`
-        : '-';
+    if (this.elements.accountBillingValue) {
+      this.elements.accountBillingValue.textContent = paidActive ? 'Active' : String(sub?.status || 'Inactive');
     }
-    renderLedgerRows(this.elements.accountLedgerList, recentTransactions);
-    renderUsageCharts(this, { transactions: recentTransactions, usage: sub?.usage });
+    if (this.elements.accountPlanValue) {
+      this.elements.accountPlanValue.textContent = paidActive ? 'Metered' : 'Free';
+    }
+    if (this.elements.accountUsageValue) this.elements.accountUsageValue.textContent = usageLabel;
+    if (this.elements.accountPeriodEndValue) this.elements.accountPeriodEndValue.textContent = currentPeriodEnd;
+    if (this.elements.accountRuntimeValue) {
+      this.elements.accountRuntimeValue.textContent = hasAccess ? 'Managed route ready' : 'Billing required';
+    }
 
     if (hasAccess) {
       const stored = await chrome.storage.local.get([ACCOUNT_MODE_KEY]);
       if (stored[ACCOUNT_MODE_KEY] !== ACCOUNT_MODE_PAID) {
         await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_PAID });
       }
-      // Only ensure the managed profile exists; don't force-switch if user picked another profile
       await this.ensureManagedProviderDefaults();
     }
 
-    // Show "Buy Credits" row always; hide legacy upgrade if user has credits or a subscription
     setHidden(this.elements.accountUpgradeBtn, hasAccess);
-    setHidden(this.elements.accountManageBtn, !paidActive);
-    const statusMsg = hasCredits
-      ? `${formatCreditBalance(creditCents)} remaining. Parchi managed route available.`
-      : paidActive
-        ? 'Paid plan active. Parchi managed route available.'
-        : 'No credits. Buy credits or use BYOK to continue.';
+    setHidden(this.elements.accountManageBtn, !state.subscription?.stripeCustomerId);
+
+    const statusMsg = hasAccess
+      ? 'Billing is active. Parchi managed routing is available.'
+      : 'Billing is inactive. Start billing or use BYOK to continue.';
     updateStatusCopy(this, statusMsg);
     if (!silent) this.updateStatus('Account refreshed', 'success');
     this.syncAccountAvatar?.();

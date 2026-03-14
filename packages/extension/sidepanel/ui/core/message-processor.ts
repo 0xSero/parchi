@@ -6,15 +6,7 @@
 import { SidePanelUI } from './panel-ui.js';
 
 // Import sub-modules (each registers handler methods on SidePanelUI.prototype)
-import './message-handler-stream.js';
-import './message-handler-status.js';
-import './message-handler-tokens.js';
-import './message-handler-plan.js';
-import './message-handler-tools.js';
-import './message-handler-final.js';
-import './message-handler-errors.js';
-import './message-handler-subagent.js';
-import './message-handler-images.js';
+import './message-handlers/index.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 

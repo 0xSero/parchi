@@ -93,7 +93,7 @@ sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
   if (modelHint) {
     switch (provider) {
       case 'parchi':
-        modelHint.textContent = 'Managed routing via your credits. Default: moonshotai/kimi-k2.5.';
+        modelHint.textContent = 'Managed routing via Stripe billing. Default: moonshotai/kimi-k2.5.';
         break;
       case 'anthropic':
         modelHint.textContent = 'Recommended: claude-sonnet-4-20250514';

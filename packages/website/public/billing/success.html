@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Payment Successful - Parchi</title>
+  <title>Billing Active - Parchi</title>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
@@ -12,195 +12,15 @@
   <div style="min-height: 100vh; display: flex; align-items: center; justify-content: center; text-align: center; padding: 24px;">
     <div style="max-width: 760px; width: 100%;">
       <div style="font-size: 64px; margin-bottom: 24px;">✅</div>
-      <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 12px;">Payment successful</h1>
-      <p id="status" style="color: var(--muted); font-size: 16px; margin-bottom: 20px;">
-        Finalizing your account...
+      <h1 style="font-size: 32px; font-weight: 700; margin-bottom: 12px;">Billing active</h1>
+      <p style="color: var(--muted); font-size: 16px; margin-bottom: 24px;">
+        Your Stripe billing setup is complete. Return to the extension sidebar and click <strong>Refresh</strong> in Account &amp; Billing.
       </p>
-      <pre id="provisionData" style="display: none; white-space: pre-wrap; text-align: left; padding: 16px; border-radius: 12px; background: #0b111a; color: #b8f8c8; font-size: 13px; line-height: 1.6;"></pre>
-      <div style="display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 24px;">
-        <button id="copyKeyBtn" class="btn" style="display: none;">Copy API key</button>
-        <button id="copyRecoveryBtn" class="btn btn-secondary" style="display: none;">Copy recovery token</button>
-        <button id="regenerateKeyBtn" class="btn btn-secondary" style="display: none;">Regenerate key</button>
-      </div>
+      <p style="color: var(--muted); font-size: 16px; margin-bottom: 32px;">
+        Managed runtime usage is now billed through Stripe metered billing instead of prepaid credits or key provisioning.
+      </p>
       <a href="/" class="btn btn-secondary">Back to parchi.ai</a>
     </div>
   </div>
-  <script>
-    (async () => {
-      const statusEl = document.getElementById('status');
-      const dataEl = document.getElementById('provisionData');
-      const copyKeyBtn = document.getElementById('copyKeyBtn');
-      const copyRecoveryBtn = document.getElementById('copyRecoveryBtn');
-      const regenerateKeyBtn = document.getElementById('regenerateKeyBtn');
-      const sessionId = new URLSearchParams(window.location.search).get('session_id');
-
-      if (!sessionId) {
-        statusEl.textContent = 'No session_id found. Payment may still be complete.';
-        return;
-      }
-
-      const renderProvisionedKey = (payload, statusMessage) => {
-        const key = String(payload.openrouter_api_key || '');
-        const model = String(payload.model || '');
-        const base = String(payload.openrouter_api_base || 'https://openrouter.ai/api/v1');
-        const planId = String(payload.plan_id || '');
-        const allowedModels = Array.isArray(payload.allowed_models) ? payload.allowed_models : [];
-        const limitUsd = Number(payload.key_limit_usd || 0);
-        const limitReset = String(payload.limit_reset || '');
-        const recoveryToken = String(payload.recovery_token || '');
-
-        statusEl.innerHTML = statusMessage || 'Your OpenRouter key is ready. This secret is shown once. Save it now.';
-        dataEl.style.display = 'block';
-        copyKeyBtn.style.display = 'inline-flex';
-        copyRecoveryBtn.style.display = recoveryToken ? 'inline-flex' : 'none';
-        regenerateKeyBtn.style.display = 'none';
-        dataEl.textContent = [
-          `API Base: ${base}`,
-          `Plan: ${planId || 'default'}`,
-          `Model: ${model}`,
-          limitUsd > 0 ? `Spend cap (USD): ${limitUsd}` : null,
-          limitReset ? `Limit reset: ${limitReset}` : null,
-          allowedModels.length > 0 ? `Allowed models: ${allowedModels.join(', ')}` : 'Allowed models: all',
-          '',
-          `API Key: ${key}`,
-          recoveryToken ? `Recovery Token: ${recoveryToken}` : null,
-          '',
-          'Use this in Parchi BYOK mode:',
-          '- Provider: OpenRouter',
-          '- Endpoint: https://openrouter.ai/api/v1',
-          `- Model: ${model}`,
-        ].filter(Boolean).join('\n');
-
-        copyKeyBtn.onclick = async () => {
-          try {
-            await navigator.clipboard.writeText(key);
-            copyKeyBtn.textContent = 'Copied';
-            setTimeout(() => {
-              copyKeyBtn.textContent = 'Copy API key';
-            }, 2000);
-          } catch {
-            copyKeyBtn.textContent = 'Copy failed';
-          }
-        };
-        copyRecoveryBtn.onclick = async () => {
-          if (!recoveryToken) return;
-          try {
-            await navigator.clipboard.writeText(recoveryToken);
-            copyRecoveryBtn.textContent = 'Copied';
-            setTimeout(() => {
-              copyRecoveryBtn.textContent = 'Copy recovery token';
-            }, 2000);
-          } catch {
-            copyRecoveryBtn.textContent = 'Copy failed';
-          }
-        };
-      };
-
-      const showFailureData = (responseStatus, errorText) => {
-        statusEl.textContent = 'Payment succeeded, but provisioning failed. Contact support with your session id.';
-        dataEl.style.display = 'block';
-        copyKeyBtn.style.display = 'none';
-        copyRecoveryBtn.style.display = 'none';
-        regenerateKeyBtn.style.display = 'none';
-        dataEl.textContent = JSON.stringify(
-          {
-            session_id: sessionId,
-            status: responseStatus,
-            error: errorText || 'Unknown error',
-          },
-          null,
-          2
-        );
-      };
-
-      const callEndpoint = async (path) => {
-        const response = await fetch(path, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ session_id: sessionId }),
-        });
-        const payload = await response.json().catch(() => ({}));
-        return { response, payload };
-      };
-
-      statusEl.textContent = 'Provisioning your OpenRouter key...';
-
-      try {
-        const { response, payload } = await callEndpoint('/api/provision');
-        if (response.ok && payload.openrouter_api_key) {
-          renderProvisionedKey(payload);
-          return;
-        }
-
-        const errorText = String(payload.error || '');
-        const isCreditFlow =
-          response.status === 404 ||
-          (response.status === 400 &&
-            (errorText.includes('Expected subscription checkout session') || errorText.includes('Missing subscription')));
-
-        if (isCreditFlow) {
-          statusEl.innerHTML =
-            'Your prepaid credits have been added. Go back to the extension sidebar and click <strong>Refresh</strong> to sync balance.';
-          copyKeyBtn.style.display = 'none';
-          copyRecoveryBtn.style.display = 'none';
-          regenerateKeyBtn.style.display = 'none';
-          return;
-        }
-
-        if (response.status === 409 && String(payload.openrouter_key_hash || '')) {
-          statusEl.textContent =
-            'A key is already provisioned for this subscription. Regenerate only if you need to rotate the secret.';
-          dataEl.style.display = 'block';
-          copyKeyBtn.style.display = 'none';
-          copyRecoveryBtn.style.display = 'none';
-          regenerateKeyBtn.style.display = 'inline-flex';
-          dataEl.textContent = JSON.stringify(
-            {
-              session_id: sessionId,
-              openrouter_key_hash: String(payload.openrouter_key_hash || ''),
-              message: 'Click Regenerate key to disable the old key and issue a new one.',
-            },
-            null,
-            2
-          );
-          regenerateKeyBtn.onclick = async () => {
-            regenerateKeyBtn.disabled = true;
-            regenerateKeyBtn.textContent = 'Regenerating...';
-            statusEl.textContent = 'Regenerating OpenRouter key...';
-            try {
-              const regen = await callEndpoint('/api/regenerate-key');
-              if (regen.response.ok && regen.payload.openrouter_api_key) {
-                renderProvisionedKey(regen.payload, 'OpenRouter key rotated. The previous key is now disabled.');
-                return;
-              }
-              showFailureData(regen.response.status, String(regen.payload.error || 'Regeneration failed'));
-            } catch (error) {
-              showFailureData(0, String(error || 'Network error'));
-            } finally {
-              regenerateKeyBtn.disabled = false;
-              regenerateKeyBtn.textContent = 'Regenerate key';
-            }
-          };
-          return;
-        }
-
-        showFailureData(response.status, String(payload.error || 'Unknown error'));
-      } catch (error) {
-        statusEl.textContent = 'Payment succeeded, but we could not reach provisioning.';
-        dataEl.style.display = 'block';
-        copyKeyBtn.style.display = 'none';
-        copyRecoveryBtn.style.display = 'none';
-        regenerateKeyBtn.style.display = 'none';
-        dataEl.textContent = JSON.stringify(
-          {
-            session_id: sessionId,
-            error: String(error || 'Network error'),
-          },
-          null,
-          2
-        );
-      }
-    })();
-  </script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 import './agents/panel-agents.js';
 import './agents/panel-agent-nav.js';
+import './agents/panel-agent-lifecycle.js';
 import './agents/panel-agents-detail.js';
 import './chat/panel-chat.js';
 import './chat/panel-context.js';

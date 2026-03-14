@@ -1,4 +1,4 @@
-import type { MatchedSkill } from './agent-loop-shared.js';
+import type { MatchedSkill } from './agent-loop/shared.js';
 
 type StoredSkillStep = {
   tool?: string;

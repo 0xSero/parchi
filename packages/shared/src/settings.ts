@@ -66,7 +66,6 @@ export const PARCHI_STORAGE_KEYS = [
   'convexSubscriptionStatus',
   'convexSubscriptionCurrentPeriodEnd',
   'convexSubscriptionCheckedAt',
-  'convexCreditBalanceCents',
   'parchiRuntimeStatus',
   'theme',
   'workflows',

@@ -1,4 +1,4 @@
-import { dedupeThinking, extractThinking } from '../../../ai/message-utils.js';
+import { dedupeThinking, extractThinking } from '../../../ai/messages/utils.js';
 import { clearReportImages, clearToolCallViews } from '../core/panel-session-memory.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;

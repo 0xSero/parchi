@@ -1,4 +1,4 @@
-import { extractThinking } from '../../../packages/extension/ai/message-utils.js';
+import { extractThinking } from '../../../packages/extension/ai/messages/utils.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runThinkingExtractionSuite(runner: TestRunner) {

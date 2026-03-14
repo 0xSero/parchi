@@ -21,7 +21,7 @@ import './history-manager.js';
 import './state-manager.js';
 
 // 5. Event handling (setupEventListeners)
-import './event-handler.js';
+import './event-handlers/index.js';
 
 // 6. Message processing (handleRuntimeMessage and all message handlers)
 import './message-processor.js';

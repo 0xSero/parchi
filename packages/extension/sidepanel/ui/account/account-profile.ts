@@ -50,7 +50,7 @@ sidePanelProto.renderPaidModeProviderGrid = async function renderPaidModeProvide
     this.openAccountPanel?.();
     if (!setupState.signedInPaid || !setupState.paidSetupComplete) {
       this.updateStatus(
-        'Paid mode is optional. Sign in or buy credits from Account & Billing if you want managed routing.',
+        'Paid mode is optional. Sign in or start billing from Account & Billing if you want managed routing.',
         'active',
       );
     }
@@ -118,8 +118,8 @@ sidePanelProto.chooseAccountMode = async function chooseAccountMode(mode: 'byok'
   this.openSettingsPanel?.();
   this.switchSettingsTab?.('oauth');
   await this.ensureManagedProviderDefaults({ forceActivate: true });
-  this.updateStatus('Parchi managed mode selected. Sign in, then buy credits to continue.', 'active');
-  updateStatusCopy(this, 'Sign in, then buy credits to activate Parchi managed access.');
+  this.updateStatus('Parchi managed mode selected. Sign in, then start billing to continue.', 'active');
+  updateStatusCopy(this, 'Sign in, then start billing to activate Parchi managed access.');
   await this.refreshSetupFlowUi();
 };
 

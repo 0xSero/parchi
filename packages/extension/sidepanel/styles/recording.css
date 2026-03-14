@@ -3,18 +3,24 @@
    ============================================================================ */
 
 /* Record button */
-.record-btn {
+.record-btn,
+#composerActionRecordContext {
   color: var(--text-muted);
   transition: color 0.2s;
 }
 
-.record-btn:hover {
+.record-btn:hover,
+#composerActionRecordContext:hover {
   color: var(--text-secondary);
 }
 
-.record-btn.recording {
+.record-btn.recording,
+#composerActionRecordContext.recording {
   color: hsl(0, 70%, 55%);
   animation: recordPulse 1.2s ease-in-out infinite;
+  background: rgb(var(--error-rgb) / 0.12);
+  border: 1px solid rgb(var(--error-rgb) / 0.28);
+  box-shadow: 0 0 0 1px rgb(var(--error-rgb) / 0.12), 0 6px 16px rgb(var(--error-rgb) / 0.16);
 }
 
 @keyframes recordPulse {

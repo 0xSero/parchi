@@ -1,5 +1,5 @@
 import type { RecordedContext, RunPlan } from '@parchi/shared';
-import type { Message } from '../../../ai/message-schema.js';
+import type { Message } from '../../../ai/messages/schema.js';
 import type { SubagentEntry, UsageStats } from '../types/panel-types.js';
 import { getSidePanelElements } from './panel-elements.js';
 export class SidePanelUI {

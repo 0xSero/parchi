@@ -6,7 +6,6 @@ import {
   ACCOUNT_SETUP_STORAGE_KEYS,
   PARCHI_RUNTIME_STATUS_KEY,
   PARCHI_RUNTIME_STATUS_TTL_MS,
-  formatCreditBalance,
   hasConfiguredModel,
   isManagedProvider,
   isRecord,
@@ -43,12 +42,10 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
 
   const hasConvexUrl = Boolean(String(stored.convexUrl || CONVEX_DEPLOYMENT_URL || '').trim());
   const signedInPaid = isUsableRuntimeJwt(stored.convexAccessToken, stored.convexTokenExpiresAt, { minRemainingMs: 0 });
-  const creditCents = Number(stored.convexCreditBalanceCents || 0);
-  const hasCredits = Number.isFinite(creditCents) && creditCents > 0;
   const subscriptionPlan = String(stored.convexSubscriptionPlan || '').toLowerCase();
   const subscriptionStatus = String(stored.convexSubscriptionStatus || '').toLowerCase();
   const paidActive = subscriptionPlan === 'pro' && subscriptionStatus === 'active';
-  const paidAccess = hasCredits || paidActive;
+  const paidAccess = paidActive;
   const runtimeStatusRaw = isRecord(stored[PARCHI_RUNTIME_STATUS_KEY]) ? stored[PARCHI_RUNTIME_STATUS_KEY] : null;
   const runtimeStatusAt = Number(runtimeStatusRaw?.at ?? 0);
   const runtimeStatusFresh =
@@ -82,7 +79,7 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
     } else if (!hasPaidModelConfigured) {
       setupButtonLabel = 'Set paid model';
     } else if (!paidAccess) {
-      setupButtonLabel = 'Buy credits';
+      setupButtonLabel = 'Start billing';
     } else {
       setupButtonLabel = 'Finish paid setup';
     }
@@ -106,8 +103,8 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
     paidStatusDetail = 'Choose a model in your active paid profile (Parchi/OpenRouter).';
     paidStatusTone = 'warning';
   } else if (!paidAccess) {
-    paidStatusLabel = 'Paid: no credits';
-    paidStatusDetail = 'Buy credits to continue using managed routing.';
+    paidStatusLabel = 'Paid: billing inactive';
+    paidStatusDetail = 'Start or reactivate billing to continue using managed routing.';
     paidStatusTone = 'warning';
   } else if (runtimeStatus?.level === 'error') {
     paidStatusLabel = 'Paid: runtime error';
@@ -119,11 +116,7 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
     paidStatusTone = 'warning';
   } else if (paidActive) {
     paidStatusLabel = 'Paid: active';
-    paidStatusDetail = 'Managed routing is online via your paid plan.';
-    paidStatusTone = 'active';
-  } else if (hasCredits) {
-    paidStatusLabel = `Paid: ${formatCreditBalance(creditCents)} credits`;
-    paidStatusDetail = 'Managed routing is online via prepaid credits.';
+    paidStatusDetail = 'Managed routing is online via your Stripe billing plan.';
     paidStatusTone = 'active';
   }
 

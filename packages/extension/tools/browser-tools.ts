@@ -1,3 +1,4 @@
+import { BrowserDebugManager } from './browser-debug-tools.js';
 import { runInAllFrames, runInTab, sendOverlay } from './browser-script-execution.js';
 import {
   captureActiveTabState,
@@ -27,6 +28,7 @@ export class BrowserTools {
   sessionTabGroupId: number | null;
   supportsTabGroups: boolean;
   screenshotQuality: 'high' | 'medium' | 'low' | undefined;
+  debugManager: BrowserDebugManager;
 
   constructor() {
     this.sessionTabs = new Map();
@@ -35,6 +37,7 @@ export class BrowserTools {
     this.supportsTabGroups =
       typeof globalThis.chrome?.tabs?.group === 'function' &&
       typeof globalThis.chrome?.tabGroups?.update === 'function';
+    this.debugManager = new BrowserDebugManager();
     this.tools = getBrowserToolMap(this.supportsTabGroups);
     this.toolHandlers = createToolHandlers(this);
   }
@@ -152,6 +155,24 @@ export class BrowserTools {
     args: TArgs,
   ) {
     return runInAllFrames(tabId, func, args);
+  }
+
+  async watchNetwork(tabId: number, clearExisting = true) {
+    return this.debugManager.watchNetwork(tabId, clearExisting);
+  }
+
+  async readNetworkLog(
+    tabId: number,
+    options: {
+      urlIncludes?: string;
+      method?: string;
+      status?: number;
+      limit?: number;
+      includeBody?: boolean;
+      clearAfterRead?: boolean;
+    } = {},
+  ) {
+    return this.debugManager.getNetworkLog(tabId, options);
   }
 
   async sendOverlay(tabId: number, payload: ActionOverlayPayload, retries = 0) {

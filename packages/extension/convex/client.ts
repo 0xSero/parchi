@@ -26,8 +26,14 @@ type AccountSubscriptionSnapshot =
   | {
       plan?: string;
       status?: string;
+      stripeCustomerId?: string;
+      stripeSubscriptionId?: string;
       currentPeriodEnd?: number | null;
-      creditBalanceCents?: number;
+      usage?: {
+        requestCount?: number;
+        tokensUsed?: number;
+        month?: string;
+      } | null;
     }
   | null
   | undefined;
@@ -42,17 +48,14 @@ const STORAGE_KEYS = {
   subscriptionStatus: 'convexSubscriptionStatus',
   subscriptionCurrentPeriodEnd: 'convexSubscriptionCurrentPeriodEnd',
   subscriptionCheckedAt: 'convexSubscriptionCheckedAt',
-  creditBalanceCents: 'convexCreditBalanceCents',
   convexUrl: 'convexUrl',
 } as const;
 
 export const CONVEX_DEPLOYMENT_URL = String(typeof __CONVEX_URL__ === 'string' ? __CONVEX_URL__ : '').trim();
 const OAUTH_FALLBACK_REDIRECT_URL = 'https://parchi.ai/';
-const CREDIT_RECONCILE_COOLDOWN_MS = 30_000;
 
 let runtimeConvexUrl = CONVEX_DEPLOYMENT_URL;
 export let convexClient = runtimeConvexUrl ? new ConvexHttpClient(runtimeConvexUrl) : null;
-let lastCreditReconcileAt = 0;
 
 export const isLikelyJwt = (token: unknown): token is string => {
   const value = String(token || '').trim();
@@ -86,14 +89,6 @@ const isLikelyAuthFailureError = (error: unknown) => {
     combined.includes('forbidden') ||
     combined.includes('authentication') ||
     combined.includes('could not parse jwt payload')
-  );
-};
-
-const isMissingReconcileFunctionError = (error: unknown) => {
-  const message = error instanceof Error ? error.message : String(error ?? '');
-  return (
-    message.includes("Could not find public function for 'payments:reconcileCreditPurchases'") ||
-    (message.includes('Could not find public function') && message.includes('reconcileCreditPurchases'))
   );
 };
 
@@ -175,10 +170,8 @@ const clearAuthStorage = async () => {
     STORAGE_KEYS.subscriptionStatus,
     STORAGE_KEYS.subscriptionCurrentPeriodEnd,
     STORAGE_KEYS.subscriptionCheckedAt,
-    STORAGE_KEYS.creditBalanceCents,
   ]);
   applyAuthTokenToClient(undefined);
-  lastCreditReconcileAt = 0;
 };
 
 const maybePersistAuthResult = async (result: AuthSignInResult | null | undefined) => {
@@ -232,7 +225,6 @@ const syncAccountSnapshotToStorage = async (user: AccountUserSnapshot, subscript
     [STORAGE_KEYS.subscriptionStatus]: subscription?.status || 'inactive',
     [STORAGE_KEYS.subscriptionCurrentPeriodEnd]: subscription?.currentPeriodEnd || null,
     [STORAGE_KEYS.subscriptionCheckedAt]: Date.now(),
-    [STORAGE_KEYS.creditBalanceCents]: subscription?.creditBalanceCents ?? 0,
   });
 };
 
@@ -370,29 +362,7 @@ export async function getSubscription() {
   return client.query(anyApi.subscriptions.getCurrent, {});
 }
 
-export async function reconcileCreditPurchases({ force = false } = {}) {
-  await ensureAuthReady();
-  const now = Date.now();
-  if (!force && now - lastCreditReconcileAt < CREDIT_RECONCILE_COOLDOWN_MS) {
-    return { skipped: true, reason: 'cooldown' as const };
-  }
-
-  const client = await ensureClient();
-  lastCreditReconcileAt = now;
-  try {
-    return await client.action(anyApi.payments.reconcileCreditPurchases, {});
-  } catch (error) {
-    // Allow immediate retry if reconciliation failed.
-    lastCreditReconcileAt = 0;
-    if (isMissingReconcileFunctionError(error)) {
-      console.warn('[billing] reconcileCreditPurchases unavailable on backend deployment');
-      return { skipped: true, reason: 'function_unavailable' as const };
-    }
-    throw error;
-  }
-}
-
-export async function getAuthState(options: { reconcileCredits?: boolean; forceCreditReconcile?: boolean } = {}) {
+export async function getAuthState() {
   await ensureAuthReady();
   const client = await ensureClient();
   let authenticated = false;
@@ -406,18 +376,6 @@ export async function getAuthState(options: { reconcileCredits?: boolean; forceC
   if (!authenticated) {
     await clearAuthStorage();
     return { authenticated: false, user: null, subscription: null };
-  }
-
-  if (options.reconcileCredits) {
-    try {
-      await reconcileCreditPurchases({ force: Boolean(options.forceCreditReconcile) });
-    } catch (error) {
-      // Keep auth state readable, but surface force-refresh reconciliation failures to the caller/UI.
-      if (options.forceCreditReconcile) {
-        throw error;
-      }
-      console.warn('[billing] reconcileCreditPurchases failed', error);
-    }
   }
 
   const [user, subscription] = await Promise.all([
@@ -442,18 +400,3 @@ export async function manageSubscription() {
 
 export const hasActiveSubscription = (subscription: AccountSubscriptionSnapshot) =>
   Boolean(subscription && subscription.plan === 'pro' && subscription.status === 'active');
-
-export const hasCreditBalance = (subscription: AccountSubscriptionSnapshot) =>
-  Number(subscription?.creditBalanceCents ?? 0) > 0;
-
-export async function getCreditBalance() {
-  await ensureAuthReady();
-  const client = await ensureClient();
-  return client.query(anyApi.subscriptions.getBalance, {});
-}
-
-export async function createCreditCheckout(packageCents: number) {
-  await ensureAuthReady();
-  const client = await ensureClient();
-  return client.action(anyApi.payments.createCreditCheckoutSession, { packageCents });
-}

@@ -1,6 +1,6 @@
-import { normalizeConversationHistory } from '../../ai/message-schema.js';
-import type { Message } from '../../ai/message-schema.js';
-import type { RecordedContext } from './agent-loop-shared.js';
+import { normalizeConversationHistory } from '../../ai/messages/schema.js';
+import type { Message } from '../../ai/messages/schema.js';
+import type { RecordedContext } from './agent-loop/shared.js';
 
 export function prepareConversationHistory(
   userMessage: string,

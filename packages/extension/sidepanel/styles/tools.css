@@ -98,31 +98,19 @@
 }
 
 .plan-drawer-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  background: transparent;
+  --icon-btn-size: 24px;
+  --icon-btn-radius: 8px;
+  --icon-btn-color: var(--muted);
+  --icon-btn-hover-bg: rgba(255, 255, 255, 0.04);
+  --icon-btn-hover-color: var(--foreground);
+  --icon-btn-hover-shadow: 0 0 10px rgba(255, 255, 255, 0.025);
+  --icon-btn-hover-transform: scale(1.08);
+  --icon-btn-active-transform: scale(0.88);
   border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 8px;
-  color: var(--muted);
-  cursor: pointer;
-  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 .plan-drawer-btn:hover {
-  background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.1);
-  color: var(--foreground);
-  transform: scale(1.08);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.025);
-}
-
-.plan-drawer-btn:active {
-  transform: scale(0.88);
-  transition-duration: 80ms;
 }
 
 .plan-drawer-content {

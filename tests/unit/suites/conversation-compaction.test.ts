@@ -4,8 +4,8 @@ import {
   buildCompactionSummaryMessage,
   estimateContextTokens,
   shouldCompact,
-} from '../../../packages/extension/ai/compaction.js';
-import type { Message } from '../../../packages/extension/ai/message-schema.js';
+} from '../../../packages/extension/ai/compaction/index.js';
+import type { Message } from '../../../packages/extension/ai/messages/schema.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runConversationCompactionSuite(runner: TestRunner) {

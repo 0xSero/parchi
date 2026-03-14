@@ -2,7 +2,7 @@
     <div class="panel-header panel-header-with-actions">
         <div>
             <span class="panel-title">Account</span>
-            <span class="panel-subtitle">Identity, credits, billing, and managed runtime status.</span>
+            <span class="panel-subtitle">Identity, Stripe billing, and managed runtime status.</span>
         </div>
         <button id="accountBackToSettingsBtn" class="btn btn-secondary panel-header-btn" type="button">Settings</button>
     </div>
@@ -10,7 +10,7 @@
         <div class="account-overview-card">
             <div>
                 <div class="account-overview-eyebrow">Parchi Managed</div>
-                <div class="account-overview-title">Credits, plan status, and recent runtime cost activity.</div>
+                <div class="account-overview-title">Metered billing for managed runtime access.</div>
             </div>
             <div id="accountStatusTextSignedIn" class="account-inline-note"></div>
         </div>
@@ -20,7 +20,7 @@
         </div>
 
         <div id="accountAuthSignedOut" class="account-auth-block account-auth-block-panel">
-            <div class="account-inline-note">Sign in to use managed credits, or keep running BYOK from Connect.</div>
+            <div class="account-inline-note">Sign in to use managed billing, or keep running BYOK from Connect.</div>
             <div class="account-auth-grid">
                 <div class="form-group">
                     <label for="accountEmailInput">Email</label>
@@ -49,8 +49,8 @@
                     <span id="accountUserValue" class="account-stat-value">-</span>
                 </div>
                 <div class="account-stat">
-                    <span class="account-stat-label">Credits</span>
-                    <span id="accountCreditBalance" class="account-stat-value">$0.00</span>
+                    <span class="account-stat-label">Billing</span>
+                    <span id="accountBillingValue" class="account-stat-value">Inactive</span>
                 </div>
                 <div class="account-stat">
                     <span class="account-stat-label">Plan</span>
@@ -61,76 +61,24 @@
                     <span id="accountUsageValue" class="account-stat-value">0 req</span>
                 </div>
                 <div class="account-stat">
-                    <span class="account-stat-label">Spend (month)</span>
-                    <span id="accountCostMonthValue" class="account-stat-value">$0.00</span>
+                    <span class="account-stat-label">Period end</span>
+                    <span id="accountPeriodEndValue" class="account-stat-value">-</span>
                 </div>
                 <div class="account-stat">
-                    <span class="account-stat-label">Last charge</span>
-                    <span id="accountLastChargeValue" class="account-stat-value">-</span>
+                    <span class="account-stat-label">Runtime</span>
+                    <span id="accountRuntimeValue" class="account-stat-value">Billing required</span>
                 </div>
-            </div>
-            <div class="account-usage-panels">
-                <div class="account-chart-card">
-                    <div class="account-chart-header">
-                        <span>Credit Flow (30d)</span>
-                        <span id="accountCreditFlowLabel" class="account-chart-meta">$0.00 / $0.00</span>
-                    </div>
-                    <div id="accountCreditFlowBar" class="account-credit-flow-bar">
-                        <span id="accountCreditDebitFill" class="account-credit-fill debit" style="width: 0%;"></span>
-                        <span id="accountCreditCreditFill" class="account-credit-fill credit" style="width: 0%;"></span>
-                    </div>
-                    <div class="account-chart-legend">
-                        <span class="account-legend-item"><i class="legend-swatch debit"></i>Debits</span>
-                        <span class="account-legend-item"><i class="legend-swatch credit"></i>Credits</span>
-                    </div>
-                </div>
-                <div class="account-chart-card">
-                    <div class="account-chart-header">
-                        <span>Spend Last 7 Days</span>
-                        <span id="accountSpend7dTotal" class="account-chart-meta">$0.00</span>
-                    </div>
-                    <div id="accountSpend7dChart" class="account-spend-chart"></div>
-                </div>
-                <div class="account-chart-card">
-                    <div class="account-chart-header">
-                        <span>Runtime Density</span>
-                        <span id="accountDensityLabel" class="account-chart-meta">0 req / 0 tok</span>
-                    </div>
-                    <div class="account-density-row">
-                        <span>Requests</span>
-                        <div class="account-density-track">
-                            <span id="accountRequestDensityFill" class="account-density-fill" style="width: 0%;"></span>
-                        </div>
-                    </div>
-                    <div class="account-density-row">
-                        <span>Tokens</span>
-                        <div class="account-density-track">
-                            <span id="accountTokenDensityFill" class="account-density-fill" style="width: 0%;"></span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div id="accountBuyCreditsRow" class="form-row">
-                <button class="btn btn-secondary credit-buy-btn" data-cents="500" style="flex: 1;">$5</button>
-                <button class="btn btn-secondary credit-buy-btn" data-cents="1500" style="flex: 1;">$15</button>
-                <button class="btn btn-secondary credit-buy-btn" data-cents="5000" style="flex: 1;">$50</button>
             </div>
             <div class="form-row">
-                <button id="accountUpgradeBtn" class="btn btn-primary" style="flex: 1;">Upgrade</button>
+                <button id="accountUpgradeBtn" class="btn btn-primary" style="flex: 1;">Start Billing</button>
                 <button id="accountManageBtn" class="btn btn-secondary" style="flex: 1;">Manage</button>
             </div>
             <div class="form-row">
                 <button id="accountRefreshBtn" class="btn btn-secondary" style="flex: 1;">Refresh</button>
                 <button id="accountSignOutBtn" class="btn btn-secondary" style="flex: 1;">Sign Out</button>
             </div>
-            <div class="account-ledger">
-                <div class="account-ledger-header">
-                    <span>Recent Cost Activity</span>
-                    <span class="account-ledger-subtitle">Reservations, settlements, refunds</span>
-                </div>
-                <div id="accountLedgerList" class="account-ledger-list">
-                    <div class="account-ledger-empty">No transactions yet.</div>
-                </div>
+            <div class="account-inline-note">
+                Usage is billed through Stripe metered billing. The extension shows local request and token counts; invoices and payment methods stay in the Stripe billing portal.
             </div>
         </div>
     </div>

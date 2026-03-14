@@ -22,8 +22,7 @@
     <div style="color: var(--muted); font-size: 15px; line-height: 1.8;">
       <p style="margin-bottom: 16px;">Parchi stores settings, BYOK API keys, and local chat/session state in your browser using <code style="font-family: var(--font-mono); background: var(--card); padding: 2px 6px; border-radius: 4px;">chrome.storage.local</code>.</p>
       <p style="margin-bottom: 16px;">In <strong>BYOK mode</strong> (bring your own key), requests go directly from your browser to the configured AI provider.</p>
-      <p style="margin-bottom: 16px;">In <strong>managed billing modes</strong> (credits or provisioned OpenRouter keys), requests and billing events use our Convex backend. We store only the account and billing data needed for entitlement checks and payment reconciliation.</p>
-      <p style="margin-bottom: 16px;">For OpenRouter key provisioning, we store key metadata (for example key hash, selected model, and optional guardrail id). We do not intentionally store the OpenRouter key secret after issuing it.</p>
+      <p style="margin-bottom: 16px;">In <strong>managed billing mode</strong>, requests and billing events use our Convex backend plus Stripe Billing. We store only the account and billing data needed for entitlement checks, subscription state, and usage reporting.</p>
       <p style="margin-bottom: 16px;">We use Stripe for payment processing and do not store raw credit card details.</p>
       <p>For questions, contact <a href="mailto:sherifcherfa@gmail.com" style="color: var(--accent-light);">sherifcherfa@gmail.com</a>.</p>
     </div>

@@ -4,8 +4,6 @@ export const PARCHI_PAID_DEFAULT_MODEL = 'moonshotai/kimi-k2.5';
 export const LEGACY_MANAGED_DEFAULT_MODEL = 'openai/gpt-4o-mini';
 export const PARCHI_RUNTIME_STATUS_KEY = 'parchiRuntimeStatus';
 export const PARCHI_RUNTIME_STATUS_TTL_MS = 30 * 60 * 1000;
-export const CREDIT_REFRESH_POLL_MS = 5000;
-export const CREDIT_REFRESH_ATTEMPTS = 24;
 
 export const ACCOUNT_SETUP_STORAGE_KEYS = [
   ACCOUNT_MODE_KEY,
@@ -17,9 +15,9 @@ export const ACCOUNT_SETUP_STORAGE_KEYS = [
   'customEndpoint',
   'convexUrl',
   'convexAccessToken',
-  'convexCreditBalanceCents',
   'convexSubscriptionPlan',
   'convexSubscriptionStatus',
+  'convexSubscriptionCurrentPeriodEnd',
   PARCHI_RUNTIME_STATUS_KEY,
 ] as const;
 
@@ -34,39 +32,6 @@ export const toUsageLabel = (usage: unknown) => {
   const tokensUsed = Number(u?.tokensUsed || 0);
   return `${requestCount} req · ${tokensUsed} tokens`;
 };
-
-export const formatCreditBalance = (cents: number) => {
-  const dollars = (cents / 100).toFixed(2);
-  return `$${dollars}`;
-};
-
-export const formatSignedCurrency = (cents: number, direction: 'credit' | 'debit') => {
-  const sign = direction === 'credit' ? '+' : '-';
-  return `${sign}${formatCreditBalance(cents)}`;
-};
-
-export const toReadableTransactionType = (type: string) =>
-  String(type || '')
-    .replace(/^proxy_/, 'proxy ')
-    .replace(/^stripe_/, 'stripe ')
-    .replace(/_/g, ' ')
-    .replace(/\b\w/g, (char) => char.toUpperCase())
-    .trim();
-
-export const toTimestampLabel = (timestamp: number) => {
-  if (!Number.isFinite(timestamp) || timestamp <= 0) return '-';
-  try {
-    const date = new Date(timestamp);
-    return `${date.toLocaleDateString()} ${date.toLocaleTimeString([], {
-      hour: '2-digit',
-      minute: '2-digit',
-    })}`;
-  } catch {
-    return '-';
-  }
-};
-
-export const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export const isRecord = (value: unknown): value is Record<string, any> =>
   Boolean(value && typeof value === 'object' && !Array.isArray(value));
@@ -120,17 +85,4 @@ export const updateStatusCopy = (ui: any, text: string) => {
   if (signedInStatus) {
     signedInStatus.textContent = text;
   }
-};
-
-export const clampPercent = (value: number) => Math.max(0, Math.min(100, Number.isFinite(value) ? value : 0));
-
-export const normalizeTimestampMs = (value: unknown) => {
-  const raw = Number(value || 0);
-  if (!Number.isFinite(raw) || raw <= 0) return 0;
-  return raw > 10_000_000_000 ? raw : raw * 1000;
-};
-
-export const dayStartMs = (value: number) => {
-  const date = new Date(value);
-  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
 };

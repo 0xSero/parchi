@@ -54,7 +54,8 @@ export function runRuntimeProfileRoutingSuite(runner: TestRunner) {
         accountModeChoice: 'paid',
         convexUrl: 'https://energetic-firefly-297.convex.cloud',
         convexAccessToken: 'not-a-jwt',
-        convexCreditBalanceCents: 500,
+        convexSubscriptionPlan: 'pro',
+        convexSubscriptionStatus: 'active',
       },
     );
     runner.assertFalse(result.allowed);

@@ -165,7 +165,18 @@ const TEST_PAGE_HTML = `
     </div>
   </div>
 
+  <div class="section">
+    <h3>Page State</h3>
+    <button id="fetchDataBtn" type="button">Fetch data</button>
+    <div id="fetchResult" class="result" style="display:none"></div>
+  </div>
+
   <script>
+    window.testAppState = {
+      user: { name: 'Parchi' },
+      counts: { sections: document.querySelectorAll('.section').length }
+    };
+
     // Track input changes for verification
     document.getElementById('textInput').addEventListener('input', (e) => {
       const result = document.getElementById('textInputResult');
@@ -189,6 +200,14 @@ const TEST_PAGE_HTML = `
       const result = document.getElementById('cmResult');
       result.querySelector('span').textContent = e.target.textContent;
       document.getElementById('cmHiddenTextarea').value = e.target.textContent;
+      result.style.display = 'block';
+    });
+
+    document.getElementById('fetchDataBtn').addEventListener('click', async () => {
+      const response = await fetch('/api/data?source=test-browser-tools');
+      const payload = await response.json();
+      const result = document.getElementById('fetchResult');
+      result.textContent = JSON.stringify(payload);
       result.style.display = 'block';
     });
   </script>
@@ -324,6 +343,49 @@ test('type() fails gracefully on checkbox', async ({ panel }) => {
   log('✓ Type correctly rejects checkbox', 'success');
 });
 
+test('evaluate() reads page JavaScript state', async ({ panel }) => {
+  const response = (await executeTool(panel, 'evaluate', {
+    script: 'return window.testAppState.user.name;',
+  })) as any;
+
+  const result = response?.result;
+  assert(result?.success, `evaluate() should succeed: ${JSON.stringify(result)}`);
+  assert(result?.result === 'Parchi', `Expected page state value "Parchi", got ${JSON.stringify(result)}`);
+
+  log('✓ evaluate() reads page JavaScript state', 'success');
+});
+
+test('watchNetwork() + getNetworkLog() capture fetch responses', async ({ panel, testPage }) => {
+  const watchResponse = (await executeTool(panel, 'watchNetwork', {
+    clearExisting: true,
+  })) as any;
+
+  const watchResult = watchResponse?.result;
+  assert(watchResult?.success, `watchNetwork() should succeed: ${JSON.stringify(watchResult)}`);
+
+  await testPage.click('#fetchDataBtn');
+  await testPage.waitForSelector('#fetchResult', { state: 'visible', timeout: timeoutMs });
+
+  const logResponse = (await executeTool(panel, 'getNetworkLog', {
+    urlIncludes: '/api/data',
+    includeBody: true,
+    limit: 10,
+  })) as any;
+
+  const logResult = logResponse?.result;
+  assert(logResult?.success, `getNetworkLog() should succeed: ${JSON.stringify(logResult)}`);
+  assert(Array.isArray(logResult?.entries) && logResult.entries.length > 0, 'Expected captured network entries.');
+
+  const match = logResult.entries.find((entry: any) => String(entry.url || '').includes('/api/data'));
+  assert(match, `Expected /api/data entry in network log: ${JSON.stringify(logResult.entries)}`);
+  assert(
+    String(match.body || '').includes('hello-network'),
+    `Expected response body to include hello-network, got ${JSON.stringify(match)}`,
+  );
+
+  log('✓ watchNetwork() + getNetworkLog() capture fetch responses', 'success');
+});
+
 async function run() {
   log('╔════════════════════════════════════════╗', 'info');
   log('║     Browser Tools E2E Tests           ║', 'info');
@@ -339,6 +401,9 @@ async function run() {
     if (req.url === '/' || req.url === '/test-page.html') {
       res.writeHead(200, { 'Content-Type': 'text/html' });
       res.end(TEST_PAGE_HTML);
+    } else if (req.url?.startsWith('/api/data')) {
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ message: 'hello-network', ok: true }));
     } else {
       res.writeHead(404);
       res.end('Not found');

@@ -1,6 +1,6 @@
 // AI Proxy Utilities - Helper functions for AI proxy functionality
 
-import { CHARS_PER_TOKEN_ESTIMATE, COST_CENTS_PER_TOKEN, MIN_REQUEST_COST_CENTS } from './ai-proxy-config.js';
+import { CHARS_PER_TOKEN_ESTIMATE } from './ai-proxy-config.js';
 
 export const createRequestId = () => {
   if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -13,12 +13,6 @@ export const toSafeInt = (value: unknown) => {
   const next = Math.floor(Number(value));
   if (!Number.isFinite(next) || next < 0) return 0;
   return next;
-};
-
-export const costFromTokens = (tokens: number) => {
-  const tokenCount = Math.max(0, toSafeInt(tokens));
-  if (tokenCount === 0) return MIN_REQUEST_COST_CENTS;
-  return Math.max(MIN_REQUEST_COST_CENTS, Math.ceil(tokenCount * COST_CENTS_PER_TOKEN));
 };
 
 export const asRecord = (value: unknown): Record<string, unknown> | null => {

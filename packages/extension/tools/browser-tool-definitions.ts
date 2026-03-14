@@ -1,4 +1,5 @@
 import type { ToolDefinition } from '@parchi/shared';
+import { ADVANCED_BROWSER_TOOL_DEFINITIONS } from './browser-tool-definitions-advanced.js';
 import { INTERACTION_TOOLS } from './browser-tool-definitions-interaction.js';
 import { NAVIGATION_TOOLS } from './browser-tool-definitions-nav.js';
 import { READ_TOOLS } from './browser-tool-definitions-read.js';
@@ -12,6 +13,7 @@ export const BASE_BROWSER_TOOL_DEFINITIONS = [
   ...READ_TOOLS,
   ...TAB_TOOLS,
   ...VIDEO_TOOLS,
+  ...ADVANCED_BROWSER_TOOL_DEFINITIONS,
 ] as const satisfies readonly ToolDefinition[];
 
 /** Union type of all browser tool names */

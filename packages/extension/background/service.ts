@@ -2,8 +2,8 @@ import type { RunPlan } from '@parchi/shared';
 import { RecordingCoordinator } from '../recording/recording-coordinator.js';
 import type { RelayBridge } from '../relay/relay-bridge.js';
 import { BrowserTools } from '../tools/browser-tools.js';
-import { processUserMessage } from './agent/agent-loop.js';
-import { processContextCompaction } from './agent/compaction-runner.js';
+import { processUserMessage } from './agent/agent-loop/index.js';
+import { processContextCompaction } from './agent/compaction/runner.js';
 import { setupActionClickOpensPanel, setupKimiUserAgentHeaderSupport } from './browser-compat.js';
 import { handleMessage } from './message-router.js';
 import {
@@ -29,7 +29,7 @@ import {
 import { generateWorkflowPrompt, runApiSmokeTest } from './smoke-test.js';
 import { type SubagentTabBadgeState, sendSubagentTabBadge } from './subagent-tab-badges.js';
 import { getToolsForSession } from './tools/tool-catalog.js';
-import { executeToolByName } from './tools/tool-executor.js';
+import { executeToolByName } from './tools/tool-executor/index.js';
 
 export class BackgroundService implements ServiceContext {
   browserTools: BrowserTools;
@@ -84,7 +84,20 @@ export class BackgroundService implements ServiceContext {
 
   private init() {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      void handleMessage(this, message, sender, sendResponse, this.applyRelayConfig);
+      void handleMessage(this, message, sender, sendResponse, this.applyRelayConfig).catch((error) => {
+        console.error('Unhandled runtime message error:', error);
+        try {
+          const err = error instanceof Error ? error : new Error(String(error ?? 'Unknown error'));
+          sendResponse({
+            success: false,
+            error: err.message,
+            errorName: err.name,
+            ...(err.stack ? { errorStack: err.stack } : {}),
+          });
+        } catch (responseError) {
+          console.error('Failed to bubble runtime message error:', responseError);
+        }
+      });
       return true;
     });
 

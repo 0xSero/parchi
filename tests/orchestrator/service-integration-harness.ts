@@ -8,8 +8,8 @@ import type {
   SubagentResult,
 } from '../../packages/extension/background/service-types.js';
 import { getSessionState as getManagedSessionState } from '../../packages/extension/background/session-manager.js';
-import { executeBuiltinTool } from '../../packages/extension/background/tools/tool-executor-builtins.js';
-import { recordSubagentStart } from '../../packages/extension/background/tools/tool-executor-orchestrator.js';
+import { executeBuiltinTool } from '../../packages/extension/background/tools/tool-executor/builtins.js';
+import { recordSubagentStart } from '../../packages/extension/background/tools/tool-executor/orchestrator.js';
 
 export type OrchestratorServiceScenario = {
   id: string;
