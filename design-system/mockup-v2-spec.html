@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parchi Chat UI — Design System V2 Professional Specification</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================================
+           PARCHI DESIGN SYSTEM V2 — PROFESSIONAL SPECIFICATION
+           Based on reference image analysis + existing system evolution
+           ============================================================================ */
+
+        :root {
+            /* === CORE VOID PALETTE ===
+               Deeper, more sophisticated dark tones */
+            --void-950: #030304;
+            --void-900: #08080a;
+            --void-850: #0d0d10;
+            --void-800: #121216;
+            --void-750: #18181c;
+            --void-700: #1e1e24;
+            --void-650: #25252c;
+            --void-600: #2d2d36;
+            --void-550: #363640;
+            --void-500: #40404c;
+            --void-450: #4a4a58;
+            --void-400: #555565;
+            --void-350: #616172;
+            --void-300: #6e6e80;
+            --void-250: #7c7c8f;
+            --void-200: #8b8b9f;
+            --void-150: #9b9bae;
+            --void-100: #acacbe;
+            --void-50: #bebece;
+            --void-25: #d1d1de;
+            --void-0: #ffffff;
+
+            /* === ACCENT SYSTEM ===
+               From reference: Purple/Indigo family with energy */
+            --accent-600: #6366f1;
+            --accent-500: #818cf8;
+            --accent-400: #a5b4fc;
+            --accent-300: #c7d2fe;
+            --accent-200: #e0e7ff;
+            --accent-rgb: 129 140 248;
+            
+            /* === SEMANTIC COLORS === */
+            --success-500: #22c55e;
+            --success-400: #4ade80;
+            --success-rgb: 74 222 128;
+            --warning-500: #f59e0b;
+            --warning-400: #fbbf24;
+            --warning-rgb: 251 191 36;
+            --error-500: #ef4444;
+            --error-400: #f87171;
+            --error-rgb: 248 113 113;
+            --info-500: #3b82f6;
+            --info-400: #60a5fa;
+
+            /* === SURFACE COLORS === */
+            --surface-bg: var(--void-900);
+            --surface-elevated: var(--void-800);
+            --surface-higher: var(--void-750);
+            --surface-floating: var(--void-700);
+            
+            /* === TEXT COLORS === */
+            --text-primary: var(--void-0);
+            --text-secondary: var(--void-100);
+            --text-tertiary: var(--void-200);
+            --text-muted: var(--void-300);
+            --text-disabled: var(--void-400);
+
+            /* === BORDER COLORS === */
+            --border-subtle: rgba(255, 255, 255, 0.06);
+            --border-default: rgba(255, 255, 255, 0.1);
+            --border-strong: rgba(255, 255, 255, 0.15);
+            --border-accent: rgba(129, 140, 248, 0.4);
+
+            /* === TYPOGRAPHY === */
+            --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
+            --font-mono: "JetBrains Mono", "SF Mono", monospace;
+            
+            /* Type Scale - 1.2 ratio */
+            --text-2xs: 11px;
+            --text-xs: 12px;
+            --text-sm: 14px;
+            --text-base: 15px;
+            --text-md: 16px;
+            --text-lg: 19px;
+            --text-xl: 23px;
+            --text-2xl: 28px;
+            --text-3xl: 33px;
+            --text-4xl: 40px;
+
+            /* Font Weights */
+            --font-normal: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+
+            /* Line Heights */
+            --leading-none: 1;
+            --leading-tight: 1.25;
+            --leading-snug: 1.375;
+            --leading-normal: 1.5;
+            --leading-relaxed: 1.625;
+            --leading-loose: 2;
+
+            /* === SPACING - 4px BASE === */
+            --space-0: 0;
+            --space-px: 1px;
+            --space-0-5: 2px;
+            --space-1: 4px;
+            --space-1-5: 6px;
+            --space-2: 8px;
+            --space-2-5: 10px;
+            --space-3: 12px;
+            --space-3-5: 14px;
+            --space-4: 16px;
+            --space-5: 20px;
+            --space-6: 24px;
+            --space-7: 28px;
+            --space-8: 32px;
+            --space-9: 36px;
+            --space-10: 40px;
+            --space-12: 48px;
+            --space-14: 56px;
+            --space-16: 64px;
+            --space-20: 80px;
+            --space-24: 96px;
+
+            /* === RADIUS === */
+            --radius-none: 0;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --radius-xl: 16px;
+            --radius-2xl: 20px;
+            --radius-3xl: 24px;
+            --radius-full: 9999px;
+
+            /* === SHADOWS === */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.5);
+            --shadow-xl: 0 16px 48px rgba(0, 0, 0, 0.6);
+            --shadow-glow-sm: 0 0 12px rgba(129, 140, 248, 0.15);
+            --shadow-glow-md: 0 0 24px rgba(129, 140, 248, 0.2);
+            --shadow-glow-lg: 0 0 40px rgba(129, 140, 248, 0.25);
+
+            /* === ANIMATION === */
+            --duration-instant: 50ms;
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+            --duration-slow: 400ms;
+            --duration-slower: 600ms;
+            
+            --ease-linear: linear;
+            --ease-in: cubic-bezier(0.4, 0, 1, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+
+            /* === Z-INDEX SCALE === */
+            --z-base: 0;
+            --z-dropdown: 100;
+            --z-sticky: 200;
+            --z-fixed: 300;
+            --z-modal-backdrop: 400;
+            --z-modal: 500;
+            --z-popover: 600;
+            --z-tooltip: 700;
+            --z-toast: 800;
+        }
+
+        /* ============================================================================
+           BASE STYLES
+           ============================================================================ */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: var(--text-base);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+
+        body {
+            font-family: var(--font-sans);
+            font-weight: var(--font-normal);
+            line-height: var(--leading-normal);
+            color: var(--text-primary);
+            background: var(--surface-bg);
+        }
+
+        /* ============================================================================
+           DESIGN DOCUMENT LAYOUT
+           ============================================================================ */
+        .design-doc {
+            max-width: 1440px;
+            margin: 0 auto;
+            padding: var(--space-6);
+        }
+
+        .doc-header {
+            text-align: center;
+            padding: var(--space-12) var(--space-6);
+            border-bottom: 1px solid var(--border-default);
+            margin-bottom: var(--space-10);
+        }
+
+        .doc-title {
+            font-size: var(--text-4xl);
+            font-weight: var(--font-bold);
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--void-0) 0%, var(--accent-400) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: var(--space-4);
+        }
+
+        .doc-subtitle {
+            font-size: var(--text-lg);
+            color: var(--text-secondary);
+            font-weight: var(--font-normal);
+        }
+
+        .doc-section {
+            margin-bottom: var(--space-16);
+            padding-bottom: var(--space-10);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .doc-section:last-child {
+            border-bottom: none;
+        }
+
+        .section-header {
+            margin-bottom: var(--space-8);
+        }
+
+        .section-title {
+            font-size: var(--text-2xl);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .section-description {
+            font-size: var(--text-base);
+            color: var(--text-secondary);
+            max-width: 640px;
+        }
+
+        .subsection-title {
+            font-size: var(--text-xl);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin: var(--space-8) 0 var(--space-4);
+        }
+
+        .subsection-subtitle {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin: var(--space-6) 0 var(--space-3);
+        }
+
+        /* ============================================================================
+           COLOR PALETTE DISPLAY
+           ============================================================================ */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: var(--space-4);
+            margin: var(--space-6) 0;
+        }
+
+        .color-swatch {
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            border: 1px solid var(--border-default);
+            transition: transform var(--duration-fast) var(--ease-out);
+        }
+
+        .color-swatch:hover {
+            transform: translateY(-2px);
+        }
+
+        .color-preview {
+            height: 72px;
+            position: relative;
+        }
+
+        .color-preview::after {
+            content: attr(data-hex);
+            position: absolute;
+            bottom: var(--space-2);
+            left: var(--space-3);
+            font-family: var(--font-mono);
+            font-size: var(--text-2xs);
+            color: white;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+
+        .color-swatch:hover .color-preview::after {
+            opacity: 1;
+        }
+
+        .color-info {
+            background: var(--surface-elevated);
+            padding: var(--space-3);
+        }
+
+        .color-name {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+            color: var(--text-primary);
+        }
+
+        .color-value {
+            font-family: var(--font-mono);
+            font-size: var(--text-2xs);
+            color: var(--text-muted);
+            margin-top: var(--space-1);
+        }
+
+        /* ============================================================================
+           TYPOGRAPHY SPECIMENS
+           ============================================================================ */
+        .type-specimen {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .type-row {
+            display: flex;
+            align-items: baseline;
+            gap: var(--space-6);
+            padding: var(--space-4) 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .type-row:last-child {
+            border-bottom: none;
+        }
+
+        .type-meta {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            min-width: 140px;
+            flex-shrink: 0;
+        }
+
+        .type-example {
+            flex: 1;
+            color: var(--text-primary);
+        }
+
+        /* ============================================================================
+           MOCKUP FRAME
+           ============================================================================ */
+        .mockup-frame {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-2xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-xl);
+            margin: var(--space-6) 0;
+        }
+
+        .mockup-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-4);
+            background: var(--surface-higher);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .mockup-dot.red { background: #ff5f57; }
+        .mockup-dot.yellow { background: #febc2e; }
+        .mockup-dot.green { background: #28c840; }
+
+        .mockup-label {
+            margin-left: auto;
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+        }
+
+        .mockup-content {
+            background: var(--surface-bg);
+            position: relative;
+        }
+
+        /* ============================================================================
+           CHAT UI MOCKUP — Based on reference image
+           ============================================================================ */
+        .chat-mockup {
+            width: 100%;
+            max-width: 420px;
+            height: 720px;
+            margin: 0 auto;
+            background: var(--surface-bg);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* === TOPBAR === */
+        .chat-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-4) var(--space-5);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .topbar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .logo-mark {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-bold);
+            font-size: var(--text-sm);
+            color: white;
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .topbar-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .topbar-actions {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .icon-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-default);
+            background: var(--surface-elevated);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-out);
+            font-size: var(--text-sm);
+        }
+
+        .icon-btn:hover {
+            background: var(--surface-higher);
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+        }
+
+        /* === STEP INDICATORS (from reference image) === */
+        .step-indicators {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .step-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+        }
+
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-2) var(--space-3);
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            transition: all var(--duration-fast);
+        }
+
+        .step-item.completed {
+            color: var(--text-secondary);
+        }
+
+        .step-item.current {
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+        }
+
+        .step-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--void-600);
+            flex-shrink: 0;
+        }
+
+        .step-item.completed .step-dot {
+            background: var(--success-400);
+            box-shadow: 0 0 6px rgba(74, 222, 128, 0.4);
+        }
+
+        .step-item.current .step-dot {
+            background: var(--accent-500);
+            box-shadow: 0 0 6px rgba(129, 140, 248, 0.4);
+        }
+
+        .step-text {
+            flex: 1;
+        }
+
+        .step-toggle {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+
+        /* === CHAT MESSAGES AREA === */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        /* === MESSAGE BUBBLES === */
+        .message-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            animation: message-appear var(--duration-normal) var(--ease-out);
+        }
+
+        @keyframes message-appear {
+            from {
+                opacity: 0;
+                transform: translateY(8px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* User Message */
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message-bubble-user {
+            max-width: 85%;
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            border-bottom-right-radius: var(--space-1);
+            padding: var(--space-3) var(--space-4);
+            font-size: var(--text-base);
+            color: var(--text-primary);
+            line-height: var(--leading-relaxed);
+        }
+
+        /* Assistant Message */
+        .message-assistant {
+            display: flex;
+            gap: var(--space-3);
+        }
+
+        .assistant-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-md);
+            background: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-xs);
+            color: white;
+            flex-shrink: 0;
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-text {
+            font-size: var(--text-base);
+            line-height: var(--leading-relaxed);
+            color: var(--text-primary);
+        }
+
+        .message-text p {
+            margin-bottom: var(--space-3);
+        }
+
+        .message-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-text strong {
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .message-text code {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            background: var(--surface-elevated);
+            padding: var(--space-0-5) var(--space-1-5);
+            border-radius: var(--radius-sm);
+            color: var(--accent-400);
+        }
+
+        /* === RICH CONTENT: TABLES (from reference) === */
+        .content-table-wrapper {
+            margin: var(--space-4) 0;
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .content-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+        }
+
+        .content-table th {
+            background: var(--surface-elevated);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-weight: var(--font-semibold);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .content-table td {
+            padding: var(--space-3) var(--space-4);
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .content-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .content-table tr:hover td {
+            background: var(--surface-elevated);
+        }
+
+        .table-tag {
+            display: inline-block;
+            padding: var(--space-0-5) var(--space-2);
+            background: var(--surface-higher);
+            border-radius: var(--radius-sm);
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--accent-400);
+        }
+
+        /* === CODE BLOCKS === */
+        .code-block {
+            margin: var(--space-4) 0;
+            background: var(--void-950);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+        }
+
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-2) var(--space-4);
+            background: var(--surface-elevated);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .code-block-lang {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .code-block-action {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color var(--duration-fast);
+        }
+
+        .code-block-action:hover {
+            color: var(--text-primary);
+        }
+
+        .code-block-content {
+            padding: var(--space-4);
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            line-height: var(--leading-relaxed);
+            color: var(--text-secondary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .code-block-content .keyword { color: var(--accent-400); }
+        .code-block-content .string { color: var(--success-400); }
+        .code-block-content .comment { color: var(--text-muted); }
+
+        /* === SECTION HEADERS IN MESSAGES === */
+        .message-section {
+            margin: var(--space-5) 0 var(--space-4);
+            padding-bottom: var(--space-2);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .message-section-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .message-section-icon {
+            font-size: var(--text-base);
+        }
+
+        /* === INFO ROWS (from reference: "Project Name: crowdfund...") === */
+        .info-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin: var(--space-2) 0;
+            font-size: var(--text-sm);
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            font-weight: var(--font-medium);
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-family: var(--font-mono);
+            background: var(--surface-elevated);
+            padding: var(--space-0-5) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: var(--text-xs);
+        }
+
+        /* === PLAN BAR (from reference image) === */
+        .plan-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3) var(--space-4);
+            background: var(--surface-elevated);
+            border-top: 1px solid var(--border-default);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .plan-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .plan-toggle {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .plan-label {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .plan-status {
+            font-size: var(--text-xs);
+            color: var(--success-400);
+        }
+
+        .plan-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .jump-btn {
+            padding: var(--space-1-5) var(--space-3);
+            background: var(--surface-higher);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .jump-btn:hover {
+            background: var(--surface-floating);
+            color: var(--text-primary);
+        }
+
+        /* === COMPOSER (from reference) === */
+        .composer {
+            padding: var(--space-4);
+            background: var(--surface-elevated);
+            border-top: 1px solid var(--border-default);
+        }
+
+        .composer-input-wrapper {
+            background: var(--surface-bg);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            padding: var(--space-4);
+            transition: border-color var(--duration-fast), box-shadow var(--duration-fast);
+        }
+
+        .composer-input-wrapper:focus-within {
+            border-color: var(--border-accent);
+            box-shadow: var(--shadow-glow-sm);
+        }
+
+        .composer-placeholder {
+            font-size: var(--text-base);
+            color: var(--text-muted);
+        }
+
+        .composer-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: var(--space-4);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .toolbar-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            font-size: var(--text-base);
+        }
+
+        .toolbar-btn:hover {
+            background: var(--surface-elevated);
+            color: var(--text-primary);
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-default);
+            margin: 0 var(--space-1);
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-md);
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .model-selector:hover {
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+        }
+
+        .model-selector-icon {
+            font-size: var(--text-sm);
+        }
+
+        .model-selector-chevron {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+
+        .send-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: var(--radius-md);
+            background: var(--text-primary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-spring);
+            color: var(--surface-bg);
+            font-size: var(--text-base);
+        }
+
+        .send-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+
+        /* === TOOL ACTIONS === */
+        .tool-action {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            margin: var(--space-3) 0;
+        }
+
+        .tool-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: var(--radius-md);
+            background: rgba(129, 140, 248, 0.1);
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-400);
+            font-size: var(--text-xs);
+        }
+
+        .tool-icon.running {
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--warning-400);
+        }
+
+        .tool-icon.completed {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: rgba(74, 222, 128, 0.3);
+            color: var(--success-400);
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-name {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .tool-desc {
+            font-size: var(--text-2xs);
+            color: var(--text-muted);
+            margin-top: var(--space-0-5);
+        }
+
+        .tool-status {
+            font-family: var(--font-mono);
+            font-size: var(--text-2xs);
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        /* === ERROR STATES === */
+        .error-banner {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-4);
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: var(--radius-lg);
+            margin: var(--space-3) 0;
+        }
+
+        .error-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--error-500);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: var(--text-xs);
+            font-weight: var(--font-bold);
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .error-content {
+            flex: 1;
+        }
+
+        .error-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-semibold);
+            color: var(--error-400);
+        }
+
+        .error-message {
+            font-size: var(--text-xs);
+            color: var(--text-secondary);
+            margin-top: var(--space-1);
+        }
+
+        /* === LOADING STATES === */
+        .loading-container {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-4);
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: var(--space-1);
+        }
+
+        .loading-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--void-500);
+            animation: loading-pulse 1.4s infinite ease-in-out;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: 0s; }
+        .loading-dot:nth-child(2) { animation-delay: 0.2s; }
+        .loading-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes loading-pulse {
+            0%, 80%, 100% { 
+                transform: scale(0.6); 
+                opacity: 0.4; 
+            }
+            40% { 
+                transform: scale(1); 
+                opacity: 1; 
+            }
+        }
+
+        .loading-text {
+            font-size: var(--text-sm);
+            color: var(--text-muted);
+        }
+
+        /* === EMPTY STATE === */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8);
+            text-align: center;
+        }
+
+        .empty-orb {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-500) 0%, var(--accent-600) 100%);
+            opacity: 0.8;
+            filter: blur(40px);
+            animation: orb-pulse 4s ease-in-out infinite;
+            margin-bottom: var(--space-6);
+        }
+
+        @keyframes orb-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.7; }
+            50% { transform: scale(1.1); opacity: 0.9; }
+        }
+
+        .empty-title {
+            font-size: var(--text-xl);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-2);
+        }
+
+        .empty-subtitle {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            margin-bottom: var(--space-8);
+        }
+
+        .empty-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-3);
+            width: 100%;
+            max-width: 320px;
+        }
+
+        .empty-action-btn {
+            padding: var(--space-3) var(--space-4);
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            text-align: center;
+        }
+
+        .empty-action-btn:hover {
+            background: var(--surface-higher);
+            border-color: var(--border-strong);
+            color: var(--text-primary);
+            transform: translateY(-1px);
+        }
+
+        /* === SPECIFICATION CARDS === */
+        .spec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-5);
+        }
+
+        .spec-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+        }
+
+        .spec-card-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+            margin-bottom: var(--space-4);
+        }
+
+        .spec-list {
+            list-style: none;
+        }
+
+        .spec-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-3) 0;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+
+        .spec-item:last-child {
+            border-bottom: none;
+        }
+
+        .spec-label {
+            font-size: var(--text-sm);
+            color: var(--text-secondary);
+        }
+
+        .spec-value {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--text-primary);
+        }
+
+        /* === STATE SHOWCASE === */
+        .state-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-5);
+        }
+
+        .state-card {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            padding: var(--space-5);
+        }
+
+        .state-label {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: var(--space-4);
+        }
+
+        /* === COMPONENT SHOWCASE === */
+        .component-showcase {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin: var(--space-6) 0;
+        }
+
+        .component-label {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: var(--space-4);
+        }
+
+        /* === SETTINGS PANEL === */
+        .settings-panel {
+            width: 100%;
+            max-width: 380px;
+            background: var(--surface-elevated);
+            border-left: 1px solid var(--border-default);
+            height: 720px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-5);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .settings-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--text-primary);
+        }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+        }
+
+        .settings-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .settings-section-title {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: var(--space-3);
+        }
+
+        .settings-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3) var(--space-4);
+            background: var(--surface-bg);
+            border: 1px solid var(--border-default);
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-2);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .settings-item:hover {
+            border-color: var(--border-strong);
+        }
+
+        .settings-item-label {
+            font-size: var(--text-sm);
+            color: var(--text-primary);
+        }
+
+        .settings-item-value {
+            font-size: var(--text-xs);
+            color: var(--text-muted);
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-3);
+        }
+
+        .theme-option {
+            aspect-ratio: 1;
+            border-radius: var(--radius-lg);
+            border: 2px solid transparent;
+            cursor: pointer;
+            position: relative;
+            transition: all var(--duration-fast);
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent-500);
+        }
+
+        .theme-option.active::after {
+            content: '✓';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 18px;
+            height: 18px;
+            background: var(--accent-500);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: white;
+        }
+
+        /* === BADGES & TAGS === */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1-5);
+            padding: var(--space-0-5) var(--space-2);
+            border-radius: var(--radius-full);
+            font-size: var(--text-2xs);
+            font-weight: var(--font-medium);
+        }
+
+        .badge-default {
+            background: var(--surface-higher);
+            color: var(--text-secondary);
+        }
+
+        .badge-accent {
+            background: rgba(129, 140, 248, 0.15);
+            color: var(--accent-400);
+        }
+
+        .badge-success {
+            background: rgba(74, 222, 128, 0.15);
+            color: var(--success-400);
+        }
+
+        .badge-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+        }
+
+        .badge-accent .badge-dot { background: var(--accent-500); }
+        .badge-success .badge-dot { background: var(--success-500); }
+
+        /* === DIVIDERS === */
+        .divider {
+            height: 1px;
+            background: var(--border-default);
+            margin: var(--space-4) 0;
+        }
+
+        /* === TOOLTIP === */
+        .tooltip-trigger {
+            position: relative;
+            display: inline-block;
+        }
+
+        /* === SCROLLBAR === */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--void-600);
+            border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--void-500);
+        }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 768px) {
+            .design-doc {
+                padding: var(--space-4);
+            }
+
+            .doc-title {
+                font-size: var(--text-3xl);
+            }
+
+            .spec-grid,
+            .state-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-mockup {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="design-doc">
+        <!-- HEADER -->
+        <header class="doc-header">
+            <h1 class="doc-title">Parchi Chat UI — Design System V2</h1>
+            <p class="doc-subtitle">Professional specification based on reference analysis — structured, logical, comprehensive</p>
+        </header>
+
+        <!-- SECTION 1: DESIGN TOKENS -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">01. Design Tokens</h2>
+                <p class="section-description">Core visual primitives that define the interface. All values are systematic and follow a 4px base grid.</p>
+            </div>
+
+            <h3 class="subsection-subtitle">Color Palette — Void Spectrum</h3>
+            <div class="color-grid">
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #030304;" data-hex="#030304"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-950</div>
+                        <div class="color-value">#030304</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #08080a;" data-hex="#08080a"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-900</div>
+                        <div class="color-value">#08080a</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #0d0d10;" data-hex="#0d0d10"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-850</div>
+                        <div class="color-value">#0d0d10</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #121216;" data-hex="#121216"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-800</div>
+                        <div class="color-value">#121216</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #18181c;" data-hex="#18181c"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-750</div>
+                        <div class="color-value">#18181c</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #1e1e24;" data-hex="#1e1e24"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-700</div>
+                        <div class="color-value">#1e1e24</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #2d2d36;" data-hex="#2d2d36"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-600</div>
+                        <div class="color-value">#2d2d36</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #40404c;" data-hex="#40404c"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-500</div>
+                        <div class="color-value">#40404c</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #555565;" data-hex="#555565"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-400</div>
+                        <div class="color-value">#555565</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #6e6e80;" data-hex="#6e6e80"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-300</div>
+                        <div class="color-value">#6e6e80</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #9b9bae;" data-hex="#9b9bae"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-150</div>
+                        <div class="color-value">#9b9bae</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #ffffff;" data-hex="#ffffff"></div>
+                    <div class="color-info">
+                        <div class="color-name">void-0</div>
+                        <div class="color-value">#ffffff</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="subsection-subtitle">Accent & Semantic Colors</h3>
+            <div class="color-grid">
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #6366f1;" data-hex="#6366f1"></div>
+                    <div class="color-info">
+                        <div class="color-name">accent-600</div>
+                        <div class="color-value">#6366f1</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #818cf8;" data-hex="#818cf8"></div>
+                    <div class="color-info">
+                        <div class="color-name">accent-500</div>
+                        <div class="color-value">#818cf8</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #a5b4fc;" data-hex="#a5b4fc"></div>
+                    <div class="color-info">
+                        <div class="color-name">accent-400</div>
+                        <div class="color-value">#a5b4fc</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #22c55e;" data-hex="#22c55e"></div>
+                    <div class="color-info">
+                        <div class="color-name">success-500</div>
+                        <div class="color-value">#22c55e</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #f59e0b;" data-hex="#f59e0b"></div>
+                    <div class="color-info">
+                        <div class="color-name">warning-500</div>
+                        <div class="color-value">#f59e0b</div>
+                    </div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-preview" style="background: #ef4444;" data-hex="#ef4444"></div>
+                    <div class="color-info">
+                        <div class="color-name">error-500</div>
+                        <div class="color-value">#ef4444</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 2: TYPOGRAPHY -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">02. Typography</h2>
+                <p class="section-description">Type scale based on 1.2 ratio. Primary font: Plus Jakarta Sans for UI, JetBrains Mono for code.</p>
+            </div>
+
+            <div class="type-specimen">
+                <div class="type-row">
+                    <span class="type-meta">40px / Bold / -0.02em</span>
+                    <span class="type-example" style="font-size: 40px; font-weight: 700; letter-spacing: -0.02em;">Display Title</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">28px / Semibold</span>
+                    <span class="type-example" style="font-size: 28px; font-weight: 600;">Section Header</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">23px / Semibold</span>
+                    <span class="type-example" style="font-size: 23px; font-weight: 600;">Subsection Title</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">19px / Medium</span>
+                    <span class="type-example" style="font-size: 19px; font-weight: 500;">Card Title</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">16px / Regular</span>
+                    <span class="type-example" style="font-size: 16px;">Large body text for emphasis</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">15px / Regular / 1.625</span>
+                    <span class="type-example" style="font-size: 15px; line-height: 1.625;">Default body text in messages with comfortable line height for readability</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">14px / Medium</span>
+                    <span class="type-example" style="font-size: 14px; font-weight: 500;">Button labels, emphasis</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">12px / Regular / Mono</span>
+                    <span class="type-example" style="font-size: 12px; font-family: var(--font-mono);">metadata, tokens, keys</span>
+                </div>
+                <div class="type-row">
+                    <span class="type-meta">11px / Semibold / Uppercase</span>
+                    <span class="type-example" style="font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;">Section Labels</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: CHAT UI MOCKUP (Reference Implementation) -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">03. Chat Interface</h2>
+                <p class="section-description">Main chat UI based on the reference image analysis. Includes message types, step indicators, rich content, and composer.</p>
+            </div>
+
+            <div class="mockup-frame">
+                <div class="mockup-header">
+                    <span class="mockup-dot red"></span>
+                    <span class="mockup-dot yellow"></span>
+                    <span class="mockup-dot green"></span>
+                    <span class="mockup-label">Chat Interface — Active Session</span>
+                </div>
+                <div class="mockup-content">
+                    <div class="chat-mockup">
+                        <!-- Topbar -->
+                        <div class="chat-topbar">
+                            <div class="topbar-left">
+                                <div class="logo-mark">P</div>
+                                <span class="topbar-title">Parchi</span>
+                            </div>
+                            <div class="topbar-actions">
+                                <button class="icon-btn">+</button>
+                                <button class="icon-btn">⚙</button>
+                            </div>
+                        </div>
+
+                        <!-- Step Indicators -->
+                        <div class="step-indicators">
+                            <div class="step-list">
+                                <div class="step-item completed">
+                                    <span class="step-dot"></span>
+                                    <span class="step-text">Step 2: Name the project and confirm creation</span>
+                                    <span class="step-toggle">⌄</span>
+                                </div>
+                                <div class="step-item completed">
+                                    <span class="step-dot"></span>
+                                    <span class="step-text">Step 3: Navigate to project settings to find deployment keys</span>
+                                    <span class="step-toggle">⌄</span>
+                                </div>
+                                <div class="step-item current">
+                                    <span class="step-dot"></span>
+                                    <span class="step-text">Step 4: Extract and return the deployment URL and deploy key</span>
+                                    <span class="step-toggle">⌄</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Messages -->
+                        <div class="chat-messages">
+                            <!-- Assistant Message with Rich Content -->
+                            <div class="message-group">
+                                <div class="message-assistant">
+                                    <div class="assistant-avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text">
+                                            <p>Here are all the keys for your new Convex project! 🎉</p>
+                                        </div>
+
+                                        <!-- Section Header -->
+                                        <div class="message-section">
+                                            <div class="message-section-title">
+                                                <span class="message-section-icon">✅</span>
+                                                New Convex Project Created
+                                            </div>
+                                        </div>
+
+                                        <!-- Info Rows -->
+                                        <div class="info-row">
+                                            <span class="info-label">Project Name:</span>
+                                            <span class="info-value">crowdfund</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Deployment:</span>
+                                            <span class="info-value">cheery-camel-510</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">Region:</span>
+                                            <span>US East (N. Virginia)</span>
+                                        </div>
+
+                                        <!-- Table -->
+                                        <div class="content-table-wrapper">
+                                            <table class="content-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Key</th>
+                                                        <th>Value</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td><span class="table-tag">CLOUD URL</span></td>
+                                                        <td><code>https://cheery-camel-510.convex.cloud</code></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="table-tag">HTTP ACTIONS URL</span></td>
+                                                        <td><code>https://cheery-camel-510.convex.site</code></td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td><span class="table-tag">DEPLOY KEY</span></td>
+                                                        <td><code>dev:cheery-camel-510|eyJ2MiI6...</code></td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+
+                                        <p style="margin-top: 16px;"><strong>How to use these:</strong></p>
+                                        <p>In your <code>.env.local</code>:</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Code Block -->
+                            <div class="message-group" style="margin-left: 40px;">
+                                <div class="code-block">
+                                    <div class="code-block-header">
+                                        <span class="code-block-lang">env</span>
+                                        <button class="code-block-action">📋 Copy</button>
+                                    </div>
+                                    <div class="code-block-content">CONVEX_DEPLOYMENT=dev:cheery-camel-510|eyJ2MiI6IjlwMzg3MTM4ODZhYjRkOWI4ZWVjZWNjMWY3MTE3NmRkIn0=
+NEXT_PUBLIC_CONVEX_URL=https://cheery-camel-510.convex.cloud</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Plan Bar -->
+                        <div class="plan-bar">
+                            <div class="plan-info">
+                                <button class="plan-toggle">▶</button>
+                                <span class="plan-label">Plan</span>
+                                <span style="font-size: 11px; color: var(--text-muted);">4 steps • </span>
+                                <span class="plan-status">Done</span>
+                            </div>
+                            <div class="plan-actions">
+                                <button class="jump-btn">Jump to latest</button>
+                                <button class="icon-btn" style="width: 24px; height: 24px;">✕</button>
+                            </div>
+                        </div>
+
+                        <!-- Composer -->
+                        <div class="composer">
+                            <div class="composer-input-wrapper">
+                                <div class="composer-placeholder">Message...</div>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <button class="toolbar-btn">📎</button>
+                                        <button class="toolbar-btn">🎙</button>
+                                        <div class="toolbar-divider"></div>
+                                        <button class="toolbar-btn">👁</button>
+                                        <button class="toolbar-btn">⬇</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-selector">
+                                            <span class="model-selector-icon">🤖</span>
+                                            <span>GitHub Copilot/Claude-3.5</span>
+                                            <span class="model-selector-chevron">⌄</span>
+                                        </div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4: COMPONENT STATES -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">04. Component States</h2>
+                <p class="section-description">All possible states for each component type. States must be explicitly designed, not left to chance.</p>
+            </div>
+
+            <div class="state-grid">
+                <!-- Message States -->
+                <div class="state-card">
+                    <div class="state-label">Message States</div>
+                    
+                    <!-- User Message -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">User</div>
+                        <div class="message-user">
+                            <div class="message-bubble-user">Summarize the key points from this article about React Server Components</div>
+                        </div>
+                    </div>
+
+                    <!-- Assistant Message -->
+                    <div style="margin-bottom: 16px;">
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Assistant</div>
+                        <div class="message-assistant">
+                            <div class="assistant-avatar">P</div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    <p>Here are the key points about React Server Components:</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div>
+                        <div style="font-size: 11px; color: var(--text-muted); margin-bottom: 8px;">Loading</div>
+                        <div class="loading-container">
+                            <div class="loading-dots">
+                                <div class="loading-dot"></div>
+                                <div class="loading-dot"></div>
+                                <div class="loading-dot"></div>
+                            </div>
+                            <span class="loading-text">Thinking...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tool States -->
+                <div class="state-card">
+                    <div class="state-label">Tool Action States</div>
+                    
+                    <div class="tool-action">
+                        <div class="tool-icon">⚡</div>
+                        <div class="tool-info">
+                            <div class="tool-name">browser_click</div>
+                            <div class="tool-desc">Clicked on "Sign In" button</div>
+                        </div>
+                        <div class="tool-status">Running</div>
+                    </div>
+
+                    <div class="tool-action">
+                        <div class="tool-icon completed">✓</div>
+                        <div class="tool-info">
+                            <div class="tool-name">browser_type</div>
+                            <div class="tool-desc">Typed into email field</div>
+                        </div>
+                        <div class="tool-status" style="color: var(--success-400);">Done</div>
+                    </div>
+
+                    <div class="tool-action">
+                        <div class="tool-icon running">⟳</div>
+                        <div class="tool-info">
+                            <div class="tool-name">browser_wait</div>
+                            <div class="tool-desc">Waiting for page load...</div>
+                        </div>
+                        <div class="tool-status" style="color: var(--warning-400);">2.4s</div>
+                    </div>
+                </div>
+
+                <!-- Error States -->
+                <div class="state-card">
+                    <div class="state-label">Error States</div>
+                    
+                    <div class="error-banner">
+                        <div class="error-icon">!</div>
+                        <div class="error-content">
+                            <div class="error-title">Connection Error</div>
+                            <div class="error-message">Unable to reach the API. Retrying in 3 seconds...</div>
+                        </div>
+                    </div>
+
+                    <div class="error-banner" style="margin-top: 12px;">
+                        <div class="error-icon">!</div>
+                        <div class="error-content">
+                            <div class="error-title">Rate Limited</div>
+                            <div class="error-message">Too many requests. Please wait before trying again.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="state-card">
+                    <div class="state-label">Empty State</div>
+                    <div style="text-align: center; padding: 32px 16px;">
+                        <div class="empty-orb" style="width: 80px; height: 80px; margin: 0 auto 16px;"></div>
+                        <div style="font-size: 17px; font-weight: 600; margin-bottom: 8px;">What can I help with?</div>
+                        <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">Start a conversation or try an action below</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button class="empty-action-btn" style="padding: 10px;">Summarize page</button>
+                            <button class="empty-action-btn" style="padding: 10px;">Fill form</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 5: SETTINGS PANEL -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">05. Settings Panel</h2>
+                <p class="section-description">Slide-out panel for configuration. Organized into logical sections with clear hierarchy.</p>
+            </div>
+
+            <div class="mockup-frame">
+                <div class="mockup-header">
+                    <span class="mockup-dot red"></span>
+                    <span class="mockup-dot yellow"></span>
+                    <span class="mockup-dot green"></span>
+                    <span class="mockup-label">Settings Panel</span>
+                </div>
+                <div class="mockup-content" style="display: flex; justify-content: center; padding: 24px;">
+                    <div class="settings-panel">
+                        <div class="settings-header">
+                            <span class="settings-title">Settings</span>
+                            <button class="icon-btn">✕</button>
+                        </div>
+                        <div class="settings-content">
+                            <div class="settings-section">
+                                <div class="settings-section-title">Appearance</div>
+                                <div class="theme-grid">
+                                    <div class="theme-option active" style="background: linear-gradient(135deg, #08080a 50%, #6366f1 50%);"></div>
+                                    <div class="theme-option" style="background: linear-gradient(135deg, #0a0a0a 50%, #f59e0b 50%);"></div>
+                                    <div class="theme-option" style="background: linear-gradient(135deg, #080808 50%, #22d3ee 50%);"></div>
+                                    <div class="theme-option" style="background: linear-gradient(135deg, #0a0a0a 50%, #f472b6 50%);"></div>
+                                    <div class="theme-option" style="background: linear-gradient(135deg, #080808 50%, #34d399 50%);"></div>
+                                    <div class="theme-option" style="background: linear-gradient(135deg, #ffffff 50%, #6366f1 50%);"></div>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <div class="settings-section-title">Model Configuration</div>
+                                <div class="settings-item">
+                                    <span class="settings-item-label">Active Profile</span>
+                                    <span class="settings-item-value">Claude 3.5 Sonnet ›</span>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="settings-item-label">Temperature</span>
+                                    <span class="settings-item-value">0.7 ›</span>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <div class="settings-section-title">Account</div>
+                                <div class="settings-item">
+                                    <span class="settings-item-label">Billing</span>
+                                    <span class="settings-item-value">›</span>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="settings-item-label">API Keys</span>
+                                    <span class="settings-item-value">›</span>
+                                </div>
+                            </div>
+
+                            <div class="settings-section">
+                                <div class="settings-section-title">About</div>
+                                <div class="settings-item">
+                                    <span class="settings-item-label">Version</span>
+                                    <span class="settings-item-value">0.5.1</span>
+                                </div>
+                                <div class="settings-item">
+                                    <span class="settings-item-label">Documentation</span>
+                                    <span class="settings-item-value">›</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 6: SPECIFICATIONS -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">06. Technical Specifications</h2>
+                <p class="section-description">Detailed specs for spacing, animation, and component measurements.</p>
+            </div>
+
+            <div class="spec-grid">
+                <div class="spec-card">
+                    <div class="spec-card-title">Spacing Scale</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">0.5</span><span class="spec-value">2px</span></li>
+                        <li class="spec-item"><span class="spec-label">1</span><span class="spec-value">4px</span></li>
+                        <li class="spec-item"><span class="spec-label">2</span><span class="spec-value">8px</span></li>
+                        <li class="spec-item"><span class="spec-label">3</span><span class="spec-value">12px</span></li>
+                        <li class="spec-item"><span class="spec-label">4</span><span class="spec-value">16px</span></li>
+                        <li class="spec-item"><span class="spec-label">5</span><span class="spec-value">20px</span></li>
+                        <li class="spec-item"><span class="spec-label">6</span><span class="spec-value">24px</span></li>
+                        <li class="spec-item"><span class="spec-label">8</span><span class="spec-value">32px</span></li>
+                        <li class="spec-item"><span class="spec-label">10</span><span class="spec-value">40px</span></li>
+                        <li class="spec-item"><span class="spec-label">12</span><span class="spec-value">48px</span></li>
+                    </ul>
+                </div>
+
+                <div class="spec-card">
+                    <div class="spec-card-title">Border Radius</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">sm</span><span class="spec-value">6px</span></li>
+                        <li class="spec-item"><span class="spec-label">md</span><span class="spec-value">8px</span></li>
+                        <li class="spec-item"><span class="spec-label">lg</span><span class="spec-value">12px</span></li>
+                        <li class="spec-item"><span class="spec-label">xl</span><span class="spec-value">16px</span></li>
+                        <li class="spec-item"><span class="spec-label">2xl</span><span class="spec-value">20px</span></li>
+                        <li class="spec-item"><span class="spec-label">3xl</span><span class="spec-value">24px</span></li>
+                        <li class="spec-item"><span class="spec-label">full</span><span class="spec-value">9999px</span></li>
+                    </ul>
+                </div>
+
+                <div class="spec-card">
+                    <div class="spec-card-title">Animation Timing</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">instant</span><span class="spec-value">50ms</span></li>
+                        <li class="spec-item"><span class="spec-label">fast</span><span class="spec-value">150ms</span></li>
+                        <li class="spec-item"><span class="spec-label">normal</span><span class="spec-value">250ms</span></li>
+                        <li class="spec-item"><span class="spec-label">slow</span><span class="spec-value">400ms</span></li>
+                        <li class="spec-item"><span class="spec-label">spring</span><span class="spec-value">cubic-bezier(0.175, 0.885, 0.32, 1.275)</span></li>
+                        <li class="spec-item"><span class="spec-label">smooth</span><span class="spec-value">cubic-bezier(0.4, 0, 0.2, 1)</span></li>
+                    </ul>
+                </div>
+
+                <div class="spec-card">
+                    <div class="spec-card-title">Shadows & Glows</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">shadow-sm</span><span class="spec-value">0 1px 2px rgba(0,0,0,0.3)</span></li>
+                        <li class="spec-item"><span class="spec-label">shadow-md</span><span class="spec-value">0 4px 12px rgba(0,0,0,0.4)</span></li>
+                        <li class="spec-item"><span class="spec-label">shadow-lg</span><span class="spec-value">0 8px 24px rgba(0,0,0,0.5)</span></li>
+                        <li class="spec-item"><span class="spec-label">glow-sm</span><span class="spec-value">0 0 12px rgba(129,140,248,0.15)</span></li>
+                        <li class="spec-item"><span class="spec-label">glow-md</span><span class="spec-value">0 0 24px rgba(129,140,248,0.2)</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 7: BADGES & TAGS -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">07. Badges & Tags</h2>
+                <p class="section-description">Status indicators and labels for various contexts.</p>
+            </div>
+
+            <div class="component-showcase">
+                <div class="component-label">Badge Variants</div>
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <span class="badge badge-default"><span class="badge-dot" style="background: var(--void-400);"></span>Default</span>
+                    <span class="badge badge-accent"><span class="badge-dot"></span>Active</span>
+                    <span class="badge badge-success"><span class="badge-dot"></span>Completed</span>
+                    <span class="badge badge-default" style="background: rgba(245, 158, 11, 0.15); color: var(--warning-400);"><span class="badge-dot" style="background: var(--warning-500);"></span>Pending</span>
+                    <span class="badge badge-default" style="background: rgba(239, 68, 68, 0.15); color: var(--error-400);"><span class="badge-dot" style="background: var(--error-500);"></span>Error</span>
+                </div>
+            </div>
+
+            <div class="component-showcase">
+                <div class="component-label">Table Tags (from reference)</div>
+                <div style="display: flex; gap: 8px;">
+                    <span class="table-tag">CLOUD URL</span>
+                    <span class="table-tag">HTTP ACTIONS URL</span>
+                    <span class="table-tag">DEPLOY KEY</span>
+                    <span class="table-tag">API KEY</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 8: CHANGELOG -->
+        <section class="doc-section">
+            <div class="section-header">
+                <h2 class="section-title">08. Changelog from V1</h2>
+                <p class="section-description">Key changes and improvements from the previous design iteration.</p>
+            </div>
+
+            <div class="spec-grid">
+                <div class="spec-card">
+                    <div class="spec-card-title">Visual Changes</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">Background</span><span class="spec-value">#09090b → #08080a</span></li>
+                        <li class="spec-item"><span class="spec-label">Accent</span><span class="spec-value">Indigo retained, refined</span></li>
+                        <li class="spec-item"><span class="spec-label">Surface layers</span><span class="spec-value">More depth levels</span></li>
+                        <li class="spec-item"><span class="spec-label">Borders</span><span class="spec-value">Subtler, more refined</span></li>
+                        <li class="spec-item"><span class="spec-label">Glow effects</span><span class="spec-value">Reduced, more purposeful</span></li>
+                    </ul>
+                </div>
+
+                <div class="spec-card">
+                    <div class="spec-card-title">Component Updates</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">Step indicators</span><span class="spec-value">New pattern</span></li>
+                        <li class="spec-item"><span class="spec-label">Plan bar</span><span class="spec-value">Added from reference</span></li>
+                        <li class="spec-item"><span class="spec-label">Composer</span><span class="spec-value">Unified input style</span></li>
+                        <li class="spec-item"><span class="spec-label">Tables</span><span class="spec-value">Rich data display</span></li>
+                        <li class="spec-item"><span class="spec-label">Code blocks</span><span class="spec-value">Header + copy action</span></li>
+                    </ul>
+                </div>
+
+                <div class="spec-card">
+                    <div class="spec-card-title">Typography</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">Base size</span><span class="spec-value">13px → 15px</span></li>
+                        <li class="spec-item"><span class="spec-label">Line height</span><span class="spec-value">1.5 → 1.625</span></li>
+                        <li class="spec-item"><span class="spec-label">Messages</span><span class="spec-value">More readable</span></li>
+                        <li class="spec-item"><span class="spec-label">Code</span><span class="spec-value">Better contrast</span></li>
+                    </ul>
+                </div>
+
+                <div class="spec-card">
+                    <div class="spec-card-title">Accessibility</div>
+                    <ul class="spec-list">
+                        <li class="spec-item"><span class="spec-label">Contrast ratio</span><span class="spec-value">7:1+ on all text</span></li>
+                        <li class="spec-item"><span class="spec-label">Focus states</span><span class="spec-value">Visible rings</span></li>
+                        <li class="spec-item"><span class="spec-label">Touch targets</span><span class="spec-value">44px minimum</span></li>
+                        <li class="spec-item"><span class="spec-label">Reduced motion</span><span class="spec-value">Respect preference</span></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer style="text-align: center; padding: var(--space-10) 0; border-top: 1px solid var(--border-default);">
+            <p style="font-size: var(--text-sm); color: var(--text-muted);">Parchi Design System V2 — March 2025</p>
+            <p style="font-size: var(--text-xs); color: var(--text-muted); margin-top: var(--space-2);">Professional specification for development implementation</p>
+        </footer>
+    </div>
+</body>
+</html>
