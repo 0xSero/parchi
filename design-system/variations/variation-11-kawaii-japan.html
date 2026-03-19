@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCHI — Kawaii Japan</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@300;400;500;700;800&family=Nunito:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Kawaii Palette — Japanese cute aesthetic */
+            --bg-primary: #fff5f8;
+            --bg-secondary: #ffe4ed;
+            --bg-tertiary: #ffd6e4;
+            --bg-elevated: #ffffff;
+            
+            --fg-primary: #4a4a4a;
+            --fg-secondary: #6b6b6b;
+            --fg-tertiary: #8b8b8b;
+            --fg-muted: #a0a0a0;
+            --fg-subtle: #c0c0c0;
+            
+            /* Accent — Pastel pink */
+            --accent: #ff85a2;
+            --accent-hover: #ffa0b8;
+            --accent-dim: #ff6b8f;
+            --accent-glow: rgba(255, 133, 162, 0.4);
+            
+            /* Secondary accents */
+            --mint: #a8e6cf;
+            --lavender: #d4a5ff;
+            --peach: #ffd3b6;
+            --sky: #a8d8ea;
+            
+            --success: #a8e6cf;
+            --warning: #ffd3b6;
+            --error: #ff8b94;
+            
+            --border-subtle: rgba(255, 133, 162, 0.15);
+            --border-default: rgba(255, 133, 162, 0.25);
+            --border-strong: rgba(255, 133, 162, 0.4);
+            --border-accent: rgba(255, 133, 162, 0.6);
+            
+            --font-ui: 'M PLUS Rounded 1c', 'Nunito', system-ui, sans-serif;
+            
+            --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --duration-fast: 200ms;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+        body { 
+            font-family: var(--font-ui); 
+            font-weight: 500; 
+            line-height: 1.5; 
+            color: var(--fg-primary); 
+            background: var(--bg-primary); 
+        }
+
+        /* Sparkle background pattern */
+        body::before { 
+            content: ''; 
+            position: fixed; 
+            inset: 0; 
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 133, 162, 0.1) 2px, transparent 2px),
+                radial-gradient(circle at 80% 70%, rgba(168, 230, 207, 0.1) 2px, transparent 2px),
+                radial-gradient(circle at 50% 50%, rgba(212, 165, 255, 0.08) 3px, transparent 3px),
+                radial-gradient(circle at 30% 80%, rgba(255, 211, 182, 0.1) 2px, transparent 2px),
+                radial-gradient(circle at 70% 20%, rgba(168, 216, 234, 0.1) 2px, transparent 2px);
+            opacity: 0.6; 
+            pointer-events: none; 
+            z-index: 9999; 
+        }
+
+        .doc { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; margin-bottom: 40px; }
+        .doc-title { 
+            font-size: 32px; 
+            font-weight: 800; 
+            margin-bottom: 8px; 
+            color: var(--accent);
+            letter-spacing: 0.05em;
+        }
+        .doc-title::before,
+        .doc-title::after {
+            content: '✨';
+            margin: 0 12px;
+        }
+        .doc-subtitle { 
+            color: var(--fg-muted); 
+            font-size: 14px; 
+            font-weight: 400;
+        }
+        
+        .showcase { display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; }
+        .showcase-item { display: flex; flex-direction: column; gap: 8px; }
+        .showcase-label { 
+            font-size: 11px; 
+            color: var(--fg-muted); 
+            font-weight: 700;
+            letter-spacing: 0.05em;
+        }
+
+        /* Sidepanel — Kawaii card style */
+        .sidepanel { 
+            width: 400px; 
+            height: 700px; 
+            border: 3px solid var(--border-default); 
+            background: var(--bg-primary); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            overflow: hidden;
+            border-radius: 24px;
+            box-shadow: 
+                0 8px 32px rgba(255, 133, 162, 0.15),
+                0 4px 16px rgba(0, 0, 0, 0.05);
+        }
+        .sidepanel::after { 
+            content: ''; 
+            position: absolute; 
+            top: 12px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 60px;
+            height: 6px; 
+            background: var(--border-default);
+            border-radius: 10px;
+            opacity: 0.5;
+        }
+
+        /* Agent nav — Rounded tabs */
+        .agent-nav { 
+            display: flex; 
+            background: var(--bg-secondary); 
+            border-bottom: 2px solid var(--border-default); 
+            padding: 10px 12px 0; 
+            min-height: 46px; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+        }
+        .agent-nav::-webkit-scrollbar { display: none; }
+        .agent-tab { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 8px 14px; 
+            min-width: 0; 
+            max-width: 140px; 
+            font-size: 12px; 
+            background: transparent; 
+            border: none; 
+            border-radius: 16px 16px 0 0; 
+            color: var(--fg-muted); 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            white-space: nowrap; 
+            position: relative;
+            font-weight: 600;
+        }
+        .agent-tab:hover { 
+            background: rgba(255, 133, 162, 0.1); 
+            color: var(--fg-secondary); 
+        }
+        .agent-tab.active { 
+            background: var(--bg-primary); 
+            color: var(--accent);
+            box-shadow: 0 -2px 8px rgba(255, 133, 162, 0.2);
+        }
+        .agent-tab-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: currentColor; 
+            opacity: 0.4;
+        }
+        .agent-tab.active .agent-tab-dot { 
+            opacity: 1;
+            background: var(--accent);
+        }
+        .agent-tab.running .agent-tab-dot { 
+            background: var(--accent); 
+            animation: bounce-dot 1s var(--ease-bounce) infinite;
+        }
+        @keyframes bounce-dot { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.3); } 
+        }
+        .agent-tab-label { overflow: hidden; text-overflow: ellipsis; }
+        .agent-tab-close { 
+            width: 16px; 
+            height: 16px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: none; 
+            background: transparent; 
+            color: inherit; 
+            opacity: 0; 
+            cursor: pointer; 
+            font-size: 12px; 
+        }
+        .agent-tab:hover .agent-tab-close { opacity: 0.5; }
+        .agent-tab-close:hover { opacity: 1 !important; }
+
+        /* FAB Group — Floating bubbles */
+        .fab-group { 
+            position: absolute; 
+            top: 20px; 
+            right: 16px; 
+            display: flex; 
+            gap: 8px; 
+            z-index: 50; 
+        }
+        .fab { 
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--accent); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.2);
+        }
+        .fab:hover { 
+            border-color: var(--accent); 
+            color: var(--accent-dim); 
+            transform: translateY(-3px) scale(1.1);
+            box-shadow: 0 6px 20px rgba(255, 133, 162, 0.3);
+        }
+        .context-inspector { 
+            height: 34px; 
+            padding: 0 14px; 
+            border-radius: 20px; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-family: var(--font-ui); 
+            font-size: 12px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.15);
+            font-weight: 600;
+        }
+        .context-inspector:hover { 
+            border-color: var(--mint); 
+            color: var(--fg-primary); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(168, 230, 207, 0.3);
+        }
+
+        /* Chat area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* Empty state — Kawaii mascot scene */
+        .empty-state { 
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 28px; 
+            text-align: center; 
+        }
+        .mascot-scene { 
+            position: relative; 
+            width: 140px; 
+            height: 140px; 
+            margin-bottom: 24px; 
+        }
+        .mascot-main {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%);
+            border-radius: 50% 50% 45% 45%;
+            box-shadow: 
+                0 8px 24px rgba(255, 133, 162, 0.3),
+                inset -4px -4px 8px rgba(0,0,0,0.05);
+            animation: mascot-float 3s ease-in-out infinite;
+        }
+        @keyframes mascot-float {
+            0%, 100% { transform: translateX(-50%) translateY(0); }
+            50% { transform: translateX(-50%) translateY(-8px); }
+        }
+        .mascot-face {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 16px;
+        }
+        .mascot-eye {
+            width: 10px;
+            height: 12px;
+            background: var(--fg-primary);
+            border-radius: 50%;
+            animation: blink-cute 4s ease-in-out infinite;
+        }
+        .mascot-blush {
+            position: absolute;
+            top: 45%;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 12px;
+        }
+        .blush {
+            width: 14px;
+            height: 8px;
+            background: rgba(255, 133, 162, 0.5);
+            border-radius: 50%;
+        }
+        .mascot-mouth {
+            position: absolute;
+            bottom: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 12px;
+            height: 6px;
+            border-bottom: 3px solid var(--fg-primary);
+            border-radius: 0 0 12px 12px;
+        }
+        .floating-hearts {
+            position: absolute;
+            top: -10px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        .heart {
+            font-size: 20px;
+            animation: float-up 2s ease-in-out infinite;
+            opacity: 0.6;
+        }
+        .heart:nth-child(2) { animation-delay: 0.5s; }
+        .heart:nth-child(3) { animation-delay: 1s; }
+        @keyframes float-up {
+            0%, 100% { transform: translateY(0) scale(1); opacity: 0.6; }
+            50% { transform: translateY(-15px) scale(1.2); opacity: 0.9; }
+        }
+        @keyframes blink-cute {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+        .empty-title { 
+            font-size: 22px; 
+            font-weight: 800; 
+            margin-bottom: 8px;
+            color: var(--accent);
+            letter-spacing: 0.02em;
+        }
+        .empty-subtitle { 
+            font-size: 14px; 
+            color: var(--fg-muted); 
+            margin-bottom: 28px;
+        }
+        .starters { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+        .starter-btn { 
+            padding: 14px 18px; 
+            border-radius: 16px; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-secondary); 
+            font-size: 13px; 
+            text-align: left; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+        .starter-btn:hover { 
+            border-color: var(--mint); 
+            color: var(--fg-primary); 
+            background: rgba(168, 230, 207, 0.1);
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(168, 230, 207, 0.2);
+        }
+
+        /* Messages */
+        .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 14px; }
+        .message { animation: message-pop 0.4s var(--ease-bounce); }
+        @keyframes message-pop { 
+            from { opacity: 0; transform: translateY(12px) scale(0.95); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        .message-user { display: flex; justify-content: flex-end; }
+        .bubble-user { 
+            max-width: 90%; 
+            background: linear-gradient(135deg, var(--mint) 0%, #c8f0e0 100%);
+            border: none;
+            border-radius: 20px 20px 4px 20px; 
+            padding: 12px 16px; 
+            font-size: 14px; 
+            color: var(--fg-primary); 
+            line-height: 1.6;
+            box-shadow: 0 4px 12px rgba(168, 230, 207, 0.3);
+            font-weight: 500;
+        }
+        .message-assistant { display: flex; gap: 10px; }
+        .avatar { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--peach) 100%); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 14px; 
+            font-weight: 800; 
+            color: white; 
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.3);
+            animation: avatar-bounce 2s ease-in-out infinite;
+        }
+        @keyframes avatar-bounce {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .message-content { flex: 1; min-width: 0; }
+        .message-text { font-size: 14px; line-height: 1.7; color: var(--fg-secondary); font-weight: 500; }
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text code { 
+            font-family: var(--font-ui); 
+            font-size: 12px; 
+            background: var(--bg-secondary); 
+            padding: 3px 8px; 
+            border-radius: 8px; 
+            color: var(--accent); 
+            font-weight: 600;
+        }
+
+        /* Data table */
+        .data-table-wrapper { 
+            margin: 16px 0; 
+            border: 2px solid var(--border-default); 
+            overflow: hidden;
+            border-radius: 16px;
+        }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { 
+            background: var(--bg-secondary); 
+            padding: 12px 14px; 
+            text-align: left; 
+            font-weight: 700; 
+            font-size: 10px; 
+            color: var(--accent); 
+            border-bottom: 2px solid var(--border-default);
+            letter-spacing: 0.02em;
+        }
+        .data-table td { 
+            padding: 12px 14px; 
+            border-bottom: 1px solid var(--border-subtle); 
+            color: var(--fg-secondary); 
+            font-weight: 500;
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255, 133, 162, 0.05); }
+        .table-tag { 
+            font-family: var(--font-ui); 
+            font-size: 10px; 
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--lavender) 0%, #e8d5ff 100%); 
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            color: white;
+            box-shadow: 0 2px 6px rgba(212, 165, 255, 0.3);
+        }
+
+        /* Tool timeline */
+        .step-timeline { 
+            position: relative; 
+            padding-left: 20px; 
+            border-left: 3px dashed var(--border-default); 
+            margin: 10px 0; 
+        }
+        .step-item { position: relative; padding: 6px 0 6px 14px; }
+        .step-item::before { 
+            content: ''; 
+            position: absolute; 
+            left: -24px; 
+            top: 10px; 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            background: var(--bg-primary); 
+            border: 2px solid var(--border-strong); 
+        }
+        .step-item.current::before { 
+            border-color: var(--accent); 
+            background: var(--accent);
+            box-shadow: 0 0 0 4px rgba(255, 133, 162, 0.2);
+        }
+        .step-title { font-size: 12px; color: var(--fg-muted); font-weight: 500; }
+        .step-item.current .step-title { color: var(--accent); font-weight: 700; }
+
+        /* Tool row */
+        .tool-row { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 6px 0; 
+            font-size: 11px; 
+            color: var(--fg-muted);
+            font-weight: 500; 
+        }
+        .tool-icon-small { width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; font-size: 12px; }
+        .tool-name { font-weight: 700; color: var(--fg-secondary); }
+        .tool-args { opacity: 0.7; overflow: hidden; text-overflow: ellipsis; }
+        .tool-status { margin-left: auto; font-size: 11px; font-weight: 600; color: var(--mint); }
+
+        /* PLAN DRAWER — Kawaii checklist */
+        .plan-drawer { 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--border-default); 
+            flex-shrink: 0; 
+            border-radius: 20px 20px 0 0;
+            margin: 0 12px;
+        }
+        .plan-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 14px 18px; 
+            cursor: pointer; 
+        }
+        .plan-title { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--accent); 
+        }
+        .plan-count { 
+            font-family: var(--font-ui); 
+            font-size: 11px; 
+            padding: 4px 12px; 
+            background: var(--bg-elevated); 
+            border-radius: 12px;
+            border: 2px solid var(--border-default);
+            color: var(--fg-muted);
+            font-weight: 600;
+        }
+        .plan-actions { display: flex; align-items: center; gap: 8px; }
+        .plan-btn { 
+            padding: 8px 14px; 
+            border-radius: 12px; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-secondary); 
+            font-size: 12px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+        .plan-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            background: rgba(255, 133, 162, 0.05);
+            transform: translateY(-2px);
+        }
+        .plan-content { padding: 0 18px 16px; }
+        .checklist { list-style: none; }
+        .checklist-item { 
+            display: flex; 
+            align-items: flex-start; 
+            gap: 12px; 
+            padding: 8px 0; 
+            font-size: 13px; 
+            font-weight: 500;
+        }
+        .checklist-check { 
+            width: 20px; 
+            height: 20px; 
+            border: 2px solid var(--border-strong); 
+            border-radius: 6px; 
+            flex-shrink: 0; 
+            margin-top: 2px;
+            transition: all var(--duration-fast);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-elevated);
+        }
+        .checklist-item.checked .checklist-check { 
+            background: var(--mint); 
+            border-color: var(--mint);
+        }
+        .checklist-item.checked .checklist-check::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .checklist-item.current .checklist-check { 
+            border-color: var(--accent); 
+            background: var(--accent);
+            animation: pulse-cute 1.5s ease-in-out infinite;
+        }
+        .checklist-item.current .checklist-check::after {
+            content: '●';
+            color: white;
+            font-size: 8px;
+        }
+        @keyframes pulse-cute {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 133, 162, 0.4); }
+            50% { box-shadow: 0 0 0 6px rgba(255, 133, 162, 0); }
+        }
+        .checklist-text { color: var(--fg-muted); font-weight: 500; }
+        .checklist-item.checked .checklist-text, .checklist-item.current .checklist-text { color: var(--fg-secondary); }
+
+        /* Jump button */
+        .jump-btn { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            bottom: 190px; 
+            padding: 12px 20px; 
+            background: var(--bg-elevated); 
+            border: 2px solid var(--border-default); 
+            border-radius: 20px; 
+            font-size: 12px; 
+            color: var(--fg-secondary); 
+            cursor: pointer; 
+            box-shadow: 0 4px 16px rgba(255, 133, 162, 0.2); 
+            transition: all var(--duration-fast); 
+            z-index: 10;
+            font-weight: 600;
+        }
+        .jump-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            transform: translateX(-50%) translateY(-3px);
+            box-shadow: 0 6px 24px rgba(255, 133, 162, 0.3);
+        }
+
+        /* Composer — Kawaii input */
+        .composer-wrapper { 
+            padding: 16px; 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--border-default); 
+            flex-shrink: 0; 
+        }
+        .composer { 
+            background: var(--bg-elevated); 
+            border: 2px solid var(--border-default); 
+            border-radius: 20px; 
+            overflow: hidden; 
+            transition: all var(--duration-fast);
+            box-shadow: 0 4px 16px rgba(255, 133, 162, 0.1);
+        }
+        .composer:focus-within { 
+            border-color: var(--accent); 
+            box-shadow: 0 4px 20px rgba(255, 133, 162, 0.25);
+        }
+        .composer-input { 
+            width: 100%; 
+            min-height: 48px; 
+            max-height: 120px; 
+            padding: 14px 18px; 
+            background: transparent; 
+            border: none; 
+            color: var(--fg-primary); 
+            font-family: inherit; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            resize: none; 
+            outline: none; 
+            font-weight: 500;
+        }
+        .composer-input::placeholder { color: var(--fg-muted); font-weight: 500; }
+        .composer-toolbar { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 14px; 
+            border-top: 1px solid var(--border-subtle); 
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 4px; }
+        .toolbar-right { display: flex; align-items: center; gap: 10px; }
+        .tool-btn { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 10px; 
+            border: none; 
+            background: transparent; 
+            color: var(--fg-muted); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            font-size: 14px; 
+        }
+        .tool-btn:hover { 
+            background: rgba(255, 133, 162, 0.1); 
+            color: var(--accent);
+            transform: scale(1.1);
+        }
+
+        /* Mascot — Tiny cute blob */
+        .mascot { 
+            width: 32px; 
+            height: 32px; 
+            position: relative; 
+            cursor: pointer; 
+        }
+        .mascot-body { 
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--peach) 100%); 
+            border: none;
+            border-radius: 50% 50% 45% 45%; 
+            animation: mascot-wiggle 3s ease-in-out infinite;
+            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.3);
+        }
+        @keyframes mascot-wiggle { 
+            0%, 100% { border-radius: 50% 50% 45% 45%; transform: rotate(0deg); } 
+            25% { border-radius: 55% 45% 50% 50%; transform: rotate(5deg); } 
+            50% { border-radius: 48% 52% 55% 45%; transform: rotate(0deg); } 
+            75% { border-radius: 52% 48% 48% 52%; transform: rotate(-5deg); } 
+        }
+        .mascot-eyes { 
+            position: absolute; 
+            top: 35%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 6px; 
+        }
+        .mascot-eye { 
+            width: 4px; 
+            height: 5px; 
+            background: var(--fg-primary); 
+            border-radius: 50%; 
+            animation: blink-cute 4s ease-in-out infinite; 
+        }
+        .mascot-eye:last-child { animation-delay: 0.1s; }
+
+        .model-badge { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            padding: 6px 12px; 
+            background: var(--bg-secondary); 
+            border: 2px solid var(--border-default); 
+            border-radius: 14px; 
+            font-size: 12px; 
+            color: var(--fg-tertiary); 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 600;
+        }
+        .model-badge:hover { 
+            border-color: var(--sky); 
+            color: var(--fg-secondary); 
+            background: rgba(168, 216, 234, 0.1);
+        }
+        .send-btn { 
+            width: 36px; 
+            height: 36px; 
+            border-radius: 50%; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+            border: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            color: white; 
+            font-size: 16px;
+            box-shadow: 0 4px 12px rgba(255, 133, 162, 0.3);
+        }
+        .send-btn:hover { 
+            transform: scale(1.1) rotate(-10deg); 
+            box-shadow: 0 6px 20px rgba(255, 133, 162, 0.4);
+        }
+        .context-bar { height: 4px; background: transparent; transition: all 0.3s; border-radius: 0 0 2px 2px; }
+        .context-bar.has-context { 
+            background: linear-gradient(90deg, var(--mint) var(--context-pct, 0%), transparent var(--context-pct, 0%)); 
+            border-radius: 2px;
+        }
+
+        /* Recording panel */
+        .recording-panel { 
+            background: linear-gradient(135deg, var(--bg-secondary) 0%, rgba(255, 211, 182, 0.2) 100%); 
+            border-top: 2px solid var(--border-default); 
+            padding: 16px 18px; 
+            border-radius: 20px 20px 0 0;
+            margin: 0 12px;
+        }
+        .recording-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 14px; 
+        }
+        .recording-title { 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: var(--fg-secondary); 
+        }
+        .recording-timer { 
+            font-family: var(--font-ui); 
+            font-size: 18px; 
+            color: var(--error); 
+            font-weight: 700;
+        }
+        .recording-actions { display: flex; gap: 10px; }
+        .recording-btn { 
+            padding: 10px 16px; 
+            border-radius: 14px; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-secondary); 
+            font-size: 12px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 600;
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+        .recording-btn:hover { 
+            border-color: var(--sky); 
+            color: var(--fg-primary); 
+            background: rgba(168, 216, 234, 0.1);
+            transform: translateY(-2px);
+        }
+        .recording-btn.primary { 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+            border-color: transparent; 
+            color: white; 
+        }
+        .recording-btn.primary:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(255, 133, 162, 0.4);
+        }
+        .recording-indicator { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 12px; 
+            color: var(--fg-muted); 
+            font-weight: 500;
+        }
+        .recording-dot { 
+            width: 10px; 
+            height: 10px; 
+            border-radius: 50%; 
+            background: var(--error); 
+            animation: pulse-cute 1s ease-in-out infinite; 
+        }
+
+        /* Screenshot gallery */
+        .screenshot-gallery { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 12px; 
+            padding: 16px 18px; 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--border-default); 
+            border-radius: 20px 20px 0 0;
+            margin: 0 12px;
+        }
+        .screenshot-thumb { 
+            aspect-ratio: 16/10; 
+            background: var(--bg-tertiary); 
+            border: 2px solid var(--border-default); 
+            border-radius: 14px; 
+            position: relative; 
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+        .screenshot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .screenshot-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(255, 133, 162, 0.3); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity var(--duration-fast); 
+        }
+        .screenshot-thumb:hover .screenshot-overlay { opacity: 1; }
+        .screenshot-checkbox { 
+            width: 24px; 
+            height: 24px; 
+            border-radius: 8px; 
+            border: 2px solid white; 
+            background: transparent; 
+        }
+        .screenshot-thumb.selected .screenshot-checkbox { 
+            background: var(--mint); 
+            border-color: var(--mint); 
+        }
+
+        /* Code block */
+        .code-block { 
+            margin: 16px 0; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-secondary); 
+            border-radius: 16px; 
+            overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+        .code-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px 16px; 
+            background: var(--bg-tertiary); 
+            border-bottom: 2px solid var(--border-default); 
+        }
+        .code-lang { 
+            font-family: var(--font-ui); 
+            font-size: 11px; 
+            color: var(--accent); 
+            font-weight: 700;
+        }
+        .code-copy { 
+            font-size: 11px; 
+            color: var(--fg-muted); 
+            background: transparent; 
+            border: none; 
+            cursor: pointer;
+            font-family: var(--font-ui);
+            font-weight: 600;
+        }
+        .code-content { 
+            padding: 16px; 
+            font-family: var(--font-ui); 
+            font-size: 12px; 
+            line-height: 1.6; 
+            color: var(--fg-secondary); 
+            overflow-x: auto;
+            font-weight: 500;
+        }
+
+        /* Skills panel */
+        .skills-panel { 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--border-default); 
+            padding: 16px 18px; 
+            max-height: 200px; 
+            overflow-y: auto; 
+            border-radius: 20px 20px 0 0;
+            margin: 0 12px;
+        }
+        .skills-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            margin-bottom: 14px; 
+        }
+        .skills-title { 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: var(--accent); 
+        }
+        .skill-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 14px; 
+            background: var(--bg-elevated); 
+            border: 2px solid var(--border-default); 
+            border-radius: 16px; 
+            margin-bottom: 10px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            box-shadow: 0 2px 8px rgba(255, 133, 162, 0.1);
+        }
+        .skill-item:hover { 
+            border-color: var(--sky); 
+            background: rgba(168, 216, 234, 0.1);
+            transform: translateX(4px);
+            box-shadow: 0 4px 16px rgba(168, 216, 234, 0.2);
+        }
+        .skill-icon { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 12px; 
+            background: linear-gradient(135deg, var(--lavender) 0%, #e8d5ff 100%); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 14px; 
+            box-shadow: 0 2px 8px rgba(212, 165, 255, 0.3);
+        }
+        .skill-info { flex: 1; }
+        .skill-name { font-size: 13px; font-weight: 700; color: var(--fg-secondary); }
+        .skill-desc { font-size: 11px; color: var(--fg-muted); font-weight: 500; }
+        .skill-shortcut { 
+            font-family: var(--font-ui); 
+            font-size: 11px; 
+            color: var(--fg-subtle); 
+            padding: 4px 10px; 
+            background: var(--bg-secondary); 
+            border-radius: 10px; 
+            border: 1px solid var(--border-default);
+            font-weight: 600;
+        }
+
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 10px; }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <header class="doc-header">
+            <h1 class="doc-title">Variation 11 — Kawaii Japan</h1>
+            <p class="doc-subtitle">Japanese cute aesthetic · Pastel colors · Playful mascots & sparkles</p>
+        </header>
+
+        <div class="showcase">
+            <!-- Empty State -->
+            <div class="showcase-item">
+                <span class="showcase-label">Empty State</span>
+                <div class="sidepanel">
+                    <div class="chat-area">
+                        <div class="fab-group">
+                            <button class="context-inspector">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px;"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 17h6"/></svg>
+                                <span>0 / 128k</span>
+                                <span>0%</span>
+                            </button>
+                            <button class="fab">+</button>
+                            <button class="fab">⚙</button>
+                        </div>
+                        <div class="empty-state">
+                            <div class="mascot-scene">
+                                <div class="floating-hearts">
+                                    <span class="heart">💖</span>
+                                    <span class="heart">✨</span>
+                                    <span class="heart">🌸</span>
+                                </div>
+                                <div class="mascot-main">
+                                    <div class="mascot-face">
+                                        <div class="mascot-eye"></div>
+                                        <div class="mascot-eye"></div>
+                                    </div>
+                                    <div class="mascot-blush">
+                                        <div class="blush"></div>
+                                        <div class="blush"></div>
+                                    </div>
+                                    <div class="mascot-mouth"></div>
+                                </div>
+                            </div>
+                            <div class="empty-title">What can I help with? 💕</div>
+                            <div class="empty-subtitle">Your kawaii companion for the web</div>
+                            <div class="starters">
+                                <button class="starter-btn">What's on this page?</button>
+                                <button class="starter-btn">Summarize the key points</button>
+                                <button class="starter-btn">Find something across tabs</button>
+                                <button class="starter-btn">Help me fill out this form</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="composer-wrapper">
+                        <div class="composer">
+                            <textarea class="composer-input" placeholder="Message me~ ✨"></textarea>
+                            <div class="composer-toolbar">
+                                <div class="toolbar-left">
+                                    <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                    <button class="tool-btn">📎</button>
+                                    <button class="tool-btn">●</button>
+                                    <button class="tool-btn">⊞</button>
+                                </div>
+                                <div class="toolbar-right">
+                                    <div class="model-badge"><span>⚡</span><span>Claude 3.5</span><span>⌄</span></div>
+                                    <button class="send-btn">↑</button>
+                                </div>
+                            </div>
+                            <div class="context-bar"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Chat with Table -->
+            <div class="showcase-item">
+                <span class="showcase-label">Message with Table</span>
+                <div class="sidepanel">
+                    <div class="agent-nav">
+                        <button class="agent-tab active"><span class="agent-tab-dot"></span><span class="agent-tab-label">Main</span></button>
+                    </div>
+                    <div class="chat-area">
+                        <div class="messages">
+                            <div class="message message-user"><div class="bubble-user">Show me the deployment keys</div></div>
+                            <div class="message message-assistant">
+                                <div class="avatar">P</div>
+                                <div class="message-content">
+                                    <div class="message-text"><p>Here are your Convex deployment keys:</p></div>
+                                    <div class="data-table-wrapper">
+                                        <table class="data-table">
+                                            <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                                            <tbody>
+                                                <tr><td><span class="table-tag">CLOUD_URL</span></td><td><code>https://project.convex.cloud</code></td></tr>
+                                                <tr><td><span class="table-tag">DEPLOY_KEY</span></td><td><code>dev:project|eyJ...</code></td></tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="code-block">
+                                        <div class="code-header"><span class="code-lang">env</span><button class="code-copy">Copy</button></div>
+                                        <div class="code-content">CONVEX_URL=https://project.convex.cloud</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="jump-btn">Jump to latest</button>
+                    </div>
+                    <div class="composer-wrapper">
+                        <div class="composer">
+                            <textarea class="composer-input" placeholder="Message me~ ✨"></textarea>
+                            <div class="composer-toolbar">
+                                <div class="toolbar-left">
+                                    <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                    <button class="tool-btn">📎</button>
+                                </div>
+                                <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Above Composer -->
+            <div class="showcase-item">
+                <span class="showcase-label">Plan Above Composer</span>
+                <div class="sidepanel">
+                    <div class="chat-area">
+                        <div class="messages" style="flex: 1;">
+                            <div class="message message-assistant">
+                                <div class="avatar">P</div>
+                                <div class="message-content">
+                                    <div class="message-text"><p>Working on your request... 🌸</p></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="plan-drawer">
+                            <div class="plan-header">
+                                <div class="plan-title"><span>▼</span><span>Plan</span><span class="plan-count">3 steps • Running</span></div>
+                                <div class="plan-actions"><button class="plan-btn">Clear</button></div>
+                            </div>
+                            <div class="plan-content">
+                                <ol class="checklist">
+                                    <li class="checklist-item checked"><span class="checklist-check"></span><span class="checklist-text">Navigate to dashboard</span></li>
+                                    <li class="checklist-item current"><span class="checklist-check"></span><span class="checklist-text">Create new project</span></li>
+                                    <li class="checklist-item"><span class="checklist-check"></span><span class="checklist-text">Extract keys</span></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="composer-wrapper">
+                        <div class="composer">
+                            <textarea class="composer-input" placeholder="Message me~ ✨"></textarea>
+                            <div class="composer-toolbar">
+                                <div class="toolbar-left">
+                                    <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                    <button class="tool-btn">📎</button>
+                                </div>
+                                <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recording State -->
+            <div class="showcase-item">
+                <span class="showcase-label">Recording Active</span>
+                <div class="sidepanel">
+                    <div class="chat-area">
+                        <div class="messages">
+                            <div class="message message-user"><div class="bubble-user">Record me filling out this form</div></div>
+                        </div>
+                        <div class="recording-panel">
+                            <div class="recording-header">
+                                <div class="recording-title">Recording Context</div>
+                                <div class="recording-timer">0:42</div>
+                            </div>
+                            <div class="recording-indicator"><span class="recording-dot"></span><span>Recording actions & screenshots...</span></div>
+                            <div class="recording-actions" style="margin-top: 12px;">
+                                <button class="recording-btn">Pause</button>
+                                <button class="recording-btn primary">Stop & Attach</button>
+                            </div>
+                        </div>
+                        <div class="screenshot-gallery">
+                            <div class="screenshot-thumb selected"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                            <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                            <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                            <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                        </div>
+                    </div>
+                    <div class="composer-wrapper">
+                        <div class="composer">
+                            <textarea class="composer-input" placeholder="Add instructions (optional)..."></textarea>
+                            <div class="composer-toolbar">
+                                <div class="toolbar-left">
+                                    <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                    <button class="tool-btn">📎</button>
+                                </div>
+                                <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

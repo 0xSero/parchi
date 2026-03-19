@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paper Craft Theme - Warm Textures</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;500;600;700&family=Zilla+Slab:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================================
+           VARIATION 18 — PAPER CRAFT THEME
+           Paper textures, shadows, cutout aesthetic, warm whites
+           ============================================================================ */
+        :root {
+            /* Paper Craft Warm Palette */
+            --bg-primary: #faf8f5;
+            --bg-secondary: #f5f0e8;
+            --bg-tertiary: #ede6db;
+            --bg-elevated: #ffffff;
+            
+            --fg-primary: #2d2926;
+            --fg-secondary: #5c5550;
+            --fg-tertiary: #8a817c;
+            --fg-muted: #a89f91;
+            --fg-subtle: #c9c0b6;
+            
+            /* ACCENT — Hand-drawn Orange/Brown */
+            --accent: #d4824a;
+            --accent-rgb: 212 130 74;
+            --accent-hover: #e09055;
+            --accent-dim: #b86f3d;
+            --accent-glow: rgba(212, 130, 74, 0.2);
+            
+            --success: #7cb342;
+            --warning: #f9a825;
+            --error: #e53935;
+            --paper-shadow: rgba(45, 41, 38, 0.08);
+            --cutout-shadow: 0 2px 4px rgba(45, 41, 38, 0.12), 0 1px 2px rgba(45, 41, 38, 0.08);
+            
+            --border-subtle: rgba(45, 41, 38, 0.06);
+            --border-default: rgba(45, 41, 38, 0.1);
+            --border-strong: rgba(45, 41, 38, 0.18);
+            --border-accent: rgba(212, 130, 74, 0.4);
+            
+            --font-ui: 'Nunito', system-ui, sans-serif;
+            --font-mono: 'Zilla Slab', monospace;
+            
+            --ease-precision: cubic-bezier(0.34, 1.56, 0.64, 1);
+            --duration-fast: 200ms;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font-ui); font-weight: 400; line-height: 1.5; color: var(--fg-primary); background: var(--bg-primary); }
+
+        /* Paper texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+            opacity: 0.5;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Layout */
+        .doc { max-width: 1800px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; margin-bottom: 40px; }
+        .doc-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; color: var(--fg-primary); }
+        .doc-subtitle { color: var(--fg-muted); font-size: 14px; }
+        
+        .section { margin-bottom: 60px; }
+        .section-title { font-size: 18px; font-weight: 600; margin-bottom: 20px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .showcase { display: flex; gap: 30px; flex-wrap: wrap; }
+        .showcase-item { display: flex; flex-direction: column; gap: 8px; }
+        .showcase-label { font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; }
+
+        /* Sidepanel frame - paper cutout style */
+        .sidepanel { 
+            width: 400px; 
+            height: 700px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-primary); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 
+                0 4px 6px -1px rgba(45, 41, 38, 0.1),
+                0 2px 4px -1px rgba(45, 41, 38, 0.06),
+                inset 0 0 40px rgba(139, 115, 85, 0.03);
+            border-radius: 4px;
+        }
+        .sidepanel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, 
+                transparent 0%, 
+                var(--accent) 20%, 
+                var(--accent-hover) 50%, 
+                var(--accent) 80%, 
+                transparent 100%
+            );
+            opacity: 0.6;
+        }
+
+        /* Agent nav - paper tabs */
+        .agent-nav { 
+            display: flex; 
+            background: var(--bg-secondary); 
+            border-bottom: 1px solid var(--border-default); 
+            padding: 6px 8px 0; 
+            min-height: 38px; 
+            overflow-x: auto; 
+            scrollbar-width: none;
+            box-shadow: 0 1px 2px rgba(45, 41, 38, 0.05);
+        }
+        .agent-nav::-webkit-scrollbar { display: none; }
+        .agent-tab { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 6px 10px; 
+            min-width: 0; 
+            max-width: 160px; 
+            font-size: 11px; 
+            background: transparent; 
+            border: none; 
+            border-radius: 6px 6px 0 0; 
+            color: var(--fg-tertiary); 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            white-space: nowrap; 
+            position: relative;
+            font-weight: 500;
+        }
+        .agent-tab:hover { 
+            background: rgba(212, 130, 74, 0.06); 
+            color: var(--fg-secondary); 
+        }
+        .agent-tab.active { 
+            background: var(--bg-primary); 
+            color: var(--fg-primary);
+            box-shadow: 0 -2px 4px rgba(45, 41, 38, 0.04);
+        }
+        .agent-tab.active::after { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 4px; 
+            right: 4px; 
+            height: 3px; 
+            background: var(--accent); 
+            border-radius: 0 0 2px 2px;
+        }
+        .agent-tab-dot { 
+            width: 6px; 
+            height: 6px; 
+            border-radius: 50%; 
+            background: currentColor; 
+            opacity: 0.5; 
+        }
+        .agent-tab.active .agent-tab-dot { opacity: 1; }
+        .agent-tab.running .agent-tab-dot { 
+            background: var(--accent); 
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-dot { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .agent-tab-label { overflow: hidden; text-overflow: ellipsis; }
+        .agent-tab-close { 
+            width: 14px; 
+            height: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: none; 
+            background: transparent; 
+            color: inherit; 
+            opacity: 0; 
+            cursor: pointer; 
+            font-size: 12px; 
+        }
+        .agent-tab:hover .agent-tab-close { opacity: 0.5; }
+        .agent-tab-close:hover { opacity: 1 !important; }
+
+        /* FAB Group - paper buttons */
+        .fab-group { 
+            position: absolute; 
+            top: 8px; 
+            right: 8px; 
+            display: flex; 
+            gap: 6px; 
+            z-index: 50; 
+        }
+        .fab { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-tertiary); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            font-size: 12px;
+            box-shadow: var(--cutout-shadow);
+        }
+        .fab:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            transform: translateY(-2px); 
+            box-shadow: 0 4px 8px rgba(212, 130, 74, 0.15);
+        }
+        .context-inspector { 
+            height: 28px; 
+            padding: 0 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-tertiary); 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            box-shadow: var(--cutout-shadow);
+        }
+        .context-inspector:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+        }
+
+        /* Chat area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* Empty state - paper craft style */
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        .gravity-well { 
+            position: relative; 
+            width: 100px; 
+            height: 100px; 
+            margin-bottom: 24px; 
+        }
+        .orbit { 
+            position: absolute; 
+            border-radius: 50%; 
+            border: 2px dashed var(--border-strong); 
+        }
+        .orbit-1 { inset: 20px; animation: orbit-spin 20s linear infinite; }
+        .orbit-2 { inset: 8px; border-color: var(--border-default); animation: orbit-spin 30s linear infinite reverse; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .orbit-dot { 
+            position: absolute; 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--accent); 
+            opacity: 0.8;
+            box-shadow: var(--cutout-shadow);
+        }
+        .orbit-1 .orbit-dot { top: -4px; left: 50%; transform: translateX(-50%); }
+        .orbit-2 .orbit-dot { top: 50%; right: -4px; transform: translateY(-50%); background: var(--success); }
+        .singularity { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 12px; 
+            height: 12px; 
+            border-radius: 50%; 
+            background: var(--accent); 
+            box-shadow: var(--cutout-shadow), 0 0 0 4px rgba(212, 130, 74, 0.15); 
+            animation: breathe 4s ease-in-out infinite; 
+        }
+        @keyframes breathe { 
+            0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1); } 
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); } 
+        }
+        .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--fg-primary); }
+        .empty-subtitle { font-size: 13px; color: var(--fg-muted); margin-bottom: 24px; }
+        .starters { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .starter-btn { 
+            padding: 12px 14px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-tertiary); 
+            font-size: 13px; 
+            text-align: left; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            box-shadow: var(--cutout-shadow);
+            font-weight: 500;
+        }
+        .starter-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            background: rgba(212, 130, 74, 0.04); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 130, 74, 0.12);
+        }
+
+        /* Messages - paper bubbles */
+        .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .message { animation: message-in 0.3s var(--ease-precision); }
+        @keyframes message-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .message-user { display: flex; justify-content: flex-end; }
+        .bubble-user { 
+            max-width: 90%; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 12px; 
+            border-bottom-right-radius: 4px; 
+            padding: 12px 16px; 
+            font-size: 14px; 
+            color: var(--fg-primary); 
+            line-height: 1.6;
+            box-shadow: var(--cutout-shadow);
+        }
+        .message-assistant { display: flex; gap: 10px; }
+        .avatar { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 13px; 
+            font-weight: 700; 
+            color: white; 
+            flex-shrink: 0;
+            box-shadow: var(--cutout-shadow);
+        }
+        .message-content { flex: 1; min-width: 0; }
+        .message-text { font-size: 14px; line-height: 1.7; color: var(--fg-secondary); }
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text code { 
+            font-family: var(--font-mono); 
+            font-size: 12px; 
+            background: var(--bg-secondary); 
+            padding: 2px 6px; 
+            border-radius: 4px; 
+            color: var(--accent); 
+        }
+
+        /* Data table - paper style */
+        .data-table-wrapper { 
+            margin: 16px 0; 
+            border: 1px solid var(--border-default); 
+            overflow: hidden; 
+            border-radius: 8px;
+            box-shadow: var(--cutout-shadow);
+        }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { 
+            background: var(--bg-secondary); 
+            padding: 10px 12px; 
+            text-align: left; 
+            font-weight: 600; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--fg-muted); 
+            border-bottom: 1px solid var(--border-default); 
+        }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--fg-secondary); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(212, 130, 74, 0.04); }
+        .table-tag { 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            font-weight: 600; 
+            background: rgba(212, 130, 74, 0.12); 
+            padding: 3px 8px; 
+            border-radius: 4px; 
+            color: var(--accent); 
+        }
+
+        /* Tool timeline */
+        .step-timeline { position: relative; padding-left: 16px; border-left: 2px dashed var(--border-default); margin: 8px 0; }
+        .step-item { position: relative; padding: 6px 0 6px 12px; }
+        .step-item::before { 
+            content: ''; 
+            position: absolute; 
+            left: -19px; 
+            top: 10px; 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--bg-primary); 
+            border: 2px solid var(--border-strong); 
+        }
+        .step-item.current::before { 
+            border-color: var(--accent); 
+            background: var(--accent); 
+        }
+        .step-title { font-size: 12px; color: var(--fg-muted); }
+        .step-item.current .step-title { color: var(--fg-primary); font-weight: 500; }
+
+        /* Tool row */
+        .tool-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 11px; color: var(--fg-muted); }
+        .tool-icon-small { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .tool-name { font-weight: 600; color: var(--fg-secondary); }
+        .tool-args { font-family: var(--font-mono); opacity: 0.7; overflow: hidden; text-overflow: ellipsis; }
+        .tool-status { margin-left: auto; font-family: var(--font-mono); }
+
+        /* PLAN DRAWER - paper accordion */
+        .plan-drawer { 
+            background: var(--bg-secondary); 
+            border-top: 1px solid var(--border-default); 
+            flex-shrink: 0;
+            box-shadow: 0 -2px 4px rgba(45, 41, 38, 0.03);
+        }
+        .plan-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; }
+        .plan-title { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--fg-muted); 
+        }
+        .plan-count { 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            padding: 3px 8px; 
+            background: rgba(212, 130, 74, 0.12); 
+            border-radius: 4px; 
+            color: var(--accent);
+            font-weight: 600;
+        }
+        .plan-actions { display: flex; align-items: center; gap: 8px; }
+        .plan-btn { 
+            padding: 4px 10px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-tertiary); 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 500;
+            box-shadow: var(--cutout-shadow);
+        }
+        .plan-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+        }
+        .plan-content { padding: 0 16px 12px; }
+        .checklist { list-style: none; }
+        .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 12px; }
+        .checklist-check { 
+            width: 14px; 
+            height: 14px; 
+            border: 2px solid var(--border-strong); 
+            border-radius: 4px; 
+            flex-shrink: 0; 
+            margin-top: 1px;
+            transition: all var(--duration-fast);
+        }
+        .checklist-item.checked .checklist-check { 
+            background: var(--success); 
+            border-color: var(--success); 
+        }
+        .checklist-item.current .checklist-check { 
+            border-color: var(--accent); 
+            background: var(--accent); 
+        }
+        .checklist-text { color: var(--fg-muted); }
+        .checklist-item.checked .checklist-text, .checklist-item.current .checklist-text { color: var(--fg-secondary); font-weight: 500; }
+
+        /* Jump button - paper pill */
+        .jump-btn { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            bottom: 180px; 
+            padding: 8px 16px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 20px; 
+            font-size: 12px; 
+            color: var(--fg-tertiary); 
+            cursor: pointer; 
+            box-shadow: var(--cutout-shadow), 0 4px 12px rgba(45, 41, 38, 0.1); 
+            transition: all var(--duration-fast); 
+            z-index: 10;
+            font-weight: 500;
+        }
+        .jump-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        /* Composer - paper card */
+        .composer-wrapper { 
+            padding: 12px; 
+            background: var(--bg-secondary); 
+            border-top: 1px solid var(--border-default); 
+            flex-shrink: 0; 
+        }
+        .composer { 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            transition: all var(--duration-fast);
+            box-shadow: var(--cutout-shadow);
+        }
+        .composer:focus-within { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 3px rgba(212, 130, 74, 0.1), 0 4px 12px rgba(212, 130, 74, 0.15); 
+        }
+        .composer-input { 
+            width: 100%; 
+            min-height: 44px; 
+            max-height: 120px; 
+            padding: 12px 16px; 
+            background: transparent; 
+            border: none; 
+            color: var(--fg-primary); 
+            font-family: inherit; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            resize: none; 
+            outline: none;
+        }
+        .composer-input::placeholder { color: var(--fg-muted); }
+        .composer-toolbar { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 8px 12px; 
+            border-top: 1px solid var(--border-subtle); 
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 2px; }
+        .toolbar-right { display: flex; align-items: center; gap: 8px; }
+        .tool-btn { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 6px; 
+            border: none; 
+            background: transparent; 
+            color: var(--fg-muted); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            font-size: 12px; 
+        }
+        .tool-btn:hover { 
+            background: rgba(212, 130, 74, 0.1); 
+            color: var(--accent); 
+        }
+
+        /* Mascot - paper blob */
+        .mascot { 
+            width: 26px; 
+            height: 26px; 
+            position: relative; 
+            cursor: pointer; 
+        }
+        .mascot-body { 
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+            border: none;
+            border-radius: 52% 48% 54% 46% / 48% 48% 56% 52%; 
+            animation: wobble 8s ease-in-out infinite;
+            box-shadow: var(--cutout-shadow);
+        }
+        @keyframes wobble { 
+            0%, 100% { border-radius: 52% 48% 54% 46% / 48% 48% 56% 52%; } 
+            25% { border-radius: 49% 51% 57% 43% / 52% 46% 54% 48%; } 
+            50% { border-radius: 55% 45% 50% 50% / 46% 54% 50% 50%; } 
+            75% { border-radius: 50% 50% 56% 44% / 54% 46% 52% 48%; } 
+        }
+        .mascot-eyes { 
+            position: absolute; 
+            top: 35%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 4px; 
+        }
+        .mascot-eye { 
+            width: 4px; 
+            height: 4px; 
+            background: white; 
+            border-radius: 50%; 
+            animation: blink 4s ease-in-out infinite; 
+        }
+        .mascot-eye:last-child { animation-delay: 0.1s; }
+        @keyframes blink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
+
+        .model-badge { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 4px 10px; 
+            background: var(--bg-secondary); 
+            border: 1px solid var(--border-default); 
+            border-radius: 6px; 
+            font-size: 11px; 
+            color: var(--fg-tertiary); 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 500;
+        }
+        .model-badge:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+        }
+        .send-btn { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-hover) 100%); 
+            border: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            color: white; 
+            font-size: 12px;
+            box-shadow: var(--cutout-shadow);
+        }
+        .send-btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 4px 12px rgba(212, 130, 74, 0.3);
+        }
+        .context-bar { height: 2px; background: transparent; transition: all 0.3s; }
+        .context-bar.has-context { background: linear-gradient(90deg, var(--accent) var(--context-pct, 0%), transparent var(--context-pct, 0%)); }
+
+        /* Recording panel - paper style */
+        .recording-panel { 
+            background: var(--bg-secondary); 
+            border-top: 1px solid var(--border-default); 
+            padding: 12px 16px; 
+        }
+        .recording-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .recording-title { font-size: 12px; font-weight: 700; color: var(--fg-secondary); }
+        .recording-timer { font-family: var(--font-mono); font-size: 14px; color: var(--accent); font-weight: 600; }
+        .recording-actions { display: flex; gap: 8px; }
+        .recording-btn { 
+            padding: 6px 12px; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-tertiary); 
+            font-size: 11px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            font-weight: 500;
+            box-shadow: var(--cutout-shadow);
+        }
+        .recording-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+        }
+        .recording-btn.primary { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+            color: white; 
+        }
+        .recording-btn.primary:hover { 
+            background: var(--accent-hover);
+        }
+        .recording-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-muted); }
+        .recording-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--error); 
+            animation: pulse-record 1s ease-in-out infinite;
+        }
+        @keyframes pulse-record { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Skills panel - paper cards */
+        .skills-panel { 
+            background: var(--bg-secondary); 
+            border-top: 1px solid var(--border-default); 
+            padding: 12px 16px; 
+            max-height: 200px; 
+            overflow-y: auto; 
+        }
+        .skills-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .skills-title { 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--fg-muted); 
+        }
+        .skill-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 10px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            box-shadow: var(--cutout-shadow);
+        }
+        .skill-item:hover { 
+            border-color: var(--accent); 
+            background: rgba(212, 130, 74, 0.04); 
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(212, 130, 74, 0.12);
+        }
+        .skill-icon { 
+            width: 26px; 
+            height: 26px; 
+            border-radius: 6px; 
+            background: rgba(212, 130, 74, 0.12); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 13px; 
+        }
+        .skill-info { flex: 1; }
+        .skill-name { font-size: 13px; font-weight: 600; color: var(--fg-secondary); }
+        .skill-desc { font-size: 11px; color: var(--fg-muted); }
+        .skill-shortcut { 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            color: var(--fg-muted); 
+            padding: 3px 6px; 
+            background: var(--bg-secondary); 
+            border-radius: 4px; 
+            border: 1px solid var(--border-default);
+        }
+
+        /* Settings panel - paper slide */
+        .settings-scrim { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(45, 41, 38, 0.4); 
+            z-index: 70; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity var(--duration-fast); 
+        }
+        .settings-scrim.visible { opacity: 1; pointer-events: auto; }
+        .settings-panel { 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            bottom: 0; 
+            width: 100%; 
+            background: var(--bg-secondary); 
+            border-left: 1px solid var(--border-default); 
+            z-index: 80; 
+            transform: translateX(100%); 
+            transition: transform 0.3s var(--ease-precision); 
+            display: flex; 
+            flex-direction: column;
+            box-shadow: -4px 0 20px rgba(45, 41, 38, 0.1);
+        }
+        .settings-panel.visible { transform: translateX(0); }
+        .settings-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px 16px; 
+            border-bottom: 1px solid var(--border-default); 
+        }
+        .settings-title { font-size: 16px; font-weight: 700; color: var(--fg-primary); }
+        .settings-close { 
+            font-size: 20px; 
+            color: var(--fg-muted); 
+            background: transparent; 
+            border: none; 
+            cursor: pointer; 
+            transition: color var(--duration-fast);
+            font-weight: 300;
+        }
+        .settings-close:hover { color: var(--accent); }
+        .settings-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .settings-section { margin-bottom: 24px; }
+        .settings-section-title { 
+            font-size: 10px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            color: var(--fg-muted); 
+            margin-bottom: 12px; 
+        }
+        .setting-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 12px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 8px; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            box-shadow: var(--cutout-shadow);
+        }
+        .setting-item:hover { border-color: var(--accent); }
+        .setting-label { font-size: 13px; color: var(--fg-secondary); font-weight: 500; }
+        .setting-value { font-family: var(--font-mono); font-size: 11px; color: var(--accent); font-weight: 600; }
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .theme-option { 
+            aspect-ratio: 1; 
+            border-radius: 8px; 
+            border: 2px solid transparent; 
+            cursor: pointer; 
+            position: relative;
+            box-shadow: var(--cutout-shadow);
+        }
+        .theme-option:hover { transform: scale(1.05); }
+        .theme-option.active { border-color: var(--accent); }
+        .theme-option.active::after { 
+            content: ''; 
+            position: absolute; 
+            top: 3px; 
+            right: 3px; 
+            width: 8px; 
+            height: 8px; 
+            background: var(--accent); 
+            border-radius: 50%; 
+        }
+        .provider-card { 
+            padding: 12px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 8px; 
+            margin-bottom: 8px;
+            box-shadow: var(--cutout-shadow);
+        }
+        .provider-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .provider-name { font-size: 13px; font-weight: 600; color: var(--fg-secondary); }
+        .provider-status { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--success); 
+            box-shadow: 0 0 0 2px rgba(124, 179, 66, 0.3); 
+        }
+        .provider-status.off { background: var(--fg-subtle); box-shadow: none; }
+        .provider-meta { font-family: var(--font-mono); font-size: 10px; color: var(--fg-muted); }
+
+        /* Screenshot gallery */
+        .screenshot-gallery { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
+            padding: 12px 16px; 
+            background: var(--bg-secondary); 
+            border-top: 1px solid var(--border-default); 
+        }
+        .screenshot-thumb { 
+            aspect-ratio: 16/10; 
+            background: var(--bg-tertiary); 
+            border: 1px solid var(--border-default); 
+            border-radius: 6px; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: var(--cutout-shadow);
+        }
+        .screenshot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .screenshot-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(45, 41, 38, 0.4); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity var(--duration-fast); 
+        }
+        .screenshot-thumb:hover .screenshot-overlay { opacity: 1; }
+        .screenshot-checkbox { 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 4px; 
+            border: 2px solid var(--bg-elevated); 
+            background: transparent; 
+        }
+        .screenshot-thumb.selected .screenshot-checkbox { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+        }
+
+        /* Code block - paper style */
+        .code-block { 
+            margin: 12px 0; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-secondary); 
+            border-radius: 8px; 
+            overflow: hidden;
+            box-shadow: var(--cutout-shadow);
+        }
+        .code-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 8px 12px; 
+            background: var(--bg-tertiary); 
+            border-bottom: 1px solid var(--border-default); 
+        }
+        .code-lang { 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            color: var(--accent); 
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .code-copy { 
+            font-size: 10px; 
+            color: var(--fg-muted); 
+            background: transparent; 
+            border: none; 
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .code-content { 
+            padding: 12px; 
+            font-family: var(--font-mono); 
+            font-size: 12px; 
+            line-height: 1.6; 
+            color: var(--fg-secondary); 
+            overflow-x: auto; 
+        }
+
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <header class="doc-header">
+            <h1 class="doc-title">Paper Craft Theme</h1>
+            <p class="doc-subtitle">Warm textures, paper shadows, cutout aesthetic · Orange/Brown accents</p>
+        </header>
+
+        <div class="section">
+            <div class="section-title">Core States</div>
+            <div class="showcase">
+                
+                <!-- Empty State -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Empty State</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="fab-group">
+                                <button class="context-inspector">
+                                    <svg class="context-inspector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 17h6"/></svg>
+                                    <span>0 / 128k</span>
+                                    <span>0%</span>
+                                </button>
+                                <button class="fab">+</button>
+                                <button class="fab">⚙</button>
+                            </div>
+                            <div class="empty-state">
+                                <div class="gravity-well">
+                                    <div class="orbit orbit-1"><div class="orbit-dot"></div></div>
+                                    <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
+                                    <div class="singularity"></div>
+                                </div>
+                                <div class="empty-title">What can I help with?</div>
+                                <div class="empty-subtitle">Your friendly paper companion</div>
+                                <div class="starters">
+                                    <button class="starter-btn">Draft a quick note</button>
+                                    <button class="starter-btn">Sketch out ideas</button>
+                                    <button class="starter-btn">Organize my thoughts</button>
+                                    <button class="starter-btn">Create a summary</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                        <button class="tool-btn">●</button>
+                                        <button class="tool-btn">⊞</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-badge"><span>⚡</span><span>Claude 3.5</span><span>⌄</span></div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                                <div class="context-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Chat with Table -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Message with Table</span>
+                    <div class="sidepanel">
+                        <div class="agent-nav">
+                            <button class="agent-tab active"><span class="agent-tab-dot"></span><span class="agent-tab-label">Main</span></button>
+                        </div>
+                        <div class="chat-area">
+                            <div class="messages">
+                                <div class="message message-user"><div class="bubble-user">Show me the project list</div></div>
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Here are your current projects:</p></div>
+                                        <div class="data-table-wrapper">
+                                            <table class="data-table">
+                                                <thead><tr><th>Project</th><th>Status</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td><span class="table-tag">DESIGN</span></td><td>In Progress</td></tr>
+                                                    <tr><td><span class="table-tag">DOCS</span></td><td>Completed</td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="code-block">
+                                            <div class="code-header"><span class="code-lang">note</span><button class="code-copy">Copy</button></div>
+                                            <div class="code-content">3 tasks remaining this week</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="jump-btn">Jump to latest</button>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Above Composer -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Plan Above Composer</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="messages" style="flex: 1;">
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Working on your request...</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="plan-drawer">
+                                <div class="plan-header">
+                                    <div class="plan-title"><span>▼</span><span>Plan</span><span class="plan-count">3 steps • Running</span></div>
+                                    <div class="plan-actions"><button class="plan-btn">Clear</button></div>
+                                </div>
+                                <div class="plan-content">
+                                    <ol class="checklist">
+                                        <li class="checklist-item checked"><span class="checklist-check"></span><span class="checklist-text">Gather information</span></li>
+                                        <li class="checklist-item current"><span class="checklist-check"></span><span class="checklist-text">Organize notes</span></li>
+                                        <li class="checklist-item"><span class="checklist-check"></span><span class="checklist-text">Create summary</span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recording Active -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Recording Active</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="messages">
+                                <div class="message message-user"><div class="bubble-user">Record this process</div></div>
+                            </div>
+                            <div class="recording-panel">
+                                <div class="recording-header">
+                                    <div class="recording-title">Recording Session</div>
+                                    <div class="recording-timer">0:42</div>
+                                </div>
+                                <div class="recording-indicator"><span class="recording-dot"></span><span>Capturing actions...</span></div>
+                                <div class="recording-actions" style="margin-top: 10px;">
+                                    <button class="recording-btn">Pause</button>
+                                    <button class="recording-btn primary">Stop & Attach</button>
+                                </div>
+                            </div>
+                            <div class="screenshot-gallery">
+                                <div class="screenshot-thumb selected"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                                <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                                <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                                <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Add notes..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Skills / Quick Actions</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="empty-state" style="flex: 0; padding: 20px;">
+                                <div class="empty-title" style="font-size: 15px;">Quick Skills</div>
+                            </div>
+                            <div class="skills-panel">
+                                <div class="skills-header"><div class="skills-title">Available Skills</div></div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">📝</div>
+                                    <div class="skill-info"><div class="skill-name">Summarize</div><div class="skill-desc">Create brief summaries</div></div>
+                                    <span class="skill-shortcut">⌘S</span>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">🔍</div>
+                                    <div class="skill-info"><div class="skill-name">Find Info</div><div class="skill-desc">Search for details</div></div>
+                                    <span class="skill-shortcut">⌘F</span>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">✏️</div>
+                                    <div class="skill-info"><div class="skill-name">Draft</div><div class="skill-desc">Start a new draft</div></div>
+                                    <span class="skill-shortcut">⌘D</span>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">📊</div>
+                                    <div class="skill-info"><div class="skill-name">Organize</div><div class="skill-desc">Structure content</div></div>
+                                </div>
+                                <div class="skill-item" style="border-color: var(--accent);">
+                                    <div class="skill-icon">⏺</div>
+                                    <div class="skill-info"><div class="skill-name">Record</div><div class="skill-desc">Capture a workflow</div></div>
+                                    <span class="skill-shortcut">⌘R</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Or type a custom request..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Settings Slide-in</span>
+                    <div class="sidepanel">
+                        <div class="chat-area" style="opacity: 0.3;">
+                            <div class="messages"><div class="message message-user"><div class="bubble-user">Example</div></div></div>
+                        </div>
+                        <div class="settings-scrim visible"></div>
+                        <div class="settings-panel visible">
+                            <div class="settings-header"><span class="settings-title">Settings</span><button class="settings-close">×</button></div>
+                            <div class="settings-content">
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Appearance</div>
+                                    <div class="theme-grid">
+                                        <div class="theme-option active" style="background: linear-gradient(135deg, #faf8f5 50%, #d4824a 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #faf8f5 50%, #7cb342 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #faf8f5 50%, #5c5550 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #faf8f5 50%, #e53935 50%);"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Providers</div>
+                                    <div class="provider-card">
+                                        <div class="provider-header"><span class="provider-name">Anthropic</span><span class="provider-status"></span></div>
+                                        <div class="provider-meta">Claude 3.5 Sonnet</div>
+                                    </div>
+                                    <div class="provider-card">
+                                        <div class="provider-header"><span class="provider-name">OpenAI</span><span class="provider-status off"></span></div>
+                                        <div class="provider-meta">Not configured</div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Model</div>
+                                    <div class="setting-item"><span class="setting-label">Active Profile</span><span class="setting-value">Claude 3.5 ›</span></div>
+                                    <div class="setting-item"><span class="setting-label">Temperature</span><span class="setting-value">0.7 ›</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
