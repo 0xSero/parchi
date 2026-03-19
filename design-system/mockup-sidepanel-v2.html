@@ -1,0 +1,1347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCHI Sidepanel — Precision Industrial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================================
+           PARCHI SIDEPANEL — PRECISION INDUSTRIAL
+           Browser extension sidepanel, ~400px width
+           All real features, industrial aesthetic
+           ============================================================================ */
+
+        :root {
+            /* Core palette — warm industrial */
+            --bg-primary: #0c0a09;
+            --bg-secondary: #141211;
+            --bg-tertiary: #1c1917;
+            --bg-elevated: #252220;
+            
+            --fg-primary: #fafaf9;
+            --fg-secondary: #e7e5e4;
+            --fg-tertiary: #a8a29e;
+            --fg-muted: #78716c;
+            --fg-subtle: #57534e;
+            
+            --accent: #ff6b35;
+            --accent-rgb: 255 107 53;
+            --accent-hover: #ff8555;
+            --accent-dim: #c45a2e;
+            
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            
+            --border-subtle: rgba(255, 255, 255, 0.04);
+            --border-default: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.14);
+            --border-accent: rgba(255, 107, 53, 0.5);
+            
+            --font-ui: 'Sora', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 24px;
+            --space-6: 32px;
+            
+            --ease-precision: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-fast: 150ms;
+            --duration-normal: 250ms;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html {
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            font-weight: 400;
+            line-height: 1.5;
+            color: var(--fg-primary);
+            background: var(--bg-primary);
+        }
+
+        /* Noise overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ============================================================================
+           MOCKUP DOCUMENTATION LAYOUT
+           ============================================================================ */
+
+        .doc { max-width: 1400px; margin: 0 auto; padding: 40px; }
+        .doc-header { text-align: center; margin-bottom: 60px; }
+        .doc-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; }
+        .doc-subtitle { color: var(--fg-muted); font-size: 16px; }
+        
+        .section { margin-bottom: 80px; }
+        .section-title { font-size: 24px; font-weight: 600; margin-bottom: 8px; }
+        .section-desc { color: var(--fg-muted); margin-bottom: 32px; }
+
+        /* ============================================================================
+           SIDEPANEL CONTAINER — ~400px wide
+           ============================================================================ */
+
+        .sidepanel-frame {
+            width: 400px;
+            height: 700px;
+            border: 1px solid var(--border-default);
+            background: var(--bg-primary);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sidepanel-frame::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent) 50%, transparent);
+            opacity: 0.3;
+        }
+
+        /* ============================================================================
+           AGENT TABS — Chrome-style
+           ============================================================================ */
+
+        .agent-nav {
+            display: flex;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-default);
+            padding: 6px 8px 0;
+            min-height: 38px;
+            overflow-x: auto;
+            scrollbar-width: none;
+        }
+
+        .agent-nav::-webkit-scrollbar { display: none; }
+
+        .agent-tab {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            min-width: 0;
+            max-width: 160px;
+            font-size: 11px;
+            background: transparent;
+            border: none;
+            border-radius: 6px 6px 0 0;
+            color: var(--fg-muted);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            white-space: nowrap;
+            position: relative;
+        }
+
+        .agent-tab:hover {
+            background: rgba(255,255,255,0.03);
+            color: var(--fg-secondary);
+        }
+
+        .agent-tab.active {
+            background: var(--bg-primary);
+            color: var(--fg-primary);
+        }
+
+        .agent-tab.active::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 4px;
+            right: 4px;
+            height: 2px;
+            background: var(--accent);
+        }
+
+        .agent-tab-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: currentColor;
+            opacity: 0.5;
+        }
+
+        .agent-tab.active .agent-tab-dot { opacity: 1; }
+        .agent-tab.running .agent-tab-dot {
+            background: var(--accent);
+            animation: pulse-dot 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .agent-tab-label {
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .agent-tab-close {
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            background: transparent;
+            color: inherit;
+            opacity: 0;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .agent-tab:hover .agent-tab-close { opacity: 0.5; }
+        .agent-tab-close:hover { opacity: 1 !important; }
+
+        /* ============================================================================
+           CHAT AREA
+           ============================================================================ */
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* FAB Group — Top right */
+        .fab-group {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: flex;
+            gap: 6px;
+            z-index: 50;
+        }
+
+        .fab {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            border: 1px solid var(--border-default);
+            background: var(--bg-elevated);
+            color: var(--fg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            font-size: 12px;
+        }
+
+        .fab:hover {
+            border-color: var(--border-strong);
+            color: var(--fg-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Context Inspector FAB */
+        .context-inspector {
+            height: 28px;
+            padding: 0 10px;
+            border-radius: 6px;
+            border: 1px solid var(--border-default);
+            background: var(--bg-elevated);
+            color: var(--fg-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-family: var(--font-mono);
+            font-size: 10px;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .context-inspector:hover {
+            border-color: var(--border-strong);
+            color: var(--fg-primary);
+        }
+
+        .context-inspector-icon {
+            width: 10px;
+            height: 10px;
+            opacity: 0.7;
+        }
+
+        /* Empty State — Gravity Well */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            text-align: center;
+        }
+
+        .gravity-well {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin-bottom: 24px;
+        }
+
+        .orbit {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .orbit-1 { inset: 20px; animation: orbit-spin 20s linear infinite; }
+        .orbit-2 { inset: 8px; border-color: rgba(255, 107, 53, 0.05); animation: orbit-spin 30s linear infinite reverse; }
+
+        @keyframes orbit-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .orbit-dot {
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.6;
+        }
+
+        .orbit-1 .orbit-dot { top: -1.5px; left: 50%; }
+        .orbit-2 .orbit-dot { top: 50%; right: -1.5px; }
+
+        .singularity {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent);
+            box-shadow: 0 0 16px rgba(255, 107, 53, 0.4);
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes breathe {
+            0%, 100% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .empty-title {
+            font-size: 17px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .empty-subtitle {
+            font-size: 12px;
+            color: var(--fg-muted);
+            margin-bottom: 24px;
+        }
+
+        .starters {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            width: 100%;
+        }
+
+        .starter-btn {
+            padding: 10px 14px;
+            border-radius: 6px;
+            border: 1px solid var(--border-default);
+            background: transparent;
+            color: var(--fg-tertiary);
+            font-size: 13px;
+            text-align: left;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .starter-btn:hover {
+            border-color: var(--accent);
+            color: var(--fg-primary);
+            background: rgba(255, 107, 53, 0.05);
+        }
+
+        /* Messages */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .message {
+            animation: message-in 0.3s var(--ease-precision);
+        }
+
+        @keyframes message-in {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .bubble-user {
+            max-width: 90%;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: 8px;
+            border-bottom-right-radius: 2px;
+            padding: 10px 14px;
+            font-size: 14px;
+            color: var(--fg-primary);
+            line-height: 1.6;
+        }
+
+        .message-assistant {
+            display: flex;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .message-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-text {
+            font-size: 14px;
+            line-height: 1.7;
+            color: var(--fg-secondary);
+        }
+
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text code {
+            font-family: var(--font-mono);
+            font-size: 12px;
+            background: var(--bg-secondary);
+            padding: 2px 6px;
+            border-radius: 4px;
+            color: var(--accent);
+        }
+
+        /* Tool Actions */
+        .tool-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .tool-icon-small {
+            width: 14px;
+            height: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+        }
+
+        .tool-name { font-weight: 500; color: var(--fg-secondary); }
+        .tool-args { font-family: var(--font-mono); opacity: 0.7; }
+        .tool-status { margin-left: auto; font-family: var(--font-mono); }
+
+        /* Step Timeline */
+        .step-timeline {
+            position: relative;
+            padding-left: 16px;
+            border-left: 1px solid var(--border-default);
+            margin: 8px 0;
+        }
+
+        .step-item {
+            position: relative;
+            padding: 6px 0 6px 12px;
+        }
+
+        .step-item::before {
+            content: '';
+            position: absolute;
+            left: -17px;
+            top: 10px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--bg-primary);
+            border: 1.5px solid var(--border-strong);
+        }
+
+        .step-item.current::before {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        .step-title {
+            font-size: 12px;
+            color: var(--fg-muted);
+        }
+
+        .step-item.current .step-title {
+            color: var(--fg-primary);
+        }
+
+        /* Plan Drawer */
+        .plan-drawer {
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-default);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .plan-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .plan-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--fg-muted);
+        }
+
+        .plan-count {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            padding: 2px 8px;
+            background: var(--bg-elevated);
+            border-radius: 4px;
+        }
+
+        .plan-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .plan-btn {
+            padding: 4px 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-default);
+            background: var(--bg-elevated);
+            color: var(--fg-secondary);
+            font-size: 11px;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .plan-btn:hover {
+            border-color: var(--border-strong);
+            color: var(--fg-primary);
+        }
+
+        .plan-content {
+            padding: 0 16px 12px;
+        }
+
+        .checklist {
+            list-style: none;
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            padding: 6px 0;
+            font-size: 12px;
+        }
+
+        .checklist-check {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid var(--border-strong);
+            border-radius: 3px;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checklist-item.checked .checklist-check {
+            background: var(--fg-muted);
+            border-color: var(--fg-muted);
+        }
+
+        .checklist-item.current .checklist-check {
+            border-color: var(--accent);
+            background: var(--accent);
+        }
+
+        .checklist-text {
+            color: var(--fg-muted);
+        }
+
+        .checklist-item.checked .checklist-text,
+        .checklist-item.current .checklist-text {
+            color: var(--fg-secondary);
+        }
+
+        /* Jump to latest */
+        .jump-btn {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 180px;
+            padding: 6px 14px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: 20px;
+            font-size: 11px;
+            color: var(--fg-secondary);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            transition: all var(--duration-fast);
+        }
+
+        .jump-btn:hover {
+            border-color: var(--accent);
+            color: var(--fg-primary);
+        }
+
+        /* ============================================================================
+           COMPOSER
+           ============================================================================ */
+
+        .composer-wrapper {
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-default);
+        }
+
+        .composer {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-default);
+            border-radius: 10px;
+            overflow: hidden;
+            transition: all var(--duration-fast);
+        }
+
+        .composer:focus-within {
+            border-color: var(--border-accent);
+            box-shadow: 0 0 0 1px rgba(255, 107, 53, 0.1);
+        }
+
+        .composer-input {
+            width: 100%;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 12px 16px;
+            background: transparent;
+            border: none;
+            color: var(--fg-primary);
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: none;
+            outline: none;
+        }
+
+        .composer-input::placeholder {
+            color: var(--fg-muted);
+        }
+
+        .composer-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 12px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .tool-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--fg-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            font-size: 12px;
+        }
+
+        .tool-btn:hover {
+            background: var(--bg-elevated);
+            color: var(--fg-primary);
+        }
+
+        /* Mascot */
+        .mascot {
+            width: 26px;
+            height: 26px;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .mascot-body {
+            position: absolute;
+            inset: 0;
+            background: var(--bg-elevated);
+            border: 1.5px solid var(--fg-muted);
+            border-radius: 52% 48% 54% 46% / 48% 48% 56% 52%;
+            animation: wobble 8s ease-in-out infinite;
+        }
+
+        @keyframes wobble {
+            0%, 100% { border-radius: 52% 48% 54% 46% / 48% 48% 56% 52%; }
+            25% { border-radius: 49% 51% 57% 43% / 52% 46% 54% 48%; }
+            50% { border-radius: 55% 45% 50% 50% / 46% 54% 50% 50%; }
+            75% { border-radius: 50% 50% 56% 44% / 54% 46% 52% 48%; }
+        }
+
+        .mascot-eyes {
+            position: absolute;
+            top: 35%;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+
+        .mascot-eye {
+            width: 3px;
+            height: 4px;
+            background: var(--fg-primary);
+            border-radius: 50%;
+            animation: blink 4s ease-in-out infinite;
+        }
+
+        .mascot-eye:last-child { animation-delay: 0.1s; }
+
+        @keyframes blink {
+            0%, 45%, 55%, 100% { transform: scaleY(1); }
+            50% { transform: scaleY(0.1); }
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .model-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: var(--bg-elevated);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            font-size: 11px;
+            color: var(--fg-tertiary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .model-badge:hover {
+            border-color: var(--border-strong);
+            color: var(--fg-secondary);
+        }
+
+        .send-btn {
+            width: 28px;
+            height: 28px;
+            border-radius: 6px;
+            background: var(--fg-primary);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            color: var(--bg-primary);
+            font-size: 12px;
+        }
+
+        .send-btn:hover {
+            background: var(--accent);
+            transform: scale(1.05);
+        }
+
+        /* Context bar */
+        .context-bar {
+            height: 2px;
+            background: transparent;
+            transition: all 0.3s;
+        }
+
+        .context-bar.has-context {
+            background: linear-gradient(90deg, var(--accent) var(--context-pct, 0%), transparent var(--context-pct, 0%));
+        }
+
+        /* ============================================================================
+           SETTINGS SIDEBAR (slides in)
+           ============================================================================ */
+
+        .settings-scrim {
+            position: absolute;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 70;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity var(--duration-fast);
+        }
+
+        .settings-scrim.visible {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .settings-panel {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-default);
+            z-index: 80;
+            transform: translateX(100%);
+            transition: transform var(--duration-normal) var(--ease-precision);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .settings-panel.visible {
+            transform: translateX(0);
+        }
+
+        .settings-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .settings-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 16px;
+        }
+
+        .settings-section {
+            margin-bottom: 24px;
+        }
+
+        .settings-section-title {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--fg-muted);
+            margin-bottom: 12px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .setting-item:hover {
+            border-color: var(--border-strong);
+        }
+
+        .setting-label {
+            font-size: 13px;
+            color: var(--fg-secondary);
+        }
+
+        .setting-value {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            color: var(--fg-muted);
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .theme-option {
+            aspect-ratio: 1;
+            border-radius: 6px;
+            border: 1.5px solid transparent;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent);
+        }
+
+        .theme-option.active::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            width: 6px;
+            height: 6px;
+            background: var(--accent);
+            border-radius: 50%;
+        }
+
+        /* Provider cards */
+        .provider-card {
+            padding: 12px;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+
+        .provider-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .provider-name {
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--fg-secondary);
+        }
+
+        .provider-status {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            box-shadow: 0 0 6px rgba(34, 197, 94, 0.4);
+        }
+
+        .provider-status.off {
+            background: var(--fg-subtle);
+            box-shadow: none;
+        }
+
+        .provider-meta {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            color: var(--fg-muted);
+        }
+
+        /* ============================================================================
+           UTILITY CLASSES
+           ============================================================================ */
+
+        .hidden { display: none !important; }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-elevated); }
+        ::-webkit-scrollbar-thumb:hover { background: var(--fg-subtle); }
+
+        /* ============================================================================
+           DOCUMENTATION LAYOUT
+           ============================================================================ */
+
+        .showcase {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+        }
+
+        .showcase-item {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .showcase-label {
+            font-size: 12px;
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <header class="doc-header">
+            <h1 class="doc-title">PARCHI Sidepanel</h1>
+            <p class="doc-subtitle">Precision Industrial — Vertical layout for browser extension</p>
+        </header>
+
+        <div class="section">
+            <h2 class="section-title">01. States Overview</h2>
+            <p class="section-desc">All major UI states for the ~400px sidepanel</p>
+            
+            <div class="showcase">
+                <!-- Empty State -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Empty State</span>
+                    <div class="sidepanel-frame">
+                        <div class="chat-area">
+                            <div class="fab-group">
+                                <button class="context-inspector">
+                                    <svg class="context-inspector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <rect x="4" y="4" width="6" height="6"/>
+                                        <rect x="14" y="4" width="6" height="6"/>
+                                        <rect x="4" y="14" width="6" height="6"/>
+                                        <path d="M14 17h6"/>
+                                    </svg>
+                                    <span>0 / 128k</span>
+                                    <span>0%</span>
+                                </button>
+                                <button class="fab">+</button>
+                                <button class="fab">⚙</button>
+                            </div>
+                            <div class="empty-state">
+                                <div class="gravity-well">
+                                    <div class="orbit orbit-1"><div class="orbit-dot"></div></div>
+                                    <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
+                                    <div class="singularity"></div>
+                                </div>
+                                <div class="empty-title">What can I help with?</div>
+                                <div class="empty-subtitle">Your AI companion for the web</div>
+                                <div class="starters">
+                                    <button class="starter-btn">What's on this page?</button>
+                                    <button class="starter-btn">Summarize the key points</button>
+                                    <button class="starter-btn">Find something across tabs</button>
+                                    <button class="starter-btn">Help me fill out this form</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot">
+                                            <div class="mascot-body"></div>
+                                            <div class="mascot-eyes">
+                                                <div class="mascot-eye"></div>
+                                                <div class="mascot-eye"></div>
+                                            </div>
+                                        </div>
+                                        <button class="tool-btn">📎</button>
+                                        <button class="tool-btn">●</button>
+                                        <button class="tool-btn">⊞</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-badge">
+                                            <span>⚡</span>
+                                            <span>Claude 3.5</span>
+                                            <span>⌄</span>
+                                        </div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                                <div class="context-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Chat with Agent Tabs -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Active Session</span>
+                    <div class="sidepanel-frame">
+                        <div class="agent-nav">
+                            <button class="agent-tab active">
+                                <span class="agent-tab-dot"></span>
+                                <span class="agent-tab-label">Main</span>
+                                <span class="agent-tab-close">×</span>
+                            </button>
+                            <button class="agent-tab running">
+                                <span class="agent-tab-dot"></span>
+                                <span class="agent-tab-label">Researcher</span>
+                                <span class="agent-tab-close">×</span>
+                            </button>
+                            <button class="agent-tab">
+                                <span class="agent-tab-dot"></span>
+                                <span class="agent-tab-label">Validator</span>
+                                <span class="agent-tab-close">×</span>
+                            </button>
+                        </div>
+                        <div class="chat-area">
+                            <div class="fab-group">
+                                <button class="fab">⊞</button>
+                            </div>
+                            <div class="messages">
+                                <div class="message message-user">
+                                    <div class="bubble-user">Create a Convex project and get the deployment keys</div>
+                                </div>
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text">
+                                            <p>I'll help you create a Convex project and get the deployment keys.</p>
+                                        </div>
+                                        <div class="step-timeline">
+                                            <div class="step-item checked">
+                                                <div class="step-title">Navigate to Convex dashboard</div>
+                                            </div>
+                                            <div class="step-item current">
+                                                <div class="step-title">Create new project</div>
+                                            </div>
+                                            <div class="step-item">
+                                                <div class="step-title">Extract deployment keys</div>
+                                            </div>
+                                        </div>
+                                        <div class="tool-row">
+                                            <span class="tool-icon-small">↗</span>
+                                            <span class="tool-name">browser_navigate</span>
+                                            <span class="tool-args">dashboard.convex.dev</span>
+                                            <span class="tool-status">done</span>
+                                        </div>
+                                        <div class="tool-row">
+                                            <span class="tool-icon-small">⟳</span>
+                                            <span class="tool-name">browser_click</span>
+                                            <span class="tool-args">"New Project"</span>
+                                            <span class="tool-status" style="color: var(--accent);">running</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="jump-btn">Jump to latest</button>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot">
+                                            <div class="mascot-body"></div>
+                                            <div class="mascot-eyes">
+                                                <div class="mascot-eye"></div>
+                                                <div class="mascot-eye"></div>
+                                            </div>
+                                        </div>
+                                        <button class="tool-btn">📎</button>
+                                        <button class="tool-btn">●</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-badge">
+                                            <span>⚡</span>
+                                            <span>Claude 3.5</span>
+                                        </div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                                <div class="context-bar has-context" style="--context-pct: 45%;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- With Plan Drawer Expanded -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Plan Drawer</span>
+                    <div class="sidepanel-frame">
+                        <div class="chat-area">
+                            <div class="messages" style="flex: 0 0 auto; max-height: 180px;">
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text">
+                                            <p>Here are all the keys for your new Convex project! 🎉</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="plan-drawer">
+                                <div class="plan-header">
+                                    <div class="plan-title">
+                                        <span>▼</span>
+                                        <span>Plan</span>
+                                        <span class="plan-count">4 steps • Done</span>
+                                    </div>
+                                    <div class="plan-actions">
+                                        <button class="plan-btn">Jump to latest</button>
+                                        <button class="tool-btn">×</button>
+                                    </div>
+                                </div>
+                                <div class="plan-content">
+                                    <ol class="checklist">
+                                        <li class="checklist-item checked">
+                                            <span class="checklist-check"></span>
+                                            <span class="checklist-text">Navigate to project settings</span>
+                                        </li>
+                                        <li class="checklist-item checked">
+                                            <span class="checklist-check"></span>
+                                            <span class="checklist-text">Name the project and confirm</span>
+                                        </li>
+                                        <li class="checklist-item checked">
+                                            <span class="checklist-check"></span>
+                                            <span class="checklist-text">Find deployment keys</span>
+                                        </li>
+                                        <li class="checklist-item current">
+                                            <span class="checklist-check"></span>
+                                            <span class="checklist-text">Extract and return keys</span>
+                                        </li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot">
+                                            <div class="mascot-body"></div>
+                                            <div class="mascot-eyes">
+                                                <div class="mascot-eye"></div>
+                                                <div class="mascot-eye"></div>
+                                            </div>
+                                        </div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Settings Panel</span>
+                    <div class="sidepanel-frame">
+                        <div class="chat-area" style="opacity: 0.5;">
+                            <div class="messages">
+                                <div class="message message-user">
+                                    <div class="bubble-user">Example message</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-scrim visible"></div>
+                        <div class="settings-panel visible">
+                            <div class="settings-header">
+                                <span class="settings-title">Settings</span>
+                                <button class="tool-btn">×</button>
+                            </div>
+                            <div class="settings-content">
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Appearance</div>
+                                    <div class="theme-grid">
+                                        <div class="theme-option active" style="background: linear-gradient(135deg, #0c0a09 50%, #ff6b35 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #0a0a0a 50%, #22c55e 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #080808 50%, #38bdf8 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #0a0a0a 50%, #f472b6 50%);"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Providers</div>
+                                    <div class="provider-card">
+                                        <div class="provider-header">
+                                            <span class="provider-name">Anthropic</span>
+                                            <span class="provider-status"></span>
+                                        </div>
+                                        <div class="provider-meta">Claude 3.5 Sonnet, Claude 3 Opus</div>
+                                    </div>
+                                    <div class="provider-card">
+                                        <div class="provider-header">
+                                            <span class="provider-name">OpenAI</span>
+                                            <span class="provider-status off"></span>
+                                        </div>
+                                        <div class="provider-meta">Not configured</div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Model</div>
+                                    <div class="setting-item">
+                                        <span class="setting-label">Active Profile</span>
+                                        <span class="setting-value">Claude 3.5 ›</span>
+                                    </div>
+                                    <div class="setting-item">
+                                        <span class="setting-label">Temperature</span>
+                                        <span class="setting-value">0.7 ›</span>
+                                    </div>
+                                    <div class="setting-item">
+                                        <span class="setting-label">Max Tokens</span>
+                                        <span class="setting-value">4096 ›</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
