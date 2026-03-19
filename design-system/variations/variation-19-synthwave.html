@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Synthwave Theme - 80s Retro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700&family=Rajdhani:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================================
+           VARIATION 19 — SYNTHWAVE THEME
+           80s sunset, grids, neon pink/cyan, retro futuristic
+           ============================================================================ */
+        :root {
+            /* Synthwave Neon Palette */
+            --bg-primary: #0d0221;
+            --bg-secondary: #1a0b2e;
+            --bg-tertiary: #261447;
+            --bg-elevated: #2e1a47;
+            
+            --fg-primary: #fff5f7;
+            --fg-secondary: #ffb3c1;
+            --fg-tertiary: #ff6b9d;
+            --fg-muted: #a85587;
+            --fg-subtle: #6b2d5c;
+            
+            /* ACCENT — Hot Pink/Cyan */
+            --accent: #ff00ff;
+            --accent-rgb: 255 0 255;
+            --accent-hover: #ff4dff;
+            --accent-dim: #cc00cc;
+            --accent-glow: rgba(255, 0, 255, 0.5);
+            
+            --cyan: #00ffff;
+            --cyan-glow: rgba(0, 255, 255, 0.5);
+            --hot-pink: #ff1493;
+            --sunset-orange: #ff6b35;
+            --grid-line: rgba(0, 255, 255, 0.15);
+            
+            --success: #39ff14;
+            --warning: #ffd700;
+            --error: #ff073a;
+            
+            --border-subtle: rgba(255, 0, 255, 0.08);
+            --border-default: rgba(255, 0, 255, 0.15);
+            --border-strong: rgba(255, 0, 255, 0.25);
+            --border-accent: rgba(255, 0, 255, 0.5);
+            
+            --font-ui: 'Rajdhani', system-ui, sans-serif;
+            --font-mono: 'Orbitron', monospace;
+            
+            --ease-precision: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --duration-fast: 150ms;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+        body { font-family: var(--font-ui); font-weight: 400; line-height: 1.5; color: var(--fg-primary); background: var(--bg-primary); }
+
+        /* Grid floor overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                linear-gradient(180deg, transparent 0%, var(--bg-primary) 50%),
+                linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
+                linear-gradient(180deg, var(--grid-line) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+            pointer-events: none;
+            z-index: 9998;
+            perspective: 500px;
+            transform-style: preserve-3d;
+            animation: grid-scroll 20s linear infinite;
+        }
+
+        @keyframes grid-scroll {
+            0% { background-position: 0 0, 0 0, 0 0; }
+            100% { background-position: 0 0, 0 40px, 40px 0; }
+        }
+
+        /* Sunset gradient overlay */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: 
+                radial-gradient(ellipse 80% 60% at 50% 100%, 
+                    rgba(255, 107, 53, 0.3) 0%, 
+                    rgba(255, 20, 147, 0.2) 30%, 
+                    rgba(157, 0, 255, 0.1) 60%, 
+                    transparent 100%
+                );
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* Layout */
+        .doc { max-width: 1800px; margin: 0 auto; padding: 40px; position: relative; z-index: 1; }
+        .doc-header { text-align: center; margin-bottom: 40px; }
+        .doc-title { font-size: 32px; font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--accent); text-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--accent-glow); }
+        .doc-subtitle { color: var(--fg-muted); font-size: 14px; text-transform: uppercase; letter-spacing: 0.05em; }
+        
+        .section { margin-bottom: 60px; }
+        .section-title { font-size: 18px; font-weight: 700; margin-bottom: 20px; color: var(--cyan); text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 0 10px var(--cyan-glow); }
+        
+        .showcase { display: flex; gap: 30px; flex-wrap: wrap; }
+        .showcase-item { display: flex; flex-direction: column; gap: 8px; }
+        .showcase-label { font-size: 11px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.05em; font-weight: 600; }
+
+        /* Sidepanel frame - retro terminal */
+        .sidepanel { 
+            width: 400px; 
+            height: 700px; 
+            border: 2px solid var(--border-default); 
+            background: var(--bg-primary); 
+            display: flex; 
+            flex-direction: column; 
+            position: relative; 
+            overflow: hidden;
+            box-shadow: 
+                0 0 30px rgba(255, 0, 255, 0.2),
+                inset 0 0 60px rgba(0, 255, 255, 0.05);
+            border-radius: 2px;
+        }
+        .sidepanel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                repeating-linear-gradient(
+                    0deg,
+                    rgba(0, 0, 0, 0.1) 0px,
+                    transparent 1px,
+                    transparent 2px
+                );
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.3;
+        }
+        .sidepanel::after { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            height: 2px; 
+            background: linear-gradient(90deg, var(--accent), var(--cyan), var(--accent)); 
+            opacity: 0.8;
+            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--cyan-glow);
+            animation: scanline 3s ease-in-out infinite;
+        }
+
+        @keyframes scanline {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 0.4; }
+        }
+
+        /* Agent nav - retro tabs */
+        .agent-nav { 
+            display: flex; 
+            background: var(--bg-secondary); 
+            border-bottom: 2px solid var(--border-default); 
+            padding: 6px 8px 0; 
+            min-height: 38px; 
+            overflow-x: auto; 
+            scrollbar-width: none; 
+        }
+        .agent-nav::-webkit-scrollbar { display: none; }
+        .agent-tab { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 6px 10px; 
+            min-width: 0; 
+            max-width: 160px; 
+            font-size: 11px; 
+            background: transparent; 
+            border: none; 
+            border-radius: 0; 
+            color: var(--fg-muted); 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            white-space: nowrap; 
+            position: relative; 
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            clip-path: polygon(10% 0, 100% 0, 100% 100%, 0 100%, 0 25%);
+        }
+        .agent-tab:hover { 
+            background: rgba(255, 0, 255, 0.1); 
+            color: var(--fg-secondary); 
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        .agent-tab.active { 
+            background: var(--bg-primary); 
+            color: var(--accent);
+            text-shadow: 0 0 10px var(--accent-glow);
+            border: 1px solid var(--border-default);
+            border-bottom: none;
+        }
+        .agent-tab.active::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -1px; 
+            left: 0; 
+            right: 0; 
+            height: 2px; 
+            background: var(--bg-primary); 
+        }
+        .agent-tab-dot { 
+            width: 6px; 
+            height: 6px; 
+            border-radius: 0; 
+            background: currentColor; 
+            opacity: 0.5; 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+        .agent-tab.active .agent-tab-dot { opacity: 1; }
+        .agent-tab.running .agent-tab-dot { 
+            background: var(--accent); 
+            animation: pulse-neon 1s ease-in-out infinite;
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        @keyframes pulse-neon { 
+            0%, 100% { opacity: 1; transform: scale(1); } 
+            50% { opacity: 0.3; transform: scale(1.2); } 
+        }
+        .agent-tab-label { overflow: hidden; text-overflow: ellipsis; }
+        .agent-tab-close { 
+            width: 14px; 
+            height: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            border: none; 
+            background: transparent; 
+            color: inherit; 
+            opacity: 0; 
+            cursor: pointer; 
+            font-size: 12px; 
+        }
+        .agent-tab:hover .agent-tab-close { opacity: 0.5; }
+        .agent-tab-close:hover { opacity: 1 !important; }
+
+        /* FAB Group - neon buttons */
+        .fab-group { 
+            position: absolute; 
+            top: 8px; 
+            right: 8px; 
+            display: flex; 
+            gap: 6px; 
+            z-index: 50; 
+        }
+        .fab { 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 2px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            font-size: 12px; 
+            clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
+        }
+        .fab:hover { 
+            border-color: var(--cyan); 
+            color: var(--cyan); 
+            box-shadow: 0 0 15px var(--cyan-glow);
+            transform: translateY(-1px);
+        }
+        .context-inspector { 
+            height: 28px; 
+            padding: 0 10px; 
+            border-radius: 2px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            font-family: var(--font-mono); 
+            font-size: 9px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .context-inspector:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Chat area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* Empty state - retro loading */
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        .gravity-well { 
+            position: relative; 
+            width: 120px; 
+            height: 120px; 
+            margin-bottom: 24px; 
+        }
+        .orbit { 
+            position: absolute; 
+            border-radius: 50%; 
+            border: 2px solid var(--cyan); 
+            box-shadow: 0 0 10px var(--cyan-glow), inset 0 0 10px var(--cyan-glow);
+        }
+        .orbit-1 { inset: 25px; animation: orbit-spin 8s linear infinite; }
+        .orbit-2 { inset: 10px; border-color: var(--accent); box-shadow: 0 0 10px var(--accent-glow), inset 0 0 10px var(--accent-glow); animation: orbit-spin 12s linear infinite reverse; }
+        @keyframes orbit-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .orbit-dot { 
+            position: absolute; 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 0;
+            background: var(--cyan); 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+        .orbit-1 .orbit-dot { top: -4px; left: 50%; transform: translateX(-50%); }
+        .orbit-2 .orbit-dot { top: 50%; right: -4px; transform: translateY(-50%); background: var(--accent); box-shadow: 0 0 10px var(--accent-glow); }
+        .singularity { 
+            position: absolute; 
+            top: 50%; 
+            left: 50%; 
+            transform: translate(-50%, -50%); 
+            width: 20px; 
+            height: 20px; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%); 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            box-shadow: 0 0 30px var(--accent-glow), 0 0 60px var(--cyan-glow); 
+            animation: diamond-pulse 2s ease-in-out infinite; 
+        }
+        @keyframes diamond-pulse { 
+            0%, 100% { opacity: 0.8; transform: translate(-50%, -50%) scale(1) rotate(0deg); } 
+            50% { opacity: 1; transform: translate(-50%, -50%) scale(1.2) rotate(45deg); } 
+        }
+        .empty-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 0 20px var(--accent-glow); }
+        .empty-subtitle { font-size: 12px; color: var(--fg-muted); margin-bottom: 24px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .starters { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .starter-btn { 
+            padding: 12px 14px; 
+            border-radius: 2px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            font-size: 12px; 
+            text-align: left; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 600;
+            clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
+        }
+        .starter-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            background: rgba(255, 0, 255, 0.1); 
+            box-shadow: 0 0 20px var(--accent-glow);
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Messages - neon chat */
+        .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .message { animation: message-in 0.3s var(--ease-precision); }
+        @keyframes message-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .message-user { display: flex; justify-content: flex-end; }
+        .bubble-user { 
+            max-width: 90%; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--cyan); 
+            border-radius: 2px; 
+            padding: 12px 16px; 
+            font-size: 14px; 
+            color: var(--fg-primary); 
+            line-height: 1.6;
+            box-shadow: 0 0 10px var(--cyan-glow);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+        .message-assistant { display: flex; gap: 10px; }
+        .avatar { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 0; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--hot-pink) 100%); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 12px; 
+            font-weight: 700; 
+            color: white; 
+            flex-shrink: 0; 
+            box-shadow: 0 0 15px var(--accent-glow);
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+        .message-content { flex: 1; min-width: 0; }
+        .message-text { font-size: 14px; line-height: 1.7; color: var(--fg-secondary); }
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text code { 
+            font-family: var(--font-mono); 
+            font-size: 12px; 
+            background: var(--bg-secondary); 
+            padding: 2px 6px; 
+            border-radius: 2px; 
+            color: var(--cyan); 
+            text-shadow: 0 0 5px var(--cyan-glow);
+        }
+
+        /* Data table - retro terminal style */
+        .data-table-wrapper { 
+            margin: 16px 0; 
+            border: 1px solid var(--accent); 
+            overflow: hidden; 
+            border-radius: 2px;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { 
+            background: var(--bg-tertiary); 
+            padding: 10px 12px; 
+            text-align: left; 
+            font-weight: 700; 
+            font-size: 10px; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--accent); 
+            border-bottom: 1px solid var(--accent); 
+            text-shadow: 0 0 5px var(--accent-glow);
+        }
+        .data-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); color: var(--fg-secondary); }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255, 0, 255, 0.08); }
+        .table-tag { 
+            font-family: var(--font-mono); 
+            font-size: 9px; 
+            font-weight: 700; 
+            background: rgba(255, 0, 255, 0.2); 
+            padding: 3px 8px; 
+            border-radius: 2px; 
+            color: var(--accent); 
+            text-shadow: 0 0 5px var(--accent-glow);
+            border: 1px solid var(--accent);
+        }
+
+        /* Tool timeline - neon */
+        .step-timeline { position: relative; padding-left: 16px; border-left: 2px solid var(--accent); margin: 8px 0; }
+        .step-item { position: relative; padding: 6px 0 6px 12px; }
+        .step-item::before { 
+            content: ''; 
+            position: absolute; 
+            left: -20px; 
+            top: 10px; 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 0;
+            background: var(--bg-primary); 
+            border: 2px solid var(--accent); 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+        }
+        .step-item.current::before { 
+            background: var(--cyan); 
+            border-color: var(--cyan); 
+            box-shadow: 0 0 10px var(--cyan-glow);
+        }
+        .step-title { font-size: 12px; color: var(--fg-muted); text-transform: uppercase; letter-spacing: 0.05em; }
+        .step-item.current .step-title { color: var(--cyan); text-shadow: 0 0 10px var(--cyan-glow); }
+
+        /* Tool row - neon */
+        .tool-row { display: flex; align-items: center; gap: 8px; padding: 6px 0; font-size: 11px; color: var(--fg-muted); text-transform: uppercase; }
+        .tool-icon-small { width: 14px; height: 14px; display: flex; align-items: center; justify-content: center; font-size: 10px; }
+        .tool-name { font-weight: 700; color: var(--fg-secondary); }
+        .tool-args { font-family: var(--font-mono); opacity: 0.7; overflow: hidden; text-overflow: ellipsis; }
+        .tool-status { margin-left: auto; font-family: var(--font-mono); color: var(--accent); text-shadow: 0 0 5px var(--accent-glow); }
+
+        /* PLAN DRAWER - neon accordion */
+        .plan-drawer { 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--accent); 
+            flex-shrink: 0;
+            box-shadow: 0 -5px 20px rgba(255, 0, 255, 0.1);
+        }
+        .plan-header { display: flex; align-items: center; justify-content: space-between; padding: 10px 16px; cursor: pointer; }
+        .plan-title { 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--accent); 
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        .plan-count { 
+            font-family: var(--font-mono); 
+            font-size: 9px; 
+            padding: 3px 8px; 
+            background: rgba(255, 0, 255, 0.2); 
+            border-radius: 2px; 
+            color: var(--accent);
+            border: 1px solid var(--accent);
+            text-shadow: 0 0 5px var(--accent-glow);
+        }
+        .plan-actions { display: flex; align-items: center; gap: 8px; }
+        .plan-btn { 
+            padding: 4px 10px; 
+            border-radius: 2px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            font-size: 10px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+        .plan-btn:hover { 
+            border-color: var(--cyan); 
+            color: var(--cyan); 
+            text-shadow: 0 0 10px var(--cyan-glow);
+        }
+        .plan-content { padding: 0 16px 12px; }
+        .checklist { list-style: none; }
+        .checklist-item { display: flex; align-items: flex-start; gap: 10px; padding: 8px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .checklist-check { 
+            width: 12px; 
+            height: 12px; 
+            border: 2px solid var(--border-strong); 
+            border-radius: 2px; 
+            flex-shrink: 0; 
+            margin-top: 1px;
+        }
+        .checklist-item.checked .checklist-check { 
+            background: var(--success); 
+            border-color: var(--success); 
+            box-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+        .checklist-item.current .checklist-check { 
+            border-color: var(--accent); 
+            background: var(--accent); 
+            box-shadow: 0 0 10px var(--accent-glow);
+            animation: blink-neon 1s ease-in-out infinite;
+        }
+        @keyframes blink-neon { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .checklist-text { color: var(--fg-muted); }
+        .checklist-item.checked .checklist-text, .checklist-item.current .checklist-text { color: var(--fg-secondary); font-weight: 600; }
+
+        /* Jump button - neon pill */
+        .jump-btn { 
+            position: absolute; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            bottom: 180px; 
+            padding: 8px 16px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--accent); 
+            border-radius: 2px; 
+            font-size: 11px; 
+            color: var(--accent); 
+            cursor: pointer; 
+            box-shadow: 0 0 20px var(--accent-glow), 0 5px 15px rgba(0, 0, 0, 0.3); 
+            transition: all var(--duration-fast); 
+            z-index: 10;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+        }
+        .jump-btn:hover { 
+            background: var(--accent); 
+            color: var(--bg-primary); 
+            box-shadow: 0 0 40px var(--accent-glow);
+        }
+
+        /* Composer - retro terminal input */
+        .composer-wrapper { 
+            padding: 12px; 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--accent); 
+            flex-shrink: 0; 
+            box-shadow: 0 -5px 20px rgba(255, 0, 255, 0.1);
+        }
+        .composer { 
+            background: var(--bg-primary); 
+            border: 1px solid var(--border-default); 
+            border-radius: 2px; 
+            overflow: hidden; 
+            transition: all var(--duration-fast);
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+        .composer:focus-within { 
+            border-color: var(--accent); 
+            box-shadow: 0 0 0 2px rgba(255, 0, 255, 0.2), 0 0 30px var(--accent-glow); 
+        }
+        .composer-input { 
+            width: 100%; 
+            min-height: 44px; 
+            max-height: 120px; 
+            padding: 12px 16px; 
+            background: transparent; 
+            border: none; 
+            color: var(--fg-primary); 
+            font-family: inherit; 
+            font-size: 14px; 
+            line-height: 1.5; 
+            resize: none; 
+            outline: none;
+        }
+        .composer-input::placeholder { color: var(--fg-muted); }
+        .composer-toolbar { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 8px 12px; 
+            border-top: 1px solid var(--border-subtle); 
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 2px; }
+        .toolbar-right { display: flex; align-items: center; gap: 8px; }
+        .tool-btn { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 2px; 
+            border: none; 
+            background: transparent; 
+            color: var(--fg-muted); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            font-size: 12px; 
+        }
+        .tool-btn:hover { 
+            background: rgba(255, 0, 255, 0.2); 
+            color: var(--accent); 
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Mascot - neon blob */
+        .mascot { 
+            width: 26px; 
+            height: 26px; 
+            position: relative; 
+            cursor: pointer; 
+        }
+        .mascot-body { 
+            position: absolute; 
+            inset: 0; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 100%); 
+            border: none;
+            border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%; 
+            animation: wobble 4s ease-in-out infinite;
+            box-shadow: 0 0 20px var(--accent-glow), 0 0 40px var(--cyan-glow);
+        }
+        @keyframes wobble { 
+            0%, 100% { border-radius: 40% 60% 60% 40% / 60% 40% 60% 40%; } 
+            25% { border-radius: 50% 50% 50% 50% / 50% 50% 50% 50%; } 
+            50% { border-radius: 60% 40% 40% 60% / 40% 60% 40% 60%; } 
+            75% { border-radius: 45% 55% 55% 45% / 55% 45% 55% 45%; } 
+        }
+        .mascot-eyes { 
+            position: absolute; 
+            top: 35%; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            display: flex; 
+            gap: 4px; 
+        }
+        .mascot-eye { 
+            width: 3px; 
+            height: 5px; 
+            background: var(--bg-primary); 
+            border-radius: 0; 
+            animation: blink 4s ease-in-out infinite; 
+        }
+        .mascot-eye:last-child { animation-delay: 0.1s; }
+        @keyframes blink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
+
+        .model-badge { 
+            display: flex; 
+            align-items: center; 
+            gap: 6px; 
+            padding: 4px 10px; 
+            background: rgba(255, 0, 255, 0.1); 
+            border: 1px solid var(--border-default); 
+            border-radius: 2px; 
+            font-size: 10px; 
+            color: var(--fg-muted); 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+        }
+        .model-badge:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        .send-btn { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 2px; 
+            background: linear-gradient(135deg, var(--accent) 0%, var(--hot-pink) 100%); 
+            border: none; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            transition: all var(--duration-fast); 
+            color: white; 
+            font-size: 12px;
+            box-shadow: 0 0 15px var(--accent-glow);
+            clip-path: polygon(20% 0, 100% 0, 100% 80%, 80% 100%, 0 100%, 0 20%);
+        }
+        .send-btn:hover { 
+            transform: scale(1.05); 
+            box-shadow: 0 0 30px var(--accent-glow);
+        }
+        .context-bar { height: 2px; background: transparent; transition: all 0.3s; }
+        .context-bar.has-context { 
+            background: linear-gradient(90deg, var(--accent) var(--context-pct, 0%), transparent var(--context-pct, 0%)); 
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+
+        /* Recording panel - retro terminal */
+        .recording-panel { 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--error); 
+            padding: 12px 16px;
+            box-shadow: 0 -5px 20px rgba(255, 7, 58, 0.2);
+        }
+        .recording-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .recording-title { font-size: 12px; font-weight: 700; color: var(--error); text-transform: uppercase; letter-spacing: 0.05em; text-shadow: 0 0 10px rgba(255, 7, 58, 0.5); }
+        .recording-timer { font-family: var(--font-mono); font-size: 14px; color: var(--accent); text-shadow: 0 0 10px var(--accent-glow); }
+        .recording-actions { display: flex; gap: 8px; }
+        .recording-btn { 
+            padding: 6px 12px; 
+            border-radius: 2px; 
+            border: 1px solid var(--border-default); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            font-size: 10px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            text-transform: uppercase;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
+        }
+        .recording-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--accent); 
+            text-shadow: 0 0 10px var(--accent-glow);
+        }
+        .recording-btn.primary { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+            color: var(--bg-primary); 
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .recording-btn.primary:hover { 
+            background: var(--accent-hover);
+        }
+        .recording-indicator { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--fg-muted); text-transform: uppercase; }
+        .recording-dot { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--error); 
+            animation: pulse-record 1s ease-in-out infinite;
+            box-shadow: 0 0 10px rgba(255, 7, 58, 0.8);
+        }
+        @keyframes pulse-record { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+        /* Skills panel - retro grid */
+        .skills-panel { 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--cyan); 
+            padding: 12px 16px; 
+            max-height: 200px; 
+            overflow-y: auto;
+            box-shadow: 0 -5px 20px rgba(0, 255, 255, 0.1);
+        }
+        .skills-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+        .skills-title { 
+            font-size: 11px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.05em; 
+            color: var(--cyan); 
+            text-shadow: 0 0 10px var(--cyan-glow);
+        }
+        .skill-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            padding: 10px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 2px; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
+        }
+        .skill-item:hover { 
+            border-color: var(--accent); 
+            background: rgba(255, 0, 255, 0.1); 
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+        .skill-icon { 
+            width: 26px; 
+            height: 26px; 
+            border-radius: 2px; 
+            background: rgba(255, 0, 255, 0.2); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 13px;
+            border: 1px solid var(--accent);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .skill-info { flex: 1; }
+        .skill-name { font-size: 12px; font-weight: 700; color: var(--fg-secondary); text-transform: uppercase; letter-spacing: 0.05em; }
+        .skill-desc { font-size: 10px; color: var(--fg-muted); text-transform: uppercase; }
+        .skill-shortcut { 
+            font-family: var(--font-mono); 
+            font-size: 9px; 
+            color: var(--cyan); 
+            padding: 2px 6px; 
+            background: rgba(0, 255, 255, 0.1); 
+            border-radius: 2px; 
+            border: 1px solid var(--cyan);
+            text-shadow: 0 0 5px var(--cyan-glow);
+        }
+
+        /* Settings panel - retro slide */
+        .settings-scrim { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(13, 2, 33, 0.85); 
+            z-index: 70; 
+            opacity: 0; 
+            pointer-events: none; 
+            transition: opacity var(--duration-fast); 
+        }
+        .settings-scrim.visible { opacity: 1; pointer-events: auto; }
+        .settings-panel { 
+            position: absolute; 
+            top: 0; 
+            right: 0; 
+            bottom: 0; 
+            width: 100%; 
+            background: var(--bg-secondary); 
+            border-left: 2px solid var(--accent); 
+            z-index: 80; 
+            transform: translateX(100%); 
+            transition: transform 0.3s var(--ease-precision); 
+            display: flex; 
+            flex-direction: column;
+            box-shadow: -10px 0 40px rgba(255, 0, 255, 0.3);
+        }
+        .settings-panel.visible { transform: translateX(0); }
+        .settings-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 12px 16px; 
+            border-bottom: 2px solid var(--accent); 
+        }
+        .settings-title { font-size: 18px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; text-shadow: 0 0 10px var(--accent-glow); }
+        .settings-close { 
+            font-size: 24px; 
+            color: var(--fg-muted); 
+            background: transparent; 
+            border: none; 
+            cursor: pointer; 
+            transition: color var(--duration-fast);
+            font-weight: 300;
+        }
+        .settings-close:hover { color: var(--error); text-shadow: 0 0 10px rgba(255, 7, 58, 0.5); }
+        .settings-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .settings-section { margin-bottom: 24px; }
+        .settings-section-title { 
+            font-size: 10px; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 0.08em; 
+            color: var(--cyan); 
+            margin-bottom: 12px; 
+            text-shadow: 0 0 5px var(--cyan-glow);
+        }
+        .setting-item { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 10px 12px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 2px; 
+            margin-bottom: 8px; 
+            cursor: pointer; 
+            transition: all var(--duration-fast);
+            clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
+        }
+        .setting-item:hover { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .setting-label { font-size: 13px; color: var(--fg-secondary); text-transform: uppercase; font-weight: 600; }
+        .setting-value { font-family: var(--font-mono); font-size: 10px; color: var(--accent); text-shadow: 0 0 5px var(--accent-glow); }
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .theme-option { 
+            aspect-ratio: 1; 
+            border-radius: 2px; 
+            border: 2px solid transparent; 
+            cursor: pointer; 
+            position: relative;
+            clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
+        }
+        .theme-option:hover { transform: scale(1.05); box-shadow: 0 0 20px var(--accent-glow); }
+        .theme-option.active { border-color: var(--accent); box-shadow: 0 0 15px var(--accent-glow); }
+        .theme-option.active::after { 
+            content: ''; 
+            position: absolute; 
+            top: 3px; 
+            right: 3px; 
+            width: 8px; 
+            height: 8px; 
+            background: var(--accent); 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            box-shadow: 0 0 10px var(--accent-glow);
+        }
+        .provider-card { 
+            padding: 12px; 
+            background: var(--bg-elevated); 
+            border: 1px solid var(--border-default); 
+            border-radius: 2px; 
+            margin-bottom: 8px;
+            clip-path: polygon(5% 0, 100% 0, 100% 95%, 95% 100%, 0 100%, 0 5%);
+        }
+        .provider-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .provider-name { font-size: 13px; font-weight: 700; color: var(--fg-secondary); text-transform: uppercase; }
+        .provider-status { 
+            width: 8px; 
+            height: 8px; 
+            border-radius: 50%; 
+            background: var(--success); 
+            box-shadow: 0 0 0 2px rgba(57, 255, 20, 0.5), 0 0 10px var(--success); 
+        }
+        .provider-status.off { background: var(--fg-subtle); box-shadow: none; }
+        .provider-meta { font-family: var(--font-mono); font-size: 9px; color: var(--fg-muted); }
+
+        /* Screenshot gallery - neon frames */
+        .screenshot-gallery { 
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 8px; 
+            padding: 12px 16px; 
+            background: var(--bg-secondary); 
+            border-top: 2px solid var(--cyan); 
+        }
+        .screenshot-thumb { 
+            aspect-ratio: 16/10; 
+            background: var(--bg-tertiary); 
+            border: 1px solid var(--border-default); 
+            border-radius: 2px; 
+            position: relative; 
+            overflow: hidden;
+        }
+        .screenshot-thumb img { width: 100%; height: 100%; object-fit: cover; }
+        .screenshot-overlay { 
+            position: absolute; 
+            inset: 0; 
+            background: rgba(13, 2, 33, 0.7); 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            opacity: 0; 
+            transition: opacity var(--duration-fast); 
+        }
+        .screenshot-thumb:hover .screenshot-overlay { opacity: 1; }
+        .screenshot-checkbox { 
+            width: 20px; 
+            height: 20px; 
+            border-radius: 2px; 
+            border: 2px solid var(--accent); 
+            background: transparent; 
+        }
+        .screenshot-thumb.selected .screenshot-checkbox { 
+            background: var(--accent); 
+            border-color: var(--accent); 
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        /* Code block - terminal style */
+        .code-block { 
+            margin: 12px 0; 
+            border: 1px solid var(--cyan); 
+            background: var(--bg-secondary); 
+            border-radius: 2px; 
+            overflow: hidden;
+            box-shadow: 0 0 15px var(--cyan-glow);
+        }
+        .code-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 8px 12px; 
+            background: var(--bg-tertiary); 
+            border-bottom: 1px solid var(--cyan); 
+        }
+        .code-lang { 
+            font-family: var(--font-mono); 
+            font-size: 10px; 
+            color: var(--cyan); 
+            text-transform: uppercase;
+            font-weight: 700;
+            text-shadow: 0 0 5px var(--cyan-glow);
+        }
+        .code-copy { 
+            font-size: 10px; 
+            color: var(--fg-muted); 
+            background: transparent; 
+            border: none; 
+            cursor: pointer;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .code-copy:hover { color: var(--accent); text-shadow: 0 0 5px var(--accent-glow); }
+        .code-content { 
+            padding: 12px; 
+            font-family: var(--font-mono); 
+            font-size: 11px; 
+            line-height: 1.6; 
+            color: var(--fg-secondary); 
+            overflow-x: auto; 
+        }
+
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 0, 255, 0.3); border-radius: 2px; }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <header class="doc-header">
+            <h1 class="doc-title">Synthwave Theme</h1>
+            <p class="doc-subtitle">80s sunset, neon grids, hot pink/cyan accents</p>
+        </header>
+
+        <div class="section">
+            <div class="section-title">Core States</div>
+            <div class="showcase">
+                
+                <!-- Empty State -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Empty State</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="fab-group">
+                                <button class="context-inspector">
+                                    <svg class="context-inspector-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 17h6"/></svg>
+                                    <span>0 / 128k</span>
+                                    <span>0%</span>
+                                </button>
+                                <button class="fab">+</button>
+                                <button class="fab">⚙</button>
+                            </div>
+                            <div class="empty-state">
+                                <div class="gravity-well">
+                                    <div class="orbit orbit-1"><div class="orbit-dot"></div></div>
+                                    <div class="orbit orbit-2"><div class="orbit-dot"></div></div>
+                                    <div class="singularity"></div>
+                                </div>
+                                <div class="empty-title">INITIALIZE</div>
+                                <div class="empty-subtitle">SYSTEM READY</div>
+                                <div class="starters">
+                                    <button class="starter-btn">Boot Sequence</button>
+                                    <button class="starter-btn">Load Module</button>
+                                    <button class="starter-btn">Scan Network</button>
+                                    <button class="starter-btn">Execute</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Enter command..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                        <button class="tool-btn">●</button>
+                                        <button class="tool-btn">⊞</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-badge"><span>⚡</span><span>Claude 3.5</span><span>⌄</span></div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                                <div class="context-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Chat with Table -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Message with Table</span>
+                    <div class="sidepanel">
+                        <div class="agent-nav">
+                            <button class="agent-tab active"><span class="agent-tab-dot"></span><span class="agent-tab-label">Main</span></button>
+                        </div>
+                        <div class="chat-area">
+                            <div class="messages">
+                                <div class="message message-user"><div class="bubble-user">Show system status</div></div>
+                                <div class="message message-assistant">
+                                    <div class="avatar">◆</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Current system metrics:</p></div>
+                                        <div class="data-table-wrapper">
+                                            <table class="data-table">
+                                                <thead><tr><th>Metric</th><th>Value</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td><span class="table-tag">CPU</span></td><td><code>98%</code></td></tr>
+                                                    <tr><td><span class="table-tag">MEM</span></td><td><code>64TB</code></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <div class="code-block">
+                                            <div class="code-header"><span class="code-lang">sys</span><button class="code-copy">Copy</button></div>
+                                            <div class="code-content">Status: OPERATIONAL</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="jump-btn">Jump to latest</button>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Enter command..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Above Composer -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Plan Above Composer</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="messages" style="flex: 1;">
+                                <div class="message message-assistant">
+                                    <div class="avatar">◆</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Executing sequence...</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="plan-drawer">
+                                <div class="plan-header">
+                                    <div class="plan-title"><span>▼</span><span>Sequence</span><span class="plan-count">3 steps • Active</span></div>
+                                    <div class="plan-actions"><button class="plan-btn">Abort</button></div>
+                                </div>
+                                <div class="plan-content">
+                                    <ol class="checklist">
+                                        <li class="checklist-item checked"><span class="checklist-check"></span><span class="checklist-text">Initialize</span></li>
+                                        <li class="checklist-item current"><span class="checklist-check"></span><span class="checklist-text">Process</span></li>
+                                        <li class="checklist-item"><span class="checklist-check"></span><span class="checklist-text">Complete</span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Enter command..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recording Active -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Recording Active</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="messages">
+                                <div class="message message-user"><div class="bubble-user">Record session</div></div>
+                            </div>
+                            <div class="recording-panel">
+                                <div class="recording-header">
+                                    <div class="recording-title">Recording</div>
+                                    <div class="recording-timer">0:42</div>
+                                </div>
+                                <div class="recording-indicator"><span class="recording-dot"></span><span>Capturing data...</span></div>
+                                <div class="recording-actions" style="margin-top: 10px;">
+                                    <button class="recording-btn">Pause</button>
+                                    <button class="recording-btn primary">Stop & Save</button>
+                                </div>
+                            </div>
+                            <div class="screenshot-gallery">
+                                <div class="screenshot-thumb selected"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                                <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                                <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                                <div class="screenshot-thumb"><div class="screenshot-overlay"><div class="screenshot-checkbox"></div></div></div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Add notes..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Skills Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Skills / Quick Actions</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="empty-state" style="flex: 0; padding: 20px;">
+                                <div class="empty-title" style="font-size: 15px;">Quick Skills</div>
+                            </div>
+                            <div class="skills-panel">
+                                <div class="skills-header"><div class="skills-title">Available Skills</div></div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">⚡</div>
+                                    <div class="skill-info"><div class="skill-name">Boost</div><div class="skill-desc">Enhance performance</div></div>
+                                    <span class="skill-shortcut">⌘B</span>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">🔍</div>
+                                    <div class="skill-info"><div class="skill-name">Scan</div><div class="skill-desc">Analyze system</div></div>
+                                    <span class="skill-shortcut">⌘S</span>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">💾</div>
+                                    <div class="skill-info"><div class="skill-name">Save</div><div class="skill-desc">Store data</div></div>
+                                    <span class="skill-shortcut">⌘D</span>
+                                </div>
+                                <div class="skill-item">
+                                    <div class="skill-icon">🔄</div>
+                                    <div class="skill-info"><div class="skill-name">Sync</div><div class="skill-desc">Update system</div></div>
+                                </div>
+                                <div class="skill-item" style="border-color: var(--accent);">
+                                    <div class="skill-icon">⏺</div>
+                                    <div class="skill-info"><div class="skill-name">Record</div><div class="skill-desc">Capture session</div></div>
+                                    <span class="skill-shortcut">⌘R</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Or type a command..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Settings Slide-in</span>
+                    <div class="sidepanel">
+                        <div class="chat-area" style="opacity: 0.3;">
+                            <div class="messages"><div class="message message-user"><div class="bubble-user">Example</div></div></div>
+                        </div>
+                        <div class="settings-scrim visible"></div>
+                        <div class="settings-panel visible">
+                            <div class="settings-header"><span class="settings-title">Settings</span><button class="settings-close">×</button></div>
+                            <div class="settings-content">
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Appearance</div>
+                                    <div class="theme-grid">
+                                        <div class="theme-option active" style="background: linear-gradient(135deg, #0d0221 50%, #ff00ff 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #0d0221 50%, #00ffff 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #0d0221 50%, #ff6b35 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #0d0221 50%, #39ff14 50%);"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Providers</div>
+                                    <div class="provider-card">
+                                        <div class="provider-header"><span class="provider-name">Anthropic</span><span class="provider-status"></span></div>
+                                        <div class="provider-meta">Claude 3.5 Sonnet</div>
+                                    </div>
+                                    <div class="provider-card">
+                                        <div class="provider-header"><span class="provider-name">OpenAI</span><span class="provider-status off"></span></div>
+                                        <div class="provider-meta">Not configured</div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Model</div>
+                                    <div class="setting-item"><span class="setting-label">Active Profile</span><span class="setting-value">Claude 3.5 ›</span></div>
+                                    <div class="setting-item"><span class="setting-label">Temperature</span><span class="setting-value">0.7 ›</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>
