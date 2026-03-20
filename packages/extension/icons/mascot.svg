@@ -1,58 +1,37 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Parchi mascot">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <defs>
-    <radialGradient id="eyeGlowM" cx="50%" cy="50%" r="50%">
-      <stop offset="0%" stop-color="#c7d2fe"/>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#1e1b4b"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#a5b4fc"/>
       <stop offset="100%" stop-color="#818cf8"/>
-    </radialGradient>
+    </linearGradient>
   </defs>
-
-  <!-- Body -->
-  <rect x="34" y="44" width="60" height="56" rx="20"
-    fill="#2e2f5e" stroke="#4f52a0" stroke-width="1.5"
-  />
-
-  <!-- Head bump -->
-  <ellipse cx="64" cy="46" rx="24" ry="18"
-    fill="#2e2f5e" stroke="#4f52a0" stroke-width="1.5"
-  />
-
-  <!-- Left ear -->
-  <rect x="33" y="30" width="10" height="15" rx="5"
-    fill="#3d3f7a" stroke="#4f52a0" stroke-width="1.2"
-  />
-  <!-- Right ear -->
-  <rect x="85" y="30" width="10" height="15" rx="5"
-    fill="#3d3f7a" stroke="#4f52a0" stroke-width="1.2"
-  />
-  <!-- Inner ear dots -->
-  <circle cx="38" cy="37" r="2.5" fill="#818cf8" opacity="0.7"/>
-  <circle cx="90" cy="37" r="2.5" fill="#818cf8" opacity="0.7"/>
-
-  <!-- Left eye -->
-  <circle cx="54" cy="48" r="7" fill="url(#eyeGlowM)"/>
-  <circle cx="54" cy="48" r="4" fill="#1e1f3a"/>
-  <circle cx="55.8" cy="46.2" r="1.5" fill="#e0e7ff" opacity="0.9"/>
-
-  <!-- Right eye -->
-  <circle cx="74" cy="48" r="7" fill="url(#eyeGlowM)"/>
-  <circle cx="74" cy="48" r="4" fill="#1e1f3a"/>
-  <circle cx="75.8" cy="46.2" r="1.5" fill="#e0e7ff" opacity="0.9"/>
-
-  <!-- Mouth -->
-  <path d="M57 60 Q64 66 71 60"
-    fill="none" stroke="#818cf8" stroke-width="2.5" stroke-linecap="round"
-  />
-
-  <!-- Body keys -->
-  <rect x="43" y="72" width="15" height="4.5" rx="2" fill="#3d3f7a" opacity="0.9"/>
-  <rect x="62" y="72" width="15" height="4.5" rx="2" fill="#3d3f7a" opacity="0.9"/>
-  <rect x="52" y="80" width="15" height="4.5" rx="2" fill="#3d3f7a" opacity="0.9"/>
-
-  <!-- Feet -->
-  <rect x="40" y="94" width="16" height="9" rx="4.5"
-    fill="#3d3f7a" stroke="#4f52a0" stroke-width="1.2"
-  />
-  <rect x="72" y="94" width="16" height="9" rx="4.5"
-    fill="#3d3f7a" stroke="#4f52a0" stroke-width="1.2"
-  />
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <g transform="translate(32,24) scale(1)">
+    <path
+      d="M12 18c0-6 4-10 10-10h20c6 0 10 4 10 10v22c0 9-7 16-16 16H24c-9 0-16-7-16-16V18z"
+      fill="url(#body)"
+      stroke="#c7d2fe"
+      stroke-width="1.5"
+    />
+    <path
+      d="M22 26h20"
+      stroke="#c7d2fe"
+      stroke-width="2"
+      stroke-linecap="round"
+      fill="none"
+    />
+    <circle cx="24" cy="34" r="3.5" fill="#1e1b4b"/>
+    <circle cx="40" cy="34" r="3.5" fill="#1e1b4b"/>
+    <path
+      d="M26 42c3 3 9 3 12 0"
+      stroke="#1e1b4b"
+      stroke-width="2"
+      stroke-linecap="round"
+      fill="none"
+    />
+  </g>
 </svg>
