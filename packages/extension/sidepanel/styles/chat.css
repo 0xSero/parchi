@@ -494,19 +494,8 @@ body.sidebar-open .context-inspector-popover {
   width: 10px;
   height: 10px;
   border-radius: 50%;
-  background: radial-gradient(circle, var(--accent) 0%, var(--accent-dark) 70%, transparent 100%);
-  box-shadow: 0 0 16px rgb(var(--accent-rgb) / 0.25);
-}
-
-/* Glow layer: animate opacity instead of box-shadow for zero-paint cost */
-.chat-empty-singularity::after {
-  content: "";
-  position: absolute;
-  inset: -12px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgb(var(--accent-rgb) / 0.12), transparent 70%);
-  will-change: opacity;
-  animation: emptySingularityBreathe 5s ease-in-out infinite;
+  background: var(--accent);
+  box-shadow: 0 0 16px rgb(var(--accent-rgb) / 0.4);
 }
 
 @keyframes emptySingularityBreathe {
