@@ -114,37 +114,6 @@
                             ></textarea>
                             <div class="composer-toolbar">
                                 <div class="composer-toolbar-left">
-                                    <div id="mascotStatus" class="composer-status">
-                                        <span id="statusDot" class="status-dot"></span>
-                                        <span id="statusText">Ready</span>
-                                        <span id="statusMeta" class="status-meta"></span>
-                                    </div>
-                                    <div id="balancePopover" class="balance-popover hidden">
-                                        <div class="balance-popover-header">
-                                            <span>Account</span>
-                                            <button id="balancePopoverClose" class="balance-popover-close">&times;</button>
-                                        </div>
-                                        <div class="balance-popover-body">
-                                            <div class="balance-row">
-                                                <span class="balance-label">Billing</span>
-                                                <span id="balanceCreditsValue" class="balance-value">--</span>
-                                            </div>
-                                            <div class="balance-row">
-                                                <span class="balance-label">Plan</span>
-                                                <span id="balancePlanValue" class="balance-value">--</span>
-                                            </div>
-                                            <div class="balance-row">
-                                                <span class="balance-label">Spend (month)</span>
-                                                <span id="balanceSpendValue" class="balance-value">--</span>
-                                            </div>
-                                            <div class="balance-row">
-                                                <span class="balance-label">Session tokens</span>
-                                                <span id="balanceSessionTokens" class="balance-value">--</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="composer-toolbar-right">
                                     <input
                                         id="fileInput"
                                         type="file"
@@ -152,7 +121,6 @@
                                         accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.md,.txt,.csv,.json,.log,.xml,.yaml,.yml,.zip,.7z,.tar,.gz,.webp,.heic,.heif,.mp4,.mov,.avi,.mkv,.mp3,.wav,.m4a"
                                         class="hidden"
                                     />
-                                    <!-- Composer tools as icon buttons with tooltips -->
                                     <div class="composer-tools">
                                         <button
                                             id="composerActionAttachFile"
@@ -203,14 +171,6 @@
                                             </svg>
                                         </button>
                                     </div>
-                                    <button
-                                        id="setupAccessBtn"
-                                        class="setup-access-btn hidden"
-                                        title="Set up access"
-                                        type="button"
-                                    >
-                                        Pay or add your own key
-                                    </button>
                                     <div
                                         id="modelSelectorWrap"
                                         class="model-selector"
@@ -233,7 +193,16 @@
                                             <polyline points="6 9 12 15 18 9" />
                                         </svg>
                                     </div>
-                                    <span id="composerTokens" class="composer-tokens" title="Token usage"></span>
+                                </div>
+                                <div class="composer-toolbar-right">
+                                    <button
+                                        id="setupAccessBtn"
+                                        class="setup-access-btn hidden"
+                                        title="Set up access"
+                                        type="button"
+                                    >
+                                        Pay or add your own key
+                                    </button>
                                     <button
                                         id="sendBtn"
                                         class="send-btn"
@@ -250,6 +219,7 @@
                                 </div>
                             </div>
                             <div id="contextBar" class="context-bar" aria-hidden="true"></div>
+                            <div id="composerTokens" class="composer-tokens-bar" title="Token usage"></div>
                         </div>
                     </div>
                 </div>

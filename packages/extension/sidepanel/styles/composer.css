@@ -237,65 +237,14 @@
   color: var(--foreground);
 }
 
-/* Status — inline in composer toolbar-left */
+/* Status — kept for JS compatibility but hidden */
 .composer-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 4px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
-  min-width: 0;
-  max-width: min(52vw, 420px);
-  overflow: hidden;
-  transition: all var(--duration-fast) ease;
-  cursor: pointer;
+  display: none;
 }
 
-.composer-status:hover {
-  background: transparent;
-}
-
-.composer-status .status-dot {
-  width: 6px;
-  height: 6px;
-  box-shadow: none;
-  transition: all var(--duration-fast) ease;
-}
-
-.composer-status .status-dot.active {
-  background: var(--accent);
-}
-
-.composer-status #statusText {
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  min-width: 0;
-  max-width: clamp(80px, 32vw, 300px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Balance popover — shown on status dot click */
+/* Balance popover — accessible via settings */
 .balance-popover {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 8px;
-  min-width: 200px;
-  background: var(--card);
-  border: 1px solid var(--ink-2);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.03);
-  z-index: 150;
-  animation: balanceSlideUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  overflow: hidden;
+  display: none;
 }
 
 .balance-popover.hidden {
@@ -370,33 +319,6 @@
   font-family: var(--font-mono);
   font-weight: 500;
   color: var(--foreground);
-}
-
-/* Secondary meta — hidden by default, shown on hover */
-.composer-status .status-meta {
-  font-size: 10px;
-  font-family: var(--font-mono);
-  color: var(--muted-dim);
-  margin-left: 2px;
-  padding-left: 6px;
-  border-left: 1px solid var(--ink-1);
-  opacity: 0;
-  display: inline-block;
-  max-width: clamp(140px, 22vw, 280px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
-  transition: all var(--duration-fast) ease;
-}
-
-.composer-status:hover .status-meta,
-.composer-status.has-meta .status-meta {
-  opacity: 1;
-}
-
-.composer-status .status-meta:empty {
-  display: none;
 }
 
 /* Icon buttons inside composer — ghost style */
@@ -579,26 +501,18 @@
   }
 }
 
-/* Inline token display */
-.composer-tokens {
+/* Token bar — below composer */
+.composer-tokens-bar {
   font-size: 10px;
   font-family: var(--font-mono);
   color: var(--muted-dim);
-  white-space: nowrap;
-  padding: 2px 6px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all var(--duration-fast) ease;
+  text-align: center;
+  padding: 3px 0 0;
   letter-spacing: 0.02em;
 }
 
-.composer-tokens:empty {
+.composer-tokens-bar:empty {
   display: none;
-}
-
-.composer-tokens:hover {
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.04);
 }
 
 /* Narrow sidepanel adjustments */
@@ -642,11 +556,6 @@
     width: 100%;
     justify-content: flex-end;
     gap: 4px;
-  }
-
-  .composer-status #statusText,
-  .composer-status .status-meta {
-    display: none;
   }
 
   .model-selector {

@@ -11,33 +11,13 @@ const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<st
  * Set up UI-related event listeners
  */
 export const setupUIListeners = function setupUIListeners(this: SidePanelUI & Record<string, unknown>) {
-  // Balance popover + mascot click
-  const mascotCorner = document.getElementById('mascotCorner');
-  const balancePopover = document.getElementById('balancePopover');
-  const balancePopoverClose = document.getElementById('balancePopoverClose');
-
   // Mascot click toggles context inspector
+  const mascotCorner = document.getElementById('mascotCorner');
   if (mascotCorner) {
     mascotCorner.addEventListener('click', (event: Event) => {
       event.preventDefault();
       event.stopPropagation();
-      balancePopover?.classList.add('hidden');
       void this.toggleContextInspectorPopover?.();
-    });
-  }
-
-  if (balancePopover) {
-    balancePopoverClose?.addEventListener('click', (e: Event) => {
-      e.stopPropagation();
-      balancePopover.classList.add('hidden');
-    });
-    // Close popover when clicking outside
-    document.addEventListener('click', (e: Event) => {
-      const target = e.target as Node;
-      const clickedMascot = mascotCorner?.contains(target) ?? false;
-      if (!balancePopover.classList.contains('hidden') && !balancePopover.contains(target) && !clickedMascot) {
-        balancePopover.classList.add('hidden');
-      }
     });
   }
 
