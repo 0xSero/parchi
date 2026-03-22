@@ -237,7 +237,7 @@
   color: var(--foreground);
 }
 
-/* Status — only timer & context meta shown inline */
+/* Status — inline in composer toolbar-left */
 .composer-status {
   display: inline-flex;
   align-items: center;
@@ -253,6 +253,7 @@
   max-width: min(52vw, 420px);
   overflow: hidden;
   transition: all var(--duration-fast) ease;
+  cursor: pointer;
 }
 
 .composer-status:hover {
@@ -578,7 +579,27 @@
   }
 }
 
-/* Export button */
+/* Inline token display */
+.composer-tokens {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+  white-space: nowrap;
+  padding: 2px 6px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all var(--duration-fast) ease;
+  letter-spacing: 0.02em;
+}
+
+.composer-tokens:empty {
+  display: none;
+}
+
+.composer-tokens:hover {
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.04);
+}
 
 /* Narrow sidepanel adjustments */
 @media (max-width: 520px) {

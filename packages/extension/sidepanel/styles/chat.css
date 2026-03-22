@@ -11,10 +11,10 @@
   scroll-behavior: smooth;
 }
 
-/* FAB Group — Top right */
+/* FAB Group — Below topbar, right side */
 .fab-group {
   position: fixed;
-  top: 12px;
+  top: calc(var(--topbar-height) + 8px);
   right: 12px;
   display: flex;
   gap: 6px;
@@ -1099,13 +1099,14 @@ body.sidebar-open .context-inspector-popover {
   padding-left: 10px;
   border-left: 1.5px solid var(--ink-3);
   animation: fadeInUp 0.3s var(--ease-out-expo);
+  border-radius: 0 6px 6px 0;
 }
 
 .thinking-header {
   display: flex;
   align-items: center;
   gap: 5px;
-  padding: 0;
+  padding: 4px 0;
   background: transparent;
   border: none;
   font-size: 11px;
@@ -1113,7 +1114,7 @@ body.sidebar-open .context-inspector-popover {
   color: var(--muted-dim);
   cursor: pointer;
   letter-spacing: 0.02em;
-  opacity: 0.6;
+  opacity: 0.7;
   transition: opacity var(--duration-fast) ease;
 }
 
@@ -1121,7 +1122,7 @@ body.sidebar-open .context-inspector-popover {
   width: 10px;
   height: 10px;
   flex-shrink: 0;
-  transition: transform 0.15s ease;
+  transition: transform 0.2s var(--ease-out-back);
 }
 
 .thinking-block:not(.collapsed) .thinking-header .chevron {
@@ -1147,6 +1148,7 @@ body.sidebar-open .context-inspector-popover {
   max-height: 200px;
   overflow-y: auto;
   opacity: 0.7;
+  transition: max-height 0.25s var(--ease-out-expo), opacity 0.15s ease;
 }
 
 .thinking-block.collapsed .thinking-content {

@@ -124,4 +124,7 @@ sidePanelProto.startNewSession = function startNewSession() {
   this.switchView('chat');
   this.updateContextUsage();
   this.scrollToBottom({ force: true });
+  // Reset topbar session title
+  const titleEl = this.elements.topbarSessionTitle as HTMLElement | null;
+  if (titleEl) titleEl.textContent = 'New session';
 };

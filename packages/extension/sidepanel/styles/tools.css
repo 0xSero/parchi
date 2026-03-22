@@ -549,6 +549,122 @@
   animation: fadeIn 0.15s ease forwards;
 }
 
+/* ============================================================================
+   Tool Card — Rich expandable input/output view
+   ============================================================================ */
+
+.tool-card {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  background: var(--card);
+  overflow: hidden;
+  animation: fadeIn 0.15s ease forwards;
+}
+
+.tool-row.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+.tool-card-section {
+  padding: 0;
+}
+
+.tool-card-section + .tool-card-section {
+  border-top: 1px solid var(--ink-1);
+}
+
+.tool-card-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tool-card-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-dim);
+}
+
+.tool-card-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted-dim);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.tool-card-copy:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+.tool-card-copy.copied {
+  color: var(--success);
+}
+
+.tool-card-code {
+  margin: 0;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tool-card-code code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ============================================================================
+   Selected Element Chip — shows targeted DOM element
+   ============================================================================ */
+
+.selected-element-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  margin: 4px 0;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
+  background: rgb(var(--accent-rgb) / 0.06);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent-light);
+  animation: fadeIn 0.15s ease forwards;
+}
+
+.selected-element-chip svg {
+  color: var(--accent);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
 @keyframes fadeIn {
   to {
     opacity: 1;

@@ -11,20 +11,13 @@ const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<st
  * Set up UI-related event listeners
  */
 export const setupUIListeners = function setupUIListeners(this: SidePanelUI & Record<string, unknown>) {
-  // Balance popover on mascot click
+  // Balance popover + mascot click
   const mascotCorner = document.getElementById('mascotCorner');
-  const mascotStatus = document.getElementById('mascotStatus');
   const balancePopover = document.getElementById('balancePopover');
   const balancePopoverClose = document.getElementById('balancePopoverClose');
 
-  // Show/hide mascot status on hover
-  if (mascotCorner && mascotStatus) {
-    mascotCorner.addEventListener('mouseenter', () => {
-      mascotStatus.classList.remove('hidden');
-    });
-    mascotCorner.addEventListener('mouseleave', () => {
-      mascotStatus.classList.add('hidden');
-    });
+  // Mascot click toggles context inspector
+  if (mascotCorner) {
     mascotCorner.addEventListener('click', (event: Event) => {
       event.preventDefault();
       event.stopPropagation();

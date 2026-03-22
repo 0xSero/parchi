@@ -2,6 +2,79 @@
    Layout — Modern Void Design System
    ============================================================================ */
 
+/* ============================================================================
+   Topbar — Persistent Navigation Strip
+   ============================================================================ */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 12px;
+  background: var(--card);
+  border-bottom: 1px solid var(--ink-2);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.topbar-mascot {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex: 0 0 30px;
+}
+
+.topbar-mascot .mascot-corner {
+  width: 26px;
+  height: 26px;
+}
+
+.topbar-center {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.topbar-session-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  letter-spacing: 0.01em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.topbar-btn {
+  --icon-btn-size: 30px;
+  --icon-btn-radius: 8px;
+  --icon-btn-color: var(--muted-dim);
+  --icon-btn-hover-bg: rgba(255, 255, 255, 0.06);
+  --icon-btn-hover-color: var(--foreground);
+}
+
+.topbar-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
 /* Sidebar scrim — clickable overlay that closes the sidebar */
 .sidebar-scrim {
   --overlay-scrim-bg: rgba(0, 0, 0, 0.6);
