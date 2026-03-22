@@ -114,6 +114,30 @@
                             ></textarea>
                             <div class="composer-toolbar">
                                 <div class="composer-toolbar-left">
+                                    <div
+                                        id="modelSelectorWrap"
+                                        class="model-selector"
+                                        title="Switch profile"
+                                    >
+                                        <select id="modelSelect">
+                                            <option value="">
+                                                Profile
+                                            </option>
+                                        </select>
+                                        <svg
+                                            class="model-selector-chevron"
+                                            width="12"
+                                            height="12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <polyline points="6 9 12 15 18 9" />
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="composer-toolbar-right">
                                     <input
                                         id="fileInput"
                                         type="file"
@@ -171,30 +195,6 @@
                                             </svg>
                                         </button>
                                     </div>
-                                    <div
-                                        id="modelSelectorWrap"
-                                        class="model-selector"
-                                        title="Switch profile"
-                                    >
-                                        <select id="modelSelect">
-                                            <option value="">
-                                                Profile
-                                            </option>
-                                        </select>
-                                        <svg
-                                            class="model-selector-chevron"
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <polyline points="6 9 12 15 18 9" />
-                                        </svg>
-                                    </div>
-                                </div>
-                                <div class="composer-toolbar-right">
                                     <button
                                         id="setupAccessBtn"
                                         class="setup-access-btn hidden"
@@ -219,8 +219,8 @@
                                 </div>
                             </div>
                             <div id="contextBar" class="context-bar" aria-hidden="true"></div>
-                            <div id="composerTokens" class="composer-tokens-bar" title="Token usage"></div>
                         </div>
+                        <div id="composerTokens" class="composer-tokens-bar" title="Token usage"></div>
                     </div>
                 </div>
 

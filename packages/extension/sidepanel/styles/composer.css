@@ -501,13 +501,13 @@
   }
 }
 
-/* Token bar — below composer */
+/* Token bar — bottom-right in composer wrapper padding */
 .composer-tokens-bar {
   font-size: 10px;
   font-family: var(--font-mono);
   color: var(--muted-dim);
-  text-align: center;
-  padding: 3px 0 0;
+  text-align: right;
+  padding: 4px 4px 0 0;
   letter-spacing: 0.02em;
 }
 
