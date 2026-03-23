@@ -130,18 +130,18 @@ body.sidebar-open .fab-group {
 }
 
 .context-inspector-fab {
-  height: 34px;
-  min-width: 110px;
-  max-width: 150px;
-  padding: 0 10px;
-  border-radius: 10px;
+  height: 26px;
+  min-width: 80px;
+  max-width: 130px;
+  padding: 0 8px;
+  border-radius: 8px;
   border: 1px solid var(--ink-2);
   background: var(--card);
   color: var(--muted);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 11px;
+  gap: 4px;
+  font-size: 10px;
   font-family: var(--font-mono);
   letter-spacing: 0.01em;
   white-space: nowrap;
@@ -332,10 +332,10 @@ body.sidebar-open .context-inspector-popover {
 
 @media (max-width: 980px) {
   .context-inspector-fab {
-    min-width: 94px;
-    max-width: 118px;
-    padding: 0 8px;
-    gap: 5px;
+    min-width: 70px;
+    max-width: 100px;
+    padding: 0 6px;
+    gap: 4px;
   }
 
   .context-inspector-meta {
@@ -354,9 +354,9 @@ body.sidebar-open .context-inspector-popover {
 
 @media (max-width: 640px) {
   .context-inspector-fab {
-    min-width: 34px;
-    width: 34px;
-    max-width: 34px;
+    min-width: 26px;
+    width: 26px;
+    max-width: 26px;
     padding: 0;
     justify-content: center;
     border-radius: 999px;
