@@ -121,6 +121,7 @@ export const getSidePanelElements = (): SidePanelElements => ({
   genAutoScroll: byId<HTMLInputElement>('genAutoScroll'),
   genConfirmActions: byId<HTMLInputElement>('genConfirmActions'),
   genSaveHistory: byId<HTMLInputElement>('genSaveHistory'),
+  genNotifyOnTurnComplete: byId<HTMLInputElement>('genNotifyOnTurnComplete'),
 
   newProfileNameInput: byId<HTMLInputElement>('newProfileNameInput'),
   createProfileBtn: byId<HTMLButtonElement>('createProfileBtn'),

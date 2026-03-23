@@ -1,11 +1,15 @@
 import { MAX_TOOL_CALL_VIEWS, sidePanelProto } from './panel-tools-shared.js';
 
+const HIDDEN_TOOLS = new Set(['set_plan', 'update_plan']);
+
 sidePanelProto.displayToolExecution = function displayToolExecution(
   toolName: string,
   args: any,
   result: any,
   toolCallId: string | null = null,
 ) {
+  if (HIDDEN_TOOLS.has(toolName)) return;
+
   const entryId = toolCallId || `tool-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   let entry = this.toolCallViews.get(entryId);
   const displayName = toolName;

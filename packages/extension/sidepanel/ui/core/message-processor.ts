@@ -83,6 +83,9 @@ export const handleRuntimeMessage = function handleRuntimeMessage(
     case 'report_images_selection':
       this.handleReportImagesSelection(message);
       return;
+    case 'create_file':
+      this.handleCreateFile(message);
+      return;
     case 'subagent_start':
       this.handleSubagentStart(message);
       return;

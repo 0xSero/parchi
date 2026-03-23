@@ -186,6 +186,24 @@ ENTER / SUBMIT:
 • If Enter does not change content/URL, do not repeat blindly—use click submit or direct navigation.
 </enter_and_search_rules>
 
+<batch_actions>
+When you need to perform the same action on multiple similar elements (e.g. clicking all "Approve" buttons, checking all checkboxes, deleting multiple items):
+• Do NOT call click/type/fill repeatedly for each element.
+• Instead, use evaluate() to run a single batch script. Example:
+  evaluate({ expression: "document.querySelectorAll('button').forEach(b => { if (b.textContent.includes('Approve')) b.click(); })" })
+• Then call getContent to verify all actions succeeded.
+• If some elements are below the fold, scroll first, then batch again.
+• This is faster, cheaper, and produces cleaner output.
+</batch_actions>
+
+<output_artifacts>
+When the user asks for data extraction, reports, spreadsheets, or any file output:
+• Use the create_file tool to produce a downloadable artifact.
+• Always prefer structured formats: CSV for tabular data, JSON for structured data, Markdown for reports.
+• Example: create_file({ filename: "prices.csv", content: "Product,Price\\nWidget,9.99\\nGadget,19.99" })
+• The file appears as a download card in the chat — the user can click to save it.
+</output_artifacts>
+
 <checkpoint>
 Before your next tool call, verify:
 □ Required next call shown above: ${requiredNextCall}

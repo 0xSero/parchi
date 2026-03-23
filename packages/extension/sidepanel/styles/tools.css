@@ -688,3 +688,81 @@
     opacity: 1;
   }
 }
+
+/* ============================================================================
+   File Artifact Card — Downloadable output files
+   ============================================================================ */
+
+.file-artifact-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border: 1px solid rgb(var(--accent-rgb) / 0.25);
+  border-radius: 10px;
+  background: rgb(var(--accent-rgb) / 0.04);
+  cursor: pointer;
+  transition: all 150ms ease;
+  animation: fadeInUp 0.3s var(--ease-out-expo);
+}
+
+.file-artifact-card:hover {
+  border-color: rgb(var(--accent-rgb) / 0.45);
+  background: rgb(var(--accent-rgb) / 0.08);
+}
+
+.file-artifact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgb(var(--accent-rgb) / 0.1);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.file-artifact-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-artifact-name {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-artifact-meta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.file-artifact-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--ink-2);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+
+.file-artifact-download:hover {
+  background: rgb(var(--accent-rgb) / 0.12);
+  border-color: rgb(var(--accent-rgb) / 0.4);
+}

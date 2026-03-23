@@ -20,6 +20,7 @@ const BOOL_BINDINGS: BoolBinding[] = [
   { el: 'genAutoScroll', key: 'autoScroll', defaultTrue: true },
   { el: 'genConfirmActions', key: 'confirmActions', defaultTrue: true },
   { el: 'genSaveHistory', key: 'saveHistory', defaultTrue: true },
+  { el: 'genNotifyOnTurnComplete', key: 'notifyOnTurnComplete', defaultTrue: false },
 ];
 
 const parseNum = (raw: string, fallback: number, mode: 'int' | 'float') => {

@@ -116,6 +116,29 @@ export async function executeBuiltinTool(
     };
   }
 
+  if (toolName === 'create_file') {
+    const filename = typeof args.filename === 'string' ? args.filename.trim() : '';
+    const content = typeof args.content === 'string' ? args.content : '';
+    const mimeType = typeof args.mimeType === 'string' ? args.mimeType.trim() : 'text/plain';
+    if (!filename) {
+      return { handled: true, result: { success: false, error: 'filename is required.' } };
+    }
+    if (!content) {
+      return { handled: true, result: { success: false, error: 'content is required.' } };
+    }
+    ctx.sendRuntime(options.runMeta, {
+      type: 'create_file',
+      filename,
+      content,
+      mimeType,
+    });
+    const sizeKb = Math.max(1, Math.round(new TextEncoder().encode(content).byteLength / 1024));
+    return {
+      handled: true,
+      result: { success: true, filename, mimeType, sizeKb, message: `File "${filename}" (${sizeKb} KB) created and offered for download.` },
+    };
+  }
+
   if (toolName === 'spawn_subagent') {
     return {
       handled: true,

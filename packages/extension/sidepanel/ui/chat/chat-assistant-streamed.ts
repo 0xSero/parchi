@@ -37,6 +37,7 @@ export function renderStreamedContainer(
   self.pruneOldChatTurns();
   self.persistHistory();
   self.updateChatEmptyState();
+  playTurnCompletePing(self);
   self.flushQueuedMessage?.();
 }
 
@@ -167,4 +168,21 @@ function addToolGroupToggle(streamEventsEl: HTMLElement, toolRows: NodeListOf<El
   // Insert before the first tool row
   toolRows[0].insertAdjacentElement('beforebegin', toggle);
   streamEventsEl.classList.add('tools-collapsed');
+}
+
+function playTurnCompletePing(self: SidePanelUI) {
+  const config = (self as SidePanelUI & Record<string, unknown>).configs?.[(self as any).currentConfig] || {};
+  if (!config.notifyOnTurnComplete) return;
+  try {
+    const ctx = new AudioContext();
+    const gain = ctx.createGain();
+    gain.gain.value = 0.3;
+    gain.connect(ctx.destination);
+    const osc = ctx.createOscillator();
+    osc.type = 'sine';
+    osc.frequency.value = 880;
+    osc.connect(gain);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.12);
+  } catch {}
 }
