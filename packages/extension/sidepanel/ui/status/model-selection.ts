@@ -119,12 +119,21 @@ function renderDropdownList(filter = '') {
 
 function openDropdown(self: any) {
   const dropdown = document.getElementById('modelSelectorDropdown');
+  const trigger = document.getElementById('modelSelectorTrigger');
   const search = document.getElementById('modelSelectorSearch') as HTMLInputElement | null;
-  if (!dropdown) return;
+  if (!dropdown || !trigger) return;
   cachedEntries = getModelEntries(self);
   renderDropdownList();
   dropdown.classList.remove('hidden');
   dropdownOpen = true;
+
+  // Position dropdown above the trigger using fixed positioning
+  const rect = trigger.getBoundingClientRect();
+  const dropdownHeight = Math.min(320, window.innerHeight - 40);
+  dropdown.style.left = `${rect.left}px`;
+  dropdown.style.bottom = `${window.innerHeight - rect.top + 6}px`;
+  dropdown.style.maxHeight = `${dropdownHeight}px`;
+
   if (search) {
     search.value = '';
     setTimeout(() => search.focus(), 50);
@@ -231,19 +240,38 @@ sidePanelProto.handleModelSelectChange = async function handleModelSelectChange(
  */
 sidePanelProto.initSearchableModelSelector = function initSearchableModelSelector() {
   const trigger = document.getElementById('modelSelectorTrigger');
+  if (!trigger) return;
+
+  // Create the dropdown DOM and append to body (escapes overflow:hidden ancestors)
+  let dropdown = document.getElementById('modelSelectorDropdown');
+  if (!dropdown) {
+    dropdown = document.createElement('div');
+    dropdown.id = 'modelSelectorDropdown';
+    dropdown.className = 'model-selector-dropdown hidden';
+    dropdown.innerHTML = `
+      <div class="model-selector-search-wrap">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input id="modelSelectorSearch" class="model-selector-search" type="text" placeholder="Search models..." autocomplete="off" />
+      </div>
+      <div id="modelSelectorList" class="model-selector-list"></div>
+    `;
+    document.body.appendChild(dropdown);
+  }
+
   const search = document.getElementById('modelSelectorSearch') as HTMLInputElement | null;
   const list = document.getElementById('modelSelectorList');
 
-  if (trigger) {
-    trigger.addEventListener('click', (e: Event) => {
-      e.stopPropagation();
-      if (dropdownOpen) {
-        closeDropdown();
-      } else {
-        openDropdown(this);
-      }
-    });
-  }
+  trigger.addEventListener('click', (e: Event) => {
+    e.stopPropagation();
+    if (dropdownOpen) {
+      closeDropdown();
+    } else {
+      openDropdown(this);
+    }
+  });
 
   if (search) {
     search.addEventListener('input', () => {
@@ -276,7 +304,7 @@ sidePanelProto.initSearchableModelSelector = function initSearchableModelSelecto
   document.addEventListener('click', (e: Event) => {
     if (!dropdownOpen) return;
     const wrap = document.getElementById('modelSelectorWrap');
-    if (wrap && !wrap.contains(e.target as Node)) {
+    if (wrap && !wrap.contains(e.target as Node) && dropdown && !dropdown.contains(e.target as Node)) {
       closeDropdown();
     }
   });

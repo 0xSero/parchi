@@ -524,9 +524,7 @@
 }
 
 .model-selector-dropdown {
-  position: absolute;
-  bottom: calc(100% + 6px);
-  left: 0;
+  position: fixed;
   width: min(340px, calc(100vw - 40px));
   max-height: 320px;
   display: flex;
