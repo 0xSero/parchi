@@ -11,8 +11,8 @@
   overflow: hidden;
   animation: drawerGrow 0.25s var(--ease-out-expo);
   transform-origin: bottom center;
-  width: min(var(--content-max), 100%);
-  margin: 0 12px;
+  width: min(var(--content-max), calc(100% - 24px));
+  margin: 0 auto;
 }
 
 @keyframes drawerGrow {
