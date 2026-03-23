@@ -161,7 +161,7 @@ function handleSendButtonClick(this: SidePanelUI & Record<string, unknown>) {
     this.elements.userInput.value = '';
     this.elements.userInput.style.height = '';
     this.updateStatus('Message queued', 'active');
-    showQueuedMessageBanner.call(this, this.queuedMessage);
+    showQueuedMessageBanner.call(this, this.queuedMessage || '');
   } else if (isRunning) {
     // No text — stop the run
     this.requestRunStop('Stopped by user');
