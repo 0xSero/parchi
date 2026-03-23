@@ -33,9 +33,11 @@ function getNativeHostManifestPaths(): string[] {
   const platform = os.platform();
   const dirs: string[] = [];
   if (platform === 'darwin') {
+    dirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'BraveSoftware', 'Brave-Browser', 'NativeMessagingHosts'));
     dirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts'));
     dirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'Chromium', 'NativeMessagingHosts'));
   } else if (platform === 'linux') {
+    dirs.push(path.join(os.homedir(), '.config', 'BraveSoftware', 'Brave-Browser', 'NativeMessagingHosts'));
     dirs.push(path.join(os.homedir(), '.config', 'google-chrome', 'NativeMessagingHosts'));
     dirs.push(path.join(os.homedir(), '.config', 'chromium', 'NativeMessagingHosts'));
   }
@@ -46,9 +48,11 @@ export function detectExtensionId(): string | null {
   const platform = os.platform();
   const profileDirs: string[] = [];
   if (platform === 'darwin') {
+    profileDirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'BraveSoftware', 'Brave-Browser'));
     profileDirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'Google', 'Chrome'));
     profileDirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'Chromium'));
   } else if (platform === 'linux') {
+    profileDirs.push(path.join(os.homedir(), '.config', 'BraveSoftware', 'Brave-Browser'));
     profileDirs.push(path.join(os.homedir(), '.config', 'google-chrome'));
     profileDirs.push(path.join(os.homedir(), '.config', 'chromium'));
   }
@@ -158,7 +162,7 @@ export async function runInitFlow({
     console.error(
       '[init] Could not detect Parchi extension ID.\n' +
         '       Install the extension, then re-run with --extensionId=<id>\n' +
-        '       (Find the ID at chrome://extensions)',
+        '       (Find the ID at brave://extensions or chrome://extensions)',
     );
     process.exit(1);
   }
@@ -189,6 +193,6 @@ export async function runInitFlow({
     }
   }
 
-  console.log('\n[init] Done! Reload the extension in Chrome to auto-pair.');
+  console.log('\n[init] Done! Reload the extension in your browser to auto-pair.');
   console.log('       Then run: parchi status');
 }

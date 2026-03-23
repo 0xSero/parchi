@@ -173,17 +173,23 @@ const cmdStart = async (flags) => {
   const out = fs.openSync(logPath, 'a', 0o600);
   const child = spawn(
     process.execPath,
-    [daemonPath, `--token=${config.token}`, `--host=${config.host}`, `--port=${config.port}`],
+    [
+      daemonPath,
+      `--token=${config.token}`,
+      `--host=${config.host}`,
+      `--port=${config.port}`,
+    ],
     {
-    detached: true,
-    stdio: ['ignore', out, out],
-    env: {
-      ...process.env,
-      PARCHI_RELAY_TOKEN: config.token,
-      PARCHI_RELAY_HOST: config.host,
-      PARCHI_RELAY_PORT: String(config.port),
+      detached: true,
+      stdio: ['ignore', out, out],
+      env: {
+        ...process.env,
+        PARCHI_RELAY_TOKEN: config.token,
+        PARCHI_RELAY_HOST: config.host,
+        PARCHI_RELAY_PORT: String(config.port),
+      },
     },
-  });
+  );
   child.unref();
   writeFileSecure(pidPath, `${child.pid}\n`);
   await sleep(500);
