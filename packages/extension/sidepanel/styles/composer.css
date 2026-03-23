@@ -254,9 +254,11 @@
   color: var(--foreground);
 }
 
-/* Zoom controls — hidden from toolbar, accessible via settings */
+/* Zoom controls */
 .zoom-controls {
-  display: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .zoom-btn {
