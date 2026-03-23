@@ -38,7 +38,17 @@ sidePanelProto.showErrorBanner = function showErrorBanner(
     this.openSettingsPanel?.();
   });
 
-  document.body.appendChild(banner);
+  // Append inline into the chat stream near the current streaming context
+  const streamEventsEl = this.streamingState?.eventsEl;
+  if (streamEventsEl) {
+    streamEventsEl.appendChild(banner);
+  } else if (this.elements.chatMessages) {
+    this.elements.chatMessages.appendChild(banner);
+  } else {
+    document.body.appendChild(banner);
+  }
+  this.scrollToBottom();
+
   const dismissMs = opts?.recoverable === false ? 30000 : 12000;
   setTimeout(() => banner.remove(), dismissMs);
 };

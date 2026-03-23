@@ -171,7 +171,10 @@ const cmdStart = async (flags) => {
   clearPid();
   ensureStateDir();
   const out = fs.openSync(logPath, 'a', 0o600);
-  const child = spawn(process.execPath, [daemonPath], {
+  const child = spawn(
+    process.execPath,
+    [daemonPath, `--token=${config.token}`, `--host=${config.host}`, `--port=${config.port}`],
+    {
     detached: true,
     stdio: ['ignore', out, out],
     env: {
