@@ -2,18 +2,17 @@
    Tools & Plan Drawer — Modern Void Design System
    ============================================================================ */
 
-/* Plan Drawer — Editorial Waypoint Style */
+/* Plan Drawer — Merged with composer container */
 .plan-drawer {
-  background: var(--card-inset);
-  border: none;
-  border-bottom: 1px solid var(--ink-2);
-  border-radius: 12px 12px 0 0;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
   overflow: hidden;
   animation: drawerGrow 0.25s var(--ease-out-expo);
   transform-origin: bottom center;
-  /* Match the composer's horizontal padding (18px left/right) */
-  width: min(var(--content-max), calc(100% - 36px));
-  margin: 0 auto;
+  width: min(var(--content-max), 100%);
+  margin: 0 12px;
 }
 
 @keyframes drawerGrow {
@@ -31,7 +30,7 @@
   display: none;
 }
 
-/* When plan drawer is visible, connect to composer */
+/* When plan drawer is visible, merge with composer */
 .plan-drawer:not(.hidden) ~ .composer-wrapper {
   padding-top: 0;
 }
@@ -42,7 +41,7 @@
   border-top-color: transparent;
 }
 
-/* Plan drawer header */
+/* Plan drawer header — matches composer toolbar */
 .plan-drawer-header {
   display: flex;
   align-items: center;
@@ -51,7 +50,7 @@
   padding: 8px 12px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--ink-1);
   cursor: pointer;
   color: var(--foreground);
   text-align: left;
@@ -59,7 +58,7 @@
 }
 
 .plan-drawer-header:hover {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .plan-drawer-title {
@@ -100,17 +99,17 @@
 .plan-drawer-btn {
   --icon-btn-size: 24px;
   --icon-btn-radius: 8px;
-  --icon-btn-color: var(--muted);
-  --icon-btn-hover-bg: rgba(255, 255, 255, 0.04);
+  --icon-btn-color: var(--muted-dim);
+  --icon-btn-hover-bg: rgba(255, 255, 255, 0.055);
   --icon-btn-hover-color: var(--foreground);
-  --icon-btn-hover-shadow: 0 0 10px rgba(255, 255, 255, 0.025);
-  --icon-btn-hover-transform: scale(1.08);
-  --icon-btn-active-transform: scale(0.88);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  --icon-btn-hover-shadow: none;
+  --icon-btn-hover-transform: none;
+  --icon-btn-active-transform: scale(0.96);
+  border: none;
 }
 
 .plan-drawer-btn:hover {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
 }
 
 .plan-drawer-content {

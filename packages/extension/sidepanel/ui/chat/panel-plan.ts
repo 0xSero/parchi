@@ -22,9 +22,11 @@ sidePanelProto.setupPlanDrawer = function setupPlanDrawer() {
  * Toggle the plan drawer collapsed state
  */
 sidePanelProto.togglePlanDrawer = function togglePlanDrawer() {
-  this.elements.planDrawer?.classList.toggle('collapsed');
-  if (this.elements.planDrawer) {
-    this.elements.planDrawer.dataset.autoCollapsed = 'false';
+  const drawer = this.elements.planDrawer;
+  drawer?.classList.toggle('collapsed');
+  if (drawer) {
+    const expanded = !drawer.classList.contains('collapsed');
+    drawer.dataset.userExpanded = String(expanded);
   }
 };
 
@@ -128,12 +130,13 @@ sidePanelProto.renderPlanDrawer = function renderPlanDrawer(plan: RunPlan) {
 
   this.showPlanDrawer();
   if (this.elements.planDrawer) {
+    // Always start collapsed; expand only if user manually opened it
+    if (this.elements.planDrawer.dataset.userExpanded !== 'true') {
+      this.elements.planDrawer.classList.add('collapsed');
+    }
     if (isComplete) {
       this.elements.planDrawer.classList.add('collapsed');
-      this.elements.planDrawer.dataset.autoCollapsed = 'true';
-    } else if (this.elements.planDrawer.dataset.autoCollapsed === 'true') {
-      this.elements.planDrawer.classList.remove('collapsed');
-      this.elements.planDrawer.dataset.autoCollapsed = 'false';
+      this.elements.planDrawer.dataset.userExpanded = 'false';
     }
   }
 };
