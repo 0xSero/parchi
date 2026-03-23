@@ -2,7 +2,7 @@
 
 import { listProviderInstances, materializeProfileWithProvider } from '../../../state/provider-registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
-import { encodeModelSelectValue } from './model-utils.js';
+import { decodeModelSelectValue, encodeModelSelectValue } from './model-utils.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -20,76 +20,150 @@ const providerIndicators: Record<string, string> = {
   custom: '◇',
 };
 
+type ModelEntry = {
+  providerId: string;
+  providerName: string;
+  providerType: string;
+  modelId: string;
+  modelLabel: string;
+  indicator: string;
+  value: string;
+  isActive: boolean;
+};
+
+let cachedEntries: ModelEntry[] = [];
+let dropdownOpen = false;
+
+function getModelEntries(self: any): ModelEntry[] {
+  const activeConfig = materializeProfileWithProvider(
+    { providers: self.providers, configs: self.configs },
+    self.currentConfig,
+    self.configs?.[self.currentConfig] || {},
+  );
+  const activeProviderId = String(activeConfig?.providerId || '').trim();
+  const activeModelId = String(activeConfig?.modelId || activeConfig?.model || '').trim();
+  const providers = listProviderInstances({ providers: self.providers }).filter(
+    (provider: any) => provider.isConnected && Array.isArray(provider.models) && provider.models.length > 0,
+  );
+
+  const entries: ModelEntry[] = [];
+  for (const provider of providers) {
+    const indicator = providerIndicators[provider.provider.replace(/-oauth$/, '').toLowerCase()] || '◇';
+    for (const model of provider.models) {
+      entries.push({
+        providerId: provider.id,
+        providerName: provider.name,
+        providerType: provider.provider,
+        modelId: model.id,
+        modelLabel: model.label || model.id,
+        indicator,
+        value: encodeModelSelectValue(provider.id, model.id),
+        isActive: provider.id === activeProviderId && model.id === activeModelId,
+      });
+    }
+  }
+  return entries;
+}
+
+function updateTriggerLabel(_self: any) {
+  const label = document.getElementById('modelSelectorLabel');
+  if (!label) return;
+  const active = cachedEntries.find((e) => e.isActive);
+  if (active) {
+    label.textContent = `${active.indicator} ${active.providerName}/${active.modelLabel}`;
+  } else {
+    label.textContent = 'Profile';
+  }
+}
+
+function renderDropdownList(filter = '') {
+  const list = document.getElementById('modelSelectorList');
+  if (!list) return;
+  list.innerHTML = '';
+
+  const query = filter.toLowerCase().trim();
+  const filtered = query
+    ? cachedEntries.filter(
+        (e) =>
+          e.modelLabel.toLowerCase().includes(query) ||
+          e.modelId.toLowerCase().includes(query) ||
+          e.providerName.toLowerCase().includes(query),
+      )
+    : cachedEntries;
+
+  if (filtered.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'model-selector-empty-item';
+    empty.textContent = query ? 'No matching models' : 'No connected models';
+    list.appendChild(empty);
+    return;
+  }
+
+  let lastProvider = '';
+  for (const entry of filtered) {
+    if (entry.providerName !== lastProvider) {
+      lastProvider = entry.providerName;
+      const groupLabel = document.createElement('div');
+      groupLabel.className = 'model-selector-group';
+      groupLabel.textContent = entry.providerName;
+      list.appendChild(groupLabel);
+    }
+
+    const item = document.createElement('div');
+    item.className = `model-selector-item${entry.isActive ? ' active' : ''}`;
+    item.dataset.value = entry.value;
+    item.innerHTML = `<span class="model-selector-item-indicator">${entry.indicator}</span><span class="model-selector-item-label">${entry.modelLabel}</span>`;
+    list.appendChild(item);
+  }
+}
+
+function openDropdown(self: any) {
+  const dropdown = document.getElementById('modelSelectorDropdown');
+  const search = document.getElementById('modelSelectorSearch') as HTMLInputElement | null;
+  if (!dropdown) return;
+  cachedEntries = getModelEntries(self);
+  renderDropdownList();
+  dropdown.classList.remove('hidden');
+  dropdownOpen = true;
+  if (search) {
+    search.value = '';
+    setTimeout(() => search.focus(), 50);
+  }
+}
+
+function closeDropdown() {
+  const dropdown = document.getElementById('modelSelectorDropdown');
+  if (!dropdown) return;
+  dropdown.classList.add('hidden');
+  dropdownOpen = false;
+}
+
 /**
  * Populate the model selection dropdown with available models.
  */
 sidePanelProto.populateModelSelect = function populateModelSelect() {
-  // Try to get the select element - it might not be in this.elements if loaded dynamically
+  // Keep the hidden <select> in sync for any code that reads its value
   let select = this.elements.modelSelect;
   if (!select) {
     select = document.getElementById('modelSelect') as HTMLSelectElement;
-    if (select) {
-      this.elements.modelSelect = select;
-    }
+    if (select) this.elements.modelSelect = select;
   }
 
-  if (!select) {
-    console.error('[Parchi] modelSelect element not found!');
-    return;
-  }
+  cachedEntries = getModelEntries(this);
 
-  // Populate with connected provider/model pairs
-  select.innerHTML = '';
-
-  const activeConfig = materializeProfileWithProvider(
-    { providers: this.providers, configs: this.configs },
-    this.currentConfig,
-    this.configs?.[this.currentConfig] || {},
-  );
-  const activeProviderId = String(activeConfig?.providerId || '').trim();
-  const activeProvider = String(activeConfig?.provider || '').trim();
-  const activeModelId = String(activeConfig?.modelId || activeConfig?.model || '').trim();
-  const providers = listProviderInstances({ providers: this.providers }).filter(
-    (provider) => provider.isConnected && Array.isArray(provider.models) && provider.models.length > 0,
-  );
-
-  if (providers.length === 0) {
-    const option = document.createElement('option');
-    option.value = '';
-    option.textContent = 'No connected models';
-    select.appendChild(option);
-    this.updateModelSelectorGlow();
-    return;
-  }
-
-  let matchedActiveOption = false;
-  for (const provider of providers) {
-    const optgroup = document.createElement('optgroup');
-    optgroup.label = provider.name;
-    const indicator = providerIndicators[provider.provider.replace(/-oauth$/, '').toLowerCase()] || '◇';
-    for (const model of provider.models) {
+  if (select) {
+    select.innerHTML = '';
+    for (const entry of cachedEntries) {
       const option = document.createElement('option');
-      option.value = encodeModelSelectValue(provider.id, model.id);
-      option.textContent = `${indicator} ${provider.name}/${model.label || model.id}`;
-      const isSelected = provider.id === activeProviderId && model.id === activeModelId;
-      if (isSelected) {
-        option.selected = true;
-        matchedActiveOption = true;
-      }
-      optgroup.appendChild(option);
+      option.value = entry.value;
+      option.textContent = `${entry.indicator} ${entry.providerName}/${entry.modelLabel}`;
+      if (entry.isActive) option.selected = true;
+      select.appendChild(option);
     }
-    select.appendChild(optgroup);
   }
 
-  if (!matchedActiveOption && activeModelId) {
-    const fallbackOption = document.createElement('option');
-    fallbackOption.value =
-      activeProviderId && activeModelId ? encodeModelSelectValue(activeProviderId, activeModelId) : '';
-    fallbackOption.textContent = `${activeProvider || 'current'}/${activeModelId}`;
-    fallbackOption.selected = true;
-    select.insertBefore(fallbackOption, select.firstChild);
-  }
-
+  updateTriggerLabel(this);
+  if (dropdownOpen) renderDropdownList();
   this.updateModelSelectorGlow();
 };
 
@@ -116,12 +190,10 @@ sidePanelProto.updateModelSelectorGlow = function updateModelSelectorGlow() {
  */
 sidePanelProto.shortenModelName = function shortenModelName(model: string): string {
   if (!model) return 'unknown';
-  // Remove common prefixes
   const clean = model
     .replace(/^claude-/, '')
     .replace(/^gpt-/, '')
     .replace(/^kimi-/, '');
-  // Truncate if still long
   if (clean.length <= 20) return clean;
   return clean.slice(0, 19) + '…';
 };
@@ -152,4 +224,60 @@ sidePanelProto.handleModelSelectChange = async function handleModelSelectChange(
     console.error('[Parchi] Failed to apply selected model:', error);
     this.updateStatus('Failed to switch model', 'error');
   }
+};
+
+/**
+ * Initialize the searchable model selector dropdown.
+ */
+sidePanelProto.initSearchableModelSelector = function initSearchableModelSelector() {
+  const trigger = document.getElementById('modelSelectorTrigger');
+  const search = document.getElementById('modelSelectorSearch') as HTMLInputElement | null;
+  const list = document.getElementById('modelSelectorList');
+
+  if (trigger) {
+    trigger.addEventListener('click', (e: Event) => {
+      e.stopPropagation();
+      if (dropdownOpen) {
+        closeDropdown();
+      } else {
+        openDropdown(this);
+      }
+    });
+  }
+
+  if (search) {
+    search.addEventListener('input', () => {
+      renderDropdownList(search.value);
+    });
+    search.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        closeDropdown();
+      } else if (e.key === 'Enter') {
+        const first = list?.querySelector('.model-selector-item:not(.active)') as HTMLElement | null;
+        if (first) first.click();
+      }
+    });
+  }
+
+  if (list) {
+    list.addEventListener('click', (e: Event) => {
+      const item = (e.target as HTMLElement).closest('.model-selector-item') as HTMLElement | null;
+      if (!item) return;
+      const value = item.dataset.value || '';
+      const decoded = decodeModelSelectValue(value);
+      if (decoded) {
+        this.selectModelFromGrid?.(decoded.providerId, decoded.modelId);
+      }
+      closeDropdown();
+    });
+  }
+
+  // Close on outside click
+  document.addEventListener('click', (e: Event) => {
+    if (!dropdownOpen) return;
+    const wrap = document.getElementById('modelSelectorWrap');
+    if (wrap && !wrap.contains(e.target as Node)) {
+      closeDropdown();
+    }
+  });
 };

@@ -36,6 +36,7 @@ function createSessionState(): SessionState {
     runningSubagents: new Map(),
     subagentHistory: new Map(),
     orchestratorWhiteboard: new Map(),
+    attachments: [],
   };
 }
 

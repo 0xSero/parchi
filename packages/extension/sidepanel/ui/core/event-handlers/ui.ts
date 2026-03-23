@@ -55,6 +55,8 @@ export const setupUIListeners = function setupUIListeners(this: SidePanelUI & Re
   this.elements.modelSelect?.addEventListener('change', () => {
     void this.handleModelSelectChange();
   });
+  // Initialize searchable model dropdown
+  this.initSearchableModelSelector?.();
   this.elements.setupAccessBtn?.addEventListener('click', () => {
     void this.handleSetupAccessClick?.();
   });

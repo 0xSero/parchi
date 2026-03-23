@@ -81,6 +81,7 @@ export function getSessionState(sessionStateById: Map<string, SessionState>, ses
     runningSubagents: new Map(),
     subagentHistory: new Map(),
     orchestratorWhiteboard: new Map(),
+    attachments: [],
   };
   sessionStateById.set(id, created);
   return created;

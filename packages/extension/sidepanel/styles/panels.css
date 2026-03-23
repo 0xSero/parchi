@@ -1844,3 +1844,94 @@ input[type="range"]::-webkit-slider-thumb {
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+/* ============================================================================
+   Skills Library
+   ============================================================================ */
+
+.skills-library-controls {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.skills-empty {
+  font-size: 12px;
+  color: var(--muted-dim);
+  padding: 12px 0;
+  text-align: center;
+}
+
+.skill-card {
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--card);
+  transition: border-color var(--duration-fast) ease;
+}
+
+.skill-card:hover {
+  border-color: var(--ink-3);
+}
+
+.skill-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.skill-card-name {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.skill-card-meta {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+  flex-shrink: 0;
+  padding: 2px 6px;
+  border: 1px solid var(--ink-1);
+  border-radius: 999px;
+}
+
+.skill-card-desc {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.4;
+  margin-bottom: 6px;
+}
+
+.skill-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.skill-card-site {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.skill-card-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.skill-card-actions .icon-btn {
+  --icon-btn-size: 22px;
+  --icon-btn-radius: 6px;
+}

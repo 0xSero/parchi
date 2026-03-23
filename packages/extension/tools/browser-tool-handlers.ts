@@ -1,8 +1,12 @@
 import { clickAtTool, clickTool } from './browser-click-tools.js';
+import { manageCorsRulesTool } from './browser-cors-tools.js';
 import { getNetworkLogTool, watchNetworkTool } from './browser-debug-tools.js';
+import { askUserElementTool } from './browser-element-picker.js';
 import { pressKeyTool, scrollTool, typeTool } from './browser-input-tools.js';
 import { getVideoInfoTool, screenshotTool, watchVideoTool } from './browser-media-tools.js';
+import { nativeClickTool } from './browser-native-input-tools.js';
 import { evaluateTool, findHtmlTool, getContentTool } from './browser-read-tools.js';
+import { replTool } from './browser-repl-tools.js';
 import {
   closeTabTool,
   describeSessionTabsTool,
@@ -37,6 +41,7 @@ export function createToolHandlers(delegate: BrowserToolsDelegate): ToolHandlerM
     scroll: (args) => scrollTool(delegate, args),
     waitFor: (args) => waitForTool(delegate, args),
     evaluate: (args) => evaluateTool(delegate, args),
+    repl: (args) => replTool(delegate, args),
     getContent: (args) => getContentTool(delegate, args),
     findHtml: (args) => findHtmlTool(delegate, args),
     screenshot: (args) => screenshotTool(delegate, args),
@@ -50,6 +55,9 @@ export function createToolHandlers(delegate: BrowserToolsDelegate): ToolHandlerM
     getVideoInfo: (args) => getVideoInfoTool(delegate, args),
     watchNetwork: (args) => watchNetworkTool(delegate, args),
     getNetworkLog: (args) => getNetworkLogTool(delegate, args),
+    ask_user_element: (args) => askUserElementTool(delegate, args),
+    native_click: (args) => nativeClickTool(delegate, args),
+    manage_cors_rules: (args) => manageCorsRulesTool(delegate, args),
   };
 }
 

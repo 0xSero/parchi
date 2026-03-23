@@ -41,3 +41,73 @@ sidePanelProto.updateScreenshotToggleState = function updateScreenshotToggleStat
     this.updateStatus('Enable a vision-capable profile before sending screenshots.', 'warning');
   }
 };
+
+sidePanelProto.renderSkillsList = async function renderSkillsList() {
+  const list = document.getElementById('skillsList');
+  if (!list) return;
+
+  try {
+    const data = await chrome.storage.local.get('skills');
+    const skills = Array.isArray(data.skills) ? data.skills : [];
+
+    if (skills.length === 0) {
+      list.innerHTML = '<div class="skills-empty">No skills saved yet. Record a workflow to create one.</div>';
+      return;
+    }
+
+    list.innerHTML = '';
+    for (const skill of skills) {
+      const card = document.createElement('div');
+      card.className = 'skill-card';
+      const stepCount = Array.isArray(skill.steps) ? skill.steps.length : 0;
+      const siteLabel = skill.sitePattern || 'any site';
+      card.innerHTML = `
+        <div class="skill-card-header">
+          <span class="skill-card-name">${this.escapeHtml(skill.name || 'Unnamed')}</span>
+          <span class="skill-card-meta">${stepCount} step${stepCount !== 1 ? 's' : ''}</span>
+        </div>
+        <div class="skill-card-desc">${this.escapeHtml(skill.description || '')}</div>
+        <div class="skill-card-footer">
+          <span class="skill-card-site">${this.escapeHtml(siteLabel)}</span>
+          <div class="skill-card-actions">
+            <button class="skill-export-btn icon-btn" title="Export">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                <polyline points="7 10 12 15 17 10"/>
+                <line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+            </button>
+            <button class="skill-delete-btn icon-btn" title="Delete">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `;
+
+      const exportBtn = card.querySelector('.skill-export-btn');
+      exportBtn?.addEventListener('click', () => {
+        const blob = new Blob([JSON.stringify(skill, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${(skill.name || 'skill').replace(/\s+/g, '-')}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+      });
+
+      const deleteBtn = card.querySelector('.skill-delete-btn');
+      deleteBtn?.addEventListener('click', async () => {
+        const updated = skills.filter((s: any) => s.id !== skill.id);
+        await chrome.storage.local.set({ skills: updated });
+        this.renderSkillsList?.();
+        this.updateStatus?.('Skill deleted', 'success');
+      });
+
+      list.appendChild(card);
+    }
+  } catch {
+    list.innerHTML = '<div class="skills-empty">Failed to load skills.</div>';
+  }
+};

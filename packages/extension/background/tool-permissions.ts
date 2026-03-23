@@ -19,6 +19,7 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   scroll: 'interact',
   waitFor: 'read',
   evaluate: 'read',
+  repl: 'read',
   watchNetwork: 'read',
   getNetworkLog: 'read',
   getContent: 'read',
@@ -32,6 +33,9 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   groupTabs: 'tabs',
   focusTab: 'tabs',
   describeSessionTabs: 'tabs',
+  ask_user_element: 'interact',
+  native_click: 'interact',
+  manage_cors_rules: 'read',
 };
 
 export function getToolPermissionCategory(toolName: string): ToolPermissionCategory | null {

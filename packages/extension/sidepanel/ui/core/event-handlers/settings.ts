@@ -188,6 +188,39 @@ export PARCHI_RELAY_PORT="${port}"`;
 
   // Provider headers validation
   this.elements.customHeaders?.addEventListener('input', () => this.validateCustomHeaders());
+
+  // Skills Library
+  const skillsRefreshBtn = document.getElementById('skillsRefreshBtn');
+  const skillsImportBtn = document.getElementById('skillsImportBtn');
+  const skillsImportInput = document.getElementById('skillsImportInput') as HTMLInputElement | null;
+  const skillsClearAllBtn = document.getElementById('skillsClearAllBtn');
+
+  skillsRefreshBtn?.addEventListener('click', () => this.renderSkillsList?.());
+  skillsImportBtn?.addEventListener('click', () => skillsImportInput?.click());
+  skillsImportInput?.addEventListener('change', async () => {
+    const file = skillsImportInput.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const imported = JSON.parse(text);
+      const skills = Array.isArray(imported) ? imported : [imported];
+      const data = await chrome.storage.local.get('skills');
+      const existing = Array.isArray(data.skills) ? data.skills : [];
+      await chrome.storage.local.set({ skills: [...existing, ...skills] });
+      this.renderSkillsList?.();
+      this.updateStatus?.(`Imported ${skills.length} skill(s)`, 'success');
+    } catch {
+      this.updateStatus?.('Failed to import skills', 'error');
+    }
+    skillsImportInput.value = '';
+  });
+  skillsClearAllBtn?.addEventListener('click', async () => {
+    await chrome.storage.local.set({ skills: [] });
+    this.renderSkillsList?.();
+    this.updateStatus?.('All skills cleared', 'success');
+  });
+
+  this.renderSkillsList?.();
 };
 
 sidePanelProto.setupSettingsListeners = setupSettingsListeners;

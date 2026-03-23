@@ -153,6 +153,57 @@ export async function executeBuiltinTool(
     };
   }
 
+  if (toolName === 'list_attachments') {
+    const attachments = sessionState.attachments || [];
+    return {
+      handled: true,
+      result: {
+        success: true,
+        attachments: attachments.map((a: any) => ({
+          name: a.name,
+          size: a.size,
+          mimeType: a.mimeType,
+          type: a.type || 'unknown',
+        })),
+        count: attachments.length,
+      },
+    };
+  }
+
+  if (toolName === 'read_attachment') {
+    const filename = typeof args.filename === 'string' ? args.filename.trim() : '';
+    if (!filename) {
+      return { handled: true, result: { success: false, error: 'filename is required.' } };
+    }
+    const attachments = sessionState.attachments || [];
+    const attachment = attachments.find((a: any) => a.name === filename);
+    if (!attachment) {
+      return {
+        handled: true,
+        result: {
+          success: false,
+          error: `Attachment "${filename}" not found.`,
+          available: attachments.map((a: any) => a.name),
+        },
+      };
+    }
+    const textTypes = ['text/', 'application/json', 'application/xml', 'application/yaml'];
+    const isText = textTypes.some((t) => (attachment.mimeType || '').startsWith(t)) ||
+      /\.(txt|csv|json|md|xml|yaml|yml|log|html|css|js|ts|py|rb|sh)$/i.test(filename);
+
+    return {
+      handled: true,
+      result: {
+        success: true,
+        filename: attachment.name,
+        mimeType: attachment.mimeType,
+        encoding: isText ? 'text' : 'base64',
+        content: isText ? (attachment.textContent || '') : (attachment.base64Content || ''),
+        size: attachment.size,
+      },
+    };
+  }
+
   if (toolName === 'list_report_images') {
     const images = getReportImageSummary(sessionState);
     return {

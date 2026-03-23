@@ -69,6 +69,15 @@ export type HistoricalSubagent = {
   finishedAt?: number;
 };
 
+export type SessionAttachment = {
+  name: string;
+  size: number;
+  mimeType: string;
+  type: string;
+  textContent?: string;
+  base64Content?: string;
+};
+
 export type SessionState = {
   sessionId: string;
   currentPlan: RunPlan | null;
@@ -87,4 +96,5 @@ export type SessionState = {
   runningSubagents: Map<string, RunningSubagent>;
   subagentHistory: Map<string, HistoricalSubagent>;
   orchestratorWhiteboard: Map<string, OrchestratorWhiteboardEntry>;
+  attachments: SessionAttachment[];
 };

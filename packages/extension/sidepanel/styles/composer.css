@@ -476,35 +476,35 @@
   z-index: 0;
 }
 
-.model-selector select {
-  background: transparent;
-  border: none;
-  color: var(--muted);
+.model-selector select.hidden {
+  display: none;
+}
+
+.model-selector-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  height: 100%;
+  padding: 0 28px 0 12px;
+  cursor: pointer;
+  z-index: 1;
+  position: relative;
+}
+
+.model-selector-label {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 450;
   letter-spacing: 0.02em;
-  cursor: pointer;
-  appearance: none;
+  color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  /* Fill entire pill so click anywhere opens dropdown */
-  position: absolute;
-  inset: 0;
-  padding: 0 28px 0 12px;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  z-index: 1;
 }
 
-.model-selector.parchi-glow select {
+.model-selector.parchi-glow .model-selector-label {
   color: var(--accent-light);
-}
-
-.model-selector select:focus {
-  outline: none;
 }
 
 .model-selector-chevron {
@@ -516,11 +516,131 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.15s ease, transform 0.15s ease;
 }
 
 .model-selector:hover .model-selector-chevron {
   opacity: 0.8;
+}
+
+.model-selector-dropdown {
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 0;
+  width: min(340px, calc(100vw - 40px));
+  max-height: 320px;
+  display: flex;
+  flex-direction: column;
+  background: rgb(18 20 24 / 0.98);
+  border: 1px solid var(--ink-2);
+  border-radius: 12px;
+  box-shadow: 0 12px 40px rgb(0 0 0 / 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  z-index: 200;
+  overflow: hidden;
+  animation: modelDropdownSlideUp 0.15s var(--ease-out-expo);
+  backdrop-filter: blur(12px);
+}
+
+.model-selector-dropdown.hidden {
+  display: none;
+}
+
+@keyframes modelDropdownSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.model-selector-search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--ink-1);
+  color: var(--muted-dim);
+}
+
+.model-selector-search {
+  width: 100%;
+  background: transparent;
+  border: none;
+  color: var(--foreground);
+  font-size: 12px;
+  font-family: var(--font-sans);
+  outline: none;
+}
+
+.model-selector-search::placeholder {
+  color: var(--muted-dim);
+}
+
+.model-selector-list {
+  overflow-y: auto;
+  max-height: 260px;
+  padding: 4px;
+}
+
+.model-selector-group {
+  padding: 8px 10px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-dim);
+}
+
+.model-selector-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background var(--duration-fast) ease;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.model-selector-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+.model-selector-item.active {
+  background: rgb(var(--accent-rgb) / 0.08);
+  color: var(--accent-light);
+}
+
+.model-selector-item.active .model-selector-item-indicator {
+  color: var(--accent);
+}
+
+.model-selector-item-indicator {
+  font-size: 10px;
+  color: var(--muted-dim);
+  flex-shrink: 0;
+  width: 14px;
+  text-align: center;
+}
+
+.model-selector-item-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.model-selector-empty-item {
+  padding: 16px 10px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--muted-dim);
 }
 
 .setup-access-btn {

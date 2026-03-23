@@ -300,9 +300,9 @@
 .tool-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 3px 0;
-  font-size: 12px;
+  gap: 6px;
+  padding: 2px 0;
+  font-size: 11px;
   line-height: 1.35;
   color: var(--muted);
   width: 100%;
@@ -317,19 +317,19 @@
 }
 
 .tool-row.done {
-  opacity: 0.6;
+  opacity: 0.5;
 }
 
 .tool-row.error {
-  color: hsla(0, 40%, 70%, 0.95);
+  color: hsla(0, 35%, 65%, 0.85);
 }
 
 .tool-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
+  width: 12px;
+  height: 12px;
   color: var(--muted-dim);
   flex-shrink: 0;
 }

@@ -73,6 +73,7 @@ Object.assign(toolIcons, {
   pressKey: toolIcons.browser_press_key,
   scroll: toolIcons.browser_scroll,
   evaluate: toolIcons.browser_execute_script,
+  repl: toolIcons.browser_execute_script,
   getContent: toolIcons.browser_get_page_text,
   findHtml: toolIcons.browser_find_element,
   screenshot: toolIcons.browser_screenshot,
@@ -84,6 +85,9 @@ Object.assign(toolIcons, {
   describeSessionTabs: toolIcons.browser_get_page_text,
   watchVideo: toolIcons.browser_screenshot,
   getVideoInfo: toolIcons.browser_screenshot,
+  ask_user_element: toolIcons.browser_find_element,
+  native_click: toolIcons.browser_click,
+  manage_cors_rules: toolIcons.browser_get_cookies,
 });
 
 export const MAX_REPORT_IMAGES = 50;

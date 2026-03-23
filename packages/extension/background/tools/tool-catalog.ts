@@ -121,6 +121,30 @@ export function getToolsForSession(
         },
       },
     },
+    {
+      name: 'list_attachments',
+      description:
+        'List files the user has attached to this session (images, PDFs, documents, spreadsheets, etc). Returns file names, sizes, and MIME types.',
+      input_schema: {
+        type: 'object',
+        properties: {},
+      },
+    },
+    {
+      name: 'read_attachment',
+      description:
+        'Read the content of a user-attached file by name. Returns text content for text-based files (txt, csv, json, md, xml, yaml) or base64-encoded data for binary files.',
+      input_schema: {
+        type: 'object',
+        properties: {
+          filename: {
+            type: 'string',
+            description: 'Name of the attachment to read (from list_attachments).',
+          },
+        },
+        required: ['filename'],
+      },
+    },
   ]);
 
   if (includeOrchestrator) {

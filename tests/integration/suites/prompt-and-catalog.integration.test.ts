@@ -37,6 +37,7 @@ function createSessionState(overrides: Partial<SessionState> = {}): SessionState
     runningSubagents: new Map(),
     subagentHistory: new Map(),
     orchestratorWhiteboard: new Map(),
+    attachments: [],
     ...overrides,
   };
 }

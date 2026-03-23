@@ -4,33 +4,33 @@
 
 :root {
   /* Deep void base — cool, neutral, precise */
-  --background: #09090b;
-  --foreground: #fafafa;
-  --muted: #a1a1aa;
-  --muted-dim: #71717a;
-  --border: #27272a;
-  --card: #131315;
-  --card-hover: #1a1a1d;
-  --card-inset: #131316;
+  --background: #0a0a0c;
+  --foreground: #e4e4e7;
+  --muted: #92929a;
+  --muted-dim: #63636b;
+  --border: #222225;
+  --card: #111113;
+  --card-hover: #18181b;
+  --card-inset: #111114;
 
-  /* Accent — indigo with presence */
-  --accent: #818cf8;
-  --accent-rgb: 129 140 248;
-  --accent-light: #a5b4fc;
-  --accent-dark: #6366f1;
+  /* Accent — softer indigo */
+  --accent: #7c8af0;
+  --accent-rgb: 124 138 240;
+  --accent-light: #9ba6f5;
+  --accent-dark: #5c63d9;
 
-  /* Status — vivid and clear */
-  --success: #4ade80;
-  --success-rgb: 74 222 128;
-  --warning: #fbbf24;
-  --warning-rgb: 251 191 36;
-  --error: #f87171;
-  --error-rgb: 248 113 113;
+  /* Status — slightly softer */
+  --success: #3ec970;
+  --success-rgb: 62 201 112;
+  --warning: #f0b429;
+  --warning-rgb: 240 180 41;
+  --error: #ef6b6b;
+  --error-rgb: 239 107 107;
 
-  /* Ink system — layered transparency */
-  --ink-1: rgba(255, 255, 255, 0.05);
-  --ink-2: rgba(255, 255, 255, 0.08);
-  --ink-3: rgba(255, 255, 255, 0.14);
+  /* Ink system — subtler transparency */
+  --ink-1: rgba(255, 255, 255, 0.04);
+  --ink-2: rgba(255, 255, 255, 0.065);
+  --ink-3: rgba(255, 255, 255, 0.11);
 
   /* Sidebar overlay width is responsive and varies by active right panel (see layout.css). */
   --sidebar-width: clamp(280px, 60vw, 560px);

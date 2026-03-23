@@ -119,22 +119,35 @@
                                         class="model-selector"
                                         title="Switch profile"
                                     >
-                                        <select id="modelSelect">
+                                        <select id="modelSelect" class="hidden">
                                             <option value="">
                                                 Profile
                                             </option>
                                         </select>
-                                        <svg
-                                            class="model-selector-chevron"
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <polyline points="6 9 12 15 18 9" />
-                                        </svg>
+                                        <div id="modelSelectorTrigger" class="model-selector-trigger">
+                                            <span id="modelSelectorLabel" class="model-selector-label">Profile</span>
+                                            <svg
+                                                class="model-selector-chevron"
+                                                width="12"
+                                                height="12"
+                                                viewBox="0 0 24 24"
+                                                fill="none"
+                                                stroke="currentColor"
+                                                stroke-width="2"
+                                            >
+                                                <polyline points="6 9 12 15 18 9" />
+                                            </svg>
+                                        </div>
+                                        <div id="modelSelectorDropdown" class="model-selector-dropdown hidden">
+                                            <div class="model-selector-search-wrap">
+                                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                                    <circle cx="11" cy="11" r="8" />
+                                                    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                                                </svg>
+                                                <input id="modelSelectorSearch" class="model-selector-search" type="text" placeholder="Search models..." autocomplete="off" />
+                                            </div>
+                                            <div id="modelSelectorList" class="model-selector-list"></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="composer-toolbar-right">

@@ -130,6 +130,21 @@
     </details>
 
     <details class="collapsible">
+        <summary>Skills Library</summary>
+        <div class="collapsible-body">
+            <div class="skills-library-controls">
+                <button id="skillsRefreshBtn" class="btn btn-secondary" type="button" style="flex:1">Refresh</button>
+                <button id="skillsImportBtn" class="btn btn-secondary" type="button" style="flex:1">Import</button>
+                <button id="skillsClearAllBtn" class="btn btn-secondary" type="button" style="flex:1;border-color:rgb(var(--error-rgb) / 0.32);color:var(--error);">Clear All</button>
+                <input id="skillsImportInput" type="file" accept=".json" class="hidden" />
+            </div>
+            <div id="skillsList" class="skills-list">
+                <div class="skills-empty">No skills saved yet. Record a workflow to create one.</div>
+            </div>
+        </div>
+    </details>
+
+    <details class="collapsible">
         <summary>Relay</summary>
         <div class="collapsible-body">
             <label class="switch-row" for="relayEnabled">
