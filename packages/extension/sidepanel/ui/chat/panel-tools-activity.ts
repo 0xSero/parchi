@@ -150,9 +150,10 @@ sidePanelProto.updateThinkingPanel = function updateThinkingPanel(thinking: stri
           <div class="thinking-content-inline"></div>
         </div>
       `;
-      const firstChild = this.streamingState.eventsEl.firstChild;
-      if (firstChild) {
-        this.streamingState.eventsEl.insertBefore(thinkingBlock, firstChild);
+      // Insert before the first text event for interleaved display
+      const firstTextEvent = this.streamingState.eventsEl.querySelector(':scope > .stream-event-text');
+      if (firstTextEvent) {
+        this.streamingState.eventsEl.insertBefore(thinkingBlock, firstTextEvent);
       } else {
         this.streamingState.eventsEl.appendChild(thinkingBlock);
       }

@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCHI — Precision Industrial Design System</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Sora:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ============================================================================
+           PARCHI — PRECISION INDUSTRIAL DESIGN SYSTEM
+           Swiss engineering meets terminal culture
+           Bold, distinctive, unforgettable
+           ============================================================================ */
+
+        @property --accent-glow {
+            syntax: '<color>';
+            initial-value: #ff6b35;
+            inherits: false;
+        }
+
+        :root {
+            /* === CORE PALETTE ===
+               Warm industrial — rust, steel, amber
+               One striking accent, everything else supports it */
+            
+            /* Backgrounds — deep, warm, textured */
+            --bg-primary: #0c0a09;
+            --bg-secondary: #141211;
+            --bg-tertiary: #1c1917;
+            --bg-elevated: #252220;
+            --bg-floating: #2d2a27;
+            
+            /* Foregrounds — warm off-whites */
+            --fg-primary: #fafaf9;
+            --fg-secondary: #e7e5e4;
+            --fg-tertiary: #a8a29e;
+            --fg-muted: #78716c;
+            --fg-subtle: #57534e;
+            
+            /* THE ACCENT — Deep amber/rust */
+            --accent: #ff6b35;
+            --accent-rgb: 255 107 53;
+            --accent-hover: #ff8555;
+            --accent-dim: #c45a2e;
+            --accent-glow: rgba(255, 107, 53, 0.4);
+            
+            /* Semantic with warmth */
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --info: #38bdf8;
+            
+            /* Borders — precise, warm */
+            --border-subtle: rgba(255, 255, 255, 0.04);
+            --border-default: rgba(255, 255, 255, 0.08);
+            --border-strong: rgba(255, 255, 255, 0.14);
+            --border-accent: rgba(255, 107, 53, 0.5);
+            
+            /* === TYPOGRAPHY ===
+               Sora for UI — geometric, distinctive
+               JetBrains Mono for data/code */
+            --font-ui: 'Sora', system-ui, sans-serif;
+            --font-mono: 'JetBrains Mono', 'SF Mono', monospace;
+            
+            /* Scale — asymmetric, intentional */
+            --text-xs: 10px;
+            --text-sm: 12px;
+            --text-base: 14px;
+            --text-md: 16px;
+            --text-lg: 20px;
+            --text-xl: 28px;
+            --text-2xl: 38px;
+            
+            /* Weights */
+            --font-light: 300;
+            --font-regular: 400;
+            --font-medium: 500;
+            --font-semibold: 600;
+            --font-bold: 700;
+            
+            /* === SPACING ===
+               Fibonacci-based for organic feel */
+            --space-1: 4px;
+            --space-2: 8px;
+            --space-3: 12px;
+            --space-4: 16px;
+            --space-5: 24px;
+            --space-6: 32px;
+            --space-7: 48px;
+            --space-8: 80px;
+            
+            /* === GEOMETRY ===
+               Sharp, industrial */
+            --radius-none: 0;
+            --radius-sm: 2px;
+            --radius-md: 4px;
+            --radius-lg: 6px;
+            
+            /* === EFFECTS === */
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+            --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.6);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.7);
+            --glow-accent: 0 0 20px rgba(255, 107, 53, 0.3);
+            --glow-strong: 0 0 40px rgba(255, 107, 53, 0.5);
+            
+            /* === ANIMATION === */
+            --ease-precision: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-snap: cubic-bezier(0.87, 0, 0.13, 1);
+            --duration-fast: 150ms;
+            --duration-normal: 300ms;
+            --duration-slow: 500ms;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font-size: var(--text-base);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: var(--font-ui);
+            font-weight: var(--font-regular);
+            line-height: 1.5;
+            color: var(--fg-primary);
+            background: var(--bg-primary);
+            min-height: 100vh;
+        }
+
+        /* Noise texture overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+            opacity: 0.03;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* ============================================================================
+           LAYOUT — ASYMMETRIC, EDITORIAL
+           ============================================================================ */
+
+        .app {
+            display: grid;
+            grid-template-columns: 280px 1fr 340px;
+            grid-template-rows: 64px 1fr;
+            grid-template-areas:
+                "header header header"
+                "sidebar main settings";
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ============================================================================
+           HEADER — MINIMAL, BADGE-FOCUSED
+           ============================================================================ */
+
+        .header {
+            grid-area: header;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 var(--space-5);
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-default);
+            position: relative;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--accent) 50%, transparent);
+            opacity: 0.3;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .brand-mark {
+            width: 32px;
+            height: 32px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-bold);
+            font-size: var(--text-md);
+            color: var(--bg-primary);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .brand-mark::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+            animation: sheen 4s ease-in-out infinite;
+        }
+
+        @keyframes sheen {
+            0%, 100% { transform: translateX(-100%); }
+            50% { transform: translateX(100%); }
+        }
+
+        .brand-text {
+            font-weight: var(--font-semibold);
+            font-size: var(--text-md);
+            letter-spacing: 0.05em;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        /* ============================================================================
+           BUTTONS — INDUSTRIAL, PRECISE
+           ============================================================================ */
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            font-family: var(--font-ui);
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            letter-spacing: 0.02em;
+            border: 1px solid var(--border-default);
+            background: var(--bg-tertiary);
+            color: var(--fg-secondary);
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-precision);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(255,255,255,0.08), transparent);
+            opacity: 0;
+            transition: opacity var(--duration-fast);
+        }
+
+        .btn:hover {
+            border-color: var(--border-strong);
+            color: var(--fg-primary);
+            transform: translateY(-1px);
+        }
+
+        .btn:hover::before {
+            opacity: 1;
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+            box-shadow: var(--glow-accent);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            border-color: transparent;
+        }
+
+        .btn-ghost:hover {
+            background: var(--bg-tertiary);
+        }
+
+        .btn-icon {
+            padding: var(--space-2);
+            aspect-ratio: 1;
+        }
+
+        /* ============================================================================
+           SIDEBAR — DENSE, INFORMATION-RICH
+           ============================================================================ */
+
+        .sidebar {
+            grid-area: sidebar;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .sidebar-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .sidebar-title {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--fg-muted);
+        }
+
+        .session-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-2);
+        }
+
+        .session-item {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
+            padding: var(--space-3);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all var(--duration-fast);
+            position: relative;
+        }
+
+        .session-item::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scaleY(0);
+            width: 2px;
+            height: 60%;
+            background: var(--accent);
+            transition: transform var(--duration-fast) var(--ease-precision);
+        }
+
+        .session-item:hover {
+            background: var(--bg-tertiary);
+            border-color: var(--border-default);
+        }
+
+        .session-item:hover::before {
+            transform: translateY(-50%) scaleY(1);
+        }
+
+        .session-item.active {
+            background: var(--bg-tertiary);
+            border-color: var(--border-default);
+        }
+
+        .session-item.active::before {
+            transform: translateY(-50%) scaleY(1);
+        }
+
+        .session-title {
+            font-size: var(--text-sm);
+            font-weight: var(--font-medium);
+            color: var(--fg-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .session-item.active .session-title {
+            color: var(--fg-primary);
+        }
+
+        .session-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+        }
+
+        .session-dot {
+            width: 5px;
+            height: 5px;
+            background: var(--accent);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* ============================================================================
+           MAIN CHAT AREA — ASYMMETRIC, TYPOGRAPHIC
+           ============================================================================ */
+
+        .main {
+            grid-area: main;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Step indicators — INDUSTRIAL TIMELINE */
+        .steps {
+            display: flex;
+            flex-direction: column;
+            padding: var(--space-4) var(--space-5);
+            gap: var(--space-1);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-3);
+            padding: var(--space-2) 0;
+            position: relative;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            left: 5px;
+            top: 20px;
+            bottom: -12px;
+            width: 1px;
+            background: var(--border-default);
+        }
+
+        .step:last-child::before {
+            display: none;
+        }
+
+        .step-indicator {
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--border-strong);
+            background: var(--bg-secondary);
+            flex-shrink: 0;
+            margin-top: 2px;
+            position: relative;
+            z-index: 1;
+            transition: all var(--duration-fast);
+        }
+
+        .step.completed .step-indicator {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .step.current .step-indicator {
+            border-color: var(--accent);
+            background: var(--bg-primary);
+            box-shadow: inset 0 0 0 2px var(--accent);
+        }
+
+        .step-content {
+            flex: 1;
+            font-size: var(--text-sm);
+            color: var(--fg-tertiary);
+            transition: color var(--duration-fast);
+        }
+
+        .step.completed .step-content,
+        .step.current .step-content {
+            color: var(--fg-secondary);
+        }
+
+        .step-toggle {
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+            padding: var(--space-1);
+            cursor: pointer;
+            transition: color var(--duration-fast);
+        }
+
+        .step-toggle:hover {
+            color: var(--fg-secondary);
+        }
+
+        /* Messages container */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4) var(--space-5);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-5);
+        }
+
+        /* Message groups */
+        .message-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            animation: message-enter var(--duration-normal) var(--ease-precision);
+        }
+
+        @keyframes message-enter {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* User message — RIGHT ALIGNED, MINIMAL */
+        .message-user {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .message-user-bubble {
+            max-width: 85%;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            padding: var(--space-3) var(--space-4);
+            font-size: var(--text-base);
+            color: var(--fg-primary);
+            line-height: 1.6;
+        }
+
+        /* Assistant message — LEFT ALIGNED, STRUCTURED */
+        .message-assistant {
+            display: flex;
+            gap: var(--space-4);
+        }
+
+        .assistant-avatar {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: var(--font-bold);
+            font-size: var(--text-sm);
+            color: var(--bg-primary);
+            flex-shrink: 0;
+        }
+
+        .assistant-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .message-text {
+            font-size: var(--text-base);
+            line-height: 1.7;
+            color: var(--fg-secondary);
+        }
+
+        .message-text p {
+            margin-bottom: var(--space-3);
+        }
+
+        .message-text p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-text strong {
+            color: var(--fg-primary);
+            font-weight: var(--font-semibold);
+        }
+
+        .message-text code {
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            background: var(--bg-secondary);
+            padding: var(--space-1) var(--space-2);
+            color: var(--accent);
+        }
+
+        /* Section headers in messages */
+        .message-section {
+            margin: var(--space-5) 0 var(--space-4);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .message-section-title {
+            font-size: var(--text-lg);
+            font-weight: var(--font-semibold);
+            color: var(--fg-primary);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+
+        .message-section-icon {
+            color: var(--accent);
+        }
+
+        /* Data rows */
+        .data-row {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin: var(--space-2) 0;
+            font-size: var(--text-sm);
+        }
+
+        .data-label {
+            color: var(--fg-tertiary);
+        }
+
+        .data-value {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            background: var(--bg-secondary);
+            padding: var(--space-1) var(--space-2);
+            border: 1px solid var(--border-default);
+            color: var(--fg-secondary);
+        }
+
+        /* TABLE — INDUSTRIAL DATA GRID */
+        .data-table-wrapper {
+            margin: var(--space-4) 0;
+            border: 1px solid var(--border-default);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: var(--text-sm);
+        }
+
+        .data-table th {
+            background: var(--bg-secondary);
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            font-weight: var(--font-semibold);
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--fg-muted);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .data-table td {
+            padding: var(--space-3) var(--space-4);
+            border-bottom: 1px solid var(--border-subtle);
+            color: var(--fg-secondary);
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover td {
+            background: var(--bg-secondary);
+        }
+
+        .table-tag {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+            background: var(--bg-tertiary);
+            padding: var(--space-1) var(--space-2);
+            border: 1px solid var(--border-default);
+            color: var(--accent);
+        }
+
+        /* CODE BLOCK — TERMINAL AESTHETIC */
+        .code-block {
+            margin: var(--space-4) 0;
+            border: 1px solid var(--border-default);
+            background: var(--bg-secondary);
+        }
+
+        .code-block-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-2) var(--space-4);
+            border-bottom: 1px solid var(--border-default);
+            background: var(--bg-tertiary);
+        }
+
+        .code-block-lang {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+            color: var(--fg-muted);
+            text-transform: uppercase;
+        }
+
+        .code-block-copy {
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color var(--duration-fast);
+        }
+
+        .code-block-copy:hover {
+            color: var(--fg-primary);
+        }
+
+        .code-block-content {
+            padding: var(--space-4);
+            font-family: var(--font-mono);
+            font-size: var(--text-sm);
+            line-height: 1.7;
+            color: var(--fg-secondary);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        /* PLAN BAR — STATUS STRIP */
+        .plan-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3) var(--space-5);
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-default);
+            border-bottom: 1px solid var(--border-default);
+        }
+
+        .plan-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+
+        .plan-toggle {
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color var(--duration-fast);
+        }
+
+        .plan-toggle:hover {
+            color: var(--fg-secondary);
+        }
+
+        .plan-label {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+            color: var(--fg-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .plan-status {
+            font-size: var(--text-xs);
+            color: var(--success);
+        }
+
+        .plan-actions {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        /* COMPOSER — INDUSTRIAL INPUT */
+        .composer {
+            padding: var(--space-4) var(--space-5);
+            background: var(--bg-secondary);
+        }
+
+        .composer-input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-default);
+            padding: var(--space-4);
+            transition: all var(--duration-fast);
+        }
+
+        .composer-input:focus-within {
+            border-color: var(--border-accent);
+            box-shadow: inset 0 0 0 1px var(--accent-glow);
+        }
+
+        .composer-placeholder {
+            font-size: var(--text-base);
+            color: var(--fg-muted);
+        }
+
+        .composer-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: var(--space-4);
+        }
+
+        .toolbar-left {
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .toolbar-divider {
+            width: 1px;
+            height: 20px;
+            background: var(--border-default);
+            margin: 0 var(--space-1);
+        }
+
+        .toolbar-right {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-2) var(--space-3);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--fg-tertiary);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .model-selector:hover {
+            border-color: var(--border-strong);
+            color: var(--fg-secondary);
+        }
+
+        .send-btn {
+            width: 36px;
+            height: 36px;
+            background: var(--accent);
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--duration-fast) var(--ease-precision);
+            color: var(--bg-primary);
+            font-size: var(--text-md);
+        }
+
+        .send-btn:hover {
+            background: var(--accent-hover);
+            box-shadow: var(--glow-accent);
+            transform: translateY(-1px);
+        }
+
+        /* ============================================================================
+           SETTINGS PANEL — DENSE, ORGANIZED
+           ============================================================================ */
+
+        .settings {
+            grid-area: settings;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-default);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--border-default);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .settings-title {
+            font-size: var(--text-md);
+            font-weight: var(--font-semibold);
+        }
+
+        .settings-close {
+            font-size: var(--text-sm);
+            color: var(--fg-muted);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            transition: color var(--duration-fast);
+        }
+
+        .settings-close:hover {
+            color: var(--fg-primary);
+        }
+
+        .settings-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: var(--space-4);
+        }
+
+        .settings-section {
+            margin-bottom: var(--space-6);
+        }
+
+        .settings-section-title {
+            font-size: var(--text-xs);
+            font-weight: var(--font-semibold);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--fg-muted);
+            margin-bottom: var(--space-3);
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: var(--space-3);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            margin-bottom: var(--space-2);
+            cursor: pointer;
+            transition: all var(--duration-fast);
+        }
+
+        .setting-item:hover {
+            border-color: var(--border-strong);
+        }
+
+        .setting-label {
+            font-size: var(--text-sm);
+            color: var(--fg-secondary);
+        }
+
+        .setting-value {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+        }
+
+        /* Theme grid */
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-2);
+        }
+
+        .theme-option {
+            aspect-ratio: 1;
+            border: 1px solid var(--border-default);
+            cursor: pointer;
+            position: relative;
+            transition: all var(--duration-fast);
+        }
+
+        .theme-option:hover {
+            transform: scale(1.05);
+            border-color: var(--border-strong);
+        }
+
+        .theme-option.active {
+            border-color: var(--accent);
+        }
+
+        .theme-option.active::after {
+            content: '';
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+        }
+
+        /* ============================================================================
+           TOOL ACTIONS — STATUS INDICATORS
+           ============================================================================ */
+
+        .tool-action {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3) var(--space-4);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-default);
+            margin: var(--space-2) 0;
+        }
+
+        .tool-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border-default);
+            font-size: var(--text-xs);
+        }
+
+        .tool-icon.running {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .tool-icon.completed {
+            border-color: var(--success);
+            color: var(--success);
+        }
+
+        .tool-info {
+            flex: 1;
+        }
+
+        .tool-name {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            font-weight: var(--font-medium);
+            color: var(--fg-secondary);
+        }
+
+        .tool-desc {
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+            margin-top: var(--space-0-5);
+        }
+
+        .tool-status {
+            font-family: var(--font-mono);
+            font-size: var(--text-xs);
+            color: var(--fg-muted);
+        }
+
+        /* ============================================================================
+           SCROLLBAR — MINIMAL
+           ============================================================================ */
+
+        ::-webkit-scrollbar {
+            width: 4px;
+            height: 4px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-floating);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--fg-subtle);
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- HEADER -->
+        <header class="header">
+            <div class="brand">
+                <div class="brand-mark">P</div>
+                <span class="brand-text">PARCHI</span>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-ghost btn-icon">+</button>
+                <button class="btn btn-ghost btn-icon">⚙</button>
+            </div>
+        </header>
+
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-title">Sessions</div>
+            </div>
+            <div class="session-list">
+                <div class="session-item active">
+                    <div class="session-title">Convex Deployment Setup</div>
+                    <div class="session-meta">
+                        <span class="session-dot"></span>
+                        <span>12m ago</span>
+                        <span>·</span>
+                        <span>24 msgs</span>
+                    </div>
+                </div>
+                <div class="session-item">
+                    <div class="session-title">React Server Components Research</div>
+                    <div class="session-meta">
+                        <span>2h ago</span>
+                        <span>·</span>
+                        <span>18 msgs</span>
+                    </div>
+                </div>
+                <div class="session-item">
+                    <div class="session-title">Database Schema Design</div>
+                    <div class="session-meta">
+                        <span>Yesterday</span>
+                        <span>·</span>
+                        <span>42 msgs</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CHAT AREA -->
+        <main class="main">
+            <!-- Steps -->
+            <div class="steps">
+                <div class="step completed">
+                    <div class="step-indicator"></div>
+                    <div class="step-content">Step 2: Name the project and confirm creation</div>
+                    <span class="step-toggle">⌄</span>
+                </div>
+                <div class="step completed">
+                    <div class="step-indicator"></div>
+                    <div class="step-content">Step 3: Navigate to project settings to find deployment keys</div>
+                    <span class="step-toggle">⌄</span>
+                </div>
+                <div class="step current">
+                    <div class="step-indicator"></div>
+                    <div class="step-content">Step 4: Extract and return the deployment URL and deploy key</div>
+                    <span class="step-toggle">⌄</span>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div class="messages">
+                <div class="message-group">
+                    <div class="message-assistant">
+                        <div class="assistant-avatar">P</div>
+                        <div class="assistant-content">
+                            <div class="message-text">
+                                <p>Here are all the keys for your new Convex project! 🎉</p>
+                            </div>
+
+                            <div class="message-section">
+                                <div class="message-section-title">
+                                    <span class="message-section-icon">✓</span>
+                                    New Convex Project Created
+                                </div>
+                            </div>
+
+                            <div class="data-row">
+                                <span class="data-label">Project Name:</span>
+                                <span class="data-value">crowdfund</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Deployment:</span>
+                                <span class="data-value">cheery-camel-510</span>
+                            </div>
+                            <div class="data-row">
+                                <span class="data-label">Region:</span>
+                                <span class="data-value">US East (N. Virginia)</span>
+                            </div>
+
+                            <div class="data-table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Key</th>
+                                            <th>Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><span class="table-tag">CLOUD URL</span></td>
+                                            <td><code>https://cheery-camel-510.convex.cloud</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="table-tag">HTTP ACTIONS</span></td>
+                                            <td><code>https://cheery-camel-510.convex.site</code></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="table-tag">DEPLOY KEY</span></td>
+                                            <td><code>dev:cheery-camel-510|eyJ2MiI6...</code></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <p style="margin-top: 16px;"><strong>How to use these:</strong></p>
+                            <p>Add to your <code>.env.local</code>:</p>
+
+                            <div class="code-block">
+                                <div class="code-block-header">
+                                    <span class="code-block-lang">env</span>
+                                    <button class="code-block-copy">Copy</button>
+                                </div>
+                                <div class="code-block-content">CONVEX_DEPLOYMENT=dev:cheery-camel-510|eyJ2MiI6IjlwMzg3MTM4ODZhYjRkOWI4ZWVjZWNjMWY3MTE3NmRkIn0=
+NEXT_PUBLIC_CONVEX_URL=https://cheery-camel-510.convex.cloud</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Plan Bar -->
+            <div class="plan-bar">
+                <div class="plan-info">
+                    <button class="plan-toggle">▶</button>
+                    <span class="plan-label">Plan</span>
+                    <span style="font-size: 11px; color: var(--fg-muted);">4 steps •</span>
+                    <span class="plan-status">Done</span>
+                </div>
+                <div class="plan-actions">
+                    <button class="btn">Jump to latest</button>
+                    <button class="btn btn-ghost btn-icon">✕</button>
+                </div>
+            </div>
+
+            <!-- Composer -->
+            <div class="composer">
+                <div class="composer-input">
+                    <div class="composer-placeholder">Message...</div>
+                    <div class="composer-toolbar">
+                        <div class="toolbar-left">
+                            <button class="btn btn-ghost btn-icon">📎</button>
+                            <button class="btn btn-ghost btn-icon">🎙</button>
+                            <div class="toolbar-divider"></div>
+                            <button class="btn btn-ghost btn-icon">👁</button>
+                        </div>
+                        <div class="toolbar-right">
+                            <div class="model-selector">
+                                <span>⚡</span>
+                                <span>Claude 3.5 Sonnet</span>
+                                <span>⌄</span>
+                            </div>
+                            <button class="send-btn">↑</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- SETTINGS PANEL -->
+        <aside class="settings">
+            <div class="settings-header">
+                <span class="settings-title">Settings</span>
+                <button class="settings-close">✕</button>
+            </div>
+            <div class="settings-content">
+                <div class="settings-section">
+                    <div class="settings-section-title">Appearance</div>
+                    <div class="theme-grid">
+                        <div class="theme-option active" style="background: linear-gradient(135deg, #0c0a09 50%, #ff6b35 50%);"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #0a0a0a 50%, #22c55e 50%);"></div>
+                        <div class="theme-option" style="background: linear-gradient(135deg, #080808 50%, #38bdf8 50%);"></div>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">Model</div>
+                    <div class="setting-item">
+                        <span class="setting-label">Active Profile</span>
+                        <span class="setting-value">Claude 3.5 ›</span>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">Temperature</span>
+                        <span class="setting-value">0.7 ›</span>
+                    </div>
+                </div>
+
+                <div class="settings-section">
+                    <div class="settings-section-title">Account</div>
+                    <div class="setting-item">
+                        <span class="setting-label">API Keys</span>
+                        <span class="setting-value">›</span>
+                    </div>
+                    <div class="setting-item">
+                        <span class="setting-label">Usage</span>
+                        <span class="setting-value">$12.40 ›</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "name": "parchi-extension",
-  "version": "0.5.1",
+  "version": "0.5.3",
   "description": "Warm-paper browser automation extension with configurable LLM providers",
   "private": true,
   "type": "module",
@@ -35,6 +35,7 @@
     "perf:tabs": "node scripts/build.mjs && node dist/tests/perf/run-tab-cpu-audit.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:repo-standards": "node scripts/check-repo-standards.mjs",
+    "check:tech-debt": "node scripts/check-tech-debt.mjs",
     "clean": "node scripts/clean.mjs",
     "verify:version-sync": "node scripts/verify-version-sync.mjs",
     "verify:version-sync:fix": "node scripts/verify-version-sync.mjs --fix",

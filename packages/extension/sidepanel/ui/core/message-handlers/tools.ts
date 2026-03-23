@@ -124,3 +124,58 @@ export const handleToolResult = function handleToolResult(this: SidePanelUI & Re
 };
 
 sidePanelProto.handleToolResult = handleToolResult;
+
+/**
+ * Handle create_file messages — render a download card in the chat
+ */
+export const handleCreateFile = function handleCreateFile(this: SidePanelUI & Record<string, unknown>, message: any) {
+  const filename = String(message.filename || 'download');
+  const content = String(message.content || '');
+  const mimeType = String(message.mimeType || 'text/plain');
+  const sizeKb = Math.max(1, Math.round(new TextEncoder().encode(content).byteLength / 1024));
+
+  const card = document.createElement('div');
+  card.className = 'file-artifact-card';
+  this.tagAgentView?.(card, 'main');
+  card.innerHTML = `
+    <div class="file-artifact-icon">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="12" y1="18" x2="12" y2="12"/>
+        <polyline points="9 15 12 18 15 15"/>
+      </svg>
+    </div>
+    <div class="file-artifact-info">
+      <span class="file-artifact-name">${this.escapeHtml(filename)}</span>
+      <span class="file-artifact-meta">${this.escapeHtml(mimeType)} · ${sizeKb} KB</span>
+    </div>
+    <button class="file-artifact-download" title="Download">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+    </button>
+  `;
+
+  card.querySelector('.file-artifact-download')?.addEventListener('click', () => {
+    this.downloadFile(content, filename, mimeType);
+  });
+  // Also allow clicking the whole card
+  card.addEventListener('click', (e: Event) => {
+    if (!(e.target as HTMLElement).closest('.file-artifact-download')) {
+      this.downloadFile(content, filename, mimeType);
+    }
+  });
+
+  const streamEventsEl = this.streamingState?.eventsEl;
+  if (streamEventsEl) {
+    streamEventsEl.appendChild(card);
+  } else if (this.elements.chatMessages) {
+    this.elements.chatMessages.appendChild(card);
+  }
+  this.scrollToBottom();
+};
+
+sidePanelProto.handleCreateFile = handleCreateFile;

@@ -1,5 +1,46 @@
             <main class="main-content">
 
+                <!-- Top Navigation Bar -->
+                <header class="topbar">
+                    <div class="topbar-left">
+                        <div class="mascot-wrapper topbar-mascot">
+                            <div id="mascotCorner" class="mascot-corner sleeping" title="Your AI companion">
+                                <div class="mascot-blob">
+                                    <div class="mascot-blob-body"></div>
+                                    <div class="mascot-eyes">
+                                        <div class="mascot-eye"></div>
+                                        <div class="mascot-eye"></div>
+                                    </div>
+                                    <div class="mascot-smile"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="topbar-center">
+                        <span id="topbarSessionTitle" class="topbar-session-title">New session</span>
+                    </div>
+                    <div class="topbar-right">
+                        <button id="historyFab" class="icon-btn topbar-btn" title="History" data-tooltip="History" data-tooltip-pos="below" type="button">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <polyline points="12 6 12 12 16 14" />
+                            </svg>
+                        </button>
+                        <button id="newSessionFab" class="icon-btn topbar-btn" title="New session" data-tooltip="New session" data-tooltip-pos="below" type="button">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M12 5v14" />
+                                <path d="M5 12h14" />
+                            </svg>
+                        </button>
+                        <button id="openSidebarBtn" class="icon-btn topbar-btn" title="Settings" data-tooltip="Settings" data-tooltip-pos="below" type="button">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                            </svg>
+                        </button>
+                    </div>
+                </header>
+
                 <!-- Chat Interface -->
                 <div id="chatInterface" class="chat-area">
                     <!-- Empty state -->
@@ -73,56 +114,32 @@
                             ></textarea>
                             <div class="composer-toolbar">
                                 <div class="composer-toolbar-left">
-                                    <div class="mascot-wrapper">
-                                        <div id="mascotBubble" class="mascot-bubble hidden">
-                                            <div class="mascot-bubble-content">
-                                                <span id="bubbleVerb" class="bubble-verb"></span>
-                                                <span id="bubbleMeta" class="bubble-meta"></span>
-                                            </div>
-                                            <div class="mascot-bubble-tail"></div>
-                                        </div>
-                                        <div id="mascotCorner" class="mascot-corner sleeping" title="Your AI companion">
-                                            <div class="mascot-blob">
-                                                <div class="mascot-antenna"></div>
-                                                <div class="mascot-blob-body"></div>
-                                                <div class="mascot-eyes">
-                                                    <div class="mascot-eye"></div>
-                                                    <div class="mascot-eye"></div>
-                                                </div>
-                                                <div class="mascot-cheeks"></div>
-                                                <div class="mascot-smile"></div>
-                                            </div>
-                                        </div>
-                                        <!-- Status shown inside mascot click-through -->
-                                        <div id="mascotStatus" class="mascot-status hidden">
-                                            <span id="statusDot" class="status-dot"></span>
-                                            <span id="statusText">Ready</span>
-                                            <span id="statusMeta" class="status-meta"></span>
-                                        </div>
+                                    <div
+                                        id="modelSelectorWrap"
+                                        class="model-selector"
+                                        title="Switch profile"
+                                    >
+                                        <select id="modelSelect">
+                                            <option value="">
+                                                Profile
+                                            </option>
+                                        </select>
+                                        <svg
+                                            class="model-selector-chevron"
+                                            width="12"
+                                            height="12"
+                                            viewBox="0 0 24 24"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            stroke-width="2"
+                                        >
+                                            <polyline points="6 9 12 15 18 9" />
+                                        </svg>
                                     </div>
-                                    <div id="balancePopover" class="balance-popover hidden">
-                                        <div class="balance-popover-header">
-                                            <span>Account</span>
-                                            <button id="balancePopoverClose" class="balance-popover-close">&times;</button>
-                                        </div>
-                                        <div class="balance-popover-body">
-                                            <div class="balance-row">
-                                                <span class="balance-label">Billing</span>
-                                                <span id="balanceCreditsValue" class="balance-value">--</span>
-                                            </div>
-                                            <div class="balance-row">
-                                                <span class="balance-label">Plan</span>
-                                                <span id="balancePlanValue" class="balance-value">--</span>
-                                            </div>
-                                            <div class="balance-row">
-                                                <span class="balance-label">Spend (month)</span>
-                                                <span id="balanceSpendValue" class="balance-value">--</span>
-                                            </div>
-                                            <div class="balance-row">
-                                                <span class="balance-label">Session tokens</span>
-                                                <span id="balanceSessionTokens" class="balance-value">--</span>
-                                            </div>
-                                        </div>
+                                    <div class="zoom-controls" title="Text size">
+                                        <button id="zoomOutBtn" class="zoom-btn" type="button" aria-label="Decrease text size">A−</button>
+                                        <button id="zoomResetBtn" class="zoom-btn zoom-reset" type="button" aria-label="Reset text size">100%</button>
+                                        <button id="zoomInBtn" class="zoom-btn" type="button" aria-label="Increase text size">A+</button>
                                     </div>
                                 </div>
                                 <div class="composer-toolbar-right">
@@ -133,7 +150,6 @@
                                         accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.md,.txt,.csv,.json,.log,.xml,.yaml,.yml,.zip,.7z,.tar,.gz,.webp,.heic,.heif,.mp4,.mov,.avi,.mkv,.mp3,.wav,.m4a"
                                         class="hidden"
                                     />
-                                    <!-- Composer tools as icon buttons with tooltips -->
                                     <div class="composer-tools">
                                         <button
                                             id="composerActionAttachFile"
@@ -192,28 +208,6 @@
                                     >
                                         Pay or add your own key
                                     </button>
-                                    <div
-                                        id="modelSelectorWrap"
-                                        class="model-selector"
-                                        title="Switch profile"
-                                    >
-                                        <select id="modelSelect">
-                                            <option value="">
-                                                Profile
-                                            </option>
-                                        </select>
-                                        <svg
-                                            class="model-selector-chevron"
-                                            width="12"
-                                            height="12"
-                                            viewBox="0 0 24 24"
-                                            fill="none"
-                                            stroke="currentColor"
-                                            stroke-width="2"
-                                        >
-                                            <polyline points="6 9 12 15 18 9" />
-                                        </svg>
-                                    </div>
                                     <button
                                         id="sendBtn"
                                         class="send-btn"
@@ -231,6 +225,7 @@
                             </div>
                             <div id="contextBar" class="context-bar" aria-hidden="true"></div>
                         </div>
+                        <div id="composerTokens" class="composer-tokens-bar" title="Token usage"></div>
                     </div>
                 </div>
 
@@ -275,7 +270,7 @@
                     </div>
                 </div>
 
-                <!-- FAB Group - Top right -->
+                <!-- Context Inspector (floating) -->
                 <div class="fab-group">
                     <button
                         id="contextInspectorBtn"
@@ -318,66 +313,23 @@
                             <button id="contextInspectorCompactBtn" class="btn btn-secondary" type="button">Compact now</button>
                         </div>
                     </div>
-                    <div class="fab-legacy-actions" aria-hidden="true">
-                        <button
-                            id="missionControlFab"
+                    <!-- Mission Control FAB (kept for event binding) -->
+                    <button
+                        id="missionControlFab"
                         class="mission-control-fab ui-fab"
-                            title="Mission Control"
-                            data-tooltip="Mission Control"
-                            data-tooltip-pos="below"
-                            type="button"
-                        >
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                <rect x="3" y="3" width="7" height="7" rx="1" />
-                                <rect x="14" y="3" width="7" height="7" rx="1" />
-                                <rect x="3" y="14" width="7" height="7" rx="1" />
-                                <rect x="14" y="14" width="7" height="7" rx="1" />
-                            </svg>
-                            <span id="mcFabBadge" class="mc-fab-badge" style="display: none;"></span>
-                        </button>
-                        <button id="openSidebarBtn" class="settings-fab ui-fab" title="Settings" type="button" data-tooltip="Settings" data-tooltip-pos="below">
-                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
-                                <circle cx="12" cy="12" r="3" />
-                                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
-                            </svg>
-                        </button>
-                        <button id="historyFab" class="history-fab ui-fab" title="History" type="button" data-tooltip="History" data-tooltip-pos="below">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10" />
-                                <polyline points="12 6 12 12 16 14" />
-                            </svg>
-                        </button>
-                        <button id="newSessionFab" class="new-session-fab ui-fab" title="New session" type="button" data-tooltip="New session" data-tooltip-pos="below">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <path d="M12 5v14" />
-                                <path d="M5 12h14" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="fab-quick-actions">
-                        <button id="quickActionsFab" class="quick-actions-fab ui-fab" title="Quick actions" data-tooltip="Quick actions" type="button">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <line x1="4" y1="7" x2="20" y2="7" />
-                                <line x1="4" y1="12" x2="20" y2="12" />
-                                <line x1="4" y1="17" x2="20" y2="17" />
-                            </svg>
-                        </button>
-                        <div id="quickActionsMenu" class="quick-actions-menu hidden" role="menu" aria-label="Quick actions">
-                            <div class="quick-actions-size-control" aria-label="Text size controls">
-                                <span class="quick-actions-size-label">Text size</span>
-                                <div class="quick-actions-size-buttons">
-                                    <button id="quickActionTextSizeDown" class="quick-actions-size-btn" type="button" title="Smaller text">A−</button>
-                                    <button id="quickActionTextSizeReset" class="quick-actions-size-value" type="button" title="Reset text size">
-                                        <span id="quickActionTextSizeValue">100%</span>
-                                    </button>
-                                    <button id="quickActionTextSizeUp" class="quick-actions-size-btn" type="button" title="Larger text">A+</button>
-                                </div>
-                            </div>
-                            <button id="quickActionMissionControl" class="quick-actions-item" type="button">Mission Control</button>
-                            <button id="quickActionSettings" class="quick-actions-item" type="button">Settings</button>
-                            <button id="quickActionHistory" class="quick-actions-item" type="button">History</button>
-                        </div>
-                    </div>
+                        title="Mission Control"
+                        data-tooltip="Mission Control"
+                        data-tooltip-pos="below"
+                        type="button"
+                    >
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75">
+                            <rect x="3" y="3" width="7" height="7" rx="1" />
+                            <rect x="14" y="3" width="7" height="7" rx="1" />
+                            <rect x="3" y="14" width="7" height="7" rx="1" />
+                            <rect x="14" y="14" width="7" height="7" rx="1" />
+                        </svg>
+                        <span id="mcFabBadge" class="mc-fab-badge" style="display: none;"></span>
+                    </button>
                 </div>
 
                 <!-- History Drawer Overlay -->

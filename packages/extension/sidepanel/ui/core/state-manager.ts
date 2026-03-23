@@ -111,6 +111,9 @@ export const flushQueuedMessage = function flushQueuedMessage(this: SidePanelUI 
   if (!this.queuedMessage) return;
   const msg = this.queuedMessage;
   this.queuedMessage = null;
+  // Remove the queued message banner
+  const composerWrapper = this.elements.composer?.closest('.composer-wrapper');
+  composerWrapper?.querySelector('.queued-message-banner')?.remove();
   // Stuff the queued text into the input and send
   this.elements.userInput.value = msg;
   this.sendMessage();

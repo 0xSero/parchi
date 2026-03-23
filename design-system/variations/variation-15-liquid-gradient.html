@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCHI Sidepanel — Liquid Gradient</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Liquid Gradient — Vibrant Neon & Deep Space */
+            --bg-primary: #0a0a0f;
+            --bg-secondary: #12121a;
+            --bg-tertiary: #1a1a25;
+            --bg-elevated: #252536;
+            
+            --fg-primary: #ffffff;
+            --fg-secondary: rgba(255, 255, 255, 0.85);
+            --fg-tertiary: rgba(255, 255, 255, 0.6);
+            --fg-muted: rgba(255, 255, 255, 0.4);
+            --fg-subtle: rgba(255, 255, 255, 0.2);
+            
+            /* Neon gradient accents */
+            --accent: #ff006e;
+            --accent-secondary: #8338ec;
+            --accent-tertiary: #3a86ff;
+            --accent-cyan: #00f5ff;
+            --accent-orange: #ff6b35;
+            
+            --accent-rgb: 255 0 110;
+            --accent-hover: #ff4081;
+            --accent-dim: #c4005b;
+            --accent-glow: rgba(255, 0, 110, 0.4);
+            
+            --success: #00ff88;
+            --warning: #ffbe0b;
+            --error: #ff4757;
+            
+            --border-subtle: rgba(255, 255, 255, 0.05);
+            --border-default: rgba(255, 255, 255, 0.1);
+            --border-strong: rgba(255, 255, 255, 0.2);
+            --border-accent: rgba(255, 0, 110, 0.5);
+            
+            --font-ui: 'Space Grotesk', system-ui, sans-serif;
+            --font-body: 'Outfit', system-ui, sans-serif;
+            
+            --ease-precision: cubic-bezier(0.16, 1, 0.3, 1);
+            --ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            --duration-fast: 200ms;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+        body { 
+            font-family: var(--font-body); font-weight: 400; line-height: 1.5; 
+            color: var(--fg-primary); background: var(--bg-primary); 
+        }
+
+        /* Animated gradient background */
+        body::before { 
+            content: ''; position: fixed; inset: 0; 
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(131, 56, 236, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(58, 134, 255, 0.08) 0%, transparent 60%);
+            animation: gradient-shift 20s ease-in-out infinite;
+            pointer-events: none; z-index: 0;
+        }
+        @keyframes gradient-shift {
+            0%, 100% { 
+                background: 
+                    radial-gradient(ellipse at 20% 20%, rgba(131, 56, 236, 0.15) 0%, transparent 50%),
+                    radial-gradient(ellipse at 80% 80%, rgba(255, 0, 110, 0.1) 0%, transparent 50%),
+                    radial-gradient(ellipse at 50% 50%, rgba(58, 134, 255, 0.08) 0%, transparent 60%);
+            }
+            33% { 
+                background: 
+                    radial-gradient(ellipse at 80% 30%, rgba(131, 56, 236, 0.12) 0%, transparent 50%),
+                    radial-gradient(ellipse at 30% 70%, rgba(255, 0, 110, 0.13) 0%, transparent 50%),
+                    radial-gradient(ellipse at 60% 40%, rgba(0, 245, 255, 0.06) 0%, transparent 60%);
+            }
+            66% { 
+                background: 
+                    radial-gradient(ellipse at 40% 80%, rgba(255, 107, 53, 0.1) 0%, transparent 50%),
+                    radial-gradient(ellipse at 70% 20%, rgba(131, 56, 236, 0.12) 0%, transparent 50%),
+                    radial-gradient(ellipse at 30% 50%, rgba(255, 0, 110, 0.1) 0%, transparent 60%);
+            }
+        }
+
+        .doc { max-width: 1800px; margin: 0 auto; padding: 40px; position: relative; z-index: 1; }
+        .doc-header { text-align: center; margin-bottom: 40px; }
+        .doc-title { 
+            font-family: var(--font-ui); font-size: 32px; font-weight: 700; 
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary), var(--accent-tertiary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .doc-subtitle { color: var(--fg-muted); font-size: 14px; }
+        
+        .section { margin-bottom: 60px; }
+        .section-title { 
+            font-family: var(--font-ui); font-size: 18px; font-weight: 600; 
+            margin-bottom: 20px; 
+            background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .showcase { display: flex; gap: 30px; flex-wrap: wrap; }
+        .showcase-item { display: flex; flex-direction: column; gap: 8px; }
+        .showcase-label { 
+            font-family: var(--font-ui); font-size: 11px; color: var(--fg-muted); 
+            text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; 
+        }
+
+        /* Sidepanel — Glassmorphism with liquid borders */
+        .sidepanel { 
+            width: 400px; height: 700px; 
+            background: rgba(10, 10, 15, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-default);
+            display: flex; flex-direction: column; 
+            position: relative; overflow: hidden;
+            box-shadow: 
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                0 25px 50px -12px rgba(0, 0, 0, 0.5),
+                0 0 100px rgba(131, 56, 236, 0.1);
+        }
+        
+        /* Animated border gradient */
+        .sidepanel::before {
+            content: ''; position: absolute; inset: -2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent-tertiary), var(--accent-cyan), var(--accent));
+            background-size: 400% 100%;
+            z-index: -1;
+            animation: border-flow 8s linear infinite;
+            border-radius: inherit;
+            opacity: 0.5;
+        }
+        @keyframes border-flow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 400% 50%; }
+        }
+
+        /* Agent nav — Glass tabs */
+        .agent-nav { 
+            display: flex; 
+            background: rgba(18, 18, 26, 0.8); 
+            border-bottom: 1px solid var(--border-default); 
+            padding: 6px 8px 0; min-height: 40px; 
+            overflow-x: auto; scrollbar-width: none;
+            font-family: var(--font-ui);
+        }
+        .agent-nav::-webkit-scrollbar { display: none; }
+        .agent-tab { 
+            display: flex; align-items: center; gap: 6px; 
+            padding: 8px 12px; min-width: 0; max-width: 160px; 
+            font-size: 12px; background: transparent; border: none; 
+            border-radius: 8px 8px 0 0; color: var(--fg-tertiary); 
+            cursor: pointer; transition: all var(--duration-fast); 
+            white-space: nowrap; position: relative;
+            font-family: var(--font-ui);
+        }
+        .agent-tab:hover { 
+            background: rgba(255, 255, 255, 0.05); color: var(--fg-secondary); 
+        }
+        .agent-tab.active { 
+            background: linear-gradient(180deg, rgba(255, 0, 110, 0.15), transparent); 
+            color: var(--fg-primary);
+        }
+        .agent-tab.active::after { 
+            content: ''; position: absolute; bottom: 0; left: 8px; right: 8px;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), var(--accent-cyan));
+            border-radius: 1px;
+        }
+        .agent-tab-dot { 
+            width: 6px; height: 6px; border-radius: 50%; 
+            background: currentColor; opacity: 0.5;
+            box-shadow: 0 0 8px currentColor;
+        }
+        .agent-tab.active .agent-tab-dot { opacity: 1; background: var(--accent); }
+        .agent-tab.running .agent-tab-dot { 
+            background: var(--accent); animation: pulse-glow 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse-glow { 
+            0%, 100% { opacity: 1; box-shadow: 0 0 10px var(--accent); } 
+            50% { opacity: 0.5; box-shadow: 0 0 20px var(--accent); } 
+        }
+        .agent-tab-label { overflow: hidden; text-overflow: ellipsis; }
+        .agent-tab-close { 
+            width: 14px; height: 14px; display: flex; 
+            align-items: center; justify-content: center; 
+            border: none; background: transparent; color: inherit; 
+            opacity: 0; cursor: pointer; font-size: 12px; 
+        }
+        .agent-tab:hover .agent-tab-close { opacity: 0.5; }
+        .agent-tab-close:hover { opacity: 1 !important; }
+
+        /* FAB Group */
+        .fab-group { 
+            position: absolute; top: 10px; right: 10px; 
+            display: flex; gap: 8px; z-index: 50; 
+        }
+        .fab { 
+            width: 32px; height: 32px; border-radius: 10px; 
+            border: 1px solid var(--border-default); 
+            background: rgba(37, 37, 54, 0.8); 
+            color: var(--fg-secondary); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all var(--duration-fast); 
+            font-size: 12px;
+            font-family: var(--font-ui);
+            backdrop-filter: blur(10px);
+        }
+        .fab:hover { 
+            border-color: var(--accent); 
+            background: rgba(255, 0, 110, 0.2);
+            color: var(--fg-primary);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 8px 25px rgba(255, 0, 110, 0.3);
+        }
+        .context-inspector { 
+            height: 28px; padding: 0 12px; border-radius: 14px; 
+            border: 1px solid var(--border-default); 
+            background: rgba(37, 37, 54, 0.8); 
+            color: var(--fg-tertiary); 
+            display: flex; align-items: center; gap: 6px; 
+            font-family: var(--font-ui); font-size: 10px; 
+            cursor: pointer; transition: all var(--duration-fast);
+            backdrop-filter: blur(10px);
+        }
+        .context-inspector:hover { 
+            border-color: var(--accent-tertiary); 
+            color: var(--fg-primary);
+        }
+
+        /* Chat area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* Empty state — Liquid blob animation */
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        
+        .liquid-blob { 
+            position: relative; width: 140px; height: 140px; margin-bottom: 24px; 
+        }
+        .blob-core {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px; height: 80px;
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            border-radius: 60% 40% 50% 50% / 50% 50% 60% 40%;
+            animation: morph-blob 8s ease-in-out infinite;
+            box-shadow: 
+                0 0 60px rgba(255, 0, 110, 0.4),
+                inset 0 0 40px rgba(255, 255, 255, 0.1);
+        }
+        @keyframes morph-blob {
+            0%, 100% { border-radius: 60% 40% 50% 50% / 50% 50% 60% 40%; transform: translate(-50%, -50%) rotate(0deg); }
+            25% { border-radius: 50% 60% 40% 50% / 60% 40% 50% 50%; transform: translate(-50%, -50%) rotate(90deg); }
+            50% { border-radius: 40% 50% 60% 40% / 50% 60% 40% 50%; transform: translate(-50%, -50%) rotate(180deg); }
+            75% { border-radius: 50% 40% 50% 60% / 40% 50% 50% 60%; transform: translate(-50%, -50%) rotate(270deg); }
+        }
+        .blob-ring {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120px; height: 120px;
+            border: 2px solid var(--accent);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: ripple 3s ease-out infinite;
+        }
+        .blob-ring:nth-child(2) { animation-delay: 1s; }
+        .blob-ring:nth-child(3) { animation-delay: 2s; }
+        @keyframes ripple {
+            0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.5; }
+            100% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+        }
+        
+        .empty-title { 
+            font-family: var(--font-ui); font-size: 20px; font-weight: 600; 
+            margin-bottom: 8px;
+            background: linear-gradient(90deg, var(--fg-primary), var(--fg-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .empty-subtitle { 
+            font-size: 13px; color: var(--fg-muted); margin-bottom: 28px;
+        }
+        .starters { display: flex; flex-direction: column; gap: 8px; width: 100%; }
+        .starter-btn { 
+            padding: 12px 16px; border-radius: 12px; 
+            border: 1px solid var(--border-default); 
+            background: rgba(255, 255, 255, 0.03); 
+            color: var(--fg-tertiary); font-size: 13px; 
+            text-align: left; cursor: pointer; transition: all var(--duration-fast);
+            font-family: var(--font-body);
+            position: relative;
+            overflow: hidden;
+        }
+        .starter-btn::before {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255, 0, 110, 0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.5s;
+        }
+        .starter-btn:hover { 
+            border-color: var(--accent); 
+            color: var(--fg-primary);
+            background: rgba(255, 0, 110, 0.1);
+            transform: translateX(4px);
+        }
+        .starter-btn:hover::before {
+            transform: translateX(100%);
+        }
+
+        /* Messages */
+        .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .message { animation: message-in 0.4s var(--ease-precision); }
+        @keyframes message-in { 
+            from { opacity: 0; transform: translateY(12px) scale(0.95); } 
+            to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        .message-user { display: flex; justify-content: flex-end; }
+        .bubble-user { 
+            max-width: 90%; 
+            background: linear-gradient(135deg, rgba(255, 0, 110, 0.2), rgba(131, 56, 236, 0.15)); 
+            border: 1px solid rgba(255, 0, 110, 0.3);
+            border-radius: 16px; border-bottom-right-radius: 4px; 
+            padding: 12px 16px; 
+            font-size: 14px; color: var(--fg-primary); line-height: 1.6;
+            font-family: var(--font-body);
+            backdrop-filter: blur(10px);
+        }
+        .message-assistant { display: flex; gap: 12px; }
+        .avatar { 
+            width: 32px; height: 32px; border-radius: 10px; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); 
+            display: flex; align-items: center; justify-content: center; 
+            font-family: var(--font-ui); font-size: 12px; font-weight: 700; 
+            color: white; flex-shrink: 0;
+            box-shadow: 0 4px 15px rgba(255, 0, 110, 0.4);
+        }
+        .message-content { flex: 1; min-width: 0; }
+        .message-text { 
+            font-size: 14px; line-height: 1.7; color: var(--fg-secondary); 
+            font-family: var(--font-body);
+        }
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text code { 
+            font-family: var(--font-ui); font-size: 11px; 
+            background: rgba(255, 255, 255, 0.08); padding: 3px 8px; border-radius: 6px; 
+            color: var(--accent-cyan);
+        }
+
+        /* Data table */
+        .data-table-wrapper { 
+            margin: 16px 0; border: 1px solid var(--border-default); 
+            overflow: hidden; border-radius: 12px;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+        }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { 
+            background: rgba(131, 56, 236, 0.15); padding: 12px 14px; 
+            text-align: left; font-weight: 600; font-size: 10px; 
+            text-transform: uppercase; letter-spacing: 0.08em; 
+            color: var(--fg-tertiary); border-bottom: 1px solid var(--border-default);
+            font-family: var(--font-ui);
+        }
+        .data-table td { 
+            padding: 12px 14px; border-bottom: 1px solid var(--border-subtle); 
+            color: var(--fg-secondary); font-family: var(--font-body);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(255, 255, 255, 0.03); }
+        .table-tag { 
+            font-family: var(--font-ui); font-size: 10px; font-weight: 600; 
+            background: rgba(255, 0, 110, 0.15); padding: 3px 8px; border-radius: 6px; 
+            color: var(--accent);
+            border: 1px solid rgba(255, 0, 110, 0.2);
+        }
+
+        /* Tool timeline */
+        .step-timeline { 
+            position: relative; padding-left: 20px; 
+            border-left: 2px solid var(--border-default); margin: 8px 0; 
+        }
+        .step-item { position: relative; padding: 6px 0 6px 12px; }
+        .step-item::before { 
+            content: ''; position: absolute; left: -20px; top: 10px; 
+            width: 8px; height: 8px; border-radius: 50%; 
+            background: var(--bg-primary); border: 2px solid var(--border-strong); 
+        }
+        .step-item.current::before { 
+            border-color: var(--accent); background: var(--accent); 
+            box-shadow: 0 0 12px var(--accent);
+            animation: node-pulse 2s ease-in-out infinite;
+        }
+        @keyframes node-pulse { 0%, 100% { box-shadow: 0 0 12px var(--accent); } 50% { box-shadow: 0 0 20px var(--accent); } }
+        .step-title { font-size: 12px; color: var(--fg-muted); font-family: var(--font-body); }
+        .step-item.current .step-title { color: var(--fg-primary); }
+
+        /* Tool row */
+        .tool-row { 
+            display: flex; align-items: center; gap: 8px; 
+            padding: 6px 0; font-size: 11px; color: var(--fg-muted); 
+            font-family: var(--font-body);
+        }
+        .tool-icon-small { 
+            width: 14px; height: 14px; display: flex; 
+            align-items: center; justify-content: center; font-size: 10px; 
+        }
+        .tool-name { font-weight: 500; color: var(--fg-secondary); }
+        .tool-args { font-family: var(--font-ui); opacity: 0.7; overflow: hidden; text-overflow: ellipsis; }
+        .tool-status { margin-left: auto; font-family: var(--font-ui); }
+
+        /* PLAN DRAWER — Glass panel */
+        .plan-drawer { 
+            background: rgba(18, 18, 26, 0.9); 
+            border-top: 1px solid var(--border-default); flex-shrink: 0;
+            backdrop-filter: blur(20px);
+        }
+        .plan-header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 12px 16px; cursor: pointer; 
+        }
+        .plan-title { 
+            display: flex; align-items: center; gap: 8px; 
+            font-size: 11px; font-weight: 600; text-transform: uppercase; 
+            letter-spacing: 0.08em; color: var(--fg-muted); 
+            font-family: var(--font-ui);
+        }
+        .plan-count { 
+            font-family: var(--font-ui); font-size: 10px; 
+            padding: 3px 10px; background: rgba(255, 255, 255, 0.05); 
+            border-radius: 20px; border: 1px solid var(--border-default);
+        }
+        .plan-actions { display: flex; align-items: center; gap: 8px; }
+        .plan-btn { 
+            padding: 5px 12px; border-radius: 20px; 
+            border: 1px solid var(--border-default); background: rgba(255, 255, 255, 0.05); 
+            color: var(--fg-secondary); font-size: 11px; 
+            font-family: var(--font-ui); cursor: pointer; transition: all var(--duration-fast); 
+        }
+        .plan-btn:hover { 
+            border-color: var(--accent); color: var(--accent);
+            background: rgba(255, 0, 110, 0.1);
+        }
+        .plan-content { padding: 0 16px 12px; }
+        .checklist { list-style: none; }
+        .checklist-item { 
+            display: flex; align-items: flex-start; gap: 10px; 
+            padding: 8px 0; font-size: 12px; font-family: var(--font-body);
+        }
+        .checklist-check { 
+            width: 16px; height: 16px; border: 2px solid var(--border-strong); 
+            border-radius: 50%; flex-shrink: 0; margin-top: 2px; 
+            position: relative;
+            transition: all var(--duration-fast);
+        }
+        .checklist-item.checked .checklist-check { 
+            background: var(--fg-muted); border-color: var(--fg-muted); 
+        }
+        .checklist-item.checked .checklist-check::after {
+            content: '✓'; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); font-size: 9px;
+            color: var(--bg-primary); font-weight: bold;
+        }
+        .checklist-item.current .checklist-check { 
+            border-color: var(--accent); 
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary));
+            box-shadow: 0 0 15px rgba(255, 0, 110, 0.5);
+            animation: check-pulse 2s ease-in-out infinite;
+        }
+        @keyframes check-pulse { 0%, 100% { box-shadow: 0 0 10px rgba(255, 0, 110, 0.5); } 50% { box-shadow: 0 0 20px rgba(255, 0, 110, 0.8); } }
+        .checklist-text { color: var(--fg-muted); }
+        .checklist-item.checked .checklist-text, .checklist-item.current .checklist-text { color: var(--fg-secondary); }
+
+        /* Jump button */
+        .jump-btn { 
+            position: absolute; left: 50%; transform: translateX(-50%); 
+            bottom: 180px; padding: 10px 18px; background: rgba(37, 37, 54, 0.9); 
+            border: 1px solid var(--border-default); border-radius: 20px; 
+            font-size: 12px; color: var(--fg-secondary); cursor: pointer; 
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4); 
+            transition: all var(--duration-fast); z-index: 10;
+            font-family: var(--font-ui);
+            backdrop-filter: blur(10px);
+        }
+        .jump-btn:hover { 
+            border-color: var(--accent); color: var(--accent);
+            box-shadow: 0 8px 32px rgba(255, 0, 110, 0.3);
+            transform: translateX(-50%) translateY(-2px);
+        }
+
+        /* Composer — Glass morphism */
+        .composer-wrapper { 
+            padding: 12px; background: rgba(18, 18, 26, 0.9); 
+            border-top: 1px solid var(--border-default); flex-shrink: 0;
+            backdrop-filter: blur(20px);
+        }
+        .composer { 
+            background: rgba(10, 10, 15, 0.8); border: 1px solid var(--border-default); 
+            border-radius: 16px; overflow: hidden; transition: all var(--duration-fast);
+        }
+        .composer:focus-within { 
+            border-color: rgba(255, 0, 110, 0.5); 
+            box-shadow: 0 0 0 3px rgba(255, 0, 110, 0.1), 0 0 30px rgba(255, 0, 110, 0.15);
+        }
+        .composer-input { 
+            width: 100%; min-height: 48px; max-height: 120px; 
+            padding: 14px 16px; background: transparent; border: none; 
+            color: var(--fg-primary); font-family: var(--font-body); font-size: 14px; 
+            line-height: 1.5; resize: none; outline: none; 
+        }
+        .composer-input::placeholder { color: var(--fg-muted); }
+        .composer-toolbar { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 10px 12px; border-top: 1px solid var(--border-subtle); 
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 4px; }
+        .toolbar-right { display: flex; align-items: center; gap: 10px; }
+        .tool-btn { 
+            width: 32px; height: 32px; border-radius: 8px; border: none; 
+            background: transparent; color: var(--fg-muted); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all var(--duration-fast); font-size: 13px; 
+        }
+        .tool-btn:hover { 
+            background: rgba(255, 255, 255, 0.08); color: var(--accent);
+        }
+
+        /* Mascot — Abstract gradient creature */
+        .mascot { 
+            width: 32px; height: 32px; position: relative; cursor: pointer; 
+        }
+        .mascot-body { 
+            position: absolute; inset: 0; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-cyan), var(--accent-secondary));
+            background-size: 200% 200%;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+            animation: liquid-morph 4s ease-in-out infinite, gradient-shift 3s ease-in-out infinite;
+            box-shadow: 0 4px 20px rgba(255, 0, 110, 0.4);
+        }
+        @keyframes liquid-morph { 
+            0%, 100% { border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%; } 
+            50% { border-radius: 70% 30% 30% 70% / 70% 70% 30% 30%; } 
+        }
+        .mascot-eyes { 
+            position: absolute; top: 35%; left: 50%; 
+            transform: translateX(-50%); display: flex; gap: 6px; 
+        }
+        .mascot-eye { 
+            width: 4px; height: 4px; background: white; 
+            border-radius: 50%; animation: blink 4s ease-in-out infinite; 
+            box-shadow: 0 0 10px white;
+        }
+        .mascot-eye:last-child { animation-delay: 0.1s; }
+        @keyframes blink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
+
+        .model-badge { 
+            display: flex; align-items: center; gap: 6px; 
+            padding: 6px 12px; background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid var(--border-default); border-radius: 20px; 
+            font-size: 11px; color: var(--fg-tertiary); 
+            font-family: var(--font-ui); cursor: pointer; transition: all var(--duration-fast); 
+        }
+        .model-badge:hover { 
+            border-color: var(--accent-tertiary); color: var(--accent-cyan);
+        }
+        .send-btn { 
+            width: 36px; height: 36px; border-radius: 12px; 
+            background: linear-gradient(135deg, var(--accent), var(--accent-secondary)); 
+            border: none; 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all var(--duration-fast); 
+            color: white; font-size: 14px;
+            font-family: var(--font-ui); font-weight: bold;
+            box-shadow: 0 4px 20px rgba(255, 0, 110, 0.4);
+        }
+        .send-btn:hover { 
+            transform: scale(1.1) rotate(-5deg); 
+            box-shadow: 0 8px 30px rgba(255, 0, 110, 0.6);
+        }
+        .context-bar { height: 3px; background: transparent; transition: all 0.3s; border-radius: 0 0 16px 16px; }
+        .context-bar.has-context { 
+            background: linear-gradient(90deg, var(--accent), var(--accent-secondary), var(--accent-tertiary));
+        }
+
+        /* Settings panel */
+        .settings-scrim { 
+            position: absolute; inset: 0; background: rgba(10, 10, 15, 0.9); 
+            z-index: 70; opacity: 0; pointer-events: none; transition: opacity var(--duration-fast); 
+            backdrop-filter: blur(5px);
+        }
+        .settings-scrim.visible { opacity: 1; pointer-events: auto; }
+        .settings-panel { 
+            position: absolute; top: 0; right: 0; bottom: 0; width: 100%; 
+            background: rgba(18, 18, 26, 0.95); 
+            border-left: 1px solid var(--border-default); z-index: 80; 
+            transform: translateX(100%); transition: transform 0.3s var(--ease-precision); 
+            display: flex; flex-direction: column;
+            backdrop-filter: blur(30px);
+            box-shadow: -10px 0 40px rgba(0,0,0,0.5);
+        }
+        .settings-panel.visible { transform: translateX(0); }
+        .settings-header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 16px; border-bottom: 1px solid var(--border-default); 
+        }
+        .settings-title { 
+            font-family: var(--font-ui); font-size: 18px; font-weight: 600; 
+        }
+        .settings-close { 
+            font-size: 20px; color: var(--fg-muted); background: transparent; 
+            border: none; cursor: pointer; transition: color var(--duration-fast); 
+            font-family: var(--font-ui);
+            width: 36px; height: 36px; border-radius: 10px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .settings-close:hover { 
+            color: var(--accent); background: rgba(255, 0, 110, 0.1);
+        }
+        .settings-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .settings-section { margin-bottom: 24px; }
+        .settings-section-title { 
+            font-family: var(--font-ui); font-size: 11px; font-weight: 600; 
+            text-transform: uppercase; letter-spacing: 0.1em; 
+            color: var(--fg-muted); margin-bottom: 12px; 
+        }
+        .setting-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 14px; background: rgba(255, 255, 255, 0.03); 
+            border: 1px solid var(--border-default); border-radius: 12px; 
+            margin-bottom: 8px; cursor: pointer; transition: all var(--duration-fast); 
+        }
+        .setting-item:hover { 
+            border-color: var(--accent); 
+            background: rgba(255, 0, 110, 0.05);
+        }
+        .setting-label { font-size: 14px; color: var(--fg-secondary); font-family: var(--font-body); }
+        .setting-value { font-family: var(--font-ui); font-size: 12px; color: var(--fg-muted); }
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .theme-option { 
+            aspect-ratio: 1; border-radius: 12px; border: 2px solid transparent; 
+            cursor: pointer; position: relative; 
+            transition: all var(--duration-fast);
+        }
+        .theme-option:hover { 
+            transform: scale(1.05);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .theme-option.active { 
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(255, 0, 110, 0.3);
+        }
+        .theme-option.active::after { 
+            content: ''; position: absolute; top: 6px; right: 6px; 
+            width: 8px; height: 8px; background: var(--accent); 
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: rgba(255, 255, 255, 0.1); 
+            border-radius: 3px; 
+        }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <header class="doc-header">
+            <h1 class="doc-title">PARCHI Sidepanel — Liquid Gradient</h1>
+            <p class="doc-subtitle">Fluid Gradients · Morphing Shapes · Neon Vibrancy</p>
+        </header>
+
+        <div class="section">
+            <div class="section-title">Core States</div>
+            <div class="showcase">
+                
+                <!-- Empty State -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Empty State</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="fab-group">
+                                <button class="context-inspector">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 17h6"/></svg>
+                                    <span>0 / 128k</span>
+                                    <span>0%</span>
+                                </button>
+                                <button class="fab">+</button>
+                                <button class="fab">⚙</button>
+                            </div>
+                            <div class="empty-state">
+                                <div class="liquid-blob">
+                                    <div class="blob-ring"></div>
+                                    <div class="blob-ring"></div>
+                                    <div class="blob-ring"></div>
+                                    <div class="blob-core"></div>
+                                </div>
+                                <div class="empty-title">What can I help with?</div>
+                                <div class="empty-subtitle">Your AI companion for the web</div>
+                                <div class="starters">
+                                    <button class="starter-btn">What's on this page?</button>
+                                    <button class="starter-btn">Summarize the key points</button>
+                                    <button class="starter-btn">Find something across tabs</button>
+                                    <button class="starter-btn">Help me fill out this form</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                        <button class="tool-btn">●</button>
+                                        <button class="tool-btn">⊞</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-badge"><span>⚡</span><span>Claude 3.5</span><span>⌄</span></div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                                <div class="context-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Chat with Table -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Message with Table</span>
+                    <div class="sidepanel">
+                        <div class="agent-nav">
+                            <button class="agent-tab active"><span class="agent-tab-dot"></span><span class="agent-tab-label">Main</span></button>
+                        </div>
+                        <div class="chat-area">
+                            <div class="messages">
+                                <div class="message message-user"><div class="bubble-user">Show me the deployment keys</div></div>
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Here are your Convex deployment keys:</p></div>
+                                        <div class="data-table-wrapper">
+                                            <table class="data-table">
+                                                <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td><span class="table-tag">CLOUD_URL</span></td><td><code>https://project.convex.cloud</code></td></tr>
+                                                    <tr><td><span class="table-tag">DEPLOY_KEY</span></td><td><code>dev:project|eyJ...</code></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Above Composer -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Plan Above Composer</span>
+                    <div class="sidepanel">
+                        <div class="chat-area">
+                            <div class="messages" style="flex: 1;">
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Working on your request...</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="plan-drawer">
+                                <div class="plan-header">
+                                    <div class="plan-title"><span>▼</span><span>Plan</span><span class="plan-count">3 steps • Running</span></div>
+                                    <div class="plan-actions"><button class="plan-btn">Clear</button></div>
+                                </div>
+                                <div class="plan-content">
+                                    <ol class="checklist">
+                                        <li class="checklist-item checked"><span class="checklist-check"></span><span class="checklist-text">Navigate to dashboard</span></li>
+                                        <li class="checklist-item current"><span class="checklist-check"></span><span class="checklist-text">Create new project</span></li>
+                                        <li class="checklist-item"><span class="checklist-check"></span><span class="checklist-text">Extract keys</span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Settings Slide-in</span>
+                    <div class="sidepanel">
+                        <div class="chat-area" style="opacity: 0.3;">
+                            <div class="messages"><div class="message message-user"><div class="bubble-user">Example</div></div></div>
+                        </div>
+                        <div class="settings-scrim visible"></div>
+                        <div class="settings-panel visible">
+                            <div class="settings-header"><span class="settings-title">Settings</span><button class="settings-close">×</button></div>
+                            <div class="settings-content">
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Appearance</div>
+                                    <div class="theme-grid">
+                                        <div class="theme-option active" style="background: linear-gradient(135deg, #ff006e 0%, #8338ec 100%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #00f5ff 0%, #3a86ff 100%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #ff6b35 0%, #ffbe0b 100%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #00ff88 0%, #3a86ff 100%);"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Configuration</div>
+                                    <div class="setting-item"><span class="setting-label">Active Profile</span><span class="setting-value">Claude 3.5 ›</span></div>
+                                    <div class="setting-item"><span class="setting-label">Temperature</span><span class="setting-value">0.7 ›</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

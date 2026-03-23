@@ -29,6 +29,28 @@ jobs:
           fi
       - run: npm run check:repo-standards -- --base=${{ steps.standards-base.outputs.value }}
 
+  tech-debt:
+    name: Tech Debt Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - name: Resolve standards base
+        id: td-base
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "value=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "value=${{ github.event.before }}" >> "$GITHUB_OUTPUT"
+          fi
+      - run: npm run check:tech-debt -- --base=${{ steps.td-base.outputs.value }}
+
   lint:
     name: Lint
     runs-on: ubuntu-latest

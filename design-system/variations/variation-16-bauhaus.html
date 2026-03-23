@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PARCHI Sidepanel — Bauhaus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Bauhaus — Primary Colors & Geometric Forms */
+            --bg-primary: #f4f4f0;          /* Off-white paper */
+            --bg-secondary: #e8e8e4;        /* Light gray */
+            --bg-tertiary: #dcdcd6;         /* Mid gray */
+            --bg-elevated: #ffffff;         /* Pure white */
+            
+            --fg-primary: #1a1a1a;            /* Black */
+            --fg-secondary: #4a4a4a;          /* Dark gray */
+            --fg-tertiary: #6b6b6b;           /* Mid gray */
+            --fg-muted: #8a8a8a;               /* Light gray */
+            --fg-subtle: #aaaaaa;               /* Very light */
+            
+            /* Primary Colors — Bauhaus palette */
+            --accent: #e74c3c;                /* Primary red */
+            --accent-rgb: 231 76 60;
+            --accent-hover: #c0392b;
+            --accent-dim: #a93226;
+            --accent-glow: rgba(231, 76, 60, 0.3);
+            
+            --primary-blue: #2980b9;           /* Primary blue */
+            --primary-yellow: #f1c40f;          /* Primary yellow */
+            --primary-red: #e74c3c;             /* Primary red */
+            --primary-black: #1a1a1a;           /* Black */
+            
+            --success: #27ae60;
+            --warning: var(--primary-yellow);
+            --error: var(--primary-red);
+            
+            /* Strong geometric borders */
+            --border-subtle: rgba(26, 26, 26, 0.1);
+            --border-default: rgba(26, 26, 26, 0.2);
+            --border-strong: rgba(26, 26, 26, 0.5);
+            --border-accent: rgba(231, 76, 60, 0.6);
+            
+            --font-ui: 'Space Grotesk', 'Futura', 'Helvetica Neue', sans-serif;
+            --font-display: 'Oswald', 'Impact', sans-serif;
+            
+            --ease-precision: cubic-bezier(0.16, 1, 0.3, 1);
+            --duration-fast: 150ms;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+        body { 
+            font-family: var(--font-ui); font-weight: 400; line-height: 1.5; 
+            color: var(--fg-primary); background: var(--bg-primary); 
+        }
+
+        /* Geometric pattern overlay */
+        body::before { 
+            content: ''; position: fixed; inset: 0; 
+            background-image: 
+                linear-gradient(90deg, rgba(26,26,26,0.03) 1px, transparent 1px),
+                linear-gradient(rgba(26,26,26,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none; z-index: 9999;
+        }
+
+        .doc { max-width: 1800px; margin: 0 auto; padding: 40px; position: relative; z-index: 1; }
+        .doc-header { text-align: center; margin-bottom: 40px; }
+        .doc-title { 
+            font-family: var(--font-display); font-size: 36px; font-weight: 700; 
+            margin-bottom: 8px; text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .doc-subtitle { 
+            color: var(--fg-muted); font-size: 14px; 
+            font-family: var(--font-ui);
+        }
+        
+        .section { margin-bottom: 60px; }
+        .section-title { 
+            font-family: var(--font-display); font-size: 20px; font-weight: 600; 
+            margin-bottom: 20px; color: var(--accent); 
+            text-transform: uppercase; letter-spacing: 0.05em;
+        }
+        .showcase { display: flex; gap: 30px; flex-wrap: wrap; }
+        .showcase-item { display: flex; flex-direction: column; gap: 8px; }
+        .showcase-label { 
+            font-family: var(--font-ui); font-size: 11px; color: var(--fg-muted); 
+            text-transform: uppercase; letter-spacing: 0.1em; font-weight: 500; 
+        }
+
+        /* Sidepanel — Grid-based geometric frame */
+        .sidepanel { 
+            width: 400px; height: 700px; 
+            border: 4px solid var(--primary-black); 
+            background: var(--bg-primary); 
+            display: flex; flex-direction: column; 
+            position: relative; overflow: hidden;
+        }
+        
+        /* Primary color accent bar */
+        .sidepanel::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 100%; height: 8px;
+            background: linear-gradient(90deg, 
+                var(--primary-red) 0%, var(--primary-red) 33%,
+                var(--primary-yellow) 33%, var(--primary-yellow) 66%,
+                var(--primary-blue) 66%, var(--primary-blue) 100%
+            );
+            z-index: 10;
+        }
+        
+        /* Geometric corner accent */
+        .geo-corner {
+            position: absolute; bottom: 0; right: 0;
+            width: 60px; height: 60px;
+            background: var(--primary-yellow);
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+            z-index: 5;
+        }
+        .geo-corner::after {
+            content: ''; position: absolute; bottom: 0; right: 0;
+            width: 30px; height: 30px;
+            background: var(--primary-blue);
+            clip-path: polygon(100% 0, 100% 100%, 0 100%);
+        }
+
+        /* Agent nav — Tabular tabs */
+        .agent-nav { 
+            display: flex; 
+            background: var(--bg-secondary); 
+            border-bottom: 2px solid var(--primary-black); 
+            padding: 0; min-height: 42px; 
+            overflow-x: auto; scrollbar-width: none;
+            font-family: var(--font-ui);
+            margin-top: 8px;
+        }
+        .agent-nav::-webkit-scrollbar { display: none; }
+        .agent-tab { 
+            display: flex; align-items: center; gap: 6px; 
+            padding: 12px 14px; min-width: 0; max-width: 160px; 
+            font-size: 12px; background: transparent; border: none; 
+            color: var(--fg-tertiary); 
+            cursor: pointer; transition: all var(--duration-fast); 
+            white-space: nowrap; position: relative;
+            font-family: var(--font-ui);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .agent-tab:hover { 
+            background: rgba(231, 76, 60, 0.05); color: var(--fg-secondary); 
+        }
+        .agent-tab.active { 
+            background: var(--primary-black); color: var(--bg-primary);
+        }
+        .agent-tab-dot { 
+            width: 8px; height: 8px; border-radius: 0; 
+            background: currentColor; opacity: 0.5;
+        }
+        .agent-tab.active .agent-tab-dot { opacity: 1; background: var(--primary-yellow); }
+        .agent-tab.running .agent-tab-dot { 
+            background: var(--primary-yellow); animation: blink-square 1s steps(2) infinite;
+        }
+        @keyframes blink-square { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .agent-tab-label { overflow: hidden; text-overflow: ellipsis; }
+        .agent-tab-close { 
+            width: 14px; height: 14px; display: flex; 
+            align-items: center; justify-content: center; 
+            border: none; background: transparent; color: inherit; 
+            opacity: 0; cursor: pointer; font-size: 12px; 
+        }
+        .agent-tab:hover .agent-tab-close { opacity: 0.7; }
+        .agent-tab-close:hover { opacity: 1 !important; }
+
+        /* FAB Group */
+        .fab-group { 
+            position: absolute; top: 16px; right: 10px; 
+            display: flex; gap: 6px; z-index: 50; 
+        }
+        .fab { 
+            width: 32px; height: 32px; border-radius: 0; 
+            border: 2px solid var(--primary-black); 
+            background: var(--bg-elevated); 
+            color: var(--fg-secondary); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all var(--duration-fast); 
+            font-size: 12px;
+            font-family: var(--font-ui);
+        }
+        .fab:hover { 
+            background: var(--primary-red); color: white; 
+            border-color: var(--primary-red);
+        }
+        .context-inspector { 
+            height: 28px; padding: 0 10px; border-radius: 0; 
+            border: 2px solid var(--primary-black); 
+            background: var(--bg-elevated); 
+            color: var(--fg-muted); 
+            display: flex; align-items: center; gap: 6px; 
+            font-family: var(--font-ui); font-size: 10px; 
+            cursor: pointer; transition: all var(--duration-fast);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .context-inspector:hover { 
+            background: var(--bg-tertiary); color: var(--fg-primary); 
+        }
+
+        /* Chat area */
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; position: relative; }
+
+        /* Empty state — Geometric composition */
+        .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; }
+        
+        .geo-composition { 
+            position: relative; width: 140px; height: 140px; margin-bottom: 24px; 
+        }
+        .geo-circle {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px; height: 60px;
+            background: var(--primary-blue);
+            border-radius: 50%;
+            z-index: 1;
+            animation: rotate-slow 30s linear infinite;
+        }
+        .geo-square {
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) rotate(0deg);
+            width: 80px; height: 80px;
+            border: 3px solid var(--primary-red);
+            z-index: 2;
+            animation: rotate-reverse 20s linear infinite;
+        }
+        .geo-triangle {
+            position: absolute; bottom: 10px; left: 10px;
+            width: 0; height: 0;
+            border-left: 20px solid transparent;
+            border-right: 20px solid transparent;
+            border-bottom: 35px solid var(--primary-yellow);
+            z-index: 3;
+            animation: bounce 3s ease-in-out infinite;
+        }
+        @keyframes rotate-slow { from { transform: translate(-50%, -50%) rotate(0deg); } to { transform: translate(-50%, -50%) rotate(360deg); } }
+        @keyframes rotate-reverse { from { transform: translate(-50%, -50%) rotate(45deg); } to { transform: translate(-50%, -50%) rotate(-315deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        .empty-title { 
+            font-family: var(--font-display); font-size: 24px; font-weight: 600; 
+            margin-bottom: 6px; text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .empty-subtitle { 
+            font-size: 12px; color: var(--fg-muted); margin-bottom: 24px;
+            font-family: var(--font-ui);
+        }
+        .starters { display: flex; flex-direction: column; gap: 4px; width: 100%; }
+        .starter-btn { 
+            padding: 12px 16px; border-radius: 0; 
+            border: 2px solid var(--primary-black); background: transparent; 
+            color: var(--fg-tertiary); font-size: 13px; 
+            text-align: left; cursor: pointer; transition: all var(--duration-fast);
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-weight: 500;
+        }
+        .starter-btn:hover { 
+            background: var(--primary-black); color: var(--bg-primary); 
+        }
+
+        /* Messages */
+        .messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+        .message { animation: message-in 0.3s var(--ease-precision); }
+        @keyframes message-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .message-user { display: flex; justify-content: flex-end; }
+        .bubble-user { 
+            max-width: 90%; background: var(--bg-elevated); 
+            border: 2px solid var(--primary-black); border-radius: 0; 
+            padding: 12px 16px; 
+            font-size: 14px; color: var(--fg-primary); line-height: 1.6;
+            font-family: var(--font-ui);
+        }
+        .message-assistant { display: flex; gap: 12px; }
+        .avatar { 
+            width: 32px; height: 32px; border-radius: 0; 
+            background: var(--primary-red); 
+            display: flex; align-items: center; justify-content: center; 
+            font-family: var(--font-display); font-size: 14px; font-weight: 700; 
+            color: white; flex-shrink: 0;
+            border: 2px solid var(--primary-black);
+        }
+        .message-content { flex: 1; min-width: 0; }
+        .message-text { 
+            font-size: 14px; line-height: 1.7; color: var(--fg-secondary); 
+            font-family: var(--font-ui);
+        }
+        .message-text p { margin-bottom: 12px; }
+        .message-text p:last-child { margin-bottom: 0; }
+        .message-text code { 
+            font-family: var(--font-ui); font-size: 11px; font-weight: 600;
+            background: var(--bg-secondary); padding: 2px 8px; border-radius: 0; 
+            color: var(--primary-blue);
+            border: 1px solid var(--border-default);
+        }
+
+        /* Data table */
+        .data-table-wrapper { 
+            margin: 16px 0; border: 2px solid var(--primary-black); 
+            overflow: hidden; border-radius: 0;
+        }
+        .data-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+        .data-table th { 
+            background: var(--primary-black); padding: 12px 16px; 
+            text-align: left; font-weight: 600; font-size: 11px; 
+            text-transform: uppercase; letter-spacing: 0.05em; 
+            color: var(--bg-primary); 
+            font-family: var(--font-ui);
+        }
+        .data-table td { 
+            padding: 12px 16px; border-bottom: 1px solid var(--border-default); 
+            color: var(--fg-secondary); font-family: var(--font-ui);
+        }
+        .data-table tr:last-child td { border-bottom: none; }
+        .data-table tr:hover td { background: rgba(231, 76, 60, 0.05); }
+        .table-tag { 
+            font-family: var(--font-ui); font-size: 10px; font-weight: 600; 
+            background: var(--primary-yellow); padding: 3px 8px; border-radius: 0; 
+            color: var(--primary-black);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        /* Tool timeline */
+        .step-timeline { 
+            position: relative; padding-left: 20px; 
+            border-left: 3px solid var(--border-default); margin: 8px 0; 
+        }
+        .step-item { position: relative; padding: 6px 0 6px 12px; }
+        .step-item::before { 
+            content: ''; position: absolute; left: -20px; top: 10px; 
+            width: 10px; height: 10px; border-radius: 0; 
+            background: var(--bg-primary); border: 2px solid var(--fg-muted); 
+        }
+        .step-item.current::before { 
+            border-color: var(--primary-red); background: var(--primary-red); 
+        }
+        .step-title { font-size: 12px; color: var(--fg-muted); font-family: var(--font-ui); text-transform: uppercase; }
+        .step-item.current .step-title { color: var(--fg-primary); font-weight: 600; }
+
+        /* Tool row */
+        .tool-row { 
+            display: flex; align-items: center; gap: 8px; 
+            padding: 6px 0; font-size: 11px; color: var(--fg-muted); 
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+        }
+        .tool-icon-small { 
+            width: 14px; height: 14px; display: flex; 
+            align-items: center; justify-content: center; font-size: 10px; 
+        }
+        .tool-name { font-weight: 600; color: var(--fg-secondary); }
+        .tool-args { font-family: var(--font-ui); opacity: 0.7; overflow: hidden; text-overflow: ellipsis; }
+        .tool-status { margin-left: auto; font-family: var(--font-ui); font-weight: 600; }
+
+        /* PLAN DRAWER — Functionalist panel */
+        .plan-drawer { 
+            background: var(--bg-secondary); 
+            border-top: 3px solid var(--primary-black); flex-shrink: 0;
+        }
+        .plan-header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 12px 16px; cursor: pointer; 
+        }
+        .plan-title { 
+            display: flex; align-items: center; gap: 8px; 
+            font-size: 12px; font-weight: 600; text-transform: uppercase; 
+            letter-spacing: 0.05em; color: var(--fg-muted); 
+            font-family: var(--font-display);
+        }
+        .plan-count { 
+            font-family: var(--font-ui); font-size: 10px; font-weight: 600;
+            padding: 3px 10px; background: var(--bg-elevated); 
+            border: 2px solid var(--primary-black);
+            border-radius: 0;
+        }
+        .plan-actions { display: flex; align-items: center; gap: 6px; }
+        .plan-btn { 
+            padding: 6px 14px; border-radius: 0; 
+            border: 2px solid var(--primary-black); background: var(--bg-elevated); 
+            color: var(--fg-secondary); font-size: 10px; 
+            font-family: var(--font-ui); cursor: pointer; transition: all var(--duration-fast); 
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-weight: 600;
+        }
+        .plan-btn:hover { 
+            background: var(--primary-black); color: var(--bg-primary); 
+        }
+        .plan-content { padding: 0 16px 12px; }
+        .checklist { list-style: none; }
+        .checklist-item { 
+            display: flex; align-items: flex-start; gap: 10px; 
+            padding: 8px 0; font-size: 12px; font-family: var(--font-ui);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+        .checklist-check { 
+            width: 14px; height: 14px; border: 2px solid var(--fg-muted); 
+            border-radius: 0; flex-shrink: 0; margin-top: 2px; 
+            position: relative;
+        }
+        .checklist-item.checked .checklist-check { 
+            background: var(--fg-muted); border-color: var(--fg-muted); 
+        }
+        .checklist-item.checked .checklist-check::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 6px; height: 6px;
+            background: var(--bg-primary);
+        }
+        .checklist-item.current .checklist-check { 
+            border-color: var(--primary-red); background: var(--primary-red); 
+        }
+        .checklist-item.current .checklist-check::after {
+            content: ''; position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%); width: 6px; height: 6px;
+            background: var(--bg-primary);
+        }
+        .checklist-text { color: var(--fg-muted); }
+        .checklist-item.checked .checklist-text, .checklist-item.current .checklist-text { color: var(--fg-secondary); }
+
+        /* Jump button */
+        .jump-btn { 
+            position: absolute; left: 50%; transform: translateX(-50%); 
+            bottom: 180px; padding: 10px 20px; background: var(--bg-elevated); 
+            border: 2px solid var(--primary-black); border-radius: 0; 
+            font-size: 12px; color: var(--fg-secondary); cursor: pointer; 
+            transition: all var(--duration-fast); z-index: 10;
+            font-family: var(--font-ui);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-weight: 600;
+        }
+        .jump-btn:hover { 
+            background: var(--primary-black); color: var(--bg-primary); 
+        }
+
+        /* Composer — Constructivist style */
+        .composer-wrapper { 
+            padding: 12px; background: var(--bg-secondary); 
+            border-top: 3px solid var(--primary-black); flex-shrink: 0;
+        }
+        .composer { 
+            background: var(--bg-elevated); border: 2px solid var(--primary-black); 
+            border-radius: 0; overflow: hidden; transition: all var(--duration-fast);
+        }
+        .composer:focus-within { 
+            border-color: var(--primary-red); 
+            box-shadow: 4px 4px 0 rgba(231, 76, 60, 0.2);
+        }
+        .composer-input { 
+            width: 100%; min-height: 48px; max-height: 120px; 
+            padding: 14px 16px; background: transparent; border: none; 
+            color: var(--fg-primary); font-family: var(--font-ui); font-size: 14px; 
+            line-height: 1.5; resize: none; outline: none; 
+        }
+        .composer-input::placeholder { color: var(--fg-muted); text-transform: uppercase; }
+        .composer-toolbar { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 10px 12px; border-top: 1px solid var(--border-subtle); 
+        }
+        .toolbar-left { display: flex; align-items: center; gap: 4px; }
+        .toolbar-right { display: flex; align-items: center; gap: 10px; }
+        .tool-btn { 
+            width: 32px; height: 32px; border-radius: 0; border: none; 
+            background: transparent; color: var(--fg-muted); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all var(--duration-fast); font-size: 13px; 
+        }
+        .tool-btn:hover { 
+            background: var(--bg-secondary); color: var(--fg-primary); 
+        }
+
+        /* Mascot — Geometric abstract */
+        .mascot { 
+            width: 32px; height: 32px; position: relative; cursor: pointer; 
+        }
+        .mascot-body { 
+            position: absolute; inset: 0; 
+            background: var(--primary-yellow); 
+            clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+            animation: diamond-pulse 2s ease-in-out infinite;
+        }
+        @keyframes diamond-pulse { 
+            0%, 100% { transform: scale(1); } 
+            50% { transform: scale(1.1); } 
+        }
+        .mascot-eyes { 
+            position: absolute; top: 50%; left: 50%; 
+            transform: translate(-50%, -50%); display: flex; gap: 6px; 
+        }
+        .mascot-eye { 
+            width: 4px; height: 4px; background: var(--primary-black); 
+            border-radius: 0; animation: blink 4s ease-in-out infinite; 
+        }
+        .mascot-eye:last-child { animation-delay: 0.1s; }
+        @keyframes blink { 0%, 45%, 55%, 100% { transform: scaleY(1); } 50% { transform: scaleY(0.1); } }
+
+        .model-badge { 
+            display: flex; align-items: center; gap: 6px; 
+            padding: 6px 12px; background: var(--bg-elevated); 
+            border: 2px solid var(--primary-black); border-radius: 0; 
+            font-size: 11px; color: var(--fg-tertiary); 
+            font-family: var(--font-ui); cursor: pointer; transition: all var(--duration-fast); 
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+            font-weight: 500;
+        }
+        .model-badge:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+        .send-btn { 
+            width: 36px; height: 36px; border-radius: 0; 
+            background: var(--primary-red); 
+            border: 2px solid var(--primary-black); 
+            display: flex; align-items: center; justify-content: center; 
+            cursor: pointer; transition: all var(--duration-fast); 
+            color: white; font-size: 14px;
+            font-family: var(--font-ui); font-weight: 700;
+        }
+        .send-btn:hover { 
+            background: var(--primary-blue); 
+            transform: translate(-2px, -2px);
+            box-shadow: 4px 4px 0 rgba(26, 26, 26, 0.3);
+        }
+        .context-bar { height: 4px; background: transparent; transition: all 0.3s; }
+        .context-bar.has-context { background: linear-gradient(90deg, var(--primary-red) 0%, var(--primary-yellow) 50%, var(--primary-blue) 100%); }
+
+        /* Settings panel */
+        .settings-scrim { 
+            position: absolute; inset: 0; background: rgba(244, 244, 240, 0.95); 
+            z-index: 70; opacity: 0; pointer-events: none; transition: opacity var(--duration-fast); 
+        }
+        .settings-scrim.visible { opacity: 1; pointer-events: auto; }
+        .settings-panel { 
+            position: absolute; top: 0; right: 0; bottom: 0; width: 100%; 
+            background: var(--bg-secondary); 
+            border-left: 3px solid var(--primary-black); z-index: 80; 
+            transform: translateX(100%); transition: transform 0.3s var(--ease-precision); 
+            display: flex; flex-direction: column;
+        }
+        .settings-panel.visible { transform: translateX(0); }
+        .settings-header { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 16px; border-bottom: 3px solid var(--primary-black); 
+        }
+        .settings-title { 
+            font-family: var(--font-display); font-size: 20px; font-weight: 600; 
+            text-transform: uppercase;
+        }
+        .settings-close { 
+            font-size: 24px; color: var(--fg-muted); background: transparent; 
+            border: none; cursor: pointer; transition: color var(--duration-fast); 
+            font-family: var(--font-ui);
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border: 2px solid var(--primary-black);
+        }
+        .settings-close:hover { 
+            background: var(--primary-red); color: white;
+        }
+        .settings-content { flex: 1; overflow-y: auto; padding: 16px; }
+        .settings-section { margin-bottom: 24px; }
+        .settings-section-title { 
+            font-family: var(--font-display); font-size: 12px; font-weight: 600; 
+            text-transform: uppercase; letter-spacing: 0.05em; 
+            color: var(--fg-muted); margin-bottom: 12px; 
+        }
+        .setting-item { 
+            display: flex; align-items: center; justify-content: space-between; 
+            padding: 14px; background: var(--bg-elevated); 
+            border: 2px solid var(--primary-black); border-radius: 0; 
+            margin-bottom: 8px; cursor: pointer; transition: all var(--duration-fast); 
+        }
+        .setting-item:hover { 
+            background: var(--primary-black); color: var(--bg-primary);
+        }
+        .setting-item:hover .setting-value { color: var(--bg-tertiary); }
+        .setting-label { font-size: 14px; font-family: var(--font-ui); text-transform: uppercase; font-weight: 500; }
+        .setting-value { font-family: var(--font-ui); font-size: 12px; color: var(--fg-muted); font-weight: 600; }
+        .theme-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+        .theme-option { 
+            aspect-ratio: 1; border-radius: 0; border: 2px solid transparent; 
+            cursor: pointer; position: relative; 
+            transition: all var(--duration-fast);
+        }
+        .theme-option:hover { transform: scale(1.05); }
+        .theme-option.active { 
+            border-color: var(--primary-black); 
+            box-shadow: 4px 4px 0 rgba(231, 76, 60, 0.3);
+        }
+        .theme-option.active::after { 
+            content: ''; position: absolute; top: 4px; right: 4px; 
+            width: 8px; height: 8px; background: var(--primary-red); 
+        }
+
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--fg-muted); 
+            border-radius: 0; 
+        }
+    </style>
+</head>
+<body>
+    <div class="doc">
+        <header class="doc-header">
+            <h1 class="doc-title">PARCHI Sidepanel — Bauhaus</h1>
+            <p class="doc-subtitle">Primary Colors · Geometric Forms · Functionalist Design</p>
+        </header>
+
+        <div class="section">
+            <div class="section-title">Core States</div>
+            <div class="showcase">
+                
+                <!-- Empty State -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Empty State</span>
+                    <div class="sidepanel">
+                        <div class="geo-corner"></div>
+                        <div class="chat-area">
+                            <div class="fab-group">
+                                <button class="context-inspector">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:10px;height:10px;"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><path d="M14 17h6"/></svg>
+                                    <span>0 / 128k</span>
+                                    <span>0%</span>
+                                </button>
+                                <button class="fab">+</button>
+                                <button class="fab">⚙</button>
+                            </div>
+                            <div class="empty-state">
+                                <div class="geo-composition">
+                                    <div class="geo-circle"></div>
+                                    <div class="geo-square"></div>
+                                    <div class="geo-triangle"></div>
+                                </div>
+                                <div class="empty-title">Form Follows Function</div>
+                                <div class="empty-subtitle">What can I help you create?</div>
+                                <div class="starters">
+                                    <button class="starter-btn">What's on this page?</button>
+                                    <button class="starter-btn">Summarize the key points</button>
+                                    <button class="starter-btn">Find something across tabs</button>
+                                    <button class="starter-btn">Help me fill out this form</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                        <button class="tool-btn">●</button>
+                                        <button class="tool-btn">⊞</button>
+                                    </div>
+                                    <div class="toolbar-right">
+                                        <div class="model-badge"><span>⚡</span><span>Claude 3.5</span><span>⌄</span></div>
+                                        <button class="send-btn">↑</button>
+                                    </div>
+                                </div>
+                                <div class="context-bar"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Chat with Table -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Message with Table</span>
+                    <div class="sidepanel">
+                        <div class="geo-corner"></div>
+                        <div class="agent-nav">
+                            <button class="agent-tab active"><span class="agent-tab-dot"></span><span class="agent-tab-label">Main</span></button>
+                        </div>
+                        <div class="chat-area">
+                            <div class="messages">
+                                <div class="message message-user"><div class="bubble-user">Show me the deployment keys</div></div>
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Here are your Convex deployment keys:</p></div>
+                                        <div class="data-table-wrapper">
+                                            <table class="data-table">
+                                                <thead><tr><th>Key</th><th>Value</th></tr></thead>
+                                                <tbody>
+                                                    <tr><td><span class="table-tag">CLOUD_URL</span></td><td><code>https://project.convex.cloud</code></td></tr>
+                                                    <tr><td><span class="table-tag">DEPLOY_KEY</span></td><td><code>dev:project|eyJ...</code></td></tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Plan Above Composer -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Plan Above Composer</span>
+                    <div class="sidepanel">
+                        <div class="geo-corner"></div>
+                        <div class="chat-area">
+                            <div class="messages" style="flex: 1;">
+                                <div class="message message-assistant">
+                                    <div class="avatar">P</div>
+                                    <div class="message-content">
+                                        <div class="message-text"><p>Working on your request...</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="plan-drawer">
+                                <div class="plan-header">
+                                    <div class="plan-title"><span>▼</span><span>Plan</span><span class="plan-count">3 steps • Running</span></div>
+                                    <div class="plan-actions"><button class="plan-btn">Clear</button></div>
+                                </div>
+                                <div class="plan-content">
+                                    <ol class="checklist">
+                                        <li class="checklist-item checked"><span class="checklist-check"></span><span class="checklist-text">Navigate to dashboard</span></li>
+                                        <li class="checklist-item current"><span class="checklist-check"></span><span class="checklist-text">Create new project</span></li>
+                                        <li class="checklist-item"><span class="checklist-check"></span><span class="checklist-text">Extract keys</span></li>
+                                    </ol>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="composer-wrapper">
+                            <div class="composer">
+                                <textarea class="composer-input" placeholder="Message..."></textarea>
+                                <div class="composer-toolbar">
+                                    <div class="toolbar-left">
+                                        <div class="mascot"><div class="mascot-body"></div><div class="mascot-eyes"><div class="mascot-eye"></div><div class="mascot-eye"></div></div></div>
+                                        <button class="tool-btn">📎</button>
+                                    </div>
+                                    <div class="toolbar-right"><button class="send-btn">↑</button></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Settings Panel -->
+                <div class="showcase-item">
+                    <span class="showcase-label">Settings Slide-in</span>
+                    <div class="sidepanel">
+                        <div class="geo-corner"></div>
+                        <div class="chat-area" style="opacity: 0.3;">
+                            <div class="messages"><div class="message message-user"><div class="bubble-user">Example</div></div></div>
+                        </div>
+                        <div class="settings-scrim visible"></div>
+                        <div class="settings-panel visible">
+                            <div class="settings-header"><span class="settings-title">Settings</span><button class="settings-close">×</button></div>
+                            <div class="settings-content">
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Appearance</div>
+                                    <div class="theme-grid">
+                                        <div class="theme-option active" style="background: linear-gradient(135deg, #e74c3c 0%, #e74c3c 50%, #1a1a1a 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #2980b9 0%, #2980b9 50%, #1a1a1a 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #f1c40f 0%, #f1c40f 50%, #1a1a1a 50%);"></div>
+                                        <div class="theme-option" style="background: linear-gradient(135deg, #27ae60 0%, #27ae60 50%, #1a1a1a 50%);"></div>
+                                    </div>
+                                </div>
+                                <div class="settings-section">
+                                    <div class="settings-section-title">Configuration</div>
+                                    <div class="setting-item"><span class="setting-label">Active Profile</span><span class="setting-value">Claude 3.5 ›</span></div>
+                                    <div class="setting-item"><span class="setting-label">Temperature</span><span class="setting-value">0.7 ›</span></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+</html>

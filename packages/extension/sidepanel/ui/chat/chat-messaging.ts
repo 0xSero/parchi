@@ -69,6 +69,11 @@ sidePanelProto.sendMessage = async function sendMessage() {
   this.elements.userInput.style.height = '';
   if (!this.firstUserMessage) {
     this.firstUserMessage = userMessage;
+    const titleEl = this.elements.topbarSessionTitle as HTMLElement | null;
+    if (titleEl) {
+      const truncated = userMessage.length > 60 ? userMessage.slice(0, 57) + '...' : userMessage;
+      titleEl.textContent = truncated;
+    }
   }
 
   this.pendingToolCount = 0;

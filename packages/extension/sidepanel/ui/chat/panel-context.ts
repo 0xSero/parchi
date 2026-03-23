@@ -198,6 +198,12 @@ sidePanelProto.updateContextInspector = function updateContextInspector() {
   const tooltip = `${formatContextTokens(used)} / ${formatContextTokens(max)} (${percent}%) · Compaction log`;
   button.title = tooltip;
   button.setAttribute('data-tooltip', tooltip);
+
+  // Also update inline token display in composer
+  const composerTokens = this.elements.composerTokens as HTMLElement | null;
+  if (composerTokens && used > 0) {
+    composerTokens.textContent = `${formatContextTokens(used)}/${formatContextTokens(max)}`;
+  }
 };
 
 sidePanelProto.updateContextUsage = function updateContextUsage(actualTokens: number | null = null) {

@@ -121,6 +121,7 @@ export const getSidePanelElements = (): SidePanelElements => ({
   genAutoScroll: byId<HTMLInputElement>('genAutoScroll'),
   genConfirmActions: byId<HTMLInputElement>('genConfirmActions'),
   genSaveHistory: byId<HTMLInputElement>('genSaveHistory'),
+  genNotifyOnTurnComplete: byId<HTMLInputElement>('genNotifyOnTurnComplete'),
 
   newProfileNameInput: byId<HTMLInputElement>('newProfileNameInput'),
   createProfileBtn: byId<HTMLButtonElement>('createProfileBtn'),
@@ -208,6 +209,8 @@ export const getSidePanelElements = (): SidePanelElements => ({
   // Chat interface
   chatMessages: byId<HTMLElement>('chatMessages'),
   chatEmptyState: byId<HTMLElement>('chatEmptyState'),
+  topbarSessionTitle: byId<HTMLElement>('topbarSessionTitle'),
+  composerTokens: byId<HTMLElement>('composerTokens'),
   userInput: byId<HTMLTextAreaElement>('userInput'),
   sendBtn: byId<HTMLButtonElement>('sendBtn'),
   composer: byId<HTMLElement>('composer'),

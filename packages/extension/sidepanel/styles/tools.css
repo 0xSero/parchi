@@ -2,18 +2,17 @@
    Tools & Plan Drawer — Modern Void Design System
    ============================================================================ */
 
-/* Plan Drawer — Editorial Waypoint Style */
+/* Plan Drawer — Merged with composer container */
 .plan-drawer {
-  background: var(--card-inset);
-  border: none;
-  border-bottom: 1px solid var(--ink-2);
-  border-radius: 12px 12px 0 0;
+  background: var(--card);
+  border: 1px solid var(--ink-2);
+  border-bottom: none;
+  border-radius: 10px 10px 0 0;
   overflow: hidden;
   animation: drawerGrow 0.25s var(--ease-out-expo);
   transform-origin: bottom center;
-  /* Match the composer's horizontal padding (18px left/right) */
-  width: min(var(--content-max), calc(100% - 36px));
-  margin: 0 auto;
+  width: min(var(--content-max), 100%);
+  margin: 0 12px;
 }
 
 @keyframes drawerGrow {
@@ -31,7 +30,7 @@
   display: none;
 }
 
-/* When plan drawer is visible, connect to composer */
+/* When plan drawer is visible, merge with composer */
 .plan-drawer:not(.hidden) ~ .composer-wrapper {
   padding-top: 0;
 }
@@ -42,7 +41,7 @@
   border-top-color: transparent;
 }
 
-/* Plan drawer header */
+/* Plan drawer header — matches composer toolbar */
 .plan-drawer-header {
   display: flex;
   align-items: center;
@@ -51,7 +50,7 @@
   padding: 8px 12px;
   background: transparent;
   border: none;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--ink-1);
   cursor: pointer;
   color: var(--foreground);
   text-align: left;
@@ -59,7 +58,7 @@
 }
 
 .plan-drawer-header:hover {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.02), transparent);
+  background: rgba(255, 255, 255, 0.03);
 }
 
 .plan-drawer-title {
@@ -100,17 +99,17 @@
 .plan-drawer-btn {
   --icon-btn-size: 24px;
   --icon-btn-radius: 8px;
-  --icon-btn-color: var(--muted);
-  --icon-btn-hover-bg: rgba(255, 255, 255, 0.04);
+  --icon-btn-color: var(--muted-dim);
+  --icon-btn-hover-bg: rgba(255, 255, 255, 0.055);
   --icon-btn-hover-color: var(--foreground);
-  --icon-btn-hover-shadow: 0 0 10px rgba(255, 255, 255, 0.025);
-  --icon-btn-hover-transform: scale(1.08);
-  --icon-btn-active-transform: scale(0.88);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  --icon-btn-hover-shadow: none;
+  --icon-btn-hover-transform: none;
+  --icon-btn-active-transform: scale(0.96);
+  border: none;
 }
 
 .plan-drawer-btn:hover {
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: transparent;
 }
 
 .plan-drawer-content {
@@ -301,10 +300,10 @@
 .tool-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 0;
-  font-size: 11px;
-  line-height: 1.25;
+  gap: 8px;
+  padding: 3px 0;
+  font-size: 12px;
+  line-height: 1.35;
   color: var(--muted);
   width: 100%;
   max-width: 100%;
@@ -318,7 +317,7 @@
 }
 
 .tool-row.done {
-  opacity: 0.55;
+  opacity: 0.6;
 }
 
 .tool-row.error {
@@ -329,8 +328,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   color: var(--muted-dim);
   flex-shrink: 0;
 }
@@ -343,12 +342,12 @@
 
 .tool-args {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted-dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 200px;
+  max-width: 220px;
 }
 
 .tool-status {
@@ -357,6 +356,18 @@
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--muted-dim);
+}
+
+.tool-row.running .tool-status {
+  color: var(--accent);
+}
+
+.tool-row.done .tool-status {
+  color: hsla(140, 40%, 55%, 0.7);
+}
+
+.tool-row.error .tool-status {
+  color: hsla(0, 50%, 65%, 0.9);
 }
 
 .tool-duration {
@@ -386,13 +397,13 @@
 
 .tool-row.has-preview .tool-screenshot-preview {
   grid-column: 1 / -1;
-  margin-top: 6px;
+  margin-top: 8px;
   display: flex;
-  gap: 8px;
+  gap: 10px;
   align-items: stretch;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 8px;
-  padding: 6px;
+  border-radius: 10px;
+  padding: 8px;
   background: rgba(255, 255, 255, 0.02);
 }
 
@@ -402,12 +413,18 @@
 }
 
 .tool-row.has-preview .tool-screenshot-image {
-  width: 112px;
-  height: 72px;
+  width: 160px;
+  height: 100px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
   background: rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: opacity 150ms ease;
+}
+
+.tool-row.has-preview .tool-screenshot-image:hover {
+  opacity: 0.85;
 }
 
 .tool-row.has-preview .tool-screenshot-meta {
@@ -416,11 +433,11 @@
   flex: 1;
   flex-direction: column;
   justify-content: space-between;
-  gap: 4px;
+  gap: 6px;
 }
 
 .tool-row.has-preview .tool-screenshot-label {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -431,7 +448,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--foreground);
 }
 
@@ -449,7 +466,7 @@
 }
 
 .report-images-inline-title {
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--muted);
   margin-bottom: 8px;
@@ -460,7 +477,7 @@
 .report-images-inline-grid {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .report-image-card {
@@ -472,7 +489,7 @@
 
 .report-image-card img {
   width: 100%;
-  height: 88px;
+  height: 100px;
   object-fit: cover;
   border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.08);
@@ -480,7 +497,7 @@
 }
 
 .report-image-card figcaption {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted-dim);
   line-height: 1.2;
   overflow: hidden;
@@ -496,11 +513,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 2px 0;
+  padding: 4px 0;
   background: transparent;
   border: none;
   cursor: pointer;
-  font-size: 11px;
+  font-size: 12px;
   font-family: var(--font-mono);
   color: var(--muted-dim);
   width: 100%;
@@ -549,8 +566,202 @@
   animation: fadeIn 0.15s ease forwards;
 }
 
+/* ============================================================================
+   Tool Card — Rich expandable input/output view
+   ============================================================================ */
+
+.tool-card {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  background: var(--card);
+  overflow: hidden;
+  animation: fadeIn 0.15s ease forwards;
+}
+
+.tool-row.expanded {
+  white-space: normal;
+  overflow: visible;
+}
+
+.tool-card-section {
+  padding: 0;
+}
+
+.tool-card-section + .tool-card-section {
+  border-top: 1px solid var(--ink-1);
+}
+
+.tool-card-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.tool-card-section-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted-dim);
+}
+
+.tool-card-copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--muted-dim);
+  cursor: pointer;
+  transition: all 120ms ease;
+}
+
+.tool-card-copy:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--foreground);
+}
+
+.tool-card-copy.copied {
+  color: var(--success);
+}
+
+.tool-card-code {
+  margin: 0;
+  padding: 8px 10px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.tool-card-code code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+/* ============================================================================
+   Selected Element Chip — shows targeted DOM element
+   ============================================================================ */
+
+.selected-element-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  margin: 4px 0;
+  border-radius: 999px;
+  border: 1px solid rgb(var(--accent-rgb) / 0.3);
+  background: rgb(var(--accent-rgb) / 0.06);
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--accent-light);
+  animation: fadeIn 0.15s ease forwards;
+}
+
+.selected-element-chip svg {
+  color: var(--accent);
+  opacity: 0.7;
+  flex-shrink: 0;
+}
+
 @keyframes fadeIn {
   to {
     opacity: 1;
   }
+}
+
+/* ============================================================================
+   File Artifact Card — Downloadable output files
+   ============================================================================ */
+
+.file-artifact-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  margin: 8px 0;
+  border: 1px solid rgb(var(--accent-rgb) / 0.25);
+  border-radius: 10px;
+  background: rgb(var(--accent-rgb) / 0.04);
+  cursor: pointer;
+  transition: all 150ms ease;
+  animation: fadeInUp 0.3s var(--ease-out-expo);
+}
+
+.file-artifact-card:hover {
+  border-color: rgb(var(--accent-rgb) / 0.45);
+  background: rgb(var(--accent-rgb) / 0.08);
+}
+
+.file-artifact-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgb(var(--accent-rgb) / 0.1);
+  color: var(--accent);
+  flex-shrink: 0;
+}
+
+.file-artifact-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.file-artifact-name {
+  font-size: 13px;
+  font-weight: 550;
+  color: var(--foreground);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.file-artifact-meta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+}
+
+.file-artifact-download {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--ink-2);
+  background: transparent;
+  color: var(--accent);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 150ms ease;
+}
+
+.file-artifact-download:hover {
+  background: rgb(var(--accent-rgb) / 0.12);
+  border-color: rgb(var(--accent-rgb) / 0.4);
 }

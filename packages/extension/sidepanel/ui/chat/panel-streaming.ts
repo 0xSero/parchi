@@ -181,7 +181,13 @@ sidePanelProto.updateStreamReasoning = function updateStreamReasoning(delta: str
         <div class="stream-reasoning-content"></div>
       `;
 
-    targetContainer.prepend(reasoningEvent);
+    // Insert before the first text event for interleaved display
+    const firstTextEvent = targetContainer.querySelector(':scope > .stream-event-text');
+    if (firstTextEvent) {
+      targetContainer.insertBefore(reasoningEvent, firstTextEvent);
+    } else {
+      targetContainer.appendChild(reasoningEvent);
+    }
 
     reasoningContentEl = reasoningEvent.querySelector('.stream-reasoning-content') as HTMLElement | null;
     this.streamingState.reasoningEventEl = reasoningContentEl;

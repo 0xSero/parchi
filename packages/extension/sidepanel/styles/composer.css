@@ -2,27 +2,78 @@
    Composer — Modern Void Design System
    ============================================================================ */
 
-.composer-wrapper {
-  padding: 16px 18px 20px;
-  background: var(--background);
+/* Queued Message Banner — visible indicator above composer */
+.queued-message-banner {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  background: rgb(var(--accent-rgb) / 0.06);
+  border: 1px solid rgb(var(--accent-rgb) / 0.2);
+  border-radius: 8px;
+  animation: fadeInUp 0.2s var(--ease-out-expo);
+}
+
+.queued-message-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-light);
+  flex-shrink: 0;
+}
+
+.queued-message-text {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.queued-message-cancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 120ms ease;
+}
+
+.queued-message-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--foreground);
+}
+
+.composer-wrapper {
+  padding: 12px;
+  background: var(--card);
+  border-top: 1px solid var(--ink-2);
   flex-shrink: 0;
 }
 
 .composer {
-  display: flex;
-  flex-direction: column;
-  gap: 0;
-  background: var(--card);
+  background: var(--background);
   border: 1px solid var(--ink-2);
-  border-radius: 16px;
-  overflow: visible;
-  box-shadow: none;
-  transition: box-shadow 0.3s, border-color 0.3s;
+  border-radius: 10px;
+  overflow: hidden;
+  transition: all var(--duration-fast);
   position: relative;
+}
+
+.composer:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.1);
 }
 
 /* Gloss sheen overlay — disabled for subtle look */
@@ -142,19 +193,17 @@
 
 .composer textarea {
   width: 100%;
-  min-height: 38px;
-  padding: 10px 18px;
-  max-height: 30vh;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 12px 16px;
   background: transparent;
-  color: var(--foreground);
-  font-size: 15px;
-  line-height: 1.6;
-  resize: none;
-  overflow-y: hidden;
   border: none;
-  border-radius: 0;
+  color: var(--foreground);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
   outline: none;
-  transition: color var(--duration-fast) ease, height var(--duration-fast) ease;
 }
 
 .composer textarea::placeholder {
@@ -165,84 +214,51 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 6px 14px 8px;
-  background: transparent;
+  padding: 8px 12px;
   border-top: 1px solid var(--ink-1);
-  position: relative;
-  z-index: 3;
 }
 
 .composer-toolbar-left {
   display: flex;
   align-items: center;
-  gap: 8px;
-  min-width: 0;
-  flex: 1 1 auto;
-  overflow: hidden;
+  gap: 2px;
 }
 
 .composer-toolbar-right {
   display: flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: nowrap;
-  justify-content: flex-end;
-  min-width: 0;
-  overflow: visible;
+  gap: 8px;
 }
 
 .composer-legacy-controls {
   display: none;
 }
 
-/* Composer tools — icon buttons with hover tooltips */
-.composer-tools {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-}
-
-.composer-tool-btn {
-  width: 30px;
-  height: 30px;
+.tool-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
-  border: none;
-  border-radius: 8px;
-  color: var(--muted-dim);
   cursor: pointer;
   transition: all var(--duration-fast) ease;
-  position: relative;
+  font-size: 12px;
 }
 
-.composer-tool-btn:hover {
-  background: rgba(255, 255, 255, 0.055);
+.tool-btn:hover {
+  background: var(--card-hover);
   color: var(--foreground);
 }
 
-.composer-tool-btn:active {
-  transform: scale(0.92);
-}
-
-.composer-tool-btn.active {
-  color: var(--accent);
-  background: rgb(var(--accent-rgb) / 0.08);
-}
-
-.composer-tool-btn svg {
-  transition: transform var(--duration-fast) ease;
-}
-
-.composer-tool-btn:hover svg {
-  transform: scale(1.05);
-}
-
-/* Zoom controls — hidden from toolbar, accessible via settings */
+/* Zoom controls */
 .zoom-controls {
-  display: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .zoom-btn {
@@ -276,64 +292,14 @@
   color: var(--foreground);
 }
 
-/* Status — only timer & context meta shown inline */
+/* Status — kept for JS compatibility but hidden */
 .composer-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 0 4px;
-  background: transparent;
-  border: none;
-  border-radius: 0;
-  font-size: 11px;
-  color: var(--muted);
-  white-space: nowrap;
-  min-width: 0;
-  max-width: min(52vw, 420px);
-  overflow: hidden;
-  transition: all var(--duration-fast) ease;
+  display: none;
 }
 
-.composer-status:hover {
-  background: transparent;
-}
-
-.composer-status .status-dot {
-  width: 6px;
-  height: 6px;
-  box-shadow: none;
-  transition: all var(--duration-fast) ease;
-}
-
-.composer-status .status-dot.active {
-  background: var(--accent);
-}
-
-.composer-status #statusText {
-  font-size: 10px;
-  color: var(--muted);
-  font-weight: 400;
-  letter-spacing: 0.02em;
-  min-width: 0;
-  max-width: clamp(80px, 32vw, 300px);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Balance popover — shown on status dot click */
+/* Balance popover — accessible via settings */
 .balance-popover {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 8px;
-  min-width: 200px;
-  background: var(--card);
-  border: 1px solid var(--ink-2);
-  border-radius: 12px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.03);
-  z-index: 150;
-  animation: balanceSlideUp 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-  overflow: hidden;
+  display: none;
 }
 
 .balance-popover.hidden {
@@ -408,33 +374,6 @@
   font-family: var(--font-mono);
   font-weight: 500;
   color: var(--foreground);
-}
-
-/* Secondary meta — hidden by default, shown on hover */
-.composer-status .status-meta {
-  font-size: 10px;
-  font-family: var(--font-mono);
-  color: var(--muted-dim);
-  margin-left: 2px;
-  padding-left: 6px;
-  border-left: 1px solid var(--ink-1);
-  opacity: 0;
-  display: inline-block;
-  max-width: clamp(140px, 22vw, 280px);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
-  transition: all var(--duration-fast) ease;
-}
-
-.composer-status:hover .status-meta,
-.composer-status.has-meta .status-meta {
-  opacity: 1;
-}
-
-.composer-status .status-meta:empty {
-  display: none;
 }
 
 /* Icon buttons inside composer — ghost style */
@@ -617,7 +556,19 @@
   }
 }
 
-/* Export button */
+/* Token bar — bottom-right in composer wrapper padding */
+.composer-tokens-bar {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+  text-align: right;
+  padding: 4px 4px 0 0;
+  letter-spacing: 0.02em;
+}
+
+.composer-tokens-bar:empty {
+  display: none;
+}
 
 /* Narrow sidepanel adjustments */
 @media (max-width: 520px) {
@@ -660,11 +611,6 @@
     width: 100%;
     justify-content: flex-end;
     gap: 4px;
-  }
-
-  .composer-status #statusText,
-  .composer-status .status-meta {
-    display: none;
   }
 
   .model-selector {

@@ -2,6 +2,79 @@
    Layout — Modern Void Design System
    ============================================================================ */
 
+/* ============================================================================
+   Topbar — Persistent Navigation Strip
+   ============================================================================ */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--topbar-height);
+  padding: 0 12px;
+  background: var(--card);
+  border-bottom: 1px solid var(--ink-2);
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.topbar-mascot {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  flex: 0 0 30px;
+}
+
+.topbar-mascot .mascot-corner {
+  width: 26px;
+  height: 26px;
+}
+
+.topbar-center {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  padding: 0 12px;
+}
+
+.topbar-session-title {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  letter-spacing: 0.01em;
+}
+
+.topbar-right {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.topbar-btn {
+  --icon-btn-size: 30px;
+  --icon-btn-radius: 8px;
+  --icon-btn-color: var(--muted-dim);
+  --icon-btn-hover-bg: rgba(255, 255, 255, 0.06);
+  --icon-btn-hover-color: var(--foreground);
+}
+
+.topbar-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
 /* Sidebar scrim — clickable overlay that closes the sidebar */
 .sidebar-scrim {
   --overlay-scrim-bg: rgba(0, 0, 0, 0.6);
@@ -348,12 +421,10 @@ body[data-right-panel="settings"] {
   opacity: 1;
   transition: transform var(--duration-fast) ease, filter var(--duration-fast) ease;
   cursor: pointer;
-  filter: saturate(1.02);
 }
 
 .mascot-corner:hover {
-  transform: translateY(-1px) scale(1.03);
-  filter: saturate(1.08) brightness(1.04);
+  transform: translateY(-1px) scale(1.04);
 }
 
 .mascot-blob {
@@ -393,8 +464,7 @@ body[data-right-panel="settings"] {
   height: 6px;
   transform: translateX(-50%);
   border-radius: 50%;
-  background: rgb(255 255 255 / 0.95);
-  box-shadow: 0 0 8px rgb(var(--accent-rgb) / 0.3);
+  background: rgb(255 255 255 / 0.85);
 }
 
 .mascot-blob-body {
@@ -403,17 +473,15 @@ body[data-right-panel="settings"] {
   background: var(--mascot-fill);
   border: 1.5px solid var(--mascot-stroke);
   border-radius: 52% 48% 54% 46% / 48% 48% 56% 52%;
-  box-shadow: 0 4px 12px rgb(var(--accent-rgb) / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -3px 10px
-    rgb(98 110 255 / 0.18);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
   animation: mascotBreathe 3.6s ease-in-out infinite, mascotWobble 8.2s ease-in-out infinite;
   transition: border-color var(--duration-fast) ease, box-shadow var(--duration-fast) ease, transform
     var(--duration-fast) ease;
 }
 
 .mascot-corner:hover .mascot-blob-body {
-  border-color: var(--mascot-stroke);
-  box-shadow: 0 7px 18px rgb(var(--accent-rgb) / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.26), inset 0 -3px 10px
-    rgb(98 110 255 / 0.22);
+  border-color: var(--ink-3);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 2px 8px rgb(0 0 0 / 0.2);
 }
 
 .mascot-eyes {
@@ -459,14 +527,13 @@ body[data-right-panel="settings"] {
   height: 3px;
   transform: translateX(-50%);
   border-radius: 999px;
-  background: rgb(255 178 209 / 0.5);
-  box-shadow: -8px 0 0 rgb(255 178 209 / 0.38), 8px 0 0 rgb(255 178 209 / 0.38);
-  opacity: 0.92;
+  background: rgb(255 178 209 / 0.25);
+  box-shadow: -8px 0 0 rgb(255 178 209 / 0.18), 8px 0 0 rgb(255 178 209 / 0.18);
+  opacity: 0.7;
 }
 
 .mascot-corner.awake .mascot-blob-body {
-  box-shadow: 0 5px 14px rgb(var(--accent-rgb) / 0.24), inset 0 1px 0 rgb(255 255 255 / 0.22), inset 0 -3px 10px
-    rgb(98 110 255 / 0.18);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
 }
 
 .mascot-corner.awake .mascot-eye {
@@ -475,7 +542,7 @@ body[data-right-panel="settings"] {
 
 .mascot-corner.sleeping .mascot-blob-body {
   animation-play-state: paused;
-  filter: saturate(0.92);
+  filter: saturate(0.85) brightness(0.95);
 }
 
 .mascot-corner.sleeping .mascot-eye {
@@ -502,8 +569,7 @@ body[data-right-panel="settings"] {
 }
 
 .mascot-corner.looking-up .mascot-blob-body {
-  box-shadow: 0 7px 18px rgb(var(--accent-rgb) / 0.28), inset 0 1px 0 rgb(255 255 255 / 0.24), inset 0 -3px 10px
-    rgb(98 110 255 / 0.2);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
 }
 
 .mascot-corner.working .mascot-eye {
@@ -511,9 +577,8 @@ body[data-right-panel="settings"] {
 }
 
 .mascot-corner.working .mascot-blob-body {
-  border-color: var(--mascot-stroke);
-  box-shadow: 0 8px 20px rgb(var(--accent-rgb) / 0.34), inset 0 1px 0 rgb(255 255 255 / 0.26), inset 0 -3px 10px
-    rgb(98 110 255 / 0.24);
+  border-color: var(--accent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
 }
 
 .mascot-smile {
@@ -535,9 +600,8 @@ body[data-right-panel="settings"] {
 }
 
 .mascot-corner.thinking .mascot-blob-body {
-  border-color: var(--mascot-stroke);
-  box-shadow: 0 8px 20px rgb(var(--accent-rgb) / 0.3), inset 0 1px 0 rgb(255 255 255 / 0.26), inset 0 -3px 10px
-    rgb(98 110 255 / 0.22);
+  border-color: var(--accent);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.12);
 }
 
 .mascot-corner.thinking .mascot-eye {

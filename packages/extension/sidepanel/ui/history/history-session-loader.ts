@@ -67,6 +67,8 @@ sidePanelProto.loadSession = function loadSession(session: any) {
       const suffix = typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : String(Date.now());
       this.sessionId = session.id || `session-${suffix}`;
       this.firstUserMessage = session.title || '';
+      const topbarTitle = this.elements.topbarSessionTitle as HTMLElement | null;
+      if (topbarTitle) topbarTitle.textContent = session.title || 'Session';
       this.elements.chatMessages.innerHTML = '';
       clearToolCallViews(this.toolCallViews);
       clearReportImages(this.reportImages, this.reportImageOrder, this.selectedReportImageIds);
@@ -153,6 +155,8 @@ sidePanelProto.loadSession = function loadSession(session: any) {
     const suffix = typeof crypto?.randomUUID === 'function' ? crypto.randomUUID() : String(Date.now());
     this.sessionId = session.id || `session-${suffix}`;
     this.firstUserMessage = session.title || '';
+    const topbarTitle2 = this.elements.topbarSessionTitle as HTMLElement | null;
+    if (topbarTitle2) topbarTitle2.textContent = session.title || 'Session';
     this.renderConversationHistory();
     this.updateContextUsage();
   }
