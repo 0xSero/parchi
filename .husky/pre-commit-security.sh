@@ -190,6 +190,12 @@ check_tech_debt() {
   return "${PIPESTATUS[0]}"
 }
 
+check_duplicate_code() {
+  log_info "Scanning for duplicate code..."
+  npm run check:duplicates 2>&1 | tail -30
+  return "${PIPESTATUS[0]}"
+}
+
 bump_version() {
   if [ "${DISABLE_VERSION_BUMP:-0}" = "1" ]; then
     log_info "Version bump disabled via DISABLE_VERSION_BUMP=1"
@@ -216,6 +222,7 @@ start_time=$(date +%s)
 run_check "Secret/Credential Detection" "check_secrets"
 run_check "Dependency Audit" "check_dependency_audit"
 run_check "Tech Debt Scan" "check_tech_debt"
+run_check "Duplicate Code Detection" "check_duplicate_code"
 run_check "TypeScript Type Check" "check_typescript"
 run_check "Lint Check" "check_lint"
 run_check "Unit Tests" "check_unit_tests"

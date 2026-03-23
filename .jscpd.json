@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/jscpd-json",
+  "languages": ["typescript", "javascript"],
+  "threshold": 5,
+  "reporters": ["console", "json"],
+  "absolute": true,
+  "output": "test-output/jscpd",
+  "ignore": [
+    "**/dist/**",
+    "**/dist-*/**",
+    "**/node_modules/**",
+    "**/*.d.ts",
+    "**/convex/_generated/**",
+    "**/tests/**",
+    "**/test-output/**"
+  ],
+  "minTokens": 50,
+  "minLines": 5
+}
