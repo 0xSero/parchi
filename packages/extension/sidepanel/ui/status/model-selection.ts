@@ -129,8 +129,9 @@ function openDropdown(self: any) {
 
   // Position dropdown above the trigger using fixed positioning
   const rect = trigger.getBoundingClientRect();
-  const dropdownHeight = Math.min(320, window.innerHeight - 40);
-  dropdown.style.left = `${rect.left}px`;
+  const availableAbove = rect.top - 12;
+  const dropdownHeight = Math.min(480, availableAbove);
+  dropdown.style.left = `${Math.max(12, rect.left)}px`;
   dropdown.style.bottom = `${window.innerHeight - rect.top + 6}px`;
   dropdown.style.maxHeight = `${dropdownHeight}px`;
 

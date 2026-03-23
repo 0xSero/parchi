@@ -525,8 +525,8 @@
 
 .model-selector-dropdown {
   position: fixed;
-  width: min(340px, calc(100vw - 40px));
-  max-height: 320px;
+  width: min(420px, calc(100vw - 24px));
+  max-height: min(480px, 60vh);
   display: flex;
   flex-direction: column;
   background: rgb(18 20 24 / 0.98);
@@ -558,7 +558,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 12px;
+  padding: 10px 14px;
   border-bottom: 1px solid var(--ink-1);
   color: var(--muted-dim);
 }
@@ -568,7 +568,7 @@
   background: transparent;
   border: none;
   color: var(--foreground);
-  font-size: 12px;
+  font-size: 13px;
   font-family: var(--font-sans);
   outline: none;
 }
@@ -579,12 +579,12 @@
 
 .model-selector-list {
   overflow-y: auto;
-  max-height: 260px;
-  padding: 4px;
+  flex: 1;
+  padding: 6px;
 }
 
 .model-selector-group {
-  padding: 8px 10px 4px;
+  padding: 10px 10px 5px;
   font-size: 10px;
   font-weight: 600;
   text-transform: uppercase;
@@ -595,12 +595,12 @@
 .model-selector-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 7px 10px;
+  gap: 10px;
+  padding: 9px 12px;
   border-radius: 8px;
   cursor: pointer;
   transition: background var(--duration-fast) ease;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted);
 }
 
@@ -628,16 +628,16 @@
 
 .model-selector-item-label {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
 .model-selector-empty-item {
-  padding: 16px 10px;
+  padding: 24px 10px;
   text-align: center;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--muted-dim);
 }
 
