@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Pre-commit hook for security audit and correctness checks
-# Runs: secret detection, dependency audit, typecheck, lint, unit tests
+# Runs: secret detection, dependency audit, tech debt scan, typecheck, lint, unit tests
 #
 
 set -euo pipefail
@@ -178,6 +178,18 @@ check_unit_tests() {
   return "${PIPESTATUS[0]}"
 }
 
+check_tech_debt() {
+  log_info "Scanning staged files for tech debt markers..."
+  local staged_files
+  staged_files=$(git diff --cached --name-only --diff-filter=ACMR 2>/dev/null | grep -E '\.(ts|tsx|js|jsx|css|html)$' || true)
+  if [ -z "$staged_files" ]; then
+    log_info "No staged source files to scan"
+    return 0
+  fi
+  npm run check:tech-debt 2>&1 | tail -20
+  return "${PIPESTATUS[0]}"
+}
+
 bump_version() {
   if [ "${DISABLE_VERSION_BUMP:-0}" = "1" ]; then
     log_info "Version bump disabled via DISABLE_VERSION_BUMP=1"
@@ -203,6 +215,7 @@ start_time=$(date +%s)
 
 run_check "Secret/Credential Detection" "check_secrets"
 run_check "Dependency Audit" "check_dependency_audit"
+run_check "Tech Debt Scan" "check_tech_debt"
 run_check "TypeScript Type Check" "check_typescript"
 run_check "Lint Check" "check_lint"
 run_check "Unit Tests" "check_unit_tests"
