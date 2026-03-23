@@ -2,6 +2,59 @@
    Composer — Modern Void Design System
    ============================================================================ */
 
+/* Queued Message Banner — visible indicator above composer */
+.queued-message-banner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  margin-bottom: 6px;
+  background: rgb(var(--accent-rgb) / 0.06);
+  border: 1px solid rgb(var(--accent-rgb) / 0.2);
+  border-radius: 8px;
+  animation: fadeInUp 0.2s var(--ease-out-expo);
+}
+
+.queued-message-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--accent-light);
+  flex-shrink: 0;
+}
+
+.queued-message-text {
+  font-size: 12px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+  min-width: 0;
+}
+
+.queued-message-cancel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  padding: 0;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted-dim);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 120ms ease;
+}
+
+.queued-message-cancel:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--foreground);
+}
+
 .composer-wrapper {
   padding: 12px;
   background: var(--card);

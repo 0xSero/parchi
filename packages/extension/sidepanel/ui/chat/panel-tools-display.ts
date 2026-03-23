@@ -74,8 +74,8 @@ sidePanelProto.createToolElement = function createToolElement(entry: any) {
     <span class="tool-icon">${icon}</span>
     <span class="tool-name">${this.escapeHtml(entry.toolName)}</span>
     ${argsLabel ? `<span class="tool-args">${this.escapeHtml(argsLabel)}</span>` : ''}
-    <span class="tool-status">RUN</span>
-    <span class="tool-duration">...</span>
+    <span class="tool-status"></span>
+    <span class="tool-duration"></span>
   `;
 
   entry.statusEl = container.querySelector('.tool-status');
@@ -185,7 +185,7 @@ sidePanelProto.updateToolResult = function updateToolResult(entry: any, result: 
     entry.durationEl.textContent = duration < 1000 ? `${duration}ms` : `${(duration / 1000).toFixed(1)}s`;
   }
   if (entry.statusEl) {
-    entry.statusEl.textContent = isError ? 'ERR' : 'OK';
+    entry.statusEl.textContent = isError ? 'ERR' : '';
   }
 
   if (isNoopScroll) {

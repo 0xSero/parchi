@@ -16,7 +16,6 @@ sidePanelProto.getArgsTokens = function getArgsTokens(args: any): string[] {
   if (!args || typeof args !== 'object') return [];
   const tokens: string[] = [];
 
-  if (args.tabId) tokens.push(`tab ${args.tabId}`);
   if (args.url) {
     tokens.push(
       String(args.url)
@@ -38,7 +37,10 @@ sidePanelProto.getArgsTokens = function getArgsTokens(args: any): string[] {
   if (args.direction) tokens.push(`scroll ${args.direction}`);
   if (args.type) tokens.push(String(args.type));
 
-  const keys = Object.keys(args).filter((key) => !key.startsWith('_') && !tokens.join(' ').includes(key));
+  const noiseKeys = new Set(['tabId', 'timeoutMs', 'timeout', '_']);
+  const keys = Object.keys(args).filter(
+    (key) => !key.startsWith('_') && !noiseKeys.has(key) && !tokens.join(' ').includes(key),
+  );
   if (tokens.length === 0 && keys.length === 1) {
     tokens.push(String(args[keys[0]]).substring(0, 30));
   } else if (tokens.length === 0 && keys.length > 1) {

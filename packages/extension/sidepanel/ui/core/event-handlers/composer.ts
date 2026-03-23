@@ -125,6 +125,32 @@ sidePanelProto.setupComposerListeners = setupComposerListeners;
 /**
  * Handle send button click - can queue, stop, or send message depending on state
  */
+function showQueuedMessageBanner(this: SidePanelUI & Record<string, unknown>, message: string) {
+  removeQueuedMessageBanner.call(this);
+  const composerWrapper = this.elements.composer?.closest('.composer-wrapper');
+  if (!composerWrapper) return;
+  const banner = document.createElement('div');
+  banner.className = 'queued-message-banner';
+  const truncated = message.length > 80 ? message.slice(0, 77) + '...' : message;
+  banner.innerHTML = `
+    <span class="queued-message-label">Queued</span>
+    <span class="queued-message-text">${(this.escapeHtml as (s: string) => string)(truncated)}</span>
+    <button class="queued-message-cancel" type="button" title="Cancel queued message">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  `;
+  banner.querySelector('.queued-message-cancel')?.addEventListener('click', () => {
+    this.queuedMessage = null;
+    removeQueuedMessageBanner.call(this);
+  });
+  composerWrapper.insertBefore(banner, composerWrapper.firstChild);
+}
+
+function removeQueuedMessageBanner(this: SidePanelUI & Record<string, unknown>) {
+  const composerWrapper = this.elements.composer?.closest('.composer-wrapper');
+  composerWrapper?.querySelector('.queued-message-banner')?.remove();
+}
+
 function handleSendButtonClick(this: SidePanelUI & Record<string, unknown>) {
   const isRunning = this.elements.composer?.classList.contains('running');
   const hasText = this.elements.userInput?.value.trim();
@@ -135,6 +161,7 @@ function handleSendButtonClick(this: SidePanelUI & Record<string, unknown>) {
     this.elements.userInput.value = '';
     this.elements.userInput.style.height = '';
     this.updateStatus('Message queued', 'active');
+    showQueuedMessageBanner.call(this, this.queuedMessage);
   } else if (isRunning) {
     // No text — stop the run
     this.requestRunStop('Stopped by user');
@@ -154,6 +181,7 @@ function handleSendButtonClick(this: SidePanelUI & Record<string, unknown>) {
     this.clearErrorBanner?.();
     this.insertStoppedDivider();
     this.updateStatus('Stopped', 'warning');
+    removeQueuedMessageBanner.call(this);
   } else {
     this.sendMessage();
   }

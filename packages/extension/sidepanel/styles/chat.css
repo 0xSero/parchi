@@ -1344,7 +1344,7 @@ body.sidebar-open .context-inspector-popover {
   font-size: 11px;
   font-family: var(--font-mono);
   color: var(--muted-dim);
-  opacity: 0;
+  opacity: 0.5;
   transition: opacity var(--duration-fast) ease;
 }
 
