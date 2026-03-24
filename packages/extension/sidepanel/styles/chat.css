@@ -1177,7 +1177,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 /* Prevent empty streaming containers from showing as a visible block */
-.message.assistant:not(.streaming) .streaming-content:not(:has(.stream-event, .stream-event-text, .stream-event-reasoning, .tool-call-card, .inline-thinking-block)) {
+.message.assistant:not(.streaming) .streaming-content:not(:has(.stream-event, .stream-event-text, .stream-event-reasoning, .tool-row, .inline-thinking-block)) {
   display: none;
 }
 

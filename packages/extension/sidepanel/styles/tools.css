@@ -294,58 +294,60 @@
 }
 
 /* ============================================================================
-   Tool Call Card — T3-style card with inline input/output
+   Tool Rows — Compact inline telemetry
    ============================================================================ */
 
-.tool-call-card {
-  border: 1px solid var(--ink-2);
-  border-radius: 10px;
-  background: var(--card);
-  overflow: hidden;
-  margin: 6px 0;
-  animation: fadeIn 0.15s ease forwards;
-}
-
-.tool-call-card.done {
-  opacity: 0.85;
-}
-
-.tool-call-card.error {
-  border-color: hsla(0, 40%, 55%, 0.3);
-}
-
-.tool-call-card.noop {
-  opacity: 0.5;
-}
-
-.tool-call-header {
+.tool-row {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 7px 10px;
-  font-size: 12px;
+  padding: 2px 0;
+  font-size: 11px;
+  line-height: 1.35;
   color: var(--muted);
-  border-bottom: 1px solid var(--ink-1);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tool-call-card.running .tool-call-header {
+.tool-row.running {
   color: var(--foreground);
 }
 
-.tool-call-icon {
+.tool-row.done {
+  opacity: 0.5;
+}
+
+.tool-row.error {
+  color: hsla(0, 35%, 65%, 0.85);
+}
+
+.tool-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 14px;
-  height: 14px;
-  color: var(--accent);
+  width: 12px;
+  height: 12px;
+  color: var(--muted-dim);
   flex-shrink: 0;
 }
 
-.tool-call-name {
-  font-weight: 600;
-  font-size: 11px;
+.tool-name {
+  font-weight: 500;
   color: inherit;
+  flex-shrink: 0;
+}
+
+.tool-args {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted-dim);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 220px;
 }
 
 .tool-status {
@@ -356,11 +358,15 @@
   color: var(--muted-dim);
 }
 
-.tool-call-card.running .tool-status {
+.tool-row.running .tool-status {
   color: var(--accent);
 }
 
-.tool-call-card.error .tool-status {
+.tool-row.done .tool-status {
+  color: hsla(140, 40%, 55%, 0.7);
+}
+
+.tool-row.error .tool-status {
   color: hsla(0, 50%, 65%, 0.9);
 }
 
@@ -377,8 +383,21 @@
   flex-shrink: 0;
 }
 
-.tool-call-card.has-preview .tool-screenshot-preview {
-  margin: 8px;
+.tool-row.noop {
+  opacity: 0.5;
+}
+
+.tool-row.has-preview {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
+  align-items: center;
+  white-space: normal;
+  overflow: visible;
+}
+
+.tool-row.has-preview .tool-screenshot-preview {
+  grid-column: 1 / -1;
+  margin-top: 8px;
   display: flex;
   gap: 10px;
   align-items: stretch;
@@ -388,12 +407,12 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.tool-call-card.has-preview .tool-screenshot-preview.selected {
+.tool-row.has-preview .tool-screenshot-preview.selected {
   border-color: rgba(var(--accent-rgb) / 0.55);
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb) / 0.2) inset;
 }
 
-.tool-call-card.has-preview .tool-screenshot-image {
+.tool-row.has-preview .tool-screenshot-image {
   width: 160px;
   height: 100px;
   object-fit: cover;
@@ -404,11 +423,11 @@
   transition: opacity 150ms ease;
 }
 
-.tool-call-card.has-preview .tool-screenshot-image:hover {
+.tool-row.has-preview .tool-screenshot-image:hover {
   opacity: 0.85;
 }
 
-.tool-call-card.has-preview .tool-screenshot-meta {
+.tool-row.has-preview .tool-screenshot-meta {
   display: flex;
   min-width: 0;
   flex: 1;
@@ -417,7 +436,7 @@
   gap: 6px;
 }
 
-.tool-call-card.has-preview .tool-screenshot-label {
+.tool-row.has-preview .tool-screenshot-label {
   font-size: 11px;
   color: var(--muted);
   overflow: hidden;
@@ -425,7 +444,7 @@
   white-space: nowrap;
 }
 
-.tool-call-card.has-preview .tool-screenshot-toggle {
+.tool-row.has-preview .tool-screenshot-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -433,7 +452,7 @@
   color: var(--foreground);
 }
 
-.tool-call-card.has-preview .tool-screenshot-toggle input {
+.tool-row.has-preview .tool-screenshot-toggle input {
   margin: 0;
   accent-color: var(--accent);
 }
@@ -519,12 +538,11 @@
   transform: rotate(-90deg);
 }
 
-.stream-events.tools-collapsed .tool-call-card {
+.stream-events.tools-collapsed .tool-row {
   display: none;
 }
 
-.stream-events.tools-collapsed .inline-thinking-block,
-.stream-events.tools-collapsed .stream-event-reasoning {
+.stream-events.tools-collapsed .inline-thinking-block {
   display: none;
 }
 
@@ -551,8 +569,19 @@
    Tool Card — Rich expandable input/output view
    ============================================================================ */
 
-.tool-call-output-slot:empty {
-  display: none;
+.tool-card {
+  grid-column: 1 / -1;
+  margin-top: 6px;
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  background: var(--card);
+  overflow: hidden;
+  animation: fadeIn 0.15s ease forwards;
+}
+
+.tool-row.expanded {
+  white-space: normal;
+  overflow: visible;
 }
 
 .tool-card-section {
