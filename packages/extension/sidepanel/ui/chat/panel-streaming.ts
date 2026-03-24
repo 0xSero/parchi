@@ -268,7 +268,11 @@ sidePanelProto.ensurePlanBlock = function ensurePlanBlock() {
 };
 
 sidePanelProto.finishStreamingMessage = function finishStreamingMessage() {
-  if (!this.streamingState) return null;
+  if (!this.streamingState) {
+    // Even without streaming state, clean up any empty assistant containers
+    removeEmptyAssistantContainers(this);
+    return null;
+  }
   const streamingThinking = this.streamingReasoning;
   const container = this.streamingState.container;
 
@@ -277,14 +281,30 @@ sidePanelProto.finishStreamingMessage = function finishStreamingMessage() {
   this.isStreaming = false;
   this.updateActivityState();
 
-  // Remove empty assistant container (no text content was streamed)
-  if (container) {
-    const content = container.querySelector('.message-content');
-    const hasText = content && content.textContent && content.textContent.trim().length > 0;
-    if (!hasText) {
-      container.remove();
-    }
+  // Remove this container if nothing was streamed
+  if (container && !hasVisibleContent(container)) {
+    container.remove();
   }
+  // Also sweep any other leftover empty assistant containers
+  removeEmptyAssistantContainers(this);
 
   return { thinking: streamingThinking, container };
 };
+
+function hasVisibleContent(el: HTMLElement): boolean {
+  const text = el.textContent || '';
+  // Strip common structural labels
+  const cleaned = text.replace(/Thinking\.\.\./g, '').replace(/Thought process/g, '').trim();
+  return cleaned.length > 0 || el.querySelectorAll('img, video, canvas, svg.report-image').length > 0;
+}
+
+function removeEmptyAssistantContainers(self: any): void {
+  const chatMessages = self.elements?.chatMessages;
+  if (!chatMessages) return;
+  const empties = chatMessages.querySelectorAll('.message.assistant');
+  for (const el of Array.from(empties)) {
+    if (!hasVisibleContent(el as HTMLElement)) {
+      (el as HTMLElement).remove();
+    }
+  }
+}
