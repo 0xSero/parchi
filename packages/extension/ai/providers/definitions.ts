@@ -82,8 +82,9 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
     proxyProvider: 'kimi',
     normalizeBaseUrl: normalizeAnthropicBaseUrl,
     models: [
-      { id: 'kimi-k2-0520', label: 'Kimi K2' },
-      { id: 'kimi-for-coding', label: 'Kimi for Coding' },
+      { id: 'kimi-k2.5', label: 'Kimi K2.5', contextWindow: 262144, supportsVision: true },
+      { id: 'kimi-k2-0520', label: 'Kimi K2', contextWindow: 131072 },
+      { id: 'kimi-for-coding', label: 'Kimi for Coding', contextWindow: 131072 },
     ],
   },
   glm: {
@@ -96,9 +97,10 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
     supportsModelListing: false,
     normalizeBaseUrl: normalizeAnthropicBaseUrl,
     models: [
-      { id: 'glm-5', label: 'GLM-5', contextWindow: 128000 },
-      { id: 'glm-4.7', label: 'GLM-4.7', contextWindow: 128000 },
-      { id: 'glm-4.7-flash', label: 'GLM-4.7 Flash', contextWindow: 128000 },
+      { id: 'glm-5', label: 'GLM-5', contextWindow: 200000 },
+      { id: 'glm-5-turbo', label: 'GLM-5 Turbo', contextWindow: 200000 },
+      { id: 'glm-4.7', label: 'GLM-4.7', contextWindow: 200000 },
+      { id: 'glm-4.7-flash', label: 'GLM-4.7 Flash', contextWindow: 200000 },
       { id: 'glm-4.6v', label: 'GLM-4.6V', contextWindow: 128000, supportsVision: true },
     ],
   },
@@ -111,7 +113,10 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
     authHeaderStyle: 'bearer',
     supportsModelListing: false,
     normalizeBaseUrl: normalizeAnthropicBaseUrl,
-    models: [{ id: 'MiniMax-M2.5', label: 'MiniMax M2.5', contextWindow: 1000000 }],
+    models: [
+      { id: 'MiniMax-M2.7', label: 'MiniMax M2.7', contextWindow: 204800 },
+      { id: 'MiniMax-M2.5', label: 'MiniMax M2.5', contextWindow: 196608 },
+    ],
   },
   'qwen-oauth': {
     key: 'qwen-oauth',

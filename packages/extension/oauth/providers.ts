@@ -97,9 +97,9 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
     scopes: 'openid profile email model.completion',
     apiBaseUrl: 'https://chat.qwen.ai/api/v1/openai/compatible-mode/v1',
     models: [
-      { id: 'qwen-max', label: 'Qwen Max', contextWindow: 128000 },
-      { id: 'qwen-plus', label: 'Qwen Plus', contextWindow: 128000 },
-      { id: 'qwen-turbo', label: 'Qwen Turbo', contextWindow: 128000 },
+      { id: 'qwen-max', label: 'Qwen Max', contextWindow: 1000000 },
+      { id: 'qwen-plus', label: 'Qwen Plus', contextWindow: 1000000 },
+      { id: 'qwen-turbo', label: 'Qwen Turbo', contextWindow: 1000000 },
     ],
   },
 };
