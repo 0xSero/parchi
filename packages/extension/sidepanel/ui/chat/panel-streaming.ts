@@ -277,5 +277,14 @@ sidePanelProto.finishStreamingMessage = function finishStreamingMessage() {
   this.isStreaming = false;
   this.updateActivityState();
 
+  // Remove empty assistant container (no text content was streamed)
+  if (container) {
+    const content = container.querySelector('.message-content');
+    const hasText = content && content.textContent && content.textContent.trim().length > 0;
+    if (!hasText) {
+      container.remove();
+    }
+  }
+
   return { thinking: streamingThinking, container };
 };

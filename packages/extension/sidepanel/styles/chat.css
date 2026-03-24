@@ -606,22 +606,25 @@ body.sidebar-open .context-inspector-popover {
 
 /* User message */
 .message.user {
-  padding: 10px 0 14px;
-  margin-bottom: 6px;
-  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: flex-end;
+  padding: 4px 0 8px;
   max-width: 100%;
   animation: fadeInUp 0.35s var(--ease-out-expo);
 }
 
 .message.user .message-content {
-  color: var(--muted);
+  color: var(--foreground);
   font-size: 14px;
   line-height: 1.6;
   font-weight: 400;
   word-wrap: break-word;
   overflow-wrap: break-word;
   word-break: break-word;
-  max-width: 100%;
+  max-width: 85%;
+  background: var(--ink-2);
+  padding: 8px 14px;
+  border-radius: 14px 14px 4px 14px;
 }
 
 /* Assistant message */
