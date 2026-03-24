@@ -141,16 +141,16 @@ function finalizeStreamEvents(
     streamEventsEl.appendChild(reportBlock);
   }
 
-  // Collapse tool rows by default with a summary toggle
-  const toolRows = streamEventsEl.querySelectorAll('.tool-row');
-  if (toolRows.length > 0) {
-    addToolGroupToggle(streamEventsEl, toolRows);
+  // Collapse tool cards by default with a summary toggle
+  const toolCards = streamEventsEl.querySelectorAll('.tool-call-card');
+  if (toolCards.length > 0) {
+    addToolGroupToggle(streamEventsEl, toolCards);
   }
 }
 
-function addToolGroupToggle(streamEventsEl: HTMLElement, toolRows: NodeListOf<Element>): void {
-  const errorCount = streamEventsEl.querySelectorAll('.tool-row.error').length;
-  const label = `${toolRows.length} tool call${toolRows.length !== 1 ? 's' : ''}${errorCount > 0 ? ` · ${errorCount} error${errorCount !== 1 ? 's' : ''}` : ''}`;
+function addToolGroupToggle(streamEventsEl: HTMLElement, toolCards: NodeListOf<Element>): void {
+  const errorCount = streamEventsEl.querySelectorAll('.tool-call-card.error').length;
+  const label = `${toolCards.length} tool call${toolCards.length !== 1 ? 's' : ''}${errorCount > 0 ? ` · ${errorCount} error${errorCount !== 1 ? 's' : ''}` : ''}`;
 
   const toggle = document.createElement('button');
   toggle.className = 'tool-group-toggle';
@@ -165,8 +165,8 @@ function addToolGroupToggle(streamEventsEl: HTMLElement, toolRows: NodeListOf<El
     streamEventsEl.classList.toggle('tools-collapsed');
   });
 
-  // Insert before the first tool row
-  toolRows[0].insertAdjacentElement('beforebegin', toggle);
+  // Insert before the first tool card
+  toolCards[0].insertAdjacentElement('beforebegin', toggle);
   streamEventsEl.classList.add('tools-collapsed');
 }
 

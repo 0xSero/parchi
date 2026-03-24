@@ -692,10 +692,28 @@
   text-align: right;
   padding: 2px 4px 0 0;
   letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0;
 }
 
 .composer-tokens-bar:empty {
   display: none;
+}
+
+.token-used {
+  color: var(--muted);
+}
+
+.token-sep {
+  color: var(--muted-dim);
+  opacity: 0.5;
+  margin: 0 1px;
+}
+
+.token-max {
+  color: var(--muted-dim);
 }
 
 /* Narrow sidepanel adjustments */

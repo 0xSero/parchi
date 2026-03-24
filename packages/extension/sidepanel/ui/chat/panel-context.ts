@@ -202,7 +202,7 @@ sidePanelProto.updateContextInspector = function updateContextInspector() {
   // Also update inline token display in composer
   const composerTokens = this.elements.composerTokens as HTMLElement | null;
   if (composerTokens && used > 0) {
-    composerTokens.textContent = `${formatContextTokens(used)}/${formatContextTokens(max)}`;
+    composerTokens.innerHTML = `<span class="token-used">${formatContextTokens(used)}</span><span class="token-sep">/</span><span class="token-max">${formatContextTokens(max)}</span>`;
   }
 };
 

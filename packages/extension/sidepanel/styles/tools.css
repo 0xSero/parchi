@@ -294,60 +294,58 @@
 }
 
 /* ============================================================================
-   Tool Rows — Compact inline telemetry
+   Tool Call Card — T3-style card with inline input/output
    ============================================================================ */
 
-.tool-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 2px 0;
-  font-size: 11px;
-  line-height: 1.35;
-  color: var(--muted);
-  width: 100%;
-  max-width: 100%;
+.tool-call-card {
+  border: 1px solid var(--ink-2);
+  border-radius: 10px;
+  background: var(--card);
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  margin: 6px 0;
+  animation: fadeIn 0.15s ease forwards;
 }
 
-.tool-row.running {
-  color: var(--foreground);
+.tool-call-card.done {
+  opacity: 0.85;
 }
 
-.tool-row.done {
+.tool-call-card.error {
+  border-color: hsla(0, 40%, 55%, 0.3);
+}
+
+.tool-call-card.noop {
   opacity: 0.5;
 }
 
-.tool-row.error {
-  color: hsla(0, 35%, 65%, 0.85);
+.tool-call-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px;
+  font-size: 12px;
+  color: var(--muted);
+  border-bottom: 1px solid var(--ink-1);
 }
 
-.tool-icon {
+.tool-call-card.running .tool-call-header {
+  color: var(--foreground);
+}
+
+.tool-call-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 12px;
-  height: 12px;
-  color: var(--muted-dim);
+  width: 14px;
+  height: 14px;
+  color: var(--accent);
   flex-shrink: 0;
 }
 
-.tool-name {
-  font-weight: 500;
-  color: inherit;
-  flex-shrink: 0;
-}
-
-.tool-args {
-  font-family: var(--font-mono);
+.tool-call-name {
+  font-weight: 600;
   font-size: 11px;
-  color: var(--muted-dim);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 220px;
+  color: inherit;
 }
 
 .tool-status {
@@ -358,15 +356,11 @@
   color: var(--muted-dim);
 }
 
-.tool-row.running .tool-status {
+.tool-call-card.running .tool-status {
   color: var(--accent);
 }
 
-.tool-row.done .tool-status {
-  color: hsla(140, 40%, 55%, 0.7);
-}
-
-.tool-row.error .tool-status {
+.tool-call-card.error .tool-status {
   color: hsla(0, 50%, 65%, 0.9);
 }
 
@@ -383,21 +377,8 @@
   flex-shrink: 0;
 }
 
-.tool-row.noop {
-  opacity: 0.5;
-}
-
-.tool-row.has-preview {
-  display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr) auto auto;
-  align-items: center;
-  white-space: normal;
-  overflow: visible;
-}
-
-.tool-row.has-preview .tool-screenshot-preview {
-  grid-column: 1 / -1;
-  margin-top: 8px;
+.tool-call-card.has-preview .tool-screenshot-preview {
+  margin: 8px;
   display: flex;
   gap: 10px;
   align-items: stretch;
@@ -407,12 +388,12 @@
   background: rgba(255, 255, 255, 0.02);
 }
 
-.tool-row.has-preview .tool-screenshot-preview.selected {
+.tool-call-card.has-preview .tool-screenshot-preview.selected {
   border-color: rgba(var(--accent-rgb) / 0.55);
   box-shadow: 0 0 0 1px rgba(var(--accent-rgb) / 0.2) inset;
 }
 
-.tool-row.has-preview .tool-screenshot-image {
+.tool-call-card.has-preview .tool-screenshot-image {
   width: 160px;
   height: 100px;
   object-fit: cover;
@@ -423,11 +404,11 @@
   transition: opacity 150ms ease;
 }
 
-.tool-row.has-preview .tool-screenshot-image:hover {
+.tool-call-card.has-preview .tool-screenshot-image:hover {
   opacity: 0.85;
 }
 
-.tool-row.has-preview .tool-screenshot-meta {
+.tool-call-card.has-preview .tool-screenshot-meta {
   display: flex;
   min-width: 0;
   flex: 1;
@@ -436,7 +417,7 @@
   gap: 6px;
 }
 
-.tool-row.has-preview .tool-screenshot-label {
+.tool-call-card.has-preview .tool-screenshot-label {
   font-size: 11px;
   color: var(--muted);
   overflow: hidden;
@@ -444,7 +425,7 @@
   white-space: nowrap;
 }
 
-.tool-row.has-preview .tool-screenshot-toggle {
+.tool-call-card.has-preview .tool-screenshot-toggle {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -452,7 +433,7 @@
   color: var(--foreground);
 }
 
-.tool-row.has-preview .tool-screenshot-toggle input {
+.tool-call-card.has-preview .tool-screenshot-toggle input {
   margin: 0;
   accent-color: var(--accent);
 }
@@ -538,7 +519,7 @@
   transform: rotate(-90deg);
 }
 
-.stream-events.tools-collapsed .tool-row {
+.stream-events.tools-collapsed .tool-call-card {
   display: none;
 }
 
@@ -570,19 +551,8 @@
    Tool Card — Rich expandable input/output view
    ============================================================================ */
 
-.tool-card {
-  grid-column: 1 / -1;
-  margin-top: 6px;
-  border: 1px solid var(--ink-2);
-  border-radius: 10px;
-  background: var(--card);
-  overflow: hidden;
-  animation: fadeIn 0.15s ease forwards;
-}
-
-.tool-row.expanded {
-  white-space: normal;
-  overflow: visible;
+.tool-call-output-slot:empty {
+  display: none;
 }
 
 .tool-card-section {
