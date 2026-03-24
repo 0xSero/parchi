@@ -1176,6 +1176,11 @@ body.sidebar-open .context-inspector-popover {
   gap: 12px;
 }
 
+/* Prevent empty streaming containers from showing as a visible block */
+.message.assistant:not(.streaming) .streaming-content:not(:has(.stream-event, .stream-event-text, .stream-event-reasoning, .tool-call-card, .inline-thinking-block)) {
+  display: none;
+}
+
 /* ============================================================================
    Run HUD
    ============================================================================ */
@@ -1290,6 +1295,10 @@ body.sidebar-open .context-inspector-popover {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.stream-events:empty {
+  display: none;
 }
 
 .message.streaming.timeline-collapsed .stream-events {
