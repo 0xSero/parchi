@@ -45,11 +45,16 @@ function getModelEntries(self: any): ModelEntry[] {
   const providers = listProviderInstances({ providers: self.providers }).filter(
     (provider: any) => provider.isConnected && Array.isArray(provider.models) && provider.models.length > 0,
   );
+  const hiddenModels: string[] = self.hiddenModels || [];
 
   const entries: ModelEntry[] = [];
   for (const provider of providers) {
     const indicator = providerIndicators[provider.provider.replace(/-oauth$/, '').toLowerCase()] || '◇';
     for (const model of provider.models) {
+      const modelKey = `${provider.id}::${model.id}`;
+      const isActive = provider.id === activeProviderId && model.id === activeModelId;
+      // Skip hidden models unless they're the active one
+      if (hiddenModels.includes(modelKey) && !isActive) continue;
       entries.push({
         providerId: provider.id,
         providerName: provider.name,
@@ -58,7 +63,7 @@ function getModelEntries(self: any): ModelEntry[] {
         modelLabel: model.label || model.id,
         indicator,
         value: encodeModelSelectValue(provider.id, model.id),
-        isActive: provider.id === activeProviderId && model.id === activeModelId,
+        isActive,
       });
     }
   }

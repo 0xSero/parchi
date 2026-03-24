@@ -1284,13 +1284,17 @@
   padding-top: 0;
 }
 
+.model-grid-header {
+  margin-bottom: 4px;
+}
+
 .model-option {
   display: flex;
   align-items: center;
   gap: 10px;
   padding: 8px 8px;
   border-radius: 8px;
-  cursor: pointer;
+  cursor: default;
   transition: all 120ms ease;
 }
 .model-option:hover {
@@ -1298,6 +1302,50 @@
 }
 .model-option.active {
   background: rgb(var(--accent-rgb) / 0.08);
+}
+
+.model-option .model-name {
+  cursor: pointer;
+}
+
+.model-visibility-check {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.model-visibility-input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.model-visibility-box {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--ink-3);
+  background: transparent;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 150ms ease;
+}
+
+.model-visibility-input:checked + .model-visibility-box {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.model-visibility-input:checked + .model-visibility-box::after {
+  content: "";
+  width: 4px;
+  height: 8px;
+  border-right: 2px solid #fff;
+  border-bottom: 2px solid #fff;
+  transform: rotate(45deg) translateY(-1px);
 }
 
 .model-name {

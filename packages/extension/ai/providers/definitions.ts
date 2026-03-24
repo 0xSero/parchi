@@ -25,7 +25,7 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
   },
   'claude-oauth': {
     key: 'claude-oauth',
-    name: 'Claude',
+    name: 'Anthropic',
     type: 'oauth',
     sdkType: 'anthropic',
     defaultBaseUrl: 'https://api.anthropic.com/v1',
@@ -48,7 +48,7 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
   },
   'codex-oauth': {
     key: 'codex-oauth',
-    name: 'Codex (OpenAI)',
+    name: 'ChatGPT',
     type: 'oauth',
     sdkType: 'openai',
     defaultBaseUrl: 'https://chatgpt.com/backend-api/codex',

@@ -3,7 +3,7 @@ import type { OAuthProviderConfig } from './types.js';
 export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
   claude: {
     key: 'claude',
-    name: 'Claude',
+    name: 'Anthropic',
     flowType: 'authorization_code_pkce',
     clientId: '9d1c250a-e61b-44d9-88ed-5944d1962f5e',
     authorizeUrl: 'https://claude.ai/oauth/authorize',
@@ -23,7 +23,7 @@ export const OAUTH_PROVIDERS: Record<string, OAuthProviderConfig> = {
   },
   codex: {
     key: 'codex',
-    name: 'Codex',
+    name: 'ChatGPT',
     flowType: 'authorization_code_pkce',
     clientId: 'app_EMoamEEZ73f0CkXaXp7hrann',
     authorizeUrl: 'https://auth.openai.com/oauth/authorize',
