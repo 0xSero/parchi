@@ -45,7 +45,7 @@ function getModelEntries(self: any): ModelEntry[] {
   const providers = listProviderInstances({ providers: self.providers }).filter(
     (provider: any) => provider.isConnected && Array.isArray(provider.models) && provider.models.length > 0,
   );
-  const hiddenModels: string[] = self.hiddenModels || [];
+  const visibleModels: string[] = self.visibleModels || [];
 
   const entries: ModelEntry[] = [];
   for (const provider of providers) {
@@ -53,8 +53,8 @@ function getModelEntries(self: any): ModelEntry[] {
     for (const model of provider.models) {
       const modelKey = `${provider.id}::${model.id}`;
       const isActive = provider.id === activeProviderId && model.id === activeModelId;
-      // Skip hidden models unless they're the active one
-      if (hiddenModels.includes(modelKey) && !isActive) continue;
+      // Only show models the user has checked, or the active one
+      if (visibleModels.length > 0 && !visibleModels.includes(modelKey) && !isActive) continue;
       entries.push({
         providerId: provider.id,
         providerName: provider.name,

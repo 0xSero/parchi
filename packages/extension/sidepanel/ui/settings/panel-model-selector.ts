@@ -77,7 +77,7 @@ sidePanelProto.renderModelSelectorGrid = function renderModelSelectorGrid() {
   const activeConfig = this.configs?.[this.currentConfig] || {};
   const activeModelId = activeConfig.modelId || activeConfig.model || '';
   const activeProviderId = activeConfig.providerId || '';
-  const hiddenModels: string[] = this.hiddenModels || [];
+  const visibleModels: string[] = this.visibleModels || [];
 
   // Header
   const header = document.createElement('div');
@@ -95,7 +95,7 @@ sidePanelProto.renderModelSelectorGrid = function renderModelSelectorGrid() {
     for (const model of provider.models) {
       const isActive = model.id === activeModelId && provider.id === activeProviderId;
       const modelKey = `${provider.id}::${model.id}`;
-      const isVisible = !hiddenModels.includes(modelKey);
+      const isVisible = visibleModels.includes(modelKey);
       const row = document.createElement('div');
       row.className = `model-option${isActive ? ' active' : ''}`;
       row.dataset.providerId = provider.id;
@@ -191,16 +191,16 @@ sidePanelProto.selectModelFromGrid = function selectModelFromGrid(providerId: st
 };
 
 sidePanelProto.toggleModelVisibility = function toggleModelVisibility(modelKey: string, visible: boolean) {
-  if (!Array.isArray(this.hiddenModels)) this.hiddenModels = [];
+  if (!Array.isArray(this.visibleModels)) this.visibleModels = [];
   if (visible) {
-    this.hiddenModels = this.hiddenModels.filter((k: string) => k !== modelKey);
-  } else {
-    if (!this.hiddenModels.includes(modelKey)) {
-      this.hiddenModels = [...this.hiddenModels, modelKey];
+    if (!this.visibleModels.includes(modelKey)) {
+      this.visibleModels = [...this.visibleModels, modelKey];
     }
+  } else {
+    this.visibleModels = this.visibleModels.filter((k: string) => k !== modelKey);
   }
   this.populateModelSelect?.();
   void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
-    patchSettingsStoreSnapshot({ hiddenModels: this.hiddenModels }).catch(() => {}),
+    patchSettingsStoreSnapshot({ visibleModels: this.visibleModels }).catch(() => {}),
   );
 };
