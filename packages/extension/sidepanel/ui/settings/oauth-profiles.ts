@@ -73,23 +73,24 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       name: config.name,
     });
 
-    // Clean up stale provider instances for the same oauthProviderKey but different ID
+    // Clean up stale provider instances for the same OAuth provider but different ID
     // (happens when provider display name changes, producing a different hash)
+    const oauthProviderType = `${config.key}-oauth`;
     for (const [existingId, existingProvider] of Object.entries(providers)) {
-      if (
-        existingId !== providerId &&
-        (existingProvider as any).oauthProviderKey === config.key &&
-        (existingProvider as any).authType === 'oauth'
-      ) {
-        // Migrate any config references from old ID to new ID
-        for (const cfg of Object.values(configs)) {
-          if ((cfg as any)?.providerId === existingId) {
-            (cfg as any).providerId = providerId;
-          }
+      if (existingId === providerId) continue;
+      const ep = existingProvider as Record<string, any>;
+      const isMatch =
+        ep.oauthProviderKey === config.key ||
+        ep.provider === oauthProviderType ||
+        (ep.authType === 'oauth' && String(ep.provider || '').replace(/-oauth$/, '') === config.key);
+      if (!isMatch) continue;
+      for (const cfg of Object.values(configs)) {
+        if ((cfg as any)?.providerId === existingId) {
+          (cfg as any).providerId = providerId;
         }
-        delete providers[existingId];
-        changed = true;
       }
+      delete providers[existingId];
+      changed = true;
     }
 
     const priorProvider = providers[providerId];
