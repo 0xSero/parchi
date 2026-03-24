@@ -1338,6 +1338,70 @@
    v4 Generation Tab
    ============================================================================ */
 
+.gen-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gen-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.gen-row label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.gen-row .form-value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--accent-light);
+}
+
+.gen-row input[type="number"],
+.gen-row select {
+  padding: 7px 10px;
+  background: var(--card);
+  border: 1px solid var(--ink-1);
+  border-radius: var(--radius-sm);
+  color: var(--foreground);
+  font-size: 13px;
+  font-family: var(--font-mono);
+  width: 100%;
+  transition: border-color var(--duration-fast) ease;
+}
+
+.gen-row input[type="number"]:focus,
+.gen-row select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgb(var(--accent-rgb) / 0.1);
+}
+
+.gen-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gen-switch-row {
+  padding: 8px 10px;
+  border-radius: 8px;
+  border-color: transparent;
+  background: transparent;
+}
+
+.gen-switch-row:hover {
+  background: var(--ink-1);
+}
+
 .gen-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -1934,4 +1998,54 @@ input[type="range"]::-webkit-slider-thumb {
 .skill-card-actions .icon-btn {
   --icon-btn-size: 22px;
   --icon-btn-radius: 6px;
+}
+
+/* ============================================================================
+   Display Tab — Text Size Presets
+   ============================================================================ */
+
+.display-text-size {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.display-text-size-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--muted);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.display-text-size-presets {
+  display: flex;
+  gap: 6px;
+}
+
+.display-size-preset {
+  flex: 1;
+  padding: 6px 8px;
+  font-size: 11px;
+  font-weight: 550;
+  color: var(--muted);
+  background: transparent;
+  border: 1px solid var(--ink-2);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 150ms ease;
+  text-align: center;
+}
+
+.display-size-preset:hover {
+  color: var(--foreground);
+  border-color: var(--ink-3);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.display-size-preset.active {
+  color: var(--accent-light);
+  border-color: rgb(var(--accent-rgb) / 0.45);
+  background: rgb(var(--accent-rgb) / 0.08);
 }

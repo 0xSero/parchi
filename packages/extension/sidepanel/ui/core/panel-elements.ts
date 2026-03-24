@@ -76,10 +76,12 @@ export const getSidePanelElements = (): SidePanelElements => ({
   settingsTabProvidersBtn: byId<HTMLButtonElement>('settingsTabProvidersBtn'),
   settingsTabModelBtn: byId<HTMLButtonElement>('settingsTabModelBtn'),
   settingsTabGenerationBtn: byId<HTMLButtonElement>('settingsTabGenerationBtn'),
+  settingsTabDisplayBtn: byId<HTMLButtonElement>('settingsTabDisplayBtn'),
   settingsTabAdvancedBtn: byId<HTMLButtonElement>('settingsTabAdvancedBtn'),
   settingsTabProviders: byId<HTMLElement>('settingsTabProviders'),
   settingsTabModel: byId<HTMLElement>('settingsTabModel'),
   settingsTabGeneration: byId<HTMLElement>('settingsTabGeneration'),
+  settingsTabDisplay: byId<HTMLElement>('settingsTabDisplay'),
   settingsTabAdvanced: byId<HTMLElement>('settingsTabAdvanced'),
   settingsResetProfilesBtn: byId<HTMLButtonElement>('settingsResetProfilesBtn'),
   // Provider card grid and editor

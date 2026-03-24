@@ -3,33 +3,35 @@ import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
 sidePanelProto.switchSettingsTab = function switchSettingsTab(
-  tabName: 'providers' | 'model' | 'generation' | 'advanced' | string = 'providers',
+  tabName: 'providers' | 'model' | 'generation' | 'display' | 'advanced' | string = 'providers',
 ) {
   const tabMap: Record<string, string> = {
     connect: 'providers',
     setup: 'providers',
     oauth: 'providers',
     profiles: 'model',
-    look: 'advanced',
-    design: 'advanced',
+    look: 'display',
+    design: 'display',
     agents: 'advanced',
     system: 'advanced',
     usage: 'advanced',
   };
-  const resolvedTab = (tabMap[tabName] || tabName) as 'providers' | 'model' | 'generation' | 'advanced';
+  const resolvedTab = (tabMap[tabName] || tabName) as 'providers' | 'model' | 'generation' | 'display' | 'advanced';
   this.currentSettingsTab = resolvedTab;
 
-  const tabs = ['providers', 'model', 'generation', 'advanced'] as const;
+  const tabs = ['providers', 'model', 'generation', 'display', 'advanced'] as const;
   const tabElements: Record<string, HTMLElement | null> = {
     providers: this.elements.settingsTabProviders || document.getElementById('settingsTabProviders'),
     model: this.elements.settingsTabModel || document.getElementById('settingsTabModel'),
     generation: this.elements.settingsTabGeneration || document.getElementById('settingsTabGeneration'),
+    display: this.elements.settingsTabDisplay || document.getElementById('settingsTabDisplay'),
     advanced: this.elements.settingsTabAdvanced || document.getElementById('settingsTabAdvanced'),
   };
   const btnElements: Record<string, HTMLElement | null> = {
     providers: this.elements.settingsTabProvidersBtn || document.getElementById('settingsTabProvidersBtn'),
     model: this.elements.settingsTabModelBtn || document.getElementById('settingsTabModelBtn'),
     generation: this.elements.settingsTabGenerationBtn || document.getElementById('settingsTabGenerationBtn'),
+    display: this.elements.settingsTabDisplayBtn || document.getElementById('settingsTabDisplayBtn'),
     advanced: this.elements.settingsTabAdvancedBtn || document.getElementById('settingsTabAdvancedBtn'),
   };
 
@@ -53,9 +55,11 @@ sidePanelProto.switchSettingsTab = function switchSettingsTab(
   if (resolvedTab === 'generation') {
     this.populateGenerationTab?.();
   }
+  if (resolvedTab === 'display') {
+    this.renderThemeGrid?.();
+  }
   if (resolvedTab === 'advanced') {
     this.renderTeamProfileList?.();
-    this.renderThemeGrid?.();
   }
 };
 

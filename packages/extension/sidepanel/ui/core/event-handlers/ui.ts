@@ -82,6 +82,16 @@ export const setupUIListeners = function setupUIListeners(this: SidePanelUI & Re
     this.applyTypography(this.fontPreset || 'default', this.elements.fontStylePreset?.value || 'normal');
   });
 
+  // Text size presets
+  document.addEventListener('click', (e: Event) => {
+    const btn = (e.target as HTMLElement).closest('.display-size-preset') as HTMLButtonElement | null;
+    if (!btn) return;
+    const zoom = Number.parseFloat(btn.dataset.zoom || '1');
+    this.applyUiZoom(zoom);
+    document.querySelectorAll('.display-size-preset').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+  });
+
   // Tab selector
   this.elements.tabSelectorBtn?.addEventListener('click', () => this.toggleTabSelector());
   this.elements.closeTabSelector?.addEventListener('click', () => this.closeTabSelector());

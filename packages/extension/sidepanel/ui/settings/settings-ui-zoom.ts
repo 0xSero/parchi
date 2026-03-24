@@ -26,6 +26,11 @@ sidePanelProto.applyUiZoom = function applyUiZoom(value: number, { persist = tru
   if (this.elements.uiZoomValue) this.elements.uiZoomValue.textContent = `${Math.round(clamped * 100)}%`;
   if (this.elements.quickActionTextSizeValue)
     this.elements.quickActionTextSizeValue.textContent = `${Math.round(clamped * 100)}%`;
+  // Sync preset button active state
+  document.querySelectorAll('.display-size-preset').forEach((btn) => {
+    const z = Number.parseFloat((btn as HTMLElement).dataset.zoom || '0');
+    btn.classList.toggle('active', Math.abs(z - clamped) < 0.01);
+  });
   if (persist) {
     void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
       patchSettingsStoreSnapshot({ uiZoom: clamped }).catch(() => {}),

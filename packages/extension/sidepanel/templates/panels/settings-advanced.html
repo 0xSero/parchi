@@ -177,32 +177,6 @@
         </div>
     </details>
 
-    <details class="collapsible">
-        <summary>Look &amp; Feel</summary>
-        <div class="collapsible-body">
-            <div class="form-group">
-                <label for="themeSelect">Theme</label>
-                <select id="themeSelect"></select>
-            </div>
-            <div class="form-group">
-                <label>Preview</label>
-                <div id="themePreview" class="theme-preview-inline"></div>
-            </div>
-            <div class="form-group" style="margin-top: 8px;">
-                <label for="uiZoom">Text Size <span class="form-value" id="uiZoomValue">100%</span></label>
-                <input type="range" id="uiZoom" min="0.85" max="1.5" step="0.05" value="1" />
-            </div>
-            <div class="form-group">
-                <label for="fontPreset">Typography</label>
-                <select id="fontPreset"><option value="default">Jakarta (Default)</option><option value="geist">Geist</option><option value="soft">Nunito</option><option value="dm-sans">DM Sans</option><option value="plex">IBM Plex</option><option value="manrope">Manrope</option></select>
-            </div>
-            <div class="form-group">
-                <label for="fontStylePreset">Font Style</label>
-                <select id="fontStylePreset"><option value="normal">Regular</option><option value="medium">Medium</option><option value="semibold">Semibold</option></select>
-            </div>
-        </div>
-    </details>
-
     <details class="collapsible" open>
         <summary>Danger Zone</summary>
         <div class="collapsible-body">
@@ -213,4 +187,48 @@
             <button id="settingsResetProfilesBtn" class="btn btn-secondary" type="button" style="width:100%;border-color:rgb(var(--error-rgb) / 0.32);color:var(--error);">Reset all profiles</button>
         </div>
     </details>
+</div>
+
+<!-- ===== DISPLAY ===== -->
+<div class="settings-tab-pane" data-pane="display">
+    <div class="form-group">
+        <label for="themeSelect">Theme</label>
+        <select id="themeSelect"></select>
+    </div>
+    <div class="form-group">
+        <label>Preview</label>
+        <div id="themePreview" class="theme-preview-inline"></div>
+    </div>
+
+    <div class="display-text-size">
+        <label class="display-text-size-label">Text Size <span class="form-value" id="uiZoomValue">100%</span></label>
+        <div class="display-text-size-presets">
+            <button type="button" class="display-size-preset" data-zoom="0.85">S</button>
+            <button type="button" class="display-size-preset" data-zoom="0.9">M</button>
+            <button type="button" class="display-size-preset active" data-zoom="1">Default</button>
+            <button type="button" class="display-size-preset" data-zoom="1.1">L</button>
+            <button type="button" class="display-size-preset" data-zoom="1.25">XL</button>
+        </div>
+        <input type="range" id="uiZoom" min="0.85" max="1.5" step="0.05" value="1" />
+    </div>
+
+    <div class="form-group">
+        <label for="fontPreset">Typography</label>
+        <select id="fontPreset">
+            <option value="default">Jakarta (Default)</option>
+            <option value="geist">Geist</option>
+            <option value="soft">Nunito</option>
+            <option value="dm-sans">DM Sans</option>
+            <option value="plex">IBM Plex</option>
+            <option value="manrope">Manrope</option>
+        </select>
+    </div>
+    <div class="form-group">
+        <label for="fontStylePreset">Font Style</label>
+        <select id="fontStylePreset">
+            <option value="normal">Regular</option>
+            <option value="medium">Medium</option>
+            <option value="semibold">Semibold</option>
+        </select>
+    </div>
 </div>

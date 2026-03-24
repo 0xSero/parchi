@@ -58,6 +58,7 @@ export const setupSettingsListeners = function setupSettingsListeners(this: Side
   this.elements.settingsTabProvidersBtn?.addEventListener('click', () => this.switchSettingsTab('providers'));
   this.elements.settingsTabModelBtn?.addEventListener('click', () => this.switchSettingsTab('model'));
   this.elements.settingsTabGenerationBtn?.addEventListener('click', () => this.switchSettingsTab('generation'));
+  this.elements.settingsTabDisplayBtn?.addEventListener('click', () => this.switchSettingsTab('display'));
   this.elements.settingsTabAdvancedBtn?.addEventListener('click', () => this.switchSettingsTab('advanced'));
   this.elements.settingsOpenAccountBtn?.addEventListener('click', () => this.openAccountPanel?.());
   this.elements.accountBackToSettingsBtn?.addEventListener('click', () => this.openSettingsPanel?.());

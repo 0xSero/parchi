@@ -91,7 +91,7 @@ body.sidebar-open .sidebar-scrim {
 
 /* Sidebar sizing */
 body[data-right-panel="settings"] {
-  --sidebar-width: clamp(320px, 80vw, 760px);
+  --sidebar-width: clamp(300px, 60vw, 480px);
 }
 
 @media (max-width: 520px) {

@@ -56,7 +56,7 @@
 }
 
 .composer-wrapper {
-  padding: 12px;
+  padding: 12px 12px 8px;
   background: var(--card);
   border-top: 1px solid var(--ink-2);
   flex-shrink: 0;
@@ -563,6 +563,10 @@
   color: var(--muted-dim);
 }
 
+.model-selector-search-wrap:focus-within {
+  border-bottom-color: var(--ink-1);
+}
+
 .model-selector-search {
   width: 100%;
   background: transparent;
@@ -570,6 +574,12 @@
   color: var(--foreground);
   font-size: 13px;
   font-family: var(--font-sans);
+  outline: none;
+}
+
+.model-selector-search:focus {
+  border: none;
+  box-shadow: none;
   outline: none;
 }
 
@@ -680,7 +690,7 @@
   font-family: var(--font-mono);
   color: var(--muted-dim);
   text-align: right;
-  padding: 4px 4px 0 0;
+  padding: 2px 4px 0 0;
   letter-spacing: 0.02em;
 }
 
