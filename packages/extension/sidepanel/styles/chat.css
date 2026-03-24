@@ -9,6 +9,7 @@
   min-height: 0;
   position: relative;
   scroll-behavior: smooth;
+  background: var(--background);
 }
 
 /* FAB Group — Below topbar, right side */

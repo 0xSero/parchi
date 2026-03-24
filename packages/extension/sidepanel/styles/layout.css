@@ -12,8 +12,8 @@
   justify-content: space-between;
   height: var(--topbar-height);
   padding: 0 12px;
-  background: var(--card);
-  border-bottom: 1px solid var(--ink-2);
+  background: var(--background);
+  border-bottom: 1px solid var(--ink-1);
   flex-shrink: 0;
   z-index: 10;
 }

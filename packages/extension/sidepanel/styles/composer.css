@@ -57,8 +57,8 @@
 
 .composer-wrapper {
   padding: 12px 12px 8px;
-  background: var(--card);
-  border-top: 1px solid var(--ink-2);
+  background: var(--background);
+  border-top: none;
   flex-shrink: 0;
 }
 
