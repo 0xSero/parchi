@@ -38,8 +38,8 @@
 
 /* Dot */
 .agent-tab-dot {
-  width: 5px;
-  height: 5px;
+  width: 4px;
+  height: 4px;
   border-radius: 50%;
   background: var(--muted-dim);
   flex-shrink: 0;
@@ -51,10 +51,10 @@
   background: var(--muted);
 }
 .agent-tab.completed .agent-tab-dot {
-  background: var(--success);
+  background: var(--muted-dim);
 }
 .agent-tab.error .agent-tab-dot {
-  background: var(--error);
+  background: var(--muted-dim);
 }
 
 .agent-tab-label {

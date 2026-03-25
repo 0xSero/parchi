@@ -1,7 +1,7 @@
 import { type BrowserToolResult, formatToolError, isToolSuccess } from './browser-tool-shared.js';
 
 /**
- * Execute a function in a specific tab's content script context.
+ * Execute a function in a specific tab's content script context (ISOLATED world).
  */
 export async function runInTab<TArgs extends unknown[], TResult>(
   tabId: number,
@@ -19,6 +19,33 @@ export async function runInTab<TArgs extends unknown[], TResult>(
     return {
       success: false,
       error: 'executeScript failed.',
+      details: formatToolError(error),
+    };
+  }
+}
+
+/**
+ * Execute a function in a specific tab's MAIN world (page JS context).
+ * Required for tools that use new Function() / eval, which are blocked by
+ * the extension CSP in the ISOLATED world.
+ */
+export async function runInTabMainWorld<TArgs extends unknown[], TResult>(
+  tabId: number,
+  func: (...args: TArgs) => TResult | Promise<TResult>,
+  args: TArgs,
+): Promise<BrowserToolResult<TResult>> {
+  try {
+    const results = await chrome.scripting.executeScript({
+      target: { tabId },
+      world: 'MAIN',
+      func: func as (...args: unknown[]) => unknown,
+      args: [...args],
+    });
+    return (results?.[0]?.result ?? null) as TResult;
+  } catch (error) {
+    return {
+      success: false,
+      error: 'executeScript failed (MAIN world).',
       details: formatToolError(error),
     };
   }

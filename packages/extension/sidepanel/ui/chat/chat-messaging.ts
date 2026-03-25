@@ -89,10 +89,10 @@ sidePanelProto.sendMessage = async function sendMessage() {
 
   // Sweep any lingering empty assistant containers from prior turns
   if (this.elements.chatMessages) {
-    for (const el of Array.from(this.elements.chatMessages.querySelectorAll('.message.assistant'))) {
+    for (const el of Array.from(this.elements.chatMessages.querySelectorAll('.message.assistant')) as HTMLElement[]) {
       const txt = (el.textContent || '').replace(/Thinking\.\.\./g, '').replace(/Thought process/g, '').trim();
-      if (!txt && !(el as HTMLElement).querySelector('img, video, canvas, svg.report-image')) {
-        (el as HTMLElement).remove();
+      if (!txt && !el.querySelector('img, video, canvas, svg.report-image')) {
+        el.remove();
       }
     }
   }

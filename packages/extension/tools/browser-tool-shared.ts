@@ -77,6 +77,11 @@ export interface BrowserToolsDelegate {
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
   ): Promise<BrowserToolResult<TResult>>;
+  runInTabMainWorld<TArgs extends unknown[], TResult>(
+    tabId: number,
+    func: (...args: TArgs) => TResult | Promise<TResult>,
+    args: TArgs,
+  ): Promise<BrowserToolResult<TResult>>;
   runInAllFrames<TArgs extends unknown[], TResult>(
     tabId: number,
     func: (...args: TArgs) => TResult | Promise<TResult>,

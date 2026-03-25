@@ -1,4 +1,4 @@
-import { EVALUATE_TOOL_MAX_SCRIPT_LENGTH, runPageScript, toJsonSafe } from './browser-eval-shared.js';
+import { EVALUATE_TOOL_MAX_SCRIPT_LENGTH } from './browser-eval-shared.js';
 import { type BrowserToolArgs, type BrowserToolsDelegate, missingSessionTabError } from './browser-tool-shared.js';
 
 export async function evaluateTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs) {
@@ -23,15 +23,35 @@ export async function evaluateTool(ctx: BrowserToolsDelegate, args: BrowserToolA
     durationMs: 800,
   });
 
-  const result = await ctx.runInTab(
+  const result = await ctx.runInTabMainWorld(
     tabId,
     async (source: string, runtimeArgs: unknown[]) => {
       try {
-        const value = await runPageScript(source, runtimeArgs);
-        return {
-          success: true,
-          result: toJsonSafe(value),
+        const bodyFactory = new Function('args', `return (async () => {\n${source}\n})();`);
+        let value;
+        try {
+          value = await bodyFactory(runtimeArgs);
+        } catch {
+          const expressionFactory = new Function('args', `return (${source});`);
+          value = await expressionFactory(runtimeArgs);
+        }
+        const toSafe = (v: unknown, seen = new WeakSet<object>()): unknown => {
+          if (v == null || typeof v === 'string' || typeof v === 'number' || typeof v === 'boolean') return v;
+          if (typeof v === 'function') return '[Function]';
+          if (typeof v === 'bigint') return v.toString();
+          if (v instanceof Error) return { name: v.name, message: v.message };
+          if (Array.isArray(v)) return v.map((e) => toSafe(e, seen));
+          if (typeof v === 'object') {
+            if (seen.has(v)) return '[Circular]';
+            seen.add(v);
+            const out: Record<string, unknown> = {};
+            for (const [k, e] of Object.entries(v)) out[k] = toSafe(e, seen);
+            seen.delete(v);
+            return out;
+          }
+          return String(v);
         };
+        return { success: true, result: toSafe(value) };
       } catch (error) {
         return {
           success: false,

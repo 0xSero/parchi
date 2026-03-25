@@ -2,73 +2,65 @@
    Utilities — Modern Void Design System
    ============================================================================ */
 
-/* Error/Warning Banners — Inline style, appended to chat stream */
+/* Error/Warning Banners */
 .error-banner,
 .run-incomplete-banner {
   display: flex;
   align-items: flex-start;
-  gap: 10px;
-  padding: 10px 14px;
-  margin: 8px 0;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  font-size: 13px;
-  line-height: 1.5;
-  animation: fadeInUp 0.3s var(--ease-out-expo);
+  gap: 8px;
+  padding: 6px 10px;
+  margin: 4px 0;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.4;
+  background: var(--ink-1);
 }
 
 .error-banner {
-  border-color: hsla(0, 50%, 50%, 0.3);
-  background: hsla(0, 30%, 12%, 0.8);
+  border-left: 2px solid var(--muted-dim);
 }
 
 .run-incomplete-banner {
-  border-color: hsla(40, 55%, 60%, 0.3);
-  background: hsla(40, 10%, 12%, 0.8);
+  border-left: 2px solid var(--muted-dim);
 }
 
 .error-banner .error-icon {
   flex-shrink: 0;
   display: block;
-  width: 16px;
-  height: 16px;
-  margin-top: 2px;
-  align-self: flex-start;
-  color: var(--error);
+  width: 14px;
+  height: 14px;
+  margin-top: 1px;
+  color: var(--muted);
 }
 
 .error-banner .error-text {
   flex: 1;
   color: var(--muted);
   word-break: break-word;
+  font-size: 11px;
 }
 
 .error-banner .error-dismiss {
   flex-shrink: 0;
-  align-self: flex-start;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   background: transparent;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 6px;
+  border: none;
+  border-radius: 4px;
   color: var(--muted-dim);
   cursor: pointer;
-  transition: all 150ms ease;
 }
 
 .error-banner .error-dismiss:hover {
-  background: rgba(255, 255, 255, 0.06);
   color: var(--foreground);
 }
 
 .error-banner .error-dismiss:active {
   transform: scale(0.92);
-  transition-duration: 80ms;
 }
 
 .error-banner .error-body {

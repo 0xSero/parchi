@@ -2,31 +2,28 @@
    Composer — Modern Void Design System
    ============================================================================ */
 
-/* Queued Message Banner — visible indicator above composer */
+/* Queued Message Banner */
 .queued-message-banner {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 6px 10px;
-  margin-bottom: 6px;
-  background: rgb(var(--accent-rgb) / 0.06);
-  border: 1px solid rgb(var(--accent-rgb) / 0.2);
-  border-radius: 8px;
-  animation: fadeInUp 0.2s var(--ease-out-expo);
+  padding: 4px 10px;
+  margin-bottom: 4px;
+  background: var(--ink-1);
+  border-radius: 6px;
 }
 
 .queued-message-label {
   font-size: 10px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--accent-light);
+  letter-spacing: 0.03em;
+  color: var(--muted);
   flex-shrink: 0;
 }
 
 .queued-message-text {
-  font-size: 12px;
-  color: var(--muted);
+  font-size: 11px;
+  color: var(--muted-dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -38,8 +35,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 20px;
-  height: 20px;
+  width: 18px;
+  height: 18px;
   padding: 0;
   border: none;
   border-radius: 4px;
@@ -47,11 +44,9 @@
   color: var(--muted-dim);
   cursor: pointer;
   flex-shrink: 0;
-  transition: all 120ms ease;
 }
 
 .queued-message-cancel:hover {
-  background: rgba(255, 255, 255, 0.08);
   color: var(--foreground);
 }
 

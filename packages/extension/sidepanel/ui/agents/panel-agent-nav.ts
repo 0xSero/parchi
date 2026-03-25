@@ -1,4 +1,3 @@
-import { getSubagentColorStyle } from '../../../subagent-colors.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -74,9 +73,8 @@ sidePanelProto.renderAgentNav = function renderAgentNav() {
   const orchTab = `<button type="button" class="agent-tab agent-tab--orch${orchActive}" data-agent-id="${MAIN_AGENT_ID}"><span class="agent-tab-dot"></span><span class="agent-tab-label">Orchestrator</span><span class="agent-tab-meta">${meta}</span></button>`;
   const children = Array.from(this.subagents.entries())
     .map(([id, agent]: [string, any]) => {
-      const s = getSubagentColorStyle(agent.colorIndex ?? 0);
       const ac = active === id ? ' active' : '';
-      return `<div class="agent-tab ${agent.status}${ac}" data-agent-id="${escape(this, id)}" style="${s}">
+      return `<div class="agent-tab ${agent.status}${ac}" data-agent-id="${escape(this, id)}">
         <span class="agent-tab-dot"></span>
         <span class="agent-tab-label">${escape(this, agent.name)}</span>
         <button type="button" class="agent-tab-close" data-close-agent="${escape(this, id)}" aria-label="Close ${escape(this, agent.name)}">×</button>

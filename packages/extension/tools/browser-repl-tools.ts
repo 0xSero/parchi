@@ -26,7 +26,7 @@ export async function replTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs)
     durationMs: 1200,
   });
 
-  const result = await ctx.runInTab(
+  const result = await ctx.runInTabMainWorld(
     tabId,
     async (source: string, runtimeArgs: unknown[]) => {
       const logs: string[] = [];

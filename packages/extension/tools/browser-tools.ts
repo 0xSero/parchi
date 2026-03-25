@@ -1,5 +1,5 @@
 import { BrowserDebugManager } from './browser-debug-tools.js';
-import { runInAllFrames, runInTab, sendOverlay } from './browser-script-execution.js';
+import { runInAllFrames, runInTab, runInTabMainWorld, sendOverlay } from './browser-script-execution.js';
 import {
   captureActiveTabState,
   configureSessionTabsState,
@@ -147,6 +147,14 @@ export class BrowserTools {
     args: TArgs,
   ) {
     return runInTab(tabId, func, args);
+  }
+
+  async runInTabMainWorld<TArgs extends unknown[], TResult>(
+    tabId: number,
+    func: (...args: TArgs) => TResult | Promise<TResult>,
+    args: TArgs,
+  ) {
+    return runInTabMainWorld(tabId, func, args);
   }
 
   async runInAllFrames<TArgs extends unknown[], TResult>(
