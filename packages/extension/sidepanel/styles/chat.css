@@ -1182,6 +1182,12 @@ body.sidebar-open .context-inspector-popover {
   display: none;
 }
 
+/* Hide empty assistant messages that have no visible content at all */
+.message.assistant:not(.streaming):not(:has(.stream-event-text, .stream-event-reasoning, .tool-row, .thinking-block, .inline-thinking-block, .message-content:not(.streaming-content), img, video, canvas)) {
+  display: none !important;
+  padding: 0 !important;
+}
+
 /* ============================================================================
    Run HUD
    ============================================================================ */

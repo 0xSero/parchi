@@ -87,6 +87,16 @@ sidePanelProto.sendMessage = async function sendMessage() {
   this.clearRunIncompleteBanner();
   this.updateActivityState();
 
+  // Sweep any lingering empty assistant containers from prior turns
+  if (this.elements.chatMessages) {
+    for (const el of Array.from(this.elements.chatMessages.querySelectorAll('.message.assistant'))) {
+      const txt = (el.textContent || '').replace(/Thinking\.\.\./g, '').replace(/Thought process/g, '').trim();
+      if (!txt && !(el as HTMLElement).querySelector('img, video, canvas, svg.report-image')) {
+        (el as HTMLElement).remove();
+      }
+    }
+  }
+
   let selectedTabsPayload = Array.from(this.selectedTabs.values());
   let tabsContext = this.getSelectedTabsContext(selectedTabsPayload);
 

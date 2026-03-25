@@ -105,8 +105,8 @@ sidePanelProto.updateStreamingMessage = function updateStreamingMessage(content:
   }
   if (!this.streamingState?.eventsEl) return;
 
-  // Reveal container on first content
-  if (this.streamingState.container?.style.display === 'none') {
+  // Only reveal container when there is actual content to display
+  if (content && content.length > 0 && this.streamingState.container?.style.display === 'none') {
     this.streamingState.container.style.display = '';
   }
 
