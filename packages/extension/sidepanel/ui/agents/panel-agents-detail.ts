@@ -95,11 +95,29 @@ sidePanelProto.mcRenderDetail = function mcRenderDetail(agentId: string) {
       ${agent.completedAt ? `<span style="color:var(--muted-dim)">Finished</span><span style="color:var(--foreground);font-variant-numeric:tabular-nums">${endTime}</span>` : ''}
     </div></div>`;
 
-  // Activity feed
+  // Activity feed — collapse tool messages into counts
   if (agent.messages && agent.messages.length > 0) {
-    html += `<div class="mc-detail-section"><div class="mc-detail-section-title">Activity</div><div class="mc-activity-feed">${(
-      agent.messages as Array<{ ts: number; text: string }>
-    )
+    const collapsed: Array<{ ts: number; text: string }> = [];
+    let toolRun = 0;
+    let toolRunTs = 0;
+    const flushTools = () => {
+      if (toolRun > 0) {
+        collapsed.push({ ts: toolRunTs, text: `${toolRun} tool call${toolRun !== 1 ? 's' : ''}` });
+        toolRun = 0;
+      }
+    };
+    for (const m of agent.messages as Array<{ ts: number; text: string }>) {
+      if (m.text.startsWith('Tool: ') || m.text.startsWith('Tool started:') || m.text.startsWith('Tool completed:')) {
+        if (toolRun === 0) toolRunTs = m.ts;
+        toolRun++;
+      } else {
+        flushTools();
+        collapsed.push(m);
+      }
+    }
+    flushTools();
+
+    html += `<div class="mc-detail-section"><div class="mc-detail-section-title">Activity</div><div class="mc-activity-feed">${collapsed
       .map(
         (m) =>
           `<div class="mc-activity-item"><span class="mc-activity-ts">${new Date(m.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span><span class="mc-activity-text">${this.escapeHtml(m.text)}</span></div>`,

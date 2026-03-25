@@ -107,26 +107,13 @@ sidePanelProto.handleSubagentRuntimeMessage = function handleSubagentRuntimeMess
   }
 
   if (message.type === 'tool_execution_start') {
-    const args = message.args && typeof message.args === 'object' ? JSON.stringify(message.args) : '';
-    const detail = args && args !== '{}' ? `\n\n\`${escape(this, args)}\`` : '';
-    this.appendSubagentSessionMessage(agentId, `Tool · ${String(message.tool || 'tool')}`, `Running${detail}`);
-    agent.messages.push({ ts: Date.now(), text: `Tool started: ${String(message.tool || 'tool')}` });
+    if (!agent._toolCount) agent._toolCount = 0;
+    agent._toolCount++;
+    agent.messages.push({ ts: Date.now(), text: `Tool: ${String(message.tool || 'tool')}` });
     return true;
   }
 
   if (message.type === 'tool_execution_result') {
-    const resultText =
-      message.result && typeof message.result === 'object'
-        ? `\n\n\`${escape(this, JSON.stringify(message.result))}\``
-        : message.result
-          ? `\n\n${escape(this, String(message.result))}`
-          : '';
-    this.appendSubagentSessionMessage(
-      agentId,
-      `Tool result · ${String(message.tool || 'tool')}`,
-      `Completed${resultText}`,
-    );
-    agent.messages.push({ ts: Date.now(), text: `Tool completed: ${String(message.tool || 'tool')}` });
     return true;
   }
 

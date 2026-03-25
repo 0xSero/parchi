@@ -4,12 +4,12 @@
 
 /* ---- Inline chat indicators (replaces old subagent-block cards) ---- */
 .subagent-inline {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  margin: 4px 0;
-  font-size: 11.5px;
+  gap: 5px;
+  padding: 3px 8px;
+  margin: 2px 0;
+  font-size: 11px;
   color: var(--muted);
   border-left: 2px solid var(--ink-2);
   transition: all 200ms ease;
@@ -36,8 +36,8 @@
 }
 
 .subagent-inline-dot {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
   border-radius: 999px;
   flex-shrink: 0;
 }
