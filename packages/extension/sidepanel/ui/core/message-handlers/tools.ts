@@ -213,28 +213,17 @@ export const handleCreateFile = function handleCreateFile(this: SidePanelUI & Re
     this.downloadFile(content, filename, mimeType);
   });
 
-  // Click card → toggle inline preview
-  card.addEventListener('click', () => {
+  // Click card header → toggle inline preview
+  card.addEventListener('click', (e: Event) => {
+    if ((e.target as HTMLElement).closest('.file-artifact-download')) return;
+    if ((e.target as HTMLElement).closest('.file-artifact-preview')) return;
     const existing = card.querySelector('.file-artifact-preview');
     if (existing) {
       existing.remove();
       card.classList.remove('expanded');
       return;
     }
-    const preview = document.createElement('div');
-    preview.className = 'file-artifact-preview';
-    const isImage = mimeType.startsWith('image/');
-    const isCsv = mimeType === 'text/csv' || filename.endsWith('.csv');
-    if (isImage && content.startsWith('data:')) {
-      preview.innerHTML = `<img src="${content}" alt="${this.escapeHtml(filename)}" />`;
-    } else if (isCsv) {
-      preview.innerHTML = csvToTable(content);
-    } else {
-      const truncated = content.length > 5000 ? content.slice(0, 5000) + '\n...(truncated)' : content;
-      preview.innerHTML = `<pre><code>${this.escapeHtml(truncated)}</code></pre>`;
-    }
-    card.appendChild(preview);
-    card.classList.add('expanded');
+    this.renderFilePreview(card, filename, content, mimeType);
   });
 
   const streamEventsEl = this.streamingState?.eventsEl;
@@ -243,7 +232,38 @@ export const handleCreateFile = function handleCreateFile(this: SidePanelUI & Re
   } else if (this.elements.chatMessages) {
     this.elements.chatMessages.appendChild(card);
   }
+
+  // Auto-preview on creation
+  this.renderFilePreview(card, filename, content, mimeType);
+
   this.scrollToBottom();
+};
+
+sidePanelProto.renderFilePreview = function renderFilePreview(
+  card: HTMLElement,
+  filename: string,
+  content: string,
+  mimeType: string,
+) {
+  if (card.querySelector('.file-artifact-preview')) return;
+  const preview = document.createElement('div');
+  preview.className = 'file-artifact-preview';
+  const isImage = mimeType.startsWith('image/');
+  const isCsv = mimeType === 'text/csv' || filename.endsWith('.csv');
+  const isMd = mimeType === 'text/markdown' || filename.endsWith('.md');
+  if (isImage && content.startsWith('data:')) {
+    preview.innerHTML = `<img src="${content}" alt="${this.escapeHtml(filename)}" />`;
+  } else if (isCsv) {
+    preview.innerHTML = csvToTable(content);
+  } else if (isMd) {
+    const rendered = this.renderMarkdown?.(content) || this.escapeHtml(content);
+    preview.innerHTML = `<div class="file-artifact-md markdown-body">${rendered}</div>`;
+  } else {
+    const truncated = content.length > 5000 ? content.slice(0, 5000) + '\n...(truncated)' : content;
+    preview.innerHTML = `<pre><code>${this.escapeHtml(truncated)}</code></pre>`;
+  }
+  card.appendChild(preview);
+  card.classList.add('expanded');
 };
 
 sidePanelProto.handleCreateFile = handleCreateFile;
