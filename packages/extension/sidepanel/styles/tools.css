@@ -757,3 +757,58 @@
   max-width: 100%;
   border-radius: 6px;
 }
+
+/* CSV Table */
+.csv-table-wrap {
+  overflow-x: auto;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: #0d0d0f;
+}
+
+.csv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.csv-table th {
+  padding: 6px 12px;
+  text-align: left;
+  font-weight: 700;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+}
+
+.csv-table td {
+  padding: 5px 12px;
+  color: rgba(255, 255, 255, 0.6);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.csv-table tbody tr:hover td {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.csv-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.csv-truncated {
+  padding: 6px 12px;
+  font-size: 10px;
+  color: var(--muted-dim);
+  text-align: center;
+}

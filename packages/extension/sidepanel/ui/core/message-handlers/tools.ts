@@ -8,6 +8,57 @@ import { capTurnToolEvents, clampHistoryTurnMap } from '../history-manager.js';
 import { SidePanelUI } from '../panel-ui.js';
 import { sanitizeTracePayload } from '../trace-sanitizer.js';
 
+function escapeHtmlLocal(s: string): string {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function parseCsvRow(line: string): string[] {
+  const cells: string[] = [];
+  let current = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQuotes) {
+      if (ch === '"' && line[i + 1] === '"') {
+        current += '"';
+        i++;
+      } else if (ch === '"') {
+        inQuotes = false;
+      } else {
+        current += ch;
+      }
+    } else if (ch === '"') {
+      inQuotes = true;
+    } else if (ch === ',') {
+      cells.push(current);
+      current = '';
+    } else {
+      current += ch;
+    }
+  }
+  cells.push(current);
+  return cells;
+}
+
+function csvToTable(csv: string): string {
+  const lines = csv.split('\n').filter((l) => l.trim());
+  if (lines.length === 0) return '<pre><code>(empty CSV)</code></pre>';
+  const maxRows = 200;
+  const header = parseCsvRow(lines[0]);
+  const rows = lines.slice(1, maxRows + 1).map(parseCsvRow);
+  let html = '<div class="csv-table-wrap"><table class="csv-table"><thead><tr>';
+  for (const h of header) html += `<th>${escapeHtmlLocal(h.trim())}</th>`;
+  html += '</tr></thead><tbody>';
+  for (const row of rows) {
+    html += '<tr>';
+    for (let i = 0; i < header.length; i++) html += `<td>${escapeHtmlLocal((row[i] || '').trim())}</td>`;
+    html += '</tr>';
+  }
+  html += '</tbody></table></div>';
+  if (lines.length > maxRows + 1) html += `<div class="csv-truncated">${lines.length - 1} rows total, showing first ${maxRows}</div>`;
+  return html;
+}
+
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
 
 /**
@@ -173,8 +224,11 @@ export const handleCreateFile = function handleCreateFile(this: SidePanelUI & Re
     const preview = document.createElement('div');
     preview.className = 'file-artifact-preview';
     const isImage = mimeType.startsWith('image/');
+    const isCsv = mimeType === 'text/csv' || filename.endsWith('.csv');
     if (isImage && content.startsWith('data:')) {
       preview.innerHTML = `<img src="${content}" alt="${this.escapeHtml(filename)}" />`;
+    } else if (isCsv) {
+      preview.innerHTML = csvToTable(content);
     } else {
       const truncated = content.length > 5000 ? content.slice(0, 5000) + '\n...(truncated)' : content;
       preview.innerHTML = `<pre><code>${this.escapeHtml(truncated)}</code></pre>`;
