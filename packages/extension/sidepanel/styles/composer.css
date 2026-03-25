@@ -72,8 +72,8 @@
 }
 
 .composer:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(var(--accent-rgb), 0.1);
+  border-color: var(--ink-2);
+  box-shadow: none;
 }
 
 /* Gloss sheen overlay — disabled for subtle look */

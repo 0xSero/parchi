@@ -56,7 +56,7 @@ sidePanelProto.addSubagent = function addSubagent(
   this.renderAgentNav?.();
   this.syncAgentComposerState?.();
   this.renderSubagentActivity(id, 'start', { name, tasks });
-  if (this.subagents.size === 1 && !this.missionControlOpen) this.openMissionControl();
+  // Don't auto-open mission control — let user open it manually
 };
 
 /** Update the status of a subagent. */

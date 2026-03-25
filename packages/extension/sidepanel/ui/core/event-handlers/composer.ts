@@ -152,7 +152,9 @@ function removeQueuedMessageBanner(this: SidePanelUI & Record<string, unknown>) 
 }
 
 function handleSendButtonClick(this: SidePanelUI & Record<string, unknown>) {
-  const isRunning = this.elements.composer?.classList.contains('running');
+  const composerRunning = this.elements.composer?.classList.contains('running');
+  const hasActiveSubagents = this.subagents && Array.from((this.subagents as Map<string, any>).values()).some((a: any) => a.status === 'running');
+  const isRunning = composerRunning || hasActiveSubagents;
   const hasText = this.elements.userInput?.value.trim();
 
   if (isRunning && hasText) {

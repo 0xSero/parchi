@@ -1968,12 +1968,44 @@ body.sidebar-open .context-inspector-popover {
   opacity: 0.72;
 }
 
+.agent-session-log {
+  padding: 8px 12px;
+  margin: 4px 0;
+  border-left: 2px solid var(--ink-2);
+  font-size: 12px;
+}
+
+.agent-session-log .message-header {
+  display: block;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 2px;
+}
+
+.agent-session-log .message-meta {
+  display: block;
+  font-size: 11px;
+  color: var(--muted-dim);
+  margin-bottom: 4px;
+}
+
+.agent-session-log .message-content {
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.agent-session-log .message-content code {
+  font-size: 11px;
+  word-break: break-all;
+}
+
 .agent-session-log.success {
-  border-color: rgb(var(--success-rgb) / 0.25);
+  border-left-color: rgb(var(--success-rgb) / 0.5);
 }
 
 .agent-session-log.error {
-  border-color: rgb(var(--error-rgb) / 0.25);
+  border-left-color: rgb(var(--error-rgb) / 0.5);
 }
 
 /* ============================================================================
