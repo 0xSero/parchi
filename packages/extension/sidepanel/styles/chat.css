@@ -1402,7 +1402,7 @@ body.sidebar-open .context-inspector-popover {
   margin: 4px 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 .stream-events:empty {

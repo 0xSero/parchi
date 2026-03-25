@@ -234,8 +234,8 @@
 .tool-row {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 0;
+  gap: 8px;
+  padding: 4px 10px;
   font-size: 12px;
   line-height: 1.4;
   color: var(--muted);
@@ -246,25 +246,36 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   flex-wrap: wrap;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  cursor: pointer;
+}
+
+.tool-row:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.07);
 }
 
 .tool-row.running {
   color: var(--foreground);
+  border-color: rgba(255, 255, 255, 0.06);
 }
 
 .tool-row.done {
-  opacity: 0.5;
+  opacity: 0.55;
 }
 
 .tool-row.error {
-  color: hsla(0, 35%, 65%, 0.85);
+  border-color: rgba(200, 80, 80, 0.15);
 }
 
 .tool-name {
-  font-weight: 500;
+  font-weight: 600;
   font-family: var(--font-mono);
   color: inherit;
   flex-shrink: 0;
+  font-size: 12px;
 }
 
 .tool-args {
@@ -279,22 +290,22 @@
 
 .tool-status {
   margin-left: auto;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
   color: var(--muted-dim);
 }
 
 .tool-row.running .tool-status {
-  color: var(--accent);
+  color: var(--muted);
 }
 
 .tool-row.done .tool-status {
-  color: hsla(140, 40%, 55%, 0.7);
+  color: var(--muted-dim);
 }
 
 .tool-row.error .tool-status {
-  color: hsla(0, 50%, 65%, 0.9);
+  color: rgba(200, 80, 80, 0.7);
 }
 
 .tool-duration {
