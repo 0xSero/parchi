@@ -1,5 +1,14 @@
 import { MAX_TOOL_CALL_VIEWS, sidePanelProto } from './panel-tools-shared.js';
 
+function highlightCode(escaped: string): string {
+  return escaped
+    .replace(/&quot;(.*?)&quot;/g, '<span class="tc-str">&quot;$1&quot;</span>')
+    .replace(/\b(true|false|null|undefined)\b/g, '<span class="tc-bool">$1</span>')
+    .replace(/\b(\d+\.?\d*)\b/g, '<span class="tc-num">$1</span>')
+    .replace(/\b(const|let|var|function|return|await|async|if|else|for|while|new|try|catch|throw)\b/g, '<span class="tc-kw">$1</span>')
+    .replace(/(\/\/.*)/g, '<span class="tc-cmt">$1</span>');
+}
+
 const HIDDEN_TOOLS = new Set(['set_plan', 'update_plan']);
 
 sidePanelProto.displayToolExecution = function displayToolExecution(
@@ -116,28 +125,28 @@ sidePanelProto.createToolElement = function createToolElement(entry: any) {
         const inputText = formatJson(entry.args);
         html += `<div class="tool-card-section">
           <div class="tool-card-section-header">
-            <span class="tool-card-section-label">Input</span>
+            <span class="tool-card-section-label">input</span>
             <button class="tool-card-copy" data-copy="input" title="Copy">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
               </svg>
             </button>
           </div>
-          <pre class="tool-card-code"><code>${this.escapeHtml(inputText)}</code></pre>
+          <pre class="tool-card-code"><code>${highlightCode(this.escapeHtml(inputText))}</code></pre>
         </div>`;
       }
       if (hasOutput) {
         const outputText = formatJson(entry.result);
         html += `<div class="tool-card-section">
           <div class="tool-card-section-header">
-            <span class="tool-card-section-label">Output</span>
+            <span class="tool-card-section-label">output</span>
             <button class="tool-card-copy" data-copy="output" title="Copy">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
               </svg>
             </button>
           </div>
-          <pre class="tool-card-code"><code>${this.escapeHtml(outputText)}</code></pre>
+          <pre class="tool-card-code"><code>${highlightCode(this.escapeHtml(outputText))}</code></pre>
         </div>`;
       }
       card.innerHTML = html;

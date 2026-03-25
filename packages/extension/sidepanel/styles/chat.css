@@ -616,7 +616,7 @@ body.sidebar-open .context-inspector-popover {
 
 .message.user .message-content {
   color: var(--foreground);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.6;
   font-weight: 400;
   word-wrap: break-word;
@@ -742,7 +742,7 @@ body.sidebar-open .context-inspector-popover {
 
 .message.assistant .message-content {
   color: var(--foreground);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.65;
   max-width: 100%;
   overflow-wrap: anywhere;
@@ -778,7 +778,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .message-meta {
-  font-size: 11px;
+  font-size: 12px;
   font-family: var(--font-mono);
   color: var(--muted-dim);
   letter-spacing: 0.02em;
@@ -794,12 +794,12 @@ body.sidebar-open .context-inspector-popover {
    ============================================================================ */
 
 .message-content {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.65;
 }
 
 .message-content p {
-  margin: 0 0 12px 0;
+  margin: 0 0 14px 0;
 }
 
 .message-content p:last-child {
@@ -828,7 +828,7 @@ body.sidebar-open .context-inspector-popover {
   border: 1px solid var(--border);
   border-radius: 4px;
   font-family: var(--font-mono);
-  font-size: 13px;
+  font-size: 14px;
   color: var(--foreground);
 }
 
@@ -851,7 +851,7 @@ body.sidebar-open .context-inspector-popover {
   padding: 0;
   background: transparent;
   border: none;
-  font-size: 13px;
+  font-size: 14px;
   line-height: 1.6;
   color: var(--foreground);
 }
@@ -1524,7 +1524,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .stream-event-text {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.65;
 }
 

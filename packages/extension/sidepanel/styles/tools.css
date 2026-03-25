@@ -236,8 +236,8 @@
   align-items: center;
   gap: 6px;
   padding: 2px 0;
-  font-size: 11px;
-  line-height: 1.35;
+  font-size: 12px;
+  line-height: 1.4;
   color: var(--muted);
   width: 100%;
   max-width: 100%;
@@ -269,7 +269,7 @@
 
 .tool-args {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--muted-dim);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -279,7 +279,7 @@
 
 .tool-status {
   margin-left: auto;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--muted-dim);
@@ -299,7 +299,7 @@
 
 .tool-duration {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   color: var(--muted-dim);
 }
 
@@ -490,8 +490,9 @@
   width: 100%;
   flex-basis: 100%;
   margin-top: 4px;
-  border: 1px solid var(--ink-1);
-  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  background: #0d0d0f;
   overflow: hidden;
 }
 
@@ -505,21 +506,22 @@
 }
 
 .tool-card-section + .tool-card-section {
-  border-top: 1px solid var(--ink-1);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .tool-card-section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 3px 8px;
+  padding: 4px 10px 2px;
 }
 
 .tool-card-section-label {
   font-size: 9px;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: var(--muted-dim);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
 }
 
 .tool-card-copy {
@@ -531,12 +533,12 @@
   border: none;
   border-radius: 3px;
   background: transparent;
-  color: var(--muted-dim);
+  color: rgba(255, 255, 255, 0.2);
   cursor: pointer;
 }
 
 .tool-card-copy:hover {
-  color: var(--foreground);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .tool-card-copy.copied {
@@ -545,19 +547,20 @@
 
 .tool-card-code {
   margin: 0;
-  padding: 4px 8px 6px;
+  padding: 4px 10px 8px;
   background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
   font-family: var(--font-mono);
-  font-size: 10px;
-  line-height: 1.4;
-  color: var(--muted);
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 60px;
+  max-height: 140px;
   overflow-y: auto;
+  tab-size: 2;
 }
 
 .tool-card-code code {
@@ -567,6 +570,13 @@
   font-size: inherit;
   color: inherit;
 }
+
+/* Syntax highlighting */
+.tool-card-code .tc-str { color: #7ec699; }
+.tool-card-code .tc-num { color: #d19a66; }
+.tool-card-code .tc-bool { color: #d19a66; }
+.tool-card-code .tc-kw { color: #c678dd; }
+.tool-card-code .tc-cmt { color: rgba(255, 255, 255, 0.2); font-style: italic; }
 
 /* ============================================================================
    Selected Element Chip — shows targeted DOM element
@@ -664,4 +674,44 @@
 
 .file-artifact-download:hover {
   color: var(--foreground);
+}
+
+.file-artifact-card.expanded {
+  flex-wrap: wrap;
+}
+
+.file-artifact-preview {
+  width: 100%;
+  flex-basis: 100%;
+  margin-top: 6px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  padding-top: 6px;
+}
+
+.file-artifact-preview pre {
+  margin: 0;
+  padding: 8px 10px;
+  background: #0d0d0f;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.55);
+  white-space: pre-wrap;
+  word-break: break-all;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.file-artifact-preview pre code {
+  padding: 0;
+  background: transparent;
+  border: none;
+  font-size: inherit;
+  color: inherit;
+}
+
+.file-artifact-preview img {
+  max-width: 100%;
+  border-radius: 6px;
 }

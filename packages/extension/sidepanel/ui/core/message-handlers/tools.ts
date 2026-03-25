@@ -142,8 +142,6 @@ export const handleCreateFile = function handleCreateFile(this: SidePanelUI & Re
       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
         <polyline points="14 2 14 8 20 8"/>
-        <line x1="12" y1="18" x2="12" y2="12"/>
-        <polyline points="9 15 12 18 15 15"/>
       </svg>
     </div>
     <div class="file-artifact-info">
@@ -159,14 +157,30 @@ export const handleCreateFile = function handleCreateFile(this: SidePanelUI & Re
     </button>
   `;
 
-  card.querySelector('.file-artifact-download')?.addEventListener('click', () => {
+  card.querySelector('.file-artifact-download')?.addEventListener('click', (e: Event) => {
+    e.stopPropagation();
     this.downloadFile(content, filename, mimeType);
   });
-  // Also allow clicking the whole card
-  card.addEventListener('click', (e: Event) => {
-    if (!(e.target as HTMLElement).closest('.file-artifact-download')) {
-      this.downloadFile(content, filename, mimeType);
+
+  // Click card → toggle inline preview
+  card.addEventListener('click', () => {
+    const existing = card.querySelector('.file-artifact-preview');
+    if (existing) {
+      existing.remove();
+      card.classList.remove('expanded');
+      return;
     }
+    const preview = document.createElement('div');
+    preview.className = 'file-artifact-preview';
+    const isImage = mimeType.startsWith('image/');
+    if (isImage && content.startsWith('data:')) {
+      preview.innerHTML = `<img src="${content}" alt="${this.escapeHtml(filename)}" />`;
+    } else {
+      const truncated = content.length > 5000 ? content.slice(0, 5000) + '\n...(truncated)' : content;
+      preview.innerHTML = `<pre><code>${this.escapeHtml(truncated)}</code></pre>`;
+    }
+    card.appendChild(preview);
+    card.classList.add('expanded');
   });
 
   const streamEventsEl = this.streamingState?.eventsEl;
