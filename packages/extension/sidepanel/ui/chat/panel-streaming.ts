@@ -63,6 +63,7 @@ sidePanelProto.startStreamingMessage = function startStreamingMessage() {
 
   const container = document.createElement('div');
   container.className = 'message assistant streaming';
+  container.style.display = 'none';
   this.tagAgentView?.(container, 'main');
   container.innerHTML = `
       <div class="message-content streaming-content markdown-body">
@@ -103,6 +104,11 @@ sidePanelProto.updateStreamingMessage = function updateStreamingMessage(content:
     this.startStreamingMessage();
   }
   if (!this.streamingState?.eventsEl) return;
+
+  // Reveal container on first content
+  if (this.streamingState.container?.style.display === 'none') {
+    this.streamingState.container.style.display = '';
+  }
 
   if (this.streamingState.lastEventType !== 'text') {
     const textEvent = document.createElement('div');
@@ -161,6 +167,11 @@ sidePanelProto.updateStreamReasoning = function updateStreamReasoning(delta: str
   if (!this.streamingState?.eventsEl) return;
   if (delta === null || delta === undefined) return;
   if (!delta.trim() && !this.streamingState.reasoningBuffer) return;
+
+  // Reveal container on first content
+  if (this.streamingState.container?.style.display === 'none') {
+    this.streamingState.container.style.display = '';
+  }
 
   const targetContainer = this.streamingState.eventsEl;
 

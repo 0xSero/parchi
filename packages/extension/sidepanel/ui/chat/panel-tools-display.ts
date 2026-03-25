@@ -43,6 +43,10 @@ sidePanelProto.displayToolExecution = function displayToolExecution(
     this.toolCallViews.set(entryId, entry);
 
     if (this.streamingState?.eventsEl) {
+      // Reveal container on first content
+      if (this.streamingState.container?.style.display === 'none') {
+        this.streamingState.container.style.display = '';
+      }
       const toolEl = this.createToolElement(entry);
       entry.element = toolEl;
       this.streamingState.eventsEl.appendChild(toolEl);
