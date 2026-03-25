@@ -283,6 +283,36 @@
   opacity: 0.6;
 }
 
+.tool-icon {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted-dim);
+  opacity: 0.7;
+}
+
+.tool-row.running .tool-icon {
+  color: var(--muted);
+  opacity: 1;
+}
+
+/* Repl / evaluate — terminal feel */
+.tool-row.tool-row-code {
+  background: rgba(255, 255, 255, 0.025);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.tool-row.tool-row-code .tool-icon {
+  color: #7ec699;
+  opacity: 0.8;
+}
+
+.tool-row.tool-row-code .tool-name {
+  color: #7ec699;
+  opacity: 0.9;
+}
+
 .tool-args {
   font-family: var(--font-mono);
   font-size: 12px;
