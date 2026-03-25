@@ -18,12 +18,14 @@ export function renderStreamedContainer(
   addMessageHeader(streamedContainer);
   addMessageMeta(streamedContainer, messageMeta);
 
-  if (thinking && showThinking && streamEventsEl) {
-    renderStreamedThinking(self, streamedContainer, streamEventsEl, thinking);
-  }
-
+  // Finalize first — removes raw streamed text and reasoning blocks
   if (streamEventsEl) {
     finalizeStreamEvents(self, streamEventsEl, content, buildReportImagesHtml);
+  }
+
+  // Then add the collapsed thinking block (after raw reasoning was removed)
+  if (thinking && showThinking && streamEventsEl) {
+    renderStreamedThinking(self, streamedContainer, streamEventsEl, thinking);
   }
 
   self.scrollToBottom();
@@ -121,6 +123,10 @@ function finalizeStreamEvents(
   // Clean up ALL streamed text blocks (they may contain raw <think> tags)
   const textEvents = streamEventsEl.querySelectorAll('.stream-event-text');
   Array.from(textEvents).forEach((el) => (el as Element).remove());
+
+  // Remove streaming reasoning block — it's replaced by the collapsed thinking block
+  const reasoningEvents = streamEventsEl.querySelectorAll('.stream-event-reasoning');
+  Array.from(reasoningEvents).forEach((el) => (el as Element).remove());
 
   // Add a single clean text block with the final content
   if (content && content.trim() !== '') {
