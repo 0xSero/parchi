@@ -126,7 +126,9 @@ sidePanelProto.updateStreamingMessage = function updateStreamingMessage(content:
       this.streamingReasoning = extracted.thinking;
       this.updateStreamReasoning(extracted.thinking, true);
     }
-    const cleanedText = extracted.content || this.streamingState.textBuffer || '';
+    let cleanedText = extracted.content || this.streamingState.textBuffer || '';
+    // Hide incomplete analysis/think blocks still being streamed
+    cleanedText = cleanedText.replace(/<\s*(think|analysis|thinking)\s*>[\s\S]*$/i, '').trim();
     this.streamingState.textEventEl.innerHTML = this.renderMarkdown(cleanedText);
 
     const estimatedOutputTokens = Math.max(0, Math.ceil(cleanedText.length / 4));

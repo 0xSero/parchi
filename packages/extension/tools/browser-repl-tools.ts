@@ -138,9 +138,13 @@ export async function replTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs)
           logs: logs.length > 0 ? logs : undefined,
         };
       } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        const isCsp = msg.includes('Content Security Policy') || msg.includes('unsafe-eval');
         return {
           success: false,
-          error: error instanceof Error ? error.message : String(error),
+          error: isCsp
+            ? 'This page blocks dynamic script execution (CSP). Use getContent, click, fill, and other DOM tools instead of repl/evaluate.'
+            : msg,
           logs: logs.length > 0 ? logs : undefined,
         };
       }

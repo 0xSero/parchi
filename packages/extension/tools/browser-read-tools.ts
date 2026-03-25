@@ -53,9 +53,13 @@ export async function evaluateTool(ctx: BrowserToolsDelegate, args: BrowserToolA
         };
         return { success: true, result: toSafe(value) };
       } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        const isCsp = msg.includes('Content Security Policy') || msg.includes('unsafe-eval');
         return {
           success: false,
-          error: error instanceof Error ? error.message : String(error),
+          error: isCsp
+            ? 'This page blocks dynamic script execution (CSP). Use getContent, click, fill, and other DOM tools instead of evaluate/repl.'
+            : msg,
         };
       }
     },
