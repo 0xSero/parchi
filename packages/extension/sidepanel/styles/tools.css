@@ -315,12 +315,13 @@
 
 .tool-args {
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted-dim);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 220px;
+  flex: 1;
+  min-width: 0;
 }
 
 .tool-status {

@@ -109,14 +109,14 @@ sidePanelProto.createToolElement = function createToolElement(entry: any) {
   container.dataset.toolId = entry.id;
 
   const icon = TOOL_ICONS[entry.fullToolName] || FALLBACK_ICON;
-  const argsTokens = this.getArgsTokens(entry.args);
-  const argsLabel = argsTokens.join(' · ');
-  if (argsLabel) container.title = argsLabel;
+
+  // Build a human-readable summary instead of raw args
+  const summary = this.getToolSummary(entry.fullToolName, entry.args);
 
   container.innerHTML = `
     <span class="tool-icon">${icon}</span>
     <span class="tool-name">${this.escapeHtml(entry.toolName)}</span>
-    ${argsLabel ? `<span class="tool-args">${this.escapeHtml(argsLabel)}</span>` : ''}
+    ${summary ? `<span class="tool-args">${this.escapeHtml(summary)}</span>` : ''}
     <span class="tool-status"></span>
     <span class="tool-duration"></span>
   `;
@@ -138,6 +138,57 @@ sidePanelProto.createToolElement = function createToolElement(entry: any) {
   });
   container.style.cursor = 'pointer';
   return container;
+};
+
+sidePanelProto.getToolSummary = function getToolSummary(toolName: string, args: any): string {
+  if (!args) return '';
+  const s = (v: unknown) => (typeof v === 'string' ? v : '');
+  const trunc = (v: string, max: number) => v.length > max ? v.slice(0, max - 1) + '\u2026' : v;
+
+  switch (toolName) {
+    case 'click':
+    case 'clickAt':
+    case 'native_click':
+    case 'hover':
+    case 'select':
+    case 'focus':
+      return trunc(s(args.selector) || s(args.element) || s(args.text), 60);
+    case 'type':
+    case 'fill':
+      return trunc(`${s(args.selector) || s(args.element)} \u2190 "${s(args.text) || s(args.value)}"`, 60);
+    case 'pressKey':
+      return s(args.key) || s(args.keys);
+    case 'navigate':
+    case 'openTab':
+      return trunc(s(args.url), 50);
+    case 'scroll': {
+      const dir = s(args.direction) || 'down';
+      const amt = args.amount ? ` ${args.amount}` : '';
+      const sel = s(args.selector);
+      return sel ? `${dir}${amt} on ${trunc(sel, 30)}` : `${dir}${amt}`;
+    }
+    case 'getContent':
+      return trunc(s(args.selector) || s(args.element) || 'page', 50);
+    case 'findHtml':
+      return trunc(s(args.query) || s(args.selector) || '', 50);
+    case 'waitFor':
+      return trunc(s(args.selector) || s(args.text) || '', 50);
+    case 'repl':
+    case 'evaluate': {
+      const code = s(args.code) || s(args.script) || s(args.expression);
+      if (!code) return '';
+      const firstLine = code.split('\n')[0];
+      return trunc(firstLine, 50);
+    }
+    case 'screenshot':
+      return s(args.selector) ? trunc(s(args.selector), 40) : 'full page';
+    case 'create_file':
+      return s(args.filename);
+    default: {
+      const tokens = this.getArgsTokens(args);
+      return trunc(tokens.join(' \u00b7 '), 60);
+    }
+  }
 };
 
 sidePanelProto.expandToolCard = function expandToolCard(container: HTMLElement, entry: any) {
@@ -259,23 +310,9 @@ sidePanelProto.updateToolResult = function updateToolResult(entry: any, result: 
     entry.result = { ...entry.result, dataUrl: '[stored in reportImages]' };
   }
 
-  // Auto-expand tool card on completion
-  if (entry.element && !entry.element.querySelector('.tool-card')) {
+  // Auto-expand tool card on completion — only for repl/evaluate
+  const isCodeTool = entry.fullToolName === 'repl' || entry.fullToolName === 'evaluate';
+  if (isCodeTool && entry.element && !entry.element.querySelector('.tool-card')) {
     this.expandToolCard(entry.element, entry);
-  }
-
-  // Show selected element chip for selection-related tools
-  if (!isError && entry.args && this.streamingState?.eventsEl) {
-    const selector = entry.args.selector || entry.args.element || entry.args.text;
-    const isSelectTool = ['click', 'select', 'hover', 'fill', 'type', 'check', 'focus'].includes(entry.fullToolName);
-    if (selector && isSelectTool) {
-      const prev = this.streamingState.eventsEl.querySelector('.selected-element-chip');
-      if (prev) prev.remove();
-      const chip = document.createElement('div');
-      chip.className = 'selected-element-chip';
-      const label = typeof selector === 'string' && selector.length > 50 ? selector.slice(0, 47) + '...' : String(selector);
-      chip.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l6 6M4 4l6 6"/><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg><span>Selected: ${this.escapeHtml(label)}</span>`;
-      entry.element.insertAdjacentElement('afterend', chip);
-    }
   }
 };
