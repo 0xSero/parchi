@@ -235,7 +235,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 4px 10px;
+  padding: 5px 12px;
   font-size: 12px;
   line-height: 1.4;
   color: var(--muted);
@@ -263,7 +263,7 @@
 }
 
 .tool-row.done {
-  opacity: 0.55;
+  opacity: 0.75;
 }
 
 .tool-row.error {
@@ -271,11 +271,16 @@
 }
 
 .tool-name {
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font-mono);
-  color: inherit;
+  color: var(--foreground);
   flex-shrink: 0;
   font-size: 12px;
+  opacity: 0.8;
+}
+
+.tool-row.done .tool-name {
+  opacity: 0.6;
 }
 
 .tool-args {
@@ -488,8 +493,6 @@
   line-height: 1.4;
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 100px;
-  overflow-y: auto;
   color: var(--muted-dim);
 }
 
@@ -524,7 +527,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 4px 10px 2px;
+  padding: 6px 14px 2px;
 }
 
 .tool-card-section-label {
@@ -558,19 +561,17 @@
 
 .tool-card-code {
   margin: 0;
-  padding: 4px 10px 8px;
+  padding: 4px 14px 10px;
   background: transparent;
   border: none;
   border-radius: 0;
   box-shadow: none;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.55);
   white-space: pre-wrap;
   word-break: break-all;
-  max-height: 140px;
-  overflow-y: auto;
   tab-size: 2;
 }
 

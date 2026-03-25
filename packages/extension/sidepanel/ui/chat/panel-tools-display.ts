@@ -97,80 +97,81 @@ sidePanelProto.createToolElement = function createToolElement(entry: any) {
   entry.durationEl = container.querySelector('.tool-duration');
   this.animateToolDuration(entry);
 
-  const signal = entry.abortController?.signal;
-  container.addEventListener(
-    'click',
-    (e: Event) => {
-      if ((e.target as HTMLElement).closest('.tool-card-copy')) return;
-      const existing = container.querySelector('.tool-card');
-      if (existing) {
-        existing.remove();
-        container.classList.remove('expanded');
-        return;
-      }
-      const hasInput = entry.args && Object.keys(entry.args).length > 0;
-      const hasOutput = entry.result !== null && entry.result !== undefined;
-      if (!hasInput && !hasOutput) return;
-
-      const card = document.createElement('div');
-      card.className = 'tool-card';
-
-      const formatJson = (obj: any) => {
-        const text = typeof obj === 'object' ? JSON.stringify(obj, null, 2) : String(obj);
-        return text.length > 2000 ? text.slice(0, 2000) + '\n...(truncated)' : text;
-      };
-
-      let html = '';
-      if (hasInput) {
-        const inputText = formatJson(entry.args);
-        html += `<div class="tool-card-section">
-          <div class="tool-card-section-header">
-            <span class="tool-card-section-label">input</span>
-            <button class="tool-card-copy" data-copy="input" title="Copy">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-              </svg>
-            </button>
-          </div>
-          <pre class="tool-card-code"><code>${highlightCode(this.escapeHtml(inputText))}</code></pre>
-        </div>`;
-      }
-      if (hasOutput) {
-        const outputText = formatJson(entry.result);
-        html += `<div class="tool-card-section">
-          <div class="tool-card-section-header">
-            <span class="tool-card-section-label">output</span>
-            <button class="tool-card-copy" data-copy="output" title="Copy">
-              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
-              </svg>
-            </button>
-          </div>
-          <pre class="tool-card-code"><code>${highlightCode(this.escapeHtml(outputText))}</code></pre>
-        </div>`;
-      }
-      card.innerHTML = html;
-
-      card.addEventListener('click', (ce: Event) => {
-        const copyBtn = (ce.target as HTMLElement).closest('.tool-card-copy') as HTMLElement | null;
-        if (!copyBtn) return;
-        ce.stopPropagation();
-        const which = copyBtn.dataset.copy;
-        const data = which === 'input' ? entry.args : entry.result;
-        const text = typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data);
-        navigator.clipboard.writeText(text).then(() => {
-          copyBtn.classList.add('copied');
-          setTimeout(() => copyBtn.classList.remove('copied'), 1500);
-        });
-      });
-
-      container.appendChild(card);
-      container.classList.add('expanded');
-    },
-    signal ? { signal } : undefined,
-  );
+  // Click toggles card open/closed
+  container.addEventListener('click', (e: Event) => {
+    if ((e.target as HTMLElement).closest('.tool-card-copy')) return;
+    const existing = container.querySelector('.tool-card');
+    if (existing) {
+      existing.remove();
+      container.classList.remove('expanded');
+    } else {
+      this.expandToolCard(container, entry);
+    }
+  });
   container.style.cursor = 'pointer';
   return container;
+};
+
+sidePanelProto.expandToolCard = function expandToolCard(container: HTMLElement, entry: any) {
+  if (container.querySelector('.tool-card')) return;
+  const hasInput = entry.args && Object.keys(entry.args).length > 0;
+  const hasOutput = entry.result !== null && entry.result !== undefined;
+  if (!hasInput && !hasOutput) return;
+
+  const card = document.createElement('div');
+  card.className = 'tool-card';
+
+  const formatJson = (obj: any) => {
+    const text = typeof obj === 'object' ? JSON.stringify(obj, null, 2) : String(obj);
+    return text.length > 2000 ? text.slice(0, 2000) + '\n...(truncated)' : text;
+  };
+
+  let html = '';
+  if (hasInput) {
+    const inputText = formatJson(entry.args);
+    html += `<div class="tool-card-section">
+      <div class="tool-card-section-header">
+        <span class="tool-card-section-label">input</span>
+        <button class="tool-card-copy" data-copy="input" title="Copy">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+      </div>
+      <pre class="tool-card-code"><code>${highlightCode(this.escapeHtml(inputText))}</code></pre>
+    </div>`;
+  }
+  if (hasOutput) {
+    const outputText = formatJson(entry.result);
+    html += `<div class="tool-card-section">
+      <div class="tool-card-section-header">
+        <span class="tool-card-section-label">output</span>
+        <button class="tool-card-copy" data-copy="output" title="Copy">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+        </button>
+      </div>
+      <pre class="tool-card-code"><code>${highlightCode(this.escapeHtml(outputText))}</code></pre>
+    </div>`;
+  }
+  card.innerHTML = html;
+
+  card.addEventListener('click', (ce: Event) => {
+    const copyBtn = (ce.target as HTMLElement).closest('.tool-card-copy') as HTMLElement | null;
+    if (!copyBtn) return;
+    ce.stopPropagation();
+    const which = copyBtn.dataset.copy;
+    const data = which === 'input' ? entry.args : entry.result;
+    const text = typeof data === 'object' ? JSON.stringify(data, null, 2) : String(data);
+    navigator.clipboard.writeText(text).then(() => {
+      copyBtn.classList.add('copied');
+      setTimeout(() => copyBtn.classList.remove('copied'), 1500);
+    });
+  });
+
+  container.appendChild(card);
+  container.classList.add('expanded');
 };
 
 sidePanelProto.animateToolDuration = function animateToolDuration(entry: any) {
@@ -228,6 +229,11 @@ sidePanelProto.updateToolResult = function updateToolResult(entry: any, result: 
   this.attachScreenshotPreview(entry, result);
   if (entry.result && typeof entry.result === 'object' && entry.result.dataUrl) {
     entry.result = { ...entry.result, dataUrl: '[stored in reportImages]' };
+  }
+
+  // Auto-expand tool card on completion
+  if (entry.element && !entry.element.querySelector('.tool-card')) {
+    this.expandToolCard(entry.element, entry);
   }
 
   // Show selected element chip for selection-related tools
