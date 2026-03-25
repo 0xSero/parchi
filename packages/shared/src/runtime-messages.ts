@@ -125,6 +125,7 @@ export const runtimeMessageTypes = [
   'subagent_complete',
   'subagent_tab_assigned',
   'session_tabs_update',
+  'create_file',
 ] as const;
 
 export type RuntimeMessageType = (typeof runtimeMessageTypes)[number];

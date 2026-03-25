@@ -41,6 +41,12 @@ export async function executeToolByName(
     return builtin.result;
   }
 
+  if (ctx.isRunCancelled(options.runMeta.runId)) {
+    const stoppedResult = { success: false, error: 'Run stopped.' };
+    runtime.sendResult(stoppedResult);
+    return stoppedResult;
+  }
+
   const browserExecution = await validateAndExecuteBrowserTool(ctx, browserTools, toolName, args, options);
   if (browserExecution.shouldReturn) {
     runtime.sendResult(browserExecution.result);

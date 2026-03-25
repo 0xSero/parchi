@@ -21,8 +21,12 @@ export function buildModelConfig(
   const activeModelId = String(orchestratorProfile.model || settings.model || '').trim();
   const model = resolveLanguageModel(orchestratorProfile);
 
-  const executeTool = (toolName: string, args: Record<string, unknown>, options: { toolCallId?: string }) =>
-    ctx.executeToolByName(toolName, args, { runMeta, settings, visionProfile }, options.toolCallId);
+  const executeTool = async (toolName: string, args: Record<string, unknown>, options: { toolCallId?: string }) => {
+    if (ctx.isRunCancelled(runMeta.runId)) {
+      return { success: false, error: 'Run stopped.' };
+    }
+    return ctx.executeToolByName(toolName, args, { runMeta, settings, visionProfile }, options.toolCallId);
+  };
 
   return {
     activeModelId,
