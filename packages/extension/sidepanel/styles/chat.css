@@ -1313,7 +1313,7 @@ body.sidebar-open .context-inspector-popover {
 
 .step-block {
   position: relative;
-  padding: 6px 0 6px 12px;
+  padding: 4px 0;
   margin: 0;
   background: transparent;
   border: none;
@@ -1321,16 +1321,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .step-block::before {
-  content: "";
-  position: absolute;
-  left: -17px;
-  top: 12px;
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: var(--card);
-  border: 1.5px solid var(--ink-2);
-  transition: all var(--duration-fast) ease;
+  display: none;
 }
 
 .step-header {
@@ -1354,7 +1345,6 @@ body.sidebar-open .context-inspector-popover {
   overflow: hidden;
   text-overflow: ellipsis;
   color: var(--muted);
-  transition: color var(--duration-fast) ease;
 }
 
 .step-meta {
@@ -1362,8 +1352,6 @@ body.sidebar-open .context-inspector-popover {
   font-size: 10px;
   font-family: var(--font-mono);
   color: var(--muted-dim);
-  opacity: 0.4;
-  transition: opacity var(--duration-fast) ease;
 }
 
 .step-block:hover .step-meta {
@@ -1376,9 +1364,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .step-block.current::before {
-  border-color: var(--accent);
-  background: var(--accent);
-  box-shadow: 0 0 8px rgb(var(--accent-rgb) / 0.35);
+  display: none;
 }
 
 .step-chevron {
@@ -1428,7 +1414,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .step-block.current {
-  background: linear-gradient(90deg, rgb(var(--accent-rgb) / 0.05), transparent 30%);
+  background: transparent;
 }
 
 .stream-event {
@@ -1719,46 +1705,42 @@ body.sidebar-open .context-inspector-popover {
    ============================================================================ */
 
 .subagent-block {
-  margin: 8px 0;
-  padding: 10px 14px;
-  background: linear-gradient(135deg, hsla(200, 45%, 55%, 0.06) 0%, hsla(200, 45%, 55%, 0.02) 100%);
-  border: 1px solid hsla(200, 45%, 55%, 0.2);
-  border-radius: 10px;
+  margin: 4px 0;
+  padding: 6px 10px;
+  background: transparent;
+  border: 1px solid var(--ink-2);
+  border-radius: 8px;
   animation: fadeInUp 0.3s var(--ease-out-expo);
   transition: all var(--duration-fast) ease;
 }
 
 .subagent-block.running {
-  border-color: hsla(200, 45%, 55%, 0.35);
-  background: linear-gradient(135deg, hsla(200, 45%, 55%, 0.1) 0%, hsla(200, 45%, 55%, 0.02) 100%);
+  border-color: var(--ink-2);
 }
 
 .subagent-block.completed {
-  border-color: hsla(140, 40%, 45%, 0.3);
-  background: linear-gradient(135deg, hsla(140, 40%, 45%, 0.06) 0%, hsla(140, 40%, 45%, 0.01) 100%);
+  border-color: var(--ink-2);
 }
 
 .subagent-block.error {
-  border-color: hsla(0, 40%, 55%, 0.35);
-  background: linear-gradient(135deg, hsla(0, 40%, 55%, 0.08) 0%, hsla(0, 40%, 55%, 0.02) 100%);
+  border-color: var(--ink-2);
 }
 
 .subagent-block.subagent-highlight {
-  box-shadow: 0 0 0 2px rgb(var(--accent-rgb) / 0.4);
+  border-color: var(--ink-3);
 }
 
 .subagent-header {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 8px;
 }
 
 .subagent-icon {
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--accent);
+  color: var(--muted);
 }
 
 .subagent-block.running .subagent-icon {
@@ -1766,16 +1748,16 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .subagent-block.completed .subagent-icon {
-  color: hsla(140, 40%, 55%, 1);
+  color: var(--muted);
 }
 
 .subagent-block.error .subagent-icon {
-  color: hsla(0, 40%, 55%, 1);
+  color: var(--muted);
 }
 
 .subagent-name {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--foreground);
   flex: 1;
   min-width: 0;
@@ -1786,28 +1768,21 @@ body.sidebar-open .context-inspector-popover {
 
 .subagent-status {
   font-size: 10px;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 2px 8px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--muted);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--muted-dim);
 }
 
 .subagent-block.running .subagent-status {
-  background: hsla(200, 45%, 55%, 0.15);
-  color: hsla(200, 60%, 65%, 1);
+  color: var(--muted);
 }
 
 .subagent-block.completed .subagent-status {
-  background: hsla(140, 40%, 45%, 0.15);
-  color: hsla(140, 50%, 55%, 1);
+  color: var(--muted-dim);
 }
 
 .subagent-block.error .subagent-status {
-  background: hsla(0, 40%, 55%, 0.15);
-  color: hsla(0, 50%, 65%, 1);
+  color: var(--muted-dim);
 }
 
 .subagent-tasks {
@@ -1845,12 +1820,11 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .subagent-error {
-  margin-top: 8px;
-  padding: 8px 10px;
-  background: hsla(0, 40%, 55%, 0.1);
-  border-radius: 6px;
-  font-size: 12px;
-  color: hsla(0, 50%, 70%, 1);
+  margin-top: 4px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  color: var(--muted);
 }
 
 /* ============================================================================
