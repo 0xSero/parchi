@@ -1,4 +1,3 @@
-import { getSubagentColorStyle } from '../../../subagent-colors.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -180,7 +179,7 @@ sidePanelProto.mcSendMessage = async function mcSendMessage() {
 };
 
 /**
- * Render subagent activity inline in the chat as a minimal indicator.
+ * Render subagent activity inline in the chat as a thread card with horizontal content previews.
  */
 sidePanelProto.renderSubagentActivity = function renderSubagentActivity(
   subagentId: string,
@@ -190,34 +189,52 @@ sidePanelProto.renderSubagentActivity = function renderSubagentActivity(
   const agent = this.subagents.get(subagentId);
   if (!agent || !this.streamingState?.eventsEl) return;
 
-  let container = this.streamingState.eventsEl.querySelector(
-    `.subagent-inline[data-subagent-id="${subagentId}"]`,
+  // Reveal streaming container if hidden
+  if (this.streamingState.container?.style.display === 'none') {
+    this.streamingState.container.style.display = '';
+  }
+
+  let thread = this.streamingState.eventsEl.querySelector(
+    `.subagent-thread[data-subagent-id="${subagentId}"]`,
   ) as HTMLElement | null;
 
-  if (!container) {
-    container = document.createElement('div');
-    container.className = 'subagent-inline';
-    container.dataset.subagentId = subagentId;
-    container.addEventListener('click', () => {
+  if (!thread) {
+    thread = document.createElement('div');
+    thread.className = 'subagent-thread running';
+    thread.dataset.subagentId = subagentId;
+    thread.innerHTML = `
+      <div class="subagent-thread-header">
+        <span class="subagent-thread-dot"></span>
+        <span class="subagent-thread-name"></span>
+        <span class="subagent-thread-status"></span>
+      </div>
+      <div class="subagent-thread-previews"></div>
+    `;
+    thread.addEventListener('click', () => {
       this.openMissionControl();
       this.mcSelectAgent(subagentId);
     });
-    this.streamingState.eventsEl.appendChild(container);
+    this.streamingState.eventsEl.appendChild(thread);
   }
 
-  const statusClass = event === 'start' ? 'running' : event === 'complete' ? 'completed' : 'error';
-  container.className = `subagent-inline ${statusClass}`;
-  container.dataset.agentColor = String(agent.colorIndex ?? 0);
-  container.setAttribute('style', getSubagentColorStyle(agent.colorIndex ?? 0));
+  // Update status class
+  const statusClass = event === 'start' ? 'running' : event === 'complete' ? 'completed' : event === 'error' ? 'error' : 'running';
+  thread.className = `subagent-thread ${statusClass}`;
 
-  const statusText =
-    event === 'start' ? 'started' : event === 'complete' ? 'completed' : event === 'error' ? 'failed' : event;
+  // Update header
+  const nameEl = thread.querySelector('.subagent-thread-name') as HTMLElement | null;
+  if (nameEl) nameEl.textContent = agent.name;
 
-  container.innerHTML = `
-    <span class="subagent-inline-dot"></span>
-    <span class="subagent-inline-name">${this.escapeHtml(agent.name)}</span>
-    <span class="subagent-inline-status">${statusText}</span>
-  `;
+  const statusEl = thread.querySelector('.subagent-thread-status') as HTMLElement | null;
+  if (statusEl) {
+    statusEl.textContent = event === 'start' ? 'running' : event === 'complete' ? 'done' : event === 'error' ? 'failed' : event;
+  }
+
+  // Update horizontal preview chips
+  const previews = thread.querySelector('.subagent-thread-previews') as HTMLElement | null;
+  if (previews) {
+    this._updateThreadPreviews(subagentId, previews, event, data);
+  }
 
   if (!Array.isArray(agent.messages)) agent.messages = [];
   if (event === 'start') {
@@ -234,6 +251,68 @@ sidePanelProto.renderSubagentActivity = function renderSubagentActivity(
 };
 
 /**
+ * Build/update the horizontal preview chips for a thread card.
+ */
+sidePanelProto._updateThreadPreviews = function _updateThreadPreviews(
+  subagentId: string,
+  container: HTMLElement,
+  event: string,
+  data?: { name?: string; tasks?: string[]; summary?: string; error?: string },
+) {
+  const agent = this.subagents.get(subagentId);
+  if (!agent) return;
+
+  // On start — show task chips
+  if (event === 'start' && Array.isArray(agent.tasks)) {
+    for (const task of agent.tasks) {
+      const chip = document.createElement('span');
+      chip.className = 'thread-preview-chip chip-task';
+      chip.textContent = task;
+      chip.title = task;
+      container.appendChild(chip);
+    }
+  }
+
+  // On complete — add summary chip
+  if (event === 'complete' && data?.summary) {
+    const chip = document.createElement('span');
+    chip.className = 'thread-preview-chip chip-summary';
+    chip.textContent = data.summary.length > 120 ? data.summary.slice(0, 117) + '...' : data.summary;
+    chip.title = data.summary;
+    container.appendChild(chip);
+    // Scroll to the end
+    container.scrollLeft = container.scrollWidth;
+  }
+
+  // On error — add error chip
+  if (event === 'error') {
+    const chip = document.createElement('span');
+    chip.className = 'thread-preview-chip chip-error';
+    chip.textContent = data?.error || 'Failed';
+    container.appendChild(chip);
+    container.scrollLeft = container.scrollWidth;
+  }
+};
+
+/**
+ * Add a tool chip to the thread preview for a running subagent.
+ */
+sidePanelProto._addToolChipToThread = function _addToolChipToThread(subagentId: string, toolName: string) {
+  const thread = this.streamingState?.eventsEl?.querySelector(
+    `.subagent-thread[data-subagent-id="${subagentId}"]`,
+  ) as HTMLElement | null;
+  if (!thread) return;
+  const previews = thread.querySelector('.subagent-thread-previews') as HTMLElement | null;
+  if (!previews) return;
+
+  const chip = document.createElement('span');
+  chip.className = 'thread-preview-chip chip-tool';
+  chip.textContent = toolName;
+  previews.appendChild(chip);
+  previews.scrollLeft = previews.scrollWidth;
+};
+
+/**
  * Highlight messages from a specific subagent in the chat.
  */
 sidePanelProto.highlightSubagentMessages = function highlightSubagentMessages(subagentId: string) {
@@ -241,9 +320,9 @@ sidePanelProto.highlightSubagentMessages = function highlightSubagentMessages(su
     el.classList.remove('subagent-highlight');
   });
   this.elements.chatMessages
-    ?.querySelectorAll(`.subagent-inline[data-subagent-id="${subagentId}"]`)
+    ?.querySelectorAll(`.subagent-thread[data-subagent-id="${subagentId}"]`)
     .forEach((el: Element) => el.classList.add('subagent-highlight'));
-  const first = this.elements.chatMessages?.querySelector(`.subagent-inline[data-subagent-id="${subagentId}"]`);
+  const first = this.elements.chatMessages?.querySelector(`.subagent-thread[data-subagent-id="${subagentId}"]`);
   if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
 };
 

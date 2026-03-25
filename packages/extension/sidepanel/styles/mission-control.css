@@ -6,7 +6,8 @@
 /* ---- Trigger FAB ---- */
 .mission-control-panel,
 .mc-agent-card,
-.subagent-inline {
+.subagent-inline,
+.subagent-thread {
   --agent-accent: var(--accent);
   --agent-accent-rgb: var(--accent-rgb);
 }

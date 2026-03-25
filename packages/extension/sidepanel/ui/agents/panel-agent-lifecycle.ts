@@ -110,6 +110,8 @@ sidePanelProto.handleSubagentRuntimeMessage = function handleSubagentRuntimeMess
     if (!agent._toolCount) agent._toolCount = 0;
     agent._toolCount++;
     agent.messages.push({ ts: Date.now(), text: `Tool: ${String(message.tool || 'tool')}` });
+    // Add tool chip to the thread preview
+    this._addToolChipToThread?.(agentId, String(message.tool || 'tool'));
     return true;
   }
 

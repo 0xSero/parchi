@@ -1,69 +1,127 @@
 /* ============================================================================
-   Mission Control — Inline chat indicators & empty state
+   Mission Control — Inline Thread Showcase
    ============================================================================ */
 
-/* ---- Inline chat indicators (replaces old subagent-block cards) ---- */
-.subagent-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 8px;
-  margin: 2px 0;
-  font-size: 11px;
-  color: var(--muted);
-  border-left: 2px solid var(--ink-2);
-  transition: all 200ms ease;
+/* ---- Thread card — inline in chat ---- */
+.subagent-thread {
+  margin: 6px 0;
+  border: 1px solid var(--ink-2);
+  border-radius: 8px;
+  overflow: hidden;
   cursor: pointer;
-  border-radius: 0 4px 4px 0;
+  transition: border-color 150ms ease;
 }
 
-.subagent-inline:hover {
-  background: var(--ink-1);
-  color: var(--foreground);
+.subagent-thread:hover {
+  border-color: var(--ink-3);
 }
 
-.subagent-inline.running {
-  border-left-color: var(--agent-accent);
-  background: linear-gradient(90deg, rgb(var(--agent-accent-rgb) / 0.08), transparent 65%);
+.subagent-thread-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
 }
 
-.subagent-inline.completed {
-  border-left-color: var(--success);
-}
-
-.subagent-inline.error {
-  border-left-color: var(--error);
-}
-
-.subagent-inline-dot {
+.subagent-thread-dot {
   width: 5px;
   height: 5px;
   border-radius: 999px;
   flex-shrink: 0;
+  background: var(--muted-dim);
 }
 
-.subagent-inline.running .subagent-inline-dot {
-  background: var(--agent-accent);
-  box-shadow: 0 0 10px rgb(var(--agent-accent-rgb) / 0.4);
-  animation: mcBarPulse 2s ease-in-out infinite;
+.subagent-thread.running .subagent-thread-dot {
+  background: var(--muted);
+  animation: threadDotPulse 2s ease-in-out infinite;
 }
 
-.subagent-inline.completed .subagent-inline-dot {
-  background: var(--success);
+.subagent-thread.completed .subagent-thread-dot {
+  background: var(--muted);
 }
 
-.subagent-inline.error .subagent-inline-dot {
-  background: var(--error);
+.subagent-thread.error .subagent-thread-dot {
+  background: var(--muted-dim);
 }
 
-.subagent-inline-name {
-  font-weight: 600;
+@keyframes threadDotPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+.subagent-thread-name {
+  font-size: 12px;
+  font-weight: 500;
   color: var(--foreground);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.subagent-inline-status {
+.subagent-thread-status {
   font-size: 10px;
   color: var(--muted-dim);
+  flex-shrink: 0;
+}
+
+/* ---- Horizontal content preview strip ---- */
+.subagent-thread-previews {
+  display: flex;
+  gap: 6px;
+  padding: 0 10px 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.subagent-thread-previews::-webkit-scrollbar {
+  display: none;
+}
+
+.subagent-thread-previews:empty {
+  display: none;
+}
+
+.thread-preview-chip {
+  flex: 0 0 auto;
+  max-width: 200px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--ink-1);
+  font-size: 11px;
+  line-height: 1.35;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.thread-preview-chip.chip-task {
+  color: var(--foreground);
+  font-weight: 500;
+}
+
+.thread-preview-chip.chip-tool {
+  font-family: var(--font-mono);
+  font-size: 10px;
+}
+
+.thread-preview-chip.chip-summary {
+  max-width: 280px;
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.thread-preview-chip.chip-error {
+  color: var(--muted-dim);
+}
+
+/* ---- Legacy inline indicator (kept as fallback but hidden by default) ---- */
+.subagent-inline {
+  display: none;
 }
 
 /* ---- Empty state for mission control ---- */

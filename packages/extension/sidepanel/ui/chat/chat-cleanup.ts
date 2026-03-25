@@ -1,7 +1,8 @@
 export function hasVisibleContent(el: HTMLElement): boolean {
+  if (el.querySelectorAll('.subagent-thread, img, video, canvas, svg.report-image').length > 0) return true;
   const text = el.textContent || '';
   const cleaned = text.replace(/Thinking\.\.\./g, '').replace(/Thought process/g, '').trim();
-  return cleaned.length > 0 || el.querySelectorAll('img, video, canvas, svg.report-image').length > 0;
+  return cleaned.length > 0;
 }
 
 export function removeEmptyAssistantContainers(self: any): void {
