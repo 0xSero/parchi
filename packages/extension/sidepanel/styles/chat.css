@@ -628,6 +628,108 @@ body.sidebar-open .context-inspector-popover {
   border-radius: 14px 14px 4px 14px;
 }
 
+/* Recording & attachment blocks inside user bubble */
+.message.user .user-recording-block,
+.message.user .user-attachments-block {
+  margin-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 6px;
+}
+
+.message.user .user-recording-block summary,
+.message.user .user-attachments-block summary {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted);
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.message.user .user-recording-block summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--muted-dim);
+  flex-shrink: 0;
+}
+
+.message.user .user-recording-block[open] summary,
+.message.user .user-attachments-block[open] summary {
+  margin-bottom: 6px;
+}
+
+.message.user .user-recording-block summary::-webkit-details-marker,
+.message.user .user-attachments-block summary::-webkit-details-marker {
+  display: none;
+}
+
+.user-recording-content {
+  font-size: 11px;
+  color: var(--muted-dim);
+  line-height: 1.45;
+}
+
+.user-recording-origin {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted-dim);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.user-recording-summary {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.user-recording-steps {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 10px;
+  color: var(--muted-dim);
+  font-family: var(--font-mono);
+  max-height: 120px;
+  overflow-y: auto;
+}
+
+.user-recording-steps li {
+  margin: 1px 0;
+}
+
+.user-attachments-block summary::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--muted-dim);
+  flex-shrink: 0;
+}
+
+.user-attachments-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.user-attachments-list li {
+  font-size: 10px;
+  font-family: var(--font-mono);
+  color: var(--muted-dim);
+  padding: 3px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 4px;
+}
+
 /* Assistant message */
 .message.assistant {
   display: flex;

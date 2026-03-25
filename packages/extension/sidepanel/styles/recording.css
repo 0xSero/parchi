@@ -33,18 +33,51 @@
   }
 }
 
-/* Recording timer bar */
+/* Recording timer bar — expands from the record button */
 .recording-timer {
   display: flex;
   align-items: center;
   gap: 6px;
   padding: 4px 10px;
   font-size: 11px;
-  font-family: "SF Mono", "Fira Code", monospace;
-  color: hsl(0, 70%, 65%);
-  background: hsla(0, 70%, 55%, 0.08);
-  border-radius: 8px;
+  font-family: var(--font-mono);
+  color: var(--muted);
+  background: var(--ink-1);
+  border-radius: 999px;
   margin: 0 12px 4px;
+  overflow: hidden;
+  transform-origin: right center;
+  animation: recordChipExpand 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.recording-timer.hidden {
+  animation: recordChipCollapse 0.2s ease forwards;
+}
+
+@keyframes recordChipExpand {
+  from {
+    max-width: 28px;
+    opacity: 0.4;
+    padding: 4px 6px;
+  }
+  to {
+    max-width: 200px;
+    opacity: 1;
+    padding: 4px 10px;
+  }
+}
+
+@keyframes recordChipCollapse {
+  from {
+    max-width: 200px;
+    opacity: 1;
+  }
+  to {
+    max-width: 0;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+  }
 }
 
 .recording-dot {
@@ -58,6 +91,7 @@
 
 .recording-time {
   white-space: nowrap;
+  color: var(--muted);
 }
 
 /* Context badge (shown in composer when recording is attached) */
@@ -66,12 +100,12 @@
   align-items: center;
   gap: 6px;
   padding: 3px 8px 3px 10px;
-  border-radius: 12px;
-  background: hsla(0, 70%, 55%, 0.1);
-  border: 1px solid hsla(0, 70%, 55%, 0.2);
+  border-radius: 999px;
+  background: var(--ink-1);
+  border: 1px solid var(--ink-2);
   font-size: 11px;
-  color: hsl(0, 70%, 65%);
-  margin: 4px 0;
+  color: var(--muted);
+  margin: 4px 12px;
 }
 
 .recorded-context-label {

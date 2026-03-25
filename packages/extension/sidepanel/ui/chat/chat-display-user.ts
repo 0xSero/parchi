@@ -18,9 +18,7 @@ sidePanelProto.displayUserMessage = function displayUserMessage(
 
   messageDiv.innerHTML = `
       <div class="message-header">You</div>
-      <div class="message-content">${this.escapeHtml(content)}</div>
-      ${recordingHtml}
-      ${mediaHtml}
+      <div class="message-content">${this.escapeHtml(content)}${mediaHtml}${recordingHtml}</div>
     `;
   turn.appendChild(messageDiv);
   this.elements.chatMessages.appendChild(turn);

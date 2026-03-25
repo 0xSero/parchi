@@ -13,14 +13,11 @@
 }
 
 .mission-control-fab {
-  display: none; /* hidden until subagents exist */
-  --ui-fab-hover-bg: var(--card-hover);
-  --ui-fab-hover-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3);
-  position: relative;
+  display: none !important;
 }
 
 .mission-control-fab.visible {
-  display: flex;
+  display: none !important;
 }
 
 .mission-control-fab.has-running {
