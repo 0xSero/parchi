@@ -73,13 +73,11 @@ sidePanelProto.createToolElement = function createToolElement(entry: any) {
   container.className = 'tool-row running';
   container.dataset.toolId = entry.id;
 
-  const icon = this.getToolIcon(entry.fullToolName);
   const argsTokens = this.getArgsTokens(entry.args);
   const argsLabel = argsTokens.join(' · ');
   if (argsLabel) container.title = argsLabel;
 
   container.innerHTML = `
-    <span class="tool-icon">${icon}</span>
     <span class="tool-name">${this.escapeHtml(entry.toolName)}</span>
     ${argsLabel ? `<span class="tool-args">${this.escapeHtml(argsLabel)}</span>` : ''}
     <span class="tool-status"></span>

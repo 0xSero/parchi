@@ -324,18 +324,9 @@
   color: hsla(0, 35%, 65%, 0.85);
 }
 
-.tool-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 12px;
-  height: 12px;
-  color: var(--muted-dim);
-  flex-shrink: 0;
-}
-
 .tool-name {
   font-weight: 500;
+  font-family: var(--font-mono);
   color: inherit;
   flex-shrink: 0;
 }

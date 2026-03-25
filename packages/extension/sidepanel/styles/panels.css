@@ -2,39 +2,22 @@
    Panels — Modern Void Design System
    ============================================================================ */
 
-/* Agent Nav — Chrome-style tab strip */
-.agent-nav {
-  display: flex;
-  align-items: flex-end;
-  background: #0c0c0e;
-  padding: 6px 8px 0;
-  min-height: 38px;
-  gap: 0;
-  position: relative;
-  overflow-x: auto;
-  overflow-y: hidden;
-  scrollbar-width: none;
-}
-.agent-nav::-webkit-scrollbar {
-  display: none;
-}
+/* Agent Nav — handled by chat.css */
 
-/* Individual tab — Chrome shape */
+/* Individual tab */
 .agent-tab {
-  --agent-accent: var(--accent);
-  --agent-accent-rgb: var(--accent-rgb);
   position: relative;
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 6px 8px 6px 10px;
+  gap: 5px;
+  padding: 4px 8px;
   min-width: 0;
-  max-width: 220px;
+  max-width: 200px;
   font-size: 11px;
   font-weight: 500;
   background: transparent;
   border: none;
-  border-radius: 8px 8px 0 0;
+  border-radius: 4px;
   color: var(--muted-dim);
   cursor: pointer;
   transition: color 120ms, background 120ms;
@@ -42,61 +25,36 @@
   flex-shrink: 1;
 }
 
-/* Thin separator between inactive tabs */
-.agent-tab:not(.active) + .agent-tab:not(.active)::before {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 6px;
-  bottom: 6px;
-  width: 1px;
-  background: var(--ink-2);
-}
-
 .agent-tab:hover {
-  color: var(--muted);
+  color: var(--foreground);
   background: var(--ink-1);
 }
 
 .agent-tab.active {
   color: var(--foreground);
-  background: var(--background);
-  z-index: 1;
-}
-/* Colored top accent on active tab */
-.agent-tab.active::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 4px;
-  right: 4px;
-  height: 2px;
-  border-radius: 0 0 2px 2px;
-  background: var(--agent-accent);
+  background: var(--ink-1);
+  font-weight: 600;
 }
 
-/* Dot — mimics favicon in Chrome tab */
+/* Dot */
 .agent-tab-dot {
-  width: 8px;
-  height: 8px;
+  width: 5px;
+  height: 5px;
   border-radius: 50%;
-  background: var(--agent-accent);
+  background: var(--muted-dim);
   flex-shrink: 0;
-  opacity: 0.5;
 }
 .agent-tab.active .agent-tab-dot {
-  opacity: 1;
+  background: var(--muted);
 }
 .agent-tab.running .agent-tab-dot {
-  animation: agentDotPulse 1.5s ease-in-out infinite;
+  background: var(--muted);
 }
 .agent-tab.completed .agent-tab-dot {
   background: var(--success);
-  opacity: 0.8;
 }
 .agent-tab.error .agent-tab-dot {
   background: var(--error);
-  opacity: 0.8;
 }
 
 .agent-tab-label {
@@ -106,65 +64,40 @@
 }
 
 .agent-tab-close {
-  width: 18px;
-  height: 18px;
-  min-width: 18px;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-left: 2px;
   border: none;
   border-radius: 999px;
   background: transparent;
   color: var(--muted-dim);
   cursor: pointer;
-  font-size: 12px;
+  font-size: 11px;
   line-height: 1;
   transition: background 120ms, color 120ms;
 }
 
 .agent-tab-close:hover {
-  background: rgb(255 255 255 / 0.08);
+  background: var(--ink-2);
   color: var(--foreground);
 }
 
-/* Orchestrator tab — special styling */
 .agent-tab.agent-tab--orch {
-  --agent-accent: #c4b5fd;
-  --agent-accent-rgb: 196 181 253;
-  gap: 8px;
   flex-shrink: 0;
 }
-.agent-tab--orch .agent-tab-dot {
-  width: 7px;
-  height: 7px;
-  background: #c4b5fd;
-  box-shadow: 0 0 5px rgb(196 181 253 / 0.3);
-}
 
-/* Meta badge inside orchestrator tab */
 .agent-tab-meta {
   font-size: 9px;
   font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 3px;
-  background: rgb(var(--agent-accent-rgb) / 0.1);
-  color: var(--agent-accent);
+  background: var(--ink-2);
+  color: var(--muted);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-/* Bottom edge — tab bar sits above content */
-.agent-nav::after {
-  content: "";
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: var(--border);
-  z-index: 0;
 }
 
 @keyframes agentDotPulse {

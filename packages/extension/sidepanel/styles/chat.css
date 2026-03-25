@@ -1290,12 +1290,11 @@ body.sidebar-open .context-inspector-popover {
 
 .stream-events {
   position: relative;
-  padding-left: 16px;
-  border-left: 1px solid var(--ink-1);
-  margin: 8px 0;
+  padding-left: 0;
+  margin: 4px 0;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 4px;
 }
 
 .stream-events:empty {
@@ -1855,12 +1854,12 @@ body.sidebar-open .context-inspector-popover {
 .agent-nav {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
+  gap: 2px;
+  padding: 3px 12px;
+  border-bottom: 1px solid var(--ink-1);
   overflow-x: auto;
   scrollbar-width: none;
+  flex-shrink: 0;
 }
 
 .agent-nav::-webkit-scrollbar {
@@ -1889,24 +1888,22 @@ body.sidebar-open .context-inspector-popover {
   position: relative;
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 14px 6px;
+  gap: 4px;
+  padding: 4px 10px;
   background: transparent;
-  border: 1px solid transparent;
-  border-bottom: none;
-  border-radius: 8px 8px 0 0;
-  font-size: 11.5px;
-  font-weight: 550;
-  color: var(--muted);
+  border: none;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--muted-dim);
   cursor: pointer;
   transition: color 150ms ease, background 150ms ease;
   white-space: nowrap;
-  margin-bottom: -1px;
 }
 
 .agent-nav-item:hover {
   color: var(--foreground);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--ink-1);
 }
 
 .agent-nav-item:active {
@@ -1915,43 +1912,36 @@ body.sidebar-open .context-inspector-popover {
 
 .agent-nav-item.active {
   color: var(--foreground);
-  background: var(--card);
-  border-color: var(--border);
-  border-bottom-color: var(--card);
-  box-shadow: inset 0 2px 0 var(--agent-accent, var(--accent));
+  background: var(--ink-1);
+  font-weight: 600;
 }
 
 .agent-nav-item .agent-status {
-  width: 7px;
-  height: 7px;
+  width: 5px;
+  height: 5px;
   border-radius: 9999px;
   flex-shrink: 0;
+  background: var(--muted-dim);
 }
 
 .agent-nav-item.main-agent {
-  font-weight: 650;
-  letter-spacing: 0.02em;
+  font-weight: 600;
 }
 
 .agent-nav-item.main-agent .agent-status {
-  background: var(--agent-accent, var(--accent));
-  box-shadow: 0 0 6px rgb(var(--agent-accent-rgb, var(--accent-rgb)) / 0.35);
+  background: var(--muted);
 }
 
 .agent-nav-item.sub-agent.running .agent-status {
-  background: var(--agent-accent, var(--accent));
-  box-shadow: 0 0 6px rgb(var(--agent-accent-rgb, var(--accent-rgb)) / 0.4);
-  animation: agentPulse 1.5s ease-in-out infinite;
+  background: var(--muted);
 }
 
 .agent-nav-item.sub-agent.completed .agent-status {
-  background: hsla(140, 40%, 55%, 1);
-  box-shadow: 0 0 6px hsla(140, 40%, 55%, 0.4);
+  background: var(--success);
 }
 
 .agent-nav-item.sub-agent.error .agent-status {
-  background: hsla(0, 40%, 55%, 1);
-  box-shadow: 0 0 6px hsla(0, 40%, 55%, 0.4);
+  background: var(--error);
 }
 
 @keyframes agentPulse {
