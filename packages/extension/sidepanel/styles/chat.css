@@ -1858,11 +1858,10 @@ body.sidebar-open .context-inspector-popover {
    ============================================================================ */
 
 .agent-nav {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 2px;
   padding: 3px 12px;
-  border-bottom: 1px solid var(--ink-1);
   overflow-x: auto;
   scrollbar-width: none;
   flex-shrink: 0;
