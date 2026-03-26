@@ -249,25 +249,43 @@
   background: rgba(255, 255, 255, 0.02);
   border-radius: 6px;
   border: 1px solid rgba(255, 255, 255, 0.04);
+  border-left: 2px solid rgba(255, 255, 255, 0.08);
   cursor: pointer;
 }
 
 .tool-row:hover {
   background: rgba(255, 255, 255, 0.04);
   border-color: rgba(255, 255, 255, 0.07);
+  border-left-color: rgba(255, 255, 255, 0.15);
 }
 
 .tool-row.running {
   color: var(--foreground);
-  border-color: rgba(255, 255, 255, 0.06);
+  border-left-color: rgba(255, 255, 255, 0.2);
 }
 
 .tool-row.done {
   opacity: 0.75;
+  border-left-color: rgba(255, 255, 255, 0.06);
 }
 
 .tool-row.error {
-  border-color: rgba(200, 80, 80, 0.15);
+  border-left-color: rgba(200, 80, 80, 0.4);
+  border-color: rgba(200, 80, 80, 0.1);
+}
+
+/* Repl / evaluate — terminal feel */
+.tool-row.tool-row-code {
+  background: rgba(255, 255, 255, 0.025);
+  border-left-color: #7ec699;
+}
+
+.tool-row.tool-row-code:hover {
+  border-left-color: #7ec699;
+}
+
+.tool-row.tool-row-code.done {
+  border-left-color: rgba(126, 198, 153, 0.3);
 }
 
 .tool-name {
@@ -295,12 +313,6 @@
 .tool-row.running .tool-icon {
   color: var(--muted);
   opacity: 1;
-}
-
-/* Repl / evaluate — terminal feel */
-.tool-row.tool-row-code {
-  background: rgba(255, 255, 255, 0.025);
-  border-color: rgba(255, 255, 255, 0.06);
 }
 
 .tool-row.tool-row-code .tool-icon {
@@ -539,11 +551,19 @@
   border-radius: 8px;
   background: #0d0d0f;
   overflow: hidden;
+  padding: 4px 0;
 }
 
 .tool-row.expanded {
   white-space: normal;
   overflow: visible;
+  border-color: rgba(255, 255, 255, 0.08);
+  border-left-color: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.tool-row.tool-row-code.expanded {
+  border-left-color: #7ec699;
 }
 
 .tool-card-section {
@@ -558,7 +578,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 18px 2px;
+  padding: 8px 20px 2px;
 }
 
 .tool-card-section-label {
@@ -592,7 +612,7 @@
 
 .tool-card-code {
   margin: 0;
-  padding: 6px 18px 12px;
+  padding: 6px 20px 12px;
   background: transparent;
   border: none;
   border-radius: 0;
