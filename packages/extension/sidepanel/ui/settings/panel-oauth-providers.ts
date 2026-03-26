@@ -11,7 +11,7 @@ import {
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
-import { ensureProviderModel, getProviderInstance } from '../../../state/provider-registry.js';
+import { ensureProviderModel, getProviderInstance } from '../../../ai/providers/registry.js';
 import { getOAuthProfileNameForProvider, syncOAuthProfiles } from './oauth-profiles.js';
 import { getProviderSvg } from './panel-model-selector.js';
 

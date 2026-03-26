@@ -1,11 +1,11 @@
 import type { RecordingEvent } from '@parchi/shared';
-import { extractXmlToolCalls as extractXmlToolCallsFromTools } from '../../../packages/extension/background/tools/xml-tool-parser.js';
 import {
   buildPlanFromArgs,
   extractXmlToolCalls,
+  extractXmlToolCalls as extractXmlToolCallsFromTools,
   parsePlanSteps,
   stripXmlToolCalls,
-} from '../../../packages/extension/background/xml-tool-parser.js';
+} from '../../../packages/extension/background/tools/xml-tool-parser.js';
 import {
   buildRecordingUrlTimeline,
   deduplicateRecordingEvents,

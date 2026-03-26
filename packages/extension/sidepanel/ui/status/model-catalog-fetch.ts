@@ -1,6 +1,6 @@
 // Model catalog fetching - targets and fetch operations
 
-import { materializeProfileWithProvider } from '../../../state/provider-registry.js';
+import { materializeProfileWithProvider } from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import {
   buildModelEndpointCandidates,

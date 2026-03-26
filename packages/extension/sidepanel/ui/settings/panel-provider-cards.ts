@@ -1,12 +1,14 @@
 import type { ProviderInstance } from '@parchi/shared';
-import { PROVIDER_REGISTRY, fetchModelsForProvider, getApiKeyProviders } from '../../../ai/providers/registry.js';
-import { mergeProviderModels } from '../../../state/provider-models.js';
 import {
+  PROVIDER_REGISTRY,
   buildProviderInstanceId,
   ensureProviderModel,
+  fetchModelsForProvider,
+  getApiKeyProviders,
   getProviderInstance,
   listProviderInstances,
-} from '../../../state/provider-registry.js';
+  mergeProviderModels,
+} from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;

@@ -173,12 +173,7 @@ const cmdStart = async (flags) => {
   const out = fs.openSync(logPath, 'a', 0o600);
   const child = spawn(
     process.execPath,
-    [
-      daemonPath,
-      `--token=${config.token}`,
-      `--host=${config.host}`,
-      `--port=${config.port}`,
-    ],
+    [daemonPath, `--token=${config.token}`, `--host=${config.host}`, `--port=${config.port}`],
     {
       detached: true,
       stdio: ['ignore', out, out],

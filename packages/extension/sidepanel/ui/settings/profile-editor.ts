@@ -1,9 +1,9 @@
-import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import {
   ensureProviderModel,
   getProviderInstance,
   materializeProfileWithProvider,
-} from '../../../state/provider-registry.js';
+} from '../../../ai/providers/registry.js';
+import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { PROFILE_EDITOR_BOOLEAN_BINDINGS, PROFILE_EDITOR_NUMBER_BINDINGS } from './profile-bindings.js';
 import {

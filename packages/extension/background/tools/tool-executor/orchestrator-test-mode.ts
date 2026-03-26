@@ -1,6 +1,6 @@
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta, SessionState } from '../../service-types.js';
-import { recordSubagentStart } from '../orchestrator/runtime-state.js';
+import { recordSubagentStart } from '../orchestrator/subagent-tracking.js';
 import { cleanupSubagentTab, createSubagentTab } from './subagent-tab.js';
 
 type SyntheticSubagentSpec = {

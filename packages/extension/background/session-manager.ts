@@ -3,30 +3,8 @@ import { estimateDataUrlBytes, trimReportImages } from './report-images.js';
 import type { SessionState } from './service-types.js';
 import { defaultTokenVisibility } from './session-tokens.js';
 
-// Keep enough room for the primary session plus spawned subagent sessions
-// without evicting active orchestrator state mid-run.
 export const MAX_SESSIONS = 24;
 export const MAX_FAILURE_TRACKER_ENTRIES = 250;
-
-// Re-export from session-tokens for backward compatibility
-export {
-  defaultTokenVisibility,
-  emitTokenTrace,
-  getTokenVisibilitySnapshot,
-  normalizeContextPercent,
-  updateSessionTokenVisibility,
-} from './session-tokens.js';
-
-// Re-export from session-lifecycle for backward compatibility
-export {
-  cleanupRun,
-  isRunCancelled,
-  registerActiveRun,
-  sendRuntime,
-  stopAllSidepanelRuns,
-  stopRun,
-  stopRunBySession,
-} from './session-lifecycle.js';
 
 function ensureSessionCollections(existing: SessionState) {
   if (!Array.isArray(existing.reportImages)) existing.reportImages = [];

@@ -13,13 +13,15 @@ import path from 'node:path';
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.css', '.html']);
 const IGNORE_SEGMENTS = [
-  'dist/', 'dist-firefox/', 'dist-relay/', 'dist-cli/', 'dist-electron-agent/',
-  'node_modules/', 'test-output/',
+  'dist/',
+  'dist-firefox/',
+  'dist-relay/',
+  'dist-cli/',
+  'dist-electron-agent/',
+  'node_modules/',
+  'test-output/',
 ];
-const IGNORE_PATTERNS = [
-  /^packages\/backend\/convex\/_generated\//,
-  /^docs\//,
-];
+const IGNORE_PATTERNS = [/^packages\/backend\/convex\/_generated\//, /^docs\//];
 
 // Pattern: TODO or FIXME or HACK followed optionally by (owner/repo#123) or (#123)
 // We flag lines that have the keyword but NO parenthesised issue reference.
@@ -27,7 +29,7 @@ const TECH_DEBT_RE = /\b(TODO|FIXME|HACK)\b/;
 const TICKET_RE = /\b(TODO|FIXME|HACK)\s*\([^)]*#\d+\)/;
 
 let violations = 0;
-let warnings = 0;
+const warnings = 0;
 let total = 0;
 
 const parseArgs = () => {

@@ -47,8 +47,11 @@ export const insertStoppedDivider = function insertStoppedDivider(this: SidePane
   // Remove any empty assistant message containers before inserting the divider
   const chatMessages = this.elements.chatMessages;
   if (chatMessages) {
-    for (const el of Array.from(chatMessages.querySelectorAll('.message.assistant'))) {
-      const text = (el.textContent || '').replace(/Thinking\.\.\./g, '').replace(/Thought process/g, '').trim();
+    for (const el of chatMessages.querySelectorAll('.message.assistant')) {
+      const text = (el.textContent || '')
+        .replace(/Thinking\.\.\./g, '')
+        .replace(/Thought process/g, '')
+        .trim();
       if (!text && !(el as HTMLElement).querySelector('img, video, canvas')) {
         (el as HTMLElement).remove();
       }

@@ -1,7 +1,6 @@
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
-const escape = (self: SidePanelUI, value: string) => self.escapeHtml(String(value || ''));
 
 sidePanelProto.closeSubagentSession = async function closeSubagentSession(agentId: string) {
   const agent = this.subagents.get(agentId);

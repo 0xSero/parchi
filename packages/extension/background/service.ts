@@ -17,15 +17,14 @@ import type { ActiveRun, ServiceContext, TokenTracePayload } from './service-con
 import type { RunMeta, SessionState } from './service-types.js';
 import {
   cleanupRun,
-  emitTokenTrace,
-  getBrowserTools,
-  getSessionState,
   isRunCancelled,
   registerActiveRun,
   sendRuntime as sendRuntimeImpl,
   stopAllSidepanelRuns,
   stopRunBySession,
-} from './session-manager.js';
+} from './session-lifecycle.js';
+import { getBrowserTools, getSessionState } from './session-manager.js';
+import { emitTokenTrace } from './session-tokens.js';
 import { generateWorkflowPrompt, runApiSmokeTest } from './smoke-test.js';
 import { type SubagentTabBadgeState, sendSubagentTabBadge } from './subagent-tab-badges.js';
 import { getToolsForSession } from './tools/tool-catalog.js';
@@ -254,7 +253,6 @@ export class BackgroundService implements ServiceContext {
     return generateWorkflowPrompt(sessionContext, maxOutputTokens);
   }
 
-  // For backward compatibility with relay handler
   async handleRelayRpc(method: string, params: unknown) {
     return handleRelayRpc(this, method, params);
   }

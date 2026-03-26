@@ -1,6 +1,6 @@
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta, SessionState } from '../../service-types.js';
-import { getTokenVisibilitySnapshot, normalizeContextPercent } from '../../session-manager.js';
+import { getTokenVisibilitySnapshot, normalizeContextPercent } from '../../session-tokens.js';
 import { captureCompaction } from '../../telemetry.js';
 import type { AgentLoopDiagnostics, AgentResponseResult, PreparedAgentLoopRun } from './shared.js';
 

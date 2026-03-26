@@ -1,12 +1,12 @@
 // Model profile editor - catalog fetching for profile editor UI
 
-import { fetchProviderModels } from '../../../oauth/manager.js';
-import type { OAuthProviderKey } from '../../../oauth/types.js';
 import {
   ensureProviderModel,
   getProviderInstance,
   materializeProfileWithProvider,
-} from '../../../state/provider-registry.js';
+} from '../../../ai/providers/registry.js';
+import { fetchProviderModels } from '../../../oauth/manager.js';
+import type { OAuthProviderKey } from '../../../oauth/types.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import {
   buildModelEndpointCandidates,

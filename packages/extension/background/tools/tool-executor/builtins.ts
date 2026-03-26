@@ -135,7 +135,13 @@ export async function executeBuiltinTool(
     const sizeKb = Math.max(1, Math.round(new TextEncoder().encode(content).byteLength / 1024));
     return {
       handled: true,
-      result: { success: true, filename, mimeType, sizeKb, message: `File "${filename}" (${sizeKb} KB) created and offered for download.` },
+      result: {
+        success: true,
+        filename,
+        mimeType,
+        sizeKb,
+        message: `File "${filename}" (${sizeKb} KB) created and offered for download.`,
+      },
     };
   }
 
@@ -188,7 +194,8 @@ export async function executeBuiltinTool(
       };
     }
     const textTypes = ['text/', 'application/json', 'application/xml', 'application/yaml'];
-    const isText = textTypes.some((t) => (attachment.mimeType || '').startsWith(t)) ||
+    const isText =
+      textTypes.some((t) => (attachment.mimeType || '').startsWith(t)) ||
       /\.(txt|csv|json|md|xml|yaml|yml|log|html|css|js|ts|py|rb|sh)$/i.test(filename);
 
     return {
@@ -198,7 +205,7 @@ export async function executeBuiltinTool(
         filename: attachment.name,
         mimeType: attachment.mimeType,
         encoding: isText ? 'text' : 'base64',
-        content: isText ? (attachment.textContent || '') : (attachment.base64Content || ''),
+        content: isText ? attachment.textContent || '' : attachment.base64Content || '',
         size: attachment.size,
       },
     };

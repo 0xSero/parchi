@@ -218,7 +218,8 @@ sidePanelProto.renderSubagentActivity = function renderSubagentActivity(
   }
 
   // Update status class
-  const statusClass = event === 'start' ? 'running' : event === 'complete' ? 'completed' : event === 'error' ? 'error' : 'running';
+  const statusClass =
+    event === 'start' ? 'running' : event === 'complete' ? 'completed' : event === 'error' ? 'error' : 'running';
   thread.className = `subagent-thread ${statusClass}`;
 
   // Update header
@@ -227,7 +228,8 @@ sidePanelProto.renderSubagentActivity = function renderSubagentActivity(
 
   const statusEl = thread.querySelector('.subagent-thread-status') as HTMLElement | null;
   if (statusEl) {
-    statusEl.textContent = event === 'start' ? 'running' : event === 'complete' ? 'done' : event === 'error' ? 'failed' : event;
+    statusEl.textContent =
+      event === 'start' ? 'running' : event === 'complete' ? 'done' : event === 'error' ? 'failed' : event;
   }
 
   // Update horizontal preview chips

@@ -1,6 +1,6 @@
 // Balance popover - displays account billing and subscription status
 
-import { materializeProfileWithProvider } from '../../../state/provider-registry.js';
+import { materializeProfileWithProvider } from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;

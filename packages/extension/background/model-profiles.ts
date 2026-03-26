@@ -1,3 +1,4 @@
+import { materializeProfileWithProvider } from '../ai/providers/registry.js';
 import { normalizeOpenRouterModelId } from '../ai/sdk/index.js';
 import { invalidateRuntimeAuthSession, isUsableRuntimeJwt, refreshRuntimeAuthSession } from '../convex/client.js';
 import {
@@ -6,7 +7,6 @@ import {
   getProviderConfig as getOAuthProviderConfig,
 } from '../oauth/manager.js';
 import type { OAuthProviderKey } from '../oauth/types.js';
-import { materializeProfileWithProvider } from '../state/provider-registry.js';
 
 export function hasOwnApiKey(profile: Record<string, any> | null | undefined) {
   return Boolean(String(profile?.apiKey || '').trim());

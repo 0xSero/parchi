@@ -49,7 +49,8 @@ export function extractTextFromResponseMessages(messages: unknown): string {
 export function extractThinking(content: string | null | undefined, existingThinking: string | null = null) {
   let thinking: string | null = existingThinking || null;
   let cleanedContent = content || '';
-  const thinkRegex = /<\s*(think|analysis|thinking|thought|reasoning|reflect|inner_monologue)\s*>([\s\S]*?)<\s*\/\s*\1\s*>/gi;
+  const thinkRegex =
+    /<\s*(think|analysis|thinking|thought|reasoning|reflect|inner_monologue)\s*>([\s\S]*?)<\s*\/\s*\1\s*>/gi;
   let match;
   const collected: string[] = [];
 
@@ -64,14 +65,17 @@ export function extractThinking(content: string | null | undefined, existingThin
   }
 
   // Strip any remaining unclosed thinking tags (incomplete blocks from streaming)
-  cleanedContent = cleanedContent.replace(/<\s*(think|analysis|thinking|thought|reasoning|reflect|inner_monologue)\s*>[\s\S]*$/i, '').trim();
+  cleanedContent = cleanedContent
+    .replace(/<\s*(think|analysis|thinking|thought|reasoning|reflect|inner_monologue)\s*>[\s\S]*$/i, '')
+    .trim();
 
   return { content: cleanedContent, thinking };
 }
 
 export function extractThinkingFromResponseMessages(messages: unknown): string | null {
   if (!Array.isArray(messages)) return null;
-  const thinkRegex = /<\s*(think|analysis|thinking|thought|reasoning|reflect|inner_monologue)\s*>([\s\S]*?)<\s*\/\s*\1\s*>/gi;
+  const thinkRegex =
+    /<\s*(think|analysis|thinking|thought|reasoning|reflect|inner_monologue)\s*>([\s\S]*?)<\s*\/\s*\1\s*>/gi;
   const collected: string[] = [];
 
   const collectFromText = (text: string) => {

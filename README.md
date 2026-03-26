@@ -250,7 +250,6 @@ High level:
 | `packages/cli/` | Local CLI entrypoint and daemon client |
 | `packages/electron-agent/` | Relay-native Electron desktop automation agent |
 | `packages/extension/` | Browser extension runtime, UI, and tools |
-| `packages/relay-service/` | Relay daemon + relay protocol CLI |
 | `packages/shared/` | Shared plans, prompts, schemas, and message types |
 | `packages/website/` | Static website + billing pages |
 

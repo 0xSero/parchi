@@ -14,4 +14,5 @@ export interface SubagentEntry {
   summary?: string;
   tabId?: number;
   colorIndex?: number;
+  _toolCount?: number;
 }

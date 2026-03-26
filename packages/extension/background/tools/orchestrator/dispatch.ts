@@ -15,7 +15,8 @@ import {
   type ToolExecutionOptions,
   isObjectRecord,
 } from '../tool-executor/shared.js';
-import { buildPlanSummary, clonePlan, seedCompletedTaskOutputs, syncReadyStatuses } from './runtime-state.js';
+import { buildPlanSummary, clonePlan, syncReadyStatuses } from './task-utils.js';
+import { seedCompletedTaskOutputs } from './whiteboard.js';
 
 export async function dispatchOrchestratorTasks(
   ctx: ServiceContext,

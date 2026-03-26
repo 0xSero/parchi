@@ -1,16 +1,14 @@
 import {
-  buildPlanFromArgs as buildPlanFromToolArgs,
-  extractXmlToolCalls as extractXmlToolCallsFromTools,
-} from '../../../packages/extension/background/tools/xml-tool-parser.js';
-import {
   buildPlanFromArgs,
+  buildPlanFromArgs as buildPlanFromToolArgs,
   coerceXmlArgValue,
   extractXmlArgs,
   extractXmlToolCalls,
+  extractXmlToolCalls as extractXmlToolCallsFromTools,
   extractXmlToolName,
   parsePlanSteps,
   stripXmlToolCalls,
-} from '../../../packages/extension/background/xml-tool-parser.js';
+} from '../../../packages/extension/background/tools/xml-tool-parser.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
 export function runXmlToolParserSuite(runner: TestRunner) {

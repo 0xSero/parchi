@@ -1,4 +1,9 @@
-import type { OrchestratorPlan, WhiteboardEntry as OrchestratorWhiteboardEntry, RunPlan } from '@parchi/shared';
+import type {
+  OrchestratorPlan,
+  WhiteboardEntry as OrchestratorWhiteboardEntry,
+  RunPlan,
+  TokenTraceSnapshot,
+} from '@parchi/shared';
 
 export type RunMeta = {
   runId: string;
@@ -18,16 +23,11 @@ export type ReportImage = {
   visionDescription?: string;
 };
 
-export type SessionTokenVisibility = {
-  providerInputTokens: number | null;
-  providerOutputTokens: number | null;
-  contextApproxTokens: number | null;
-  contextLimit: number | null;
-  contextPercent: number | null;
-  sessionInputTokens: number;
-  sessionOutputTokens: number;
-  sessionTotalTokens: number;
-};
+/**
+ * Token visibility state for a session.
+ * Uses the shared TokenTraceSnapshot shape with all fields required.
+ */
+export type SessionTokenVisibility = Required<TokenTraceSnapshot>;
 
 export type RunningSubagent = {
   id: string;

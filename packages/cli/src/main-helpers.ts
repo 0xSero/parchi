@@ -33,7 +33,16 @@ function getNativeHostManifestPaths(): string[] {
   const platform = os.platform();
   const dirs: string[] = [];
   if (platform === 'darwin') {
-    dirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'BraveSoftware', 'Brave-Browser', 'NativeMessagingHosts'));
+    dirs.push(
+      path.join(
+        os.homedir(),
+        'Library',
+        'Application Support',
+        'BraveSoftware',
+        'Brave-Browser',
+        'NativeMessagingHosts',
+      ),
+    );
     dirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'Google', 'Chrome', 'NativeMessagingHosts'));
     dirs.push(path.join(os.homedir(), 'Library', 'Application Support', 'Chromium', 'NativeMessagingHosts'));
   } else if (platform === 'linux') {

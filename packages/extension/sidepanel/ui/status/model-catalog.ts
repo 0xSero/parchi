@@ -1,8 +1,8 @@
 // Model catalog - refresh and suggestion management
 
+import { materializeProfileWithProvider } from '../../../ai/providers/registry.js';
 import { fetchProviderModels, getAllProviderStates } from '../../../oauth/manager.js';
 import type { OAuthProviderKey } from '../../../oauth/types.js';
-import { materializeProfileWithProvider } from '../../../state/provider-registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { normalizeProvider, populateModelSuggestionList } from './model-utils.js';
 

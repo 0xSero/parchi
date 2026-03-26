@@ -1,6 +1,6 @@
 // Model selection UI - populating dropdowns and handling model selection
 
-import { listProviderInstances, materializeProfileWithProvider } from '../../../state/provider-registry.js';
+import { listProviderInstances, materializeProfileWithProvider } from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { decodeModelSelectValue, encodeModelSelectValue } from './model-utils.js';
 

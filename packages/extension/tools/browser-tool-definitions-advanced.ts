@@ -33,7 +33,8 @@ export const ADVANCED_BROWSER_TOOL_DEFINITIONS = [
       properties: {
         prompt: {
           type: 'string',
-          description: 'Message to show the user explaining what to select (e.g. "Click the button you want me to monitor").',
+          description:
+            'Message to show the user explaining what to select (e.g. "Click the button you want me to monitor").',
         },
         tabId: { type: 'number', description: 'Optional tab id.' },
       },

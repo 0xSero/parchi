@@ -1,9 +1,8 @@
+import { buildProviderInstanceId, ensureProviderModel, mergeProviderModels } from '../../../ai/providers/registry.js';
 import { OAUTH_PROVIDERS, fetchProviderModels, getAllProviderStates } from '../../../oauth/manager.js';
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import type { OAuthProviderKey } from '../../../oauth/types.js';
 import type { OAuthProviderConfig } from '../../../oauth/types.js';
-import { mergeProviderModels } from '../../../state/provider-models.js';
-import { buildProviderInstanceId, ensureProviderModel } from '../../../state/provider-registry.js';
 import type { SidePanelUI } from '../core/panel-ui.js';
 
 const OAUTH_PROFILE_PREFIX = 'oauth:';

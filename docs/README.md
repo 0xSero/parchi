@@ -15,7 +15,7 @@ Start here.
 | --- | --- |
 | Extension | `packages/extension/` |
 | Shared contracts | `packages/shared/src/` |
-| Relay + CLI | `packages/relay-service/`, `packages/cli/` |
+| CLI | `packages/cli/` |
 | Electron agent | `packages/electron-agent/` |
 | Backend | `packages/backend/` |
 

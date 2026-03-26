@@ -1,8 +1,9 @@
 /**
- * Unified runtime message module - re-exports all message types and utilities.
- * This is the main entry point for runtime message types.
+ * Unified runtime message module.
+ * Re-exports all types and provides the union type + type guard.
  */
-// Re-export extracted helper types
+
+// Re-export runtime-types for consumers
 export {
   runStatusPhases,
   type ContextUsageSnapshot,
@@ -14,67 +15,60 @@ export {
   type TokenUsage,
 } from './runtime-types.js';
 
-// Re-export base types and early message variants
+// Re-export all message types
 export {
   RUNTIME_MESSAGE_SCHEMA_VERSION,
-  type RuntimeMessageBase,
-  type UserRunStart,
-  type AssistantStreamStart,
-  type AssistantStreamDelta,
-  type AssistantStreamStop,
-  type ToolExecutionStart,
-  type ToolExecutionResult,
-  type PlanUpdate,
-  type ManualPlanUpdate,
-  type RunStatus,
+  type AssistantFinal,
   type AssistantResponse,
-} from './runtime-messages-base.js';
+  type AssistantStreamDelta,
+  type AssistantStreamStart,
+  type AssistantStreamStop,
+  type CompactionEvent,
+  type ContextCompacted,
+  type ManualPlanUpdate,
+  type PlanUpdate,
+  type ReportImageCaptured,
+  type ReportImageSummary,
+  type ReportImagesSelection,
+  type RunError,
+  type RunStatus,
+  type RunWarning,
+  type RuntimeMessageBase,
+  type SessionTabsUpdate,
+  type SubagentComplete,
+  type SubagentStart,
+  type SubagentTabAssigned,
+  type TokenTraceEvent,
+  type ToolExecutionResult,
+  type ToolExecutionStart,
+  type UserRunStart,
+} from './runtime-message-types.js';
 
-// Re-export extended message types
-export type {
-  AssistantFinal,
-  CompactionEvent,
-  ContextCompacted,
-  ReportImageCaptured,
-  ReportImageSummary,
-  ReportImagesSelection,
-  RunError,
-  RunWarning,
-  SessionTabsUpdate,
-  SubagentComplete,
-  SubagentStart,
-  SubagentTabAssigned,
-  TokenTraceEvent,
-} from './runtime-messages-extended.js';
-
-// Import for union type and type guard
-import { RUNTIME_MESSAGE_SCHEMA_VERSION } from './runtime-messages-base.js';
+import { RUNTIME_MESSAGE_SCHEMA_VERSION } from './runtime-message-types.js';
 import type {
+  AssistantFinal,
   AssistantResponse,
   AssistantStreamDelta,
   AssistantStreamStart,
   AssistantStreamStop,
-  ManualPlanUpdate,
-  PlanUpdate,
-  RunStatus,
-  ToolExecutionResult,
-  ToolExecutionStart,
-  UserRunStart,
-} from './runtime-messages-base.js';
-import type {
-  AssistantFinal,
   CompactionEvent,
   ContextCompacted,
+  ManualPlanUpdate,
+  PlanUpdate,
   ReportImageCaptured,
   ReportImagesSelection,
   RunError,
+  RunStatus,
   RunWarning,
   SessionTabsUpdate,
   SubagentComplete,
   SubagentStart,
   SubagentTabAssigned,
   TokenTraceEvent,
-} from './runtime-messages-extended.js';
+  ToolExecutionResult,
+  ToolExecutionStart,
+  UserRunStart,
+} from './runtime-message-types.js';
 
 /** Union of all runtime message types (22 variants). */
 export type RuntimeMessage =
@@ -125,7 +119,6 @@ export const runtimeMessageTypes = [
   'subagent_complete',
   'subagent_tab_assigned',
   'session_tabs_update',
-  'create_file',
 ] as const;
 
 export type RuntimeMessageType = (typeof runtimeMessageTypes)[number];

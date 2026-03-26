@@ -55,7 +55,8 @@ function csvToTable(csv: string): string {
     html += '</tr>';
   }
   html += '</tbody></table></div>';
-  if (lines.length > maxRows + 1) html += `<div class="csv-truncated">${lines.length - 1} rows total, showing first ${maxRows}</div>`;
+  if (lines.length > maxRows + 1)
+    html += `<div class="csv-truncated">${lines.length - 1} rows total, showing first ${maxRows}</div>`;
   return html;
 }
 

@@ -1,5 +1,5 @@
 import { DEFAULT_AGENT_SYSTEM_PROMPT } from '@parchi/shared';
-import { materializeProfileWithProvider } from '../../../state/provider-registry.js';
+import { materializeProfileWithProvider } from '../../../ai/providers/registry.js';
 import { patchSettingsStoreSnapshot, replaceSettingsStoreSnapshot } from '../../../state/stores/settings-store.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { DEFAULT_THEME_ID } from './themes.js';

@@ -1,21 +1,16 @@
 import type { ServiceContext } from '../../service-context.js';
 import type { SessionState } from '../../service-types.js';
 import { dispatchOrchestratorTasks, setOrchestratorPlan } from '../orchestrator/dispatch.js';
+import { awaitSubagents, listHistoricalSubagents, listRunningSubagents } from '../orchestrator/subagent-tracking.js';
+import { buildPlanSummary, findTask, normalizeTaskStatus, syncReadyStatuses } from '../orchestrator/task-utils.js';
 import {
-  awaitSubagents,
-  buildPlanSummary,
-  findTask,
-  listHistoricalSubagents,
-  listRunningSubagents,
-  normalizeTaskStatus,
   snapshotWhiteboard,
-  syncReadyStatuses,
   validateTaskAgainstWhiteboard,
   writeTaskOutputsToWhiteboard,
-} from '../orchestrator/runtime-state.js';
+} from '../orchestrator/whiteboard.js';
 import type { NestedToolExecutor, ToolExecutionArgs, ToolExecutionOptions } from './shared.js';
 
-export { recordSubagentCompletion, recordSubagentStart } from '../orchestrator/runtime-state.js';
+export { recordSubagentCompletion, recordSubagentStart } from '../orchestrator/subagent-tracking.js';
 
 export async function handleOrchestratorBuiltin(
   ctx: ServiceContext,

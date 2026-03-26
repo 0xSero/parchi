@@ -1,4 +1,4 @@
-import { buildProviderInstanceId } from '../../../state/provider-registry.js';
+import { buildProviderInstanceId } from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 

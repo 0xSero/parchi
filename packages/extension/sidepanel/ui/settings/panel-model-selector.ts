@@ -1,9 +1,9 @@
-import { getProviderDefinition } from '../../../ai/providers/registry.js';
 import {
   ensureProviderModel,
+  getProviderDefinition,
   listProviderInstances,
   materializeProfileWithProvider,
-} from '../../../state/provider-registry.js';
+} from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { syncOAuthProfiles } from './oauth-profiles.js';
 
@@ -82,7 +82,8 @@ sidePanelProto.renderModelSelectorGrid = function renderModelSelectorGrid() {
   // Header
   const header = document.createElement('div');
   header.className = 'model-grid-header';
-  header.innerHTML = '<span class="settings-section-desc">Check the models you want in the dropdown. Click a model name to activate it.</span>';
+  header.innerHTML =
+    '<span class="settings-section-desc">Check the models you want in the dropdown. Click a model name to activate it.</span>';
   grid.appendChild(header);
 
   for (const provider of providers) {

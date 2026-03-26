@@ -121,11 +121,21 @@
   position: relative;
 }
 
-.plan-checklist-item:nth-child(1) { animation-delay: 0ms; }
-.plan-checklist-item:nth-child(2) { animation-delay: 40ms; }
-.plan-checklist-item:nth-child(3) { animation-delay: 80ms; }
-.plan-checklist-item:nth-child(4) { animation-delay: 120ms; }
-.plan-checklist-item:nth-child(5) { animation-delay: 160ms; }
+.plan-checklist-item:nth-child(1) {
+  animation-delay: 0ms;
+}
+.plan-checklist-item:nth-child(2) {
+  animation-delay: 40ms;
+}
+.plan-checklist-item:nth-child(3) {
+  animation-delay: 80ms;
+}
+.plan-checklist-item:nth-child(4) {
+  animation-delay: 120ms;
+}
+.plan-checklist-item:nth-child(5) {
+  animation-delay: 160ms;
+}
 
 .plan-checklist-item.completed {
   color: var(--muted-dim);
@@ -635,11 +645,22 @@
 }
 
 /* Syntax highlighting */
-.tool-card-code .tc-str { color: #7ec699; }
-.tool-card-code .tc-num { color: #d19a66; }
-.tool-card-code .tc-bool { color: #d19a66; }
-.tool-card-code .tc-kw { color: #c678dd; }
-.tool-card-code .tc-cmt { color: rgba(255, 255, 255, 0.2); font-style: italic; }
+.tool-card-code .tc-str {
+  color: #7ec699;
+}
+.tool-card-code .tc-num {
+  color: #d19a66;
+}
+.tool-card-code .tc-bool {
+  color: #d19a66;
+}
+.tool-card-code .tc-kw {
+  color: #c678dd;
+}
+.tool-card-code .tc-cmt {
+  color: rgba(255, 255, 255, 0.2);
+  font-style: italic;
+}
 
 /* ============================================================================
    Selected Element Chip — shows targeted DOM element
@@ -794,9 +815,15 @@
   margin: 12px 0 6px;
 }
 
-.file-artifact-md h1 { font-size: 16px; }
-.file-artifact-md h2 { font-size: 14px; }
-.file-artifact-md h3 { font-size: 13px; }
+.file-artifact-md h1 {
+  font-size: 16px;
+}
+.file-artifact-md h2 {
+  font-size: 14px;
+}
+.file-artifact-md h3 {
+  font-size: 13px;
+}
 
 .file-artifact-md p {
   margin: 0 0 8px;

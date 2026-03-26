@@ -143,58 +143,6 @@ feature/
 
 Use `components/` only for real UI slices, not as a dumping ground.
 
-## Current direction for sidepanel core
-
-`packages/extension/sidepanel/ui/core/` should keep converging toward:
-
-```txt
-core/
-  index.ts
-  types.ts
-
-  helpers/
-    dom.ts
-    trace.ts
-    history.ts
-    scroll.ts
-    status.ts
-
-  adapters/
-    state.ts
-    context.ts
-    layout.ts
-    watchdog.ts
-
-  panel/
-    index.ts
-    types.ts
-    elements.ts
-    view.ts
-    navigation.ts
-    session-memory.ts
-
-  event-handlers/
-    index.ts
-    composer.ts
-    navigation.ts
-    profile.ts
-    runtime.ts
-    settings.ts
-    ui.ts
-
-  message-handlers/
-    index.ts
-    errors.ts
-    final.ts
-    images.ts
-    plan.ts
-    status.ts
-    stream.ts
-    subagent.ts
-    tokens.ts
-    tools.ts
-```
-
 ## Cleanup standard
 
 Refactors are not done until leftovers are removed.

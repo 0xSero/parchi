@@ -48,7 +48,7 @@ These structures are the first places to inspect for leaks or drift:
 
 ## Adjacent surfaces
 
-- Relay: `packages/relay-service/`, `packages/cli/`
+- Relay: `packages/extension/relay/`, `packages/cli/`
 - Electron agent: `packages/electron-agent/`
 
 They reuse the same shared contracts and sit beside the extension runtime, not above it.
