@@ -1,22 +1,34 @@
 {
   "featureId": "fix-runtime-listener-leaks",
-  "reviewedAt": "2026-03-27T23:47:37.260616+00:00",
+  "reviewedAt": "2026-03-27T23:59:00Z",
   "commitId": "4e66026",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The sidepanel listener cleanup is implemented and wired to the existing sidepanel close lifecycle, but the content script change does not actually satisfy VAL-CRIT-003 because its new destroy() method is never invoked. As shipped, the content script still registers a runtime onMessage listener per injection with no corresponding lifecycle path that removes it.",
+    "summary": "The sidepanel portion of VAL-CRIT-003 is implemented correctly: runtime and storage listeners are stored and removed via SidePanelUI.destroy() on pagehide/beforeunload. However, the content-script portion is incomplete because ContentScriptHandler.destroy() is never wired to any lifecycle event or external caller, so the content.ts runtime listener still leaks for the lifetime of the page.",
     "issues": [
       {
         "file": "packages/extension/content.ts",
-        "line": 38,
+        "line": 100,
         "severity": "blocking",
-        "description": "ContentScriptHandler.destroy() removes the stored runtime listener, but nothing ever calls destroy(). The file still ends by instantiating the handler anonymously (`new ContentScriptHandler();` at line 100), so the added cleanup path is unreachable and the content-script runtime listener leak remains unfixed."
+        "description": "The new destroy() method is unreachable in production: the file only instantiates `new ContentScriptHandler()` and never stores the instance, registers `destroy()` on `pagehide/beforeunload`, or exposes any cleanup hook. As a result, `chrome.runtime.onMessage.removeListener(this.messageListener)` is never called, so the content-script runtime listener leak described by VAL-CRIT-003 remains unfixed."
+      },
+      {
+        "file": "packages/extension/content.ts",
+        "line": 40,
+        "severity": "non_blocking",
+        "description": "destroy() clears UI state with `clearActionOverlay()` and `clearBadge()`, which only hide DOM elements rather than removing them. This does not block VAL-CRIT-003, but it means the content-script cleanup path would still leave overlay/badge DOM nodes allocated if destroy() were ever invoked."
       }
     ]
   },
-  "sharedStateObservations": [],
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The cleanup-worker skill says memory leak fixes must 'Ensure cleanup is called', but the worker marked the feature complete after adding an uninvoked destroy() in content.ts. The skill procedure is correct; the transcript shows the worker did not validate that the content-script cleanup path was actually reachable.",
+      "evidence": "Skill: .factory/skills/cleanup-worker/SKILL.md section 'Fix Memory Leaks' step 4. Transcript/handoff claim destroy() was added in content.ts, but code shows only `new ContentScriptHandler();` at packages/extension/content.ts:100 and no pagehide/unload hook or exported cleanup handle anywhere in the extension."
+    }
+  ],
   "addressesFailureFrom": null,
-  "summary": "Fail: the feature only partially fixes VAL-CRIT-003. Sidepanel runtime/storage listeners are cleaned up on panel close, but the content-script runtime listener cleanup is dead code because the new destroy() method is never called."
+  "summary": "Fail. Sidepanel listener cleanup is wired correctly, but the content-script listener cleanup is dead code because ContentScriptHandler.destroy() is never called. Blocking issue: packages/extension/content.ts still leaks its runtime onMessage listener for the life of the page."
 }
