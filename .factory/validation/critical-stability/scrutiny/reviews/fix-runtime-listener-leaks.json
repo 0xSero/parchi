@@ -1,0 +1,22 @@
+{
+  "featureId": "fix-runtime-listener-leaks",
+  "reviewedAt": "2026-03-27T23:47:37.260616+00:00",
+  "commitId": "4e66026",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The sidepanel listener cleanup is implemented and wired to the existing sidepanel close lifecycle, but the content script change does not actually satisfy VAL-CRIT-003 because its new destroy() method is never invoked. As shipped, the content script still registers a runtime onMessage listener per injection with no corresponding lifecycle path that removes it.",
+    "issues": [
+      {
+        "file": "packages/extension/content.ts",
+        "line": 38,
+        "severity": "blocking",
+        "description": "ContentScriptHandler.destroy() removes the stored runtime listener, but nothing ever calls destroy(). The file still ends by instantiating the handler anonymously (`new ContentScriptHandler();` at line 100), so the added cleanup path is unreachable and the content-script runtime listener leak remains unfixed."
+      }
+    ]
+  },
+  "sharedStateObservations": [],
+  "addressesFailureFrom": null,
+  "summary": "Fail: the feature only partially fixes VAL-CRIT-003. Sidepanel runtime/storage listeners are cleaned up on panel close, but the content-script runtime listener cleanup is dead code because the new destroy() method is never called."
+}

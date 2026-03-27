@@ -1,0 +1,45 @@
+{
+  "featureId": "fix-empty-catch-blocks",
+  "reviewedAt": "2026-03-27T23:47:37.279516+00:00",
+  "commitId": "e75f190",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature removes empty catch syntax and covers the priority files, but several replacements only add comments and still discard failures silently, which does not satisfy the requirement to log, emit telemetry, or propagate errors.",
+    "issues": [
+      {
+        "file": "packages/extension/tools/injected/click.ts",
+        "line": 52,
+        "severity": "blocking",
+        "description": "This formerly-empty catch now contains only a comment and still swallows selector-matching failures without logging, telemetry, or propagation. The feature description and VAL-CRIT-004 require empty catches to be handled, not merely annotated. The same pattern also appears at lines 185 and 224 in this file."
+      },
+      {
+        "file": "packages/extension/tools/injected/type.ts",
+        "line": 127,
+        "severity": "blocking",
+        "description": "The injected typing path replaces empty catches with comment-only blocks, so scrollIntoView failures are still silently ignored rather than logged or otherwise handled. This does not meet the requirement to add console.warn, telemetry, or error propagation; the same issue repeats at line 142."
+      },
+      {
+        "file": "packages/extension/sidepanel/ui/status/model-catalog.ts",
+        "line": 117,
+        "severity": "blocking",
+        "description": "The OAuth model catalog refresh catch block remains comment-only after the change. If provider model discovery fails, the failure is still silently discarded with no warning or telemetry, which does not meet the feature\u2019s required error-handling behavior. Similar comment-only replacements were introduced in other modified files such as packages/extension/sidepanel/ui/status/model-catalog-fetch.ts:126, packages/extension/sidepanel/ui/status/model-profile-editor.ts:133, packages/extension/background/session-lifecycle.ts:25, and packages/extension/tools/browser-click-tools.ts:92."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The cleanup-worker skill says empty catches should get appropriate error handling (console.warn, telemetry, or re-throw), but the worker treated comment-only catch blocks as acceptable and marked the feature successful.",
+      "evidence": ".factory/skills/cleanup-worker/SKILL.md says to add error handling; the handoff for worker session 171133ce-f520-4ad8-9dca-19dc3261ae42 explicitly says comment-only replacements in hot paths were acceptable, and commit e75f190 contains multiple comment-only catches such as packages/extension/tools/injected/click.ts:52 and packages/extension/sidepanel/ui/status/model-catalog.ts:117."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The shared architecture note still says there are 27 empty catch blocks, but the worker found 41 actual empty catches in source code. Shared mission knowledge is stale and can mislead future cleanup estimates.",
+      "evidence": "/Users/sero/projects/browser-ai/.factory/library/architecture.md lists '27 empty catch blocks', while the feature handoff for commit e75f190 documents 41 empty catch blocks across the codebase."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed the transcript skeleton, handoff, cleanup-worker skill, shared-state docs, and commit e75f190. Although the commit eliminates empty catch syntax, several updated sites still handle errors only with comments and no runtime signal, so the feature does not fully satisfy VAL-CRIT-004."
+}
