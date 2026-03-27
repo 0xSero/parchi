@@ -40,6 +40,8 @@ export class SidePanelUI {
   userScrolledUp: boolean;
   isNearBottom: boolean;
   chatResizeObserver: ResizeObserver | null;
+  _runtimeMessageListener: ((...args: any[]) => any) | null;
+  _storageChangedListener: ((...args: any[]) => any) | null;
   contextUsage: {
     approxTokens: number;
     maxContextTokens: number;
@@ -192,6 +194,8 @@ export class SidePanelUI {
     this.userScrolledUp = false;
     this.isNearBottom = true;
     this.chatResizeObserver = null;
+    this._runtimeMessageListener = null;
+    this._storageChangedListener = null;
     this.contextUsage = {
       approxTokens: 0,
       maxContextTokens: 196000,

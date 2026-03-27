@@ -112,6 +112,7 @@ export const destroy = function destroy(this: SidePanelUI & Record<string, unkno
     this.chatResizeObserver.disconnect();
     this.chatResizeObserver = null;
   }
+  this.cleanupRuntimeListeners?.();
 };
 
 sidePanelProto.destroy = destroy;

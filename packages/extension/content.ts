@@ -11,20 +11,33 @@ class ContentScriptHandler {
   highlightedElements: Set<HighlightEntry>;
   overlayController: ActionOverlayController;
   subagentBadgeController: SubagentBadgeController;
+  private messageListener: (
+    message: Record<string, unknown>,
+    sender: unknown,
+    sendResponse: (response: unknown) => void,
+  ) => boolean;
 
   constructor() {
     this.highlightedElements = new Set();
     this.overlayController = new ActionOverlayController();
     this.subagentBadgeController = new SubagentBadgeController();
+    this.messageListener = (message, sender, sendResponse) => {
+      void this.handleMessage(message, sender, sendResponse);
+      return true;
+    };
     this.init();
   }
 
   init() {
-    chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      void this.handleMessage(message, sender, sendResponse);
-      return true;
-    });
+    chrome.runtime.onMessage.addListener(this.messageListener);
     this.notifyReady();
+  }
+
+  destroy() {
+    chrome.runtime.onMessage.removeListener(this.messageListener);
+    this.overlayController.clearActionOverlay();
+    this.subagentBadgeController.clearBadge();
+    unhighlightAll(this.highlightedElements);
   }
 
   async handleMessage(message: Record<string, unknown>, _sender: unknown, sendResponse: (response: unknown) => void) {
