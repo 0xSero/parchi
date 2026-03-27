@@ -1,45 +1,58 @@
 {
   "featureId": "fix-empty-catch-blocks",
-  "reviewedAt": "2026-03-27T23:47:37.279516+00:00",
+  "reviewedAt": "2026-03-27T23:52:36.542092+00:00",
   "commitId": "e75f190",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The feature removes empty catch syntax and covers the priority files, but several replacements only add comments and still discard failures silently, which does not satisfy the requirement to log, emit telemetry, or propagate errors.",
+    "summary": "The feature removed empty catch blocks from production TypeScript code and correctly added logging or documented intentional no-op handling in the targeted extension files, but it does not satisfy the stated expected behavior because empty catch blocks remain in the repository under tests.",
     "issues": [
       {
-        "file": "packages/extension/tools/injected/click.ts",
-        "line": 52,
+        "file": "tests/e2e/run-orchestrator-runtime-e2e.ts",
+        "line": 132,
         "severity": "blocking",
-        "description": "This formerly-empty catch now contains only a comment and still swallows selector-matching failures without logging, telemetry, or propagation. The feature description and VAL-CRIT-004 require empty catches to be handled, not merely annotated. The same pattern also appears at lines 185 and 224 in this file."
+        "description": "An empty `catch {}` remains when removing the temporary user data directory. The feature expectedBehavior says no empty catch blocks remain in the codebase, and the handoff also claims `grep -r 'catch\\s*{\\s*}' packages/ --include='*.ts'` found none. Repository review still finds empty catches in test code, so the implementation does not fully satisfy VAL-CRIT-004 as written."
       },
       {
-        "file": "packages/extension/tools/injected/type.ts",
-        "line": 127,
+        "file": "tests/relay/run-relay-tests.ts",
+        "line": 105,
         "severity": "blocking",
-        "description": "The injected typing path replaces empty catches with comment-only blocks, so scrollIntoView failures are still silently ignored rather than logged or otherwise handled. This does not meet the requirement to add console.warn, telemetry, or error propagation; the same issue repeats at line 142."
+        "description": "An empty polling-loop `catch {}` remains around relay readiness checks, contradicting the feature requirement that all empty catch blocks be handled."
       },
       {
-        "file": "packages/extension/sidepanel/ui/status/model-catalog.ts",
-        "line": 117,
+        "file": "tests/relay/run-relay-tests.ts",
+        "line": 297,
         "severity": "blocking",
-        "description": "The OAuth model catalog refresh catch block remains comment-only after the change. If provider model discovery fails, the failure is still silently discarded with no warning or telemetry, which does not meet the feature\u2019s required error-handling behavior. Similar comment-only replacements were introduced in other modified files such as packages/extension/sidepanel/ui/status/model-catalog-fetch.ts:126, packages/extension/sidepanel/ui/status/model-profile-editor.ts:133, packages/extension/background/session-lifecycle.ts:25, and packages/extension/tools/browser-click-tools.ts:92."
+        "description": "An empty cleanup `catch {}` remains around `child.kill('SIGTERM')`, so the repo still contains unhandled empty catches after this feature."
+      },
+      {
+        "file": "tests/relay/run-electron-agent-tests.ts",
+        "line": 59,
+        "severity": "blocking",
+        "description": "An empty relay readiness polling `catch {}` remains in test code, so the codebase-wide assertion is not met."
+      },
+      {
+        "file": "tests/perf/run-perf-profile.ts",
+        "line": 150,
+        "severity": "blocking",
+        "description": "An empty `catch {}` remains around `document.getAnimations?.()` access in the perf harness. This leaves the repository with unresolved empty catches despite the feature claiming all were fixed."
+      },
+      {
+        "file": "tests/perf/run-perf-profile.ts",
+        "line": 431,
+        "severity": "blocking",
+        "description": "An empty cleanup `catch {}` remains around removing the temp user data directory, so the repository still violates the no-empty-catch expectation."
       }
     ]
   },
   "sharedStateObservations": [
     {
       "area": "skills",
-      "observation": "The cleanup-worker skill says empty catches should get appropriate error handling (console.warn, telemetry, or re-throw), but the worker treated comment-only catch blocks as acceptable and marked the feature successful.",
-      "evidence": ".factory/skills/cleanup-worker/SKILL.md says to add error handling; the handoff for worker session 171133ce-f520-4ad8-9dca-19dc3261ae42 explicitly says comment-only replacements in hot paths were acceptable, and commit e75f190 contains multiple comment-only catches such as packages/extension/tools/injected/click.ts:52 and packages/extension/sidepanel/ui/status/model-catalog.ts:117."
-    },
-    {
-      "area": "knowledge",
-      "observation": "The shared architecture note still says there are 27 empty catch blocks, but the worker found 41 actual empty catches in source code. Shared mission knowledge is stale and can mislead future cleanup estimates.",
-      "evidence": "/Users/sero/projects/browser-ai/.factory/library/architecture.md lists '27 empty catch blocks', while the feature handoff for commit e75f190 documents 41 empty catch blocks across the codebase."
+      "observation": "The cleanup-worker skill instructs workers to search broadly for empty catches, but its verification language does not explicitly call out whether tests must be included. The worker interpreted the scope as `packages/` only in the final verification, which let test-file empty catches slip through even though the feature metadata says `No empty catch {} blocks remain in codebase`.",
+      "evidence": "cleanup-worker SKILL.md says `Find empty catches` with a repo-wide grep example and `Verification: No empty catch blocks remain`; handoff verification instead used `grep -r 'catch\\s*{\\s*}' packages/ --include='*.ts'`, and repo review still finds six matches under `tests/`."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "Reviewed the transcript skeleton, handoff, cleanup-worker skill, shared-state docs, and commit e75f190. Although the commit eliminates empty catch syntax, several updated sites still handle errors only with comments and no runtime signal, so the feature does not fully satisfy VAL-CRIT-004."
+  "summary": "Fail: production targets were updated appropriately, including the requested extension files, but six empty `catch {}` blocks remain in test TypeScript files, so the codebase-wide requirement was not actually met."
 }
