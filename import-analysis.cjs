@@ -164,7 +164,7 @@ function analyze() {
 
   // Build export and import maps
   const exportMap = new Map(); // file -> [{name, type, source}]
-  const importMap = new Map(); // file -> [{name, source, type}]
+  const importMap = new Map(); // file -> [{name, source, type, statement}]
   const allExports = new Map(); // "file:name" -> {file, name, type, importedBy: []}
 
   // First pass: collect all exports
@@ -186,7 +186,7 @@ function analyze() {
     const content = readFile(file);
     if (!content) continue;
 
-    const imports = parseImports(content);
+    const imports = parseImportsWithStatement(content);
     importMap.set(file, imports);
 
     for (const imp of imports) {
@@ -199,7 +199,13 @@ function analyze() {
       const exportInfo = allExports.get(exportKey);
 
       if (exportInfo) {
-        exportInfo.importedBy.push(file);
+        // Check if the import is actually used in the file
+        const isActuallyUsed = isUsedInFile(imp.name, content, imp.statement);
+        exportInfo.importedBy.push({
+          file,
+          used: isActuallyUsed,
+          name: imp.name
+        });
         if (file.includes('.test.') || file.includes('/tests/')) {
           exportInfo.usedInTests = true;
         }
@@ -215,31 +221,28 @@ function analyze() {
     deadEndExports: [],
     testOnlyExports: [],
     unimportedExports: [],
+    suspiciousImports: [],
     barrelChains: [],
     mostConnected: [],
     leastConnected: [],
+    importChains: [],
     singleImplementationInterfaces: [],
   };
 
   // Find orphaned modules (import but nothing imports from them)
-  const filesThatExport = new Set();
-  const filesThatImport = new Set();
-
-  for (const [file] of exportMap) filesThatExport.add(file);
-  for (const [file, imports] of importMap) {
-    if (imports.some(i => i.type !== 'side-effect')) {
-      filesThatImport.add(file);
-    }
-  }
-
   for (const file of files) {
     const hasExports = exportMap.get(file)?.length > 0;
-    const isImported = [...allExports.values()].some(e =>
-      e.importedBy.some(importer => importer === file)
-    );
+    const exports = exportMap.get(file) || [];
     const hasImports = importMap.get(file)?.some(i => i.type !== 'side-effect');
 
-    if (hasExports && !isImported && !file.endsWith('.d.ts')) {
+    // A file is orphaned if it has exports but none of them are imported by other files
+    const isConsumed = exports.some(exp => {
+      const key = `${file}:${exp.name}`;
+      const info = allExports.get(key);
+      return info && info.importedBy.length > 0;
+    });
+
+    if (hasExports && !isConsumed && !file.endsWith('.d.ts')) {
       // Check if it's an entry point
       const isEntryPoint = file.includes('background.ts') ||
                           file.includes('content.ts') ||
@@ -247,7 +250,8 @@ function analyze() {
       if (!isEntryPoint) {
         results.orphanedModules.push({
           file: path.relative(EXTENSION_DIR, file),
-          hasImports: !!hasImports
+          hasImports: !!hasImports,
+          exportCount: exports.length
         });
       }
     }
@@ -256,8 +260,9 @@ function analyze() {
   // Analyze exports
   const connectionCounts = [];
   for (const [key, exp] of allExports) {
-    const consumerCount = exp.importedBy.filter(f => !f.includes('.test.')).length;
-    connectionCounts.push({ file: exp.file, name: exp.name, count: consumerCount });
+    const consumerCount = exp.importedBy.filter(f => !f.file.includes('.test.')).length;
+    const actuallyUsedCount = exp.importedBy.filter(f => f.used && !f.file.includes('.test.')).length;
+    connectionCounts.push({ file: exp.file, name: exp.name, count: consumerCount, used: actuallyUsedCount });
 
     if (exp.importedBy.length === 0) {
       results.unimportedExports.push({
@@ -269,7 +274,17 @@ function analyze() {
       results.testOnlyExports.push({
         file: path.relative(EXTENSION_DIR, exp.file),
         name: exp.name,
-        testFiles: exp.importedBy.map(f => path.relative(EXTENSION_DIR, f))
+        testFiles: exp.importedBy.map(f => path.relative(EXTENSION_DIR, f.file))
+      });
+    }
+
+    // Check for suspicious imports (imported but never used)
+    const suspiciousConsumers = exp.importedBy.filter(i => !i.used && !i.file.includes('.test.'));
+    if (suspiciousConsumers.length > 0) {
+      results.suspiciousImports.push({
+        file: path.relative(EXTENSION_DIR, exp.file),
+        name: exp.name,
+        importedBy: suspiciousConsumers.map(c => path.relative(EXTENSION_DIR, c.file))
       });
     }
 
@@ -279,7 +294,7 @@ function analyze() {
         file: path.relative(EXTENSION_DIR, exp.file),
         name: exp.name,
         reExportsFrom: exp.source,
-        finalConsumers: exp.importedBy.length
+        finalConsumers: actuallyUsedCount
       });
     }
   }
@@ -289,12 +304,14 @@ function analyze() {
   results.mostConnected = connectionCounts.slice(0, 20).map(c => ({
     file: path.relative(EXTENSION_DIR, c.file),
     name: c.name,
-    consumerCount: c.count
+    consumerCount: c.count,
+    actuallyUsed: c.used
   }));
   results.leastConnected = connectionCounts.filter(c => c.count > 0).slice(-20).map(c => ({
     file: path.relative(EXTENSION_DIR, c.file),
     name: c.name,
-    consumerCount: c.count
+    consumerCount: c.count,
+    actuallyUsed: c.used
   }));
 
   // Find potential single-implementation interfaces
@@ -330,7 +347,73 @@ function analyze() {
     }
   }
 
+  // Find import chains
+  const chainDepths = [];
+  for (const file of files) {
+    const depth = calculateImportDepth(file, importMap, new Set());
+    if (depth > 0) {
+      chainDepths.push({ file: path.relative(EXTENSION_DIR, file), depth });
+    }
+  }
+  chainDepths.sort((a, b) => b.depth - a.depth);
+  results.importChains = chainDepths.slice(0, 30);
+
   return results;
+}
+
+// Calculate import chain depth for a file
+function calculateImportDepth(file, importMap, visited) {
+  if (visited.has(file)) return 0;
+  visited.add(file);
+
+  const imports = importMap.get(file) || [];
+  const localImports = imports.filter(i => i.source?.startsWith('.'));
+
+  if (localImports.length === 0) return 0;
+
+  let maxDepth = 0;
+  for (const imp of localImports) {
+    const resolved = resolveImportSource(imp.source, file);
+    if (resolved) {
+      const depth = calculateImportDepth(resolved, importMap, new Set(visited));
+      maxDepth = Math.max(maxDepth, depth + 1);
+    }
+  }
+
+  return maxDepth;
+}
+
+// Parse imports with original statement for context
+function parseImportsWithStatement(content) {
+  const imports = [];
+
+  // ES6 imports
+  const es6Regex = /import\s+(?:(?:type\s+)?\{([^}]+)\}|\*\s+as\s+(\w+)|(\w+))\s+from\s+['"]([^'"]+)['"];?/g;
+  let match;
+  while ((match = es6Regex.exec(content)) !== null) {
+    const namedImports = match[1];
+    const namespaceImport = match[2];
+    const defaultImport = match[3];
+    const source = match[4];
+    const statement = match[0];
+
+    if (namedImports) {
+      namedImports.split(',').forEach(imp => {
+        const clean = imp.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0].trim();
+        if (clean) imports.push({ name: clean, source, type: 'named', statement });
+      });
+    }
+    if (namespaceImport) imports.push({ name: namespaceImport, source, type: 'namespace', statement });
+    if (defaultImport) imports.push({ name: defaultImport, source, type: 'default', statement });
+  }
+
+  // Side-effect imports
+  const sideEffectRegex = /import\s+['"]([^'"]+)['"];?/g;
+  while ((match = sideEffectRegex.exec(content)) !== null) {
+    imports.push({ source: match[1], type: 'side-effect', statement: match[0] });
+  }
+
+  return imports;
 }
 
 // Run analysis
@@ -343,6 +426,10 @@ console.log('='.repeat(80));
 console.log(`\n📊 OVERVIEW`);
 console.log(`   Total Files: ${results.totalFiles}`);
 console.log(`   Total Exports: ${results.totalExports}`);
+console.log(`   Orphaned Modules: ${results.orphanedModules.length}`);
+console.log(`   Unimported Exports: ${results.unimportedExports.length}`);
+console.log(`   Test-Only Exports: ${results.testOnlyExports.length}`);
+console.log(`   Suspicious Imports (unused): ${results.suspiciousImports.length}`);
 
 console.log(`\n🔴 ORPHANED MODULES (${results.orphanedModules.length})`);
 console.log(`   Files that export but are never imported (excluding entry points)`);
@@ -381,6 +468,21 @@ results.leastConnected.forEach((c, i) => {
   console.log(`   ${i + 1}. ${c.file}#${c.name} (${c.consumerCount} consumers)`);
 });
 
+console.log(`\n🚫 SUSPICIOUS IMPORTS (${results.suspiciousImports.length})`);
+console.log(`   Imports that are imported but never actually used (excluding tests)`);
+results.suspiciousImports.slice(0, 15).forEach(s => {
+  console.log(`   - ${s.file}#${s.name}`);
+  console.log(`     Imported by: ${s.importedBy.slice(0, 3).join(', ')}${s.importedBy.length > 3 ? '...' : ''}`);
+});
+if (results.suspiciousImports.length > 15) {
+  console.log(`   ... and ${results.suspiciousImports.length - 15} more`);
+}
+
+console.log(`\n⛓️ IMPORT CHAIN DEPTH (Top 30 deepest)`);
+results.importChains.forEach((c, i) => {
+  console.log(`   ${i + 1}. ${c.file} (depth: ${c.depth})`);
+});
+
 console.log(`\n⚠️ SINGLE-IMPLEMENTATION INTERFACES (${results.singleImplementationInterfaces.length})`);
 results.singleImplementationInterfaces.forEach(i => {
   console.log(`   - ${i.interface} in ${i.definedIn}`);
@@ -391,3 +493,4 @@ results.singleImplementationInterfaces.forEach(i => {
 const reportPath = '/Users/sero/projects/browser-ai/deep-import-analysis-report.json';
 fs.writeFileSync(reportPath, JSON.stringify(results, null, 2));
 console.log(`\n✅ Detailed report written to: ${reportPath}`);
+console.log(`   JSON data available for programmatic analysis`);

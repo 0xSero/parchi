@@ -3,840 +3,254 @@
   "totalExports": 717,
   "orphanedModules": [
     {
-      "file": "ai/compaction/index.ts",
-      "hasImports": false
-    },
-    {
       "file": "ai/compaction/messages.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 3
     },
     {
       "file": "ai/compaction/settings.ts",
-      "hasImports": false
+      "hasImports": false,
+      "exportCount": 6
     },
     {
       "file": "ai/compaction/tokens.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/errors/categories-auth.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/errors/classifier.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "ai/messages/factory.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/messages/schema.ts",
-      "hasImports": false
-    },
-    {
-      "file": "ai/messages/types.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/messages/utils.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/models/content-normalize.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/models/convert.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 4
     },
     {
       "file": "ai/models/message-convert.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "ai/models/normalize.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/models/retry-engine.ts",
-      "hasImports": false
-    },
-    {
-      "file": "ai/providers/definitions.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/instance-id.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 5
     },
     {
       "file": "ai/providers/instance-migrate.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/instance-models.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/instance-normalize.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/instance-registry.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/model-listing.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "ai/providers/resolve.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/providers/types.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/sdk/codex-oauth.ts",
-      "hasImports": false
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "hasImports": false
-    },
-    {
-      "file": "ai/sdk/model-normalize.ts",
-      "hasImports": false
-    },
-    {
-      "file": "ai/sdk/provider-oauth.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/sdk/provider-proxy.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/sdk/provider-resolve.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/sdk/provider-standard.ts",
-      "hasImports": true
-    },
-    {
-      "file": "ai/sdk/provider-types.ts",
-      "hasImports": false
-    },
-    {
-      "file": "ai/sdk/provider-utils.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "ai/sdk/tool-builder.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/assembly.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/context.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/diagnostics.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/execution.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/model-selection.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/model.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/profile.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/compaction/decision.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/compaction/messages.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "background/agent/compaction/runner.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/compaction/shared.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/compaction/slicing.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/compaction/telemetry.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/compaction/trace.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/history-prep.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/agent/response-materializer.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/browser-compat.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "background/content-perf.ts",
-      "hasImports": false
-    },
-    {
-      "file": "background/message-handlers/core.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/message-handlers/recording.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/message-handlers/run.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/message-handlers/system.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/message-handlers/test.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/message-handlers/tools.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/message-response.ts",
-      "hasImports": false
-    },
-    {
-      "file": "background/model-profiles.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/relay/relay-config.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/relay/relay-handler.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/relay/relay-rpc.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/report-images.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/service-context.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/service-types.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/service.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/session-manager.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/session-tokens.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/subagent-tab-badges.ts",
-      "hasImports": false
-    },
-    {
-      "file": "background/system-prompt.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/telemetry.ts",
-      "hasImports": false
+      "hasImports": false,
+      "exportCount": 3
     },
     {
       "file": "background/tool-permissions.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/orchestrator/plan-definitions.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/orchestrator/subagent-definitions.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/orchestrator/subagent-tracking.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/orchestrator/task-utils.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/orchestrator/tool-definitions.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/orchestrator/whiteboard.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 3
     },
     {
       "file": "background/tools/subagent/ai-client.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/subagent/loop-utils.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/subagent/result-handler.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/subagent/stream-handler.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/subagent/types.ts",
-      "hasImports": false
-    },
-    {
-      "file": "background/tools/tool-catalog.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "background/tools/tool-executor/browser-gate.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/orchestrator-test-mode.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/orchestrator.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/postprocess.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/runtime.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/subagent-runner.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/tool-executor/subagent-tab.ts",
-      "hasImports": true
-    },
-    {
-      "file": "background/tools/xml-tool-parser.ts",
-      "hasImports": true
-    },
-    {
-      "file": "content-action-overlay.ts",
-      "hasImports": true
-    },
-    {
-      "file": "content-element-inspection.ts",
-      "hasImports": false
-    },
-    {
-      "file": "content-highlight.ts",
-      "hasImports": true
-    },
-    {
-      "file": "content-subagent-badge.ts",
-      "hasImports": true
-    },
-    {
-      "file": "content-types.ts",
-      "hasImports": false
-    },
-    {
-      "file": "convex/client.ts",
-      "hasImports": true
-    },
-    {
-      "file": "oauth/flow-device-code.ts",
-      "hasImports": true
-    },
-    {
-      "file": "oauth/manager.ts",
-      "hasImports": true
-    },
-    {
-      "file": "oauth/model-candidates.ts",
-      "hasImports": false
-    },
-    {
-      "file": "oauth/model-listing.ts",
-      "hasImports": true
-    },
-    {
-      "file": "oauth/model-normalization.ts",
-      "hasImports": false
-    },
-    {
-      "file": "oauth/pkce.ts",
-      "hasImports": false
-    },
-    {
-      "file": "oauth/providers.ts",
-      "hasImports": true
-    },
-    {
-      "file": "oauth/types.ts",
-      "hasImports": false
-    },
-    {
-      "file": "recording/recording-coordinator.ts",
-      "hasImports": true
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "hasImports": true
-    },
-    {
-      "file": "recording/recording-summary.ts",
-      "hasImports": true
-    },
-    {
-      "file": "relay/relay-bridge.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/account/account-managed.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/account/account-mode.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-assistant-new.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-assistant-streamed.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-cleanup.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/chat/context-inspector-utils.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/chat/markdown-highlighter.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/chat/markdown-table.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-export-shared.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-streaming-helpers.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/chat/recording-to-skill.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/chat/trace-store.ts",
-      "hasImports": false
+      "hasImports": false,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/context-handler.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/dom-utils.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/event-handlers/composer.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/event-handlers/index.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/event-handlers/navigation.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/event-handlers/profile.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/event-handlers/runtime.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/event-handlers/settings.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/event-handlers/ui.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/history-manager.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/core/layout-loader.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/message-handlers/errors.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/message-handlers/final.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/message-handlers/images.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/message-handlers/plan.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/message-handlers/status.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/message-handlers/stream.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 4
     },
     {
       "file": "sidepanel/ui/core/message-handlers/subagent.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/message-handlers/tokens.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/message-handlers/tools.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 3
     },
     {
       "file": "sidepanel/ui/core/message-processor.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/core/panel-core.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/panel-elements-mission-control.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/core/panel-elements-settings.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/core/panel-elements.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/panel-navigation.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/panel-session-memory.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/panel-ui.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 2
     },
     {
       "file": "sidepanel/ui/core/state-manager.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/core/trace-sanitizer.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 5
     },
     {
       "file": "sidepanel/ui/core/watchdog-manager.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/oauth-profiles.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/panel-model-selector.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 4
     },
     {
       "file": "sidepanel/ui/settings/panel-profiles.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-form-helpers.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-json-editor.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/settings-validation.ts",
-      "hasImports": true
+      "hasImports": false,
+      "exportCount": 5
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/core-1.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/core-2.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/extended-a1.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/extended-a2.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/extended-b1.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/extended-b2.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/high-contrast-1.ts",
-      "hasImports": true
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/high-contrast-2.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-definition.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-high-contrast-helpers.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/themes.ts",
-      "hasImports": true
-    },
-    {
-      "file": "sidepanel/ui/settings/usage-store.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "hasImports": false
+      "hasImports": true,
+      "exportCount": 1
     },
     {
       "file": "sidepanel/ui/status/panel-status.ts",
-      "hasImports": false
-    },
-    {
-      "file": "sidepanel/ui/types/panel-types.ts",
-      "hasImports": false
-    },
-    {
-      "file": "state/core/store.ts",
-      "hasImports": false
-    },
-    {
-      "file": "state/persistence/session-history-repository.ts",
-      "hasImports": false
-    },
-    {
-      "file": "state/persistence/settings-repository.ts",
-      "hasImports": true
-    },
-    {
-      "file": "state/stores/session-history-store.ts",
-      "hasImports": true
-    },
-    {
-      "file": "state/stores/settings-store.ts",
-      "hasImports": true
-    },
-    {
-      "file": "subagent-colors.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/browser-debug-tools.ts",
-      "hasImports": true
-    },
-    {
-      "file": "tools/browser-eval-shared.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/browser-session-state.ts",
-      "hasImports": true
-    },
-    {
-      "file": "tools/browser-tool-definitions-advanced.ts",
-      "hasImports": true
-    },
-    {
-      "file": "tools/browser-tool-definitions.ts",
-      "hasImports": true
-    },
-    {
-      "file": "tools/browser-tool-handlers.ts",
-      "hasImports": true
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/browser-tools.ts",
-      "hasImports": true
-    },
-    {
-      "file": "tools/injected/click.ts",
-      "hasImports": true
+      "hasImports": false,
+      "exportCount": 13
     },
     {
       "file": "tools/injected/shared.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/injected/type.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/injected/video-frame.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/injected/video.ts",
-      "hasImports": false
-    },
-    {
-      "file": "tools/selector-spec.ts",
-      "hasImports": false
-    },
-    {
-      "file": "utils/active-tab.ts",
-      "hasImports": false
+      "hasImports": false,
+      "exportCount": 2
     },
     {
       "file": "utils/perf-monitor-bg.ts",
-      "hasImports": false
+      "hasImports": false,
+      "exportCount": 1
     },
     {
       "file": "utils/perf-monitor.ts",
-      "hasImports": false
+      "hasImports": false,
+      "exportCount": 1
     }
   ],
   "deadEndExports": [],
@@ -849,57 +263,12 @@
     },
     {
       "file": "ai/compaction/index.ts",
-      "name": "DEFAULT_COMPACTION_SETTINGS",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "SUMMARIZATION_PROMPT",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "SUMMARIZATION_SYSTEM_PROMPT",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "UPDATE_SUMMARIZATION_PROMPT",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "shouldCompact",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
       "name": "",
       "type": "re-export"
     },
     {
       "file": "ai/compaction/index.ts",
-      "name": "estimateContextTokens",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "findCutPoint",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
       "name": "applyCompaction",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "buildCompactionSummaryMessage",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/compaction/index.ts",
-      "name": "serializeConversation",
       "type": "re-export"
     },
     {
@@ -958,128 +327,13 @@
       "type": "named"
     },
     {
-      "file": "ai/errors/categories-auth.ts",
-      "name": "classifyOAuthPermissionError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-auth.ts",
-      "name": "classifyRateLimitError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-auth.ts",
-      "name": "classifyAuthError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-auth.ts",
-      "name": "classifyContextLengthError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-auth.ts",
-      "name": "classifyModelError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "name": "classifyEndpointError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "name": "classifyTimeoutError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "name": "classifyNetworkError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "name": "classifyServerError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "name": "classifyEmptyBodyError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/categories-infra.ts",
-      "name": "createUnknownError",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/classifier.ts",
-      "name": "ErrorCategory",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/classifier.ts",
-      "name": "ClassifiedError",
-      "type": "named"
-    },
-    {
       "file": "ai/errors/classifier.ts",
       "name": "ErrorClassificationContext",
       "type": "named"
     },
     {
-      "file": "ai/errors/classifier.ts",
-      "name": "classifyApiError",
-      "type": "named"
-    },
-    {
       "file": "ai/errors/signals.ts",
       "name": "ClassifiedErrorResult",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "ManagedSignalInput",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectManagedRouteSignal",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "classifyManagedRuntimeSpecialCase",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectOAuthRouteSignal",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectAuthKeySignal",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectOAuthPermissionSignal",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectQuotaSignal",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectRateLimitSignal",
-      "type": "named"
-    },
-    {
-      "file": "ai/errors/signals.ts",
-      "name": "detectModelSignal",
       "type": "named"
     },
     {
@@ -1105,16 +359,6 @@
     {
       "file": "ai/messages/schema.ts",
       "name": "ContentPart",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/messages/schema.ts",
-      "name": "Message",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/messages/schema.ts",
-      "name": "MessageContent",
       "type": "re-export"
     },
     {
@@ -1154,16 +398,6 @@
     },
     {
       "file": "ai/messages/schema.ts",
-      "name": "createMessage",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/messages/schema.ts",
-      "name": "normalizeConversationHistory",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/messages/schema.ts",
       "name": "normalizeUsage",
       "type": "re-export"
     },
@@ -1174,27 +408,7 @@
     },
     {
       "file": "ai/messages/types.ts",
-      "name": "Role",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/types.ts",
       "name": "ContentPart",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/types.ts",
-      "name": "MessageContent",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/types.ts",
-      "name": "ToolCall",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/types.ts",
-      "name": "Usage",
       "type": "named"
     },
     {
@@ -1203,74 +417,9 @@
       "type": "named"
     },
     {
-      "file": "ai/messages/types.ts",
-      "name": "Message",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/types.ts",
-      "name": "ProviderMessage",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/types.ts",
-      "name": "ROLE_SET",
-      "type": "named"
-    },
-    {
       "file": "ai/messages/utils.ts",
       "name": "ExtractThinkingResult",
       "type": "named"
-    },
-    {
-      "file": "ai/messages/utils.ts",
-      "name": "extractTextFromResponseMessages",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/utils.ts",
-      "name": "extractThinking",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/utils.ts",
-      "name": "extractThinkingFromResponseMessages",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/utils.ts",
-      "name": "dedupeThinking",
-      "type": "named"
-    },
-    {
-      "file": "ai/messages/utils.ts",
-      "name": "estimateTokensFromContent",
-      "type": "named"
-    },
-    {
-      "file": "ai/models/content-normalize.ts",
-      "name": "normalizeToolContent",
-      "type": "named"
-    },
-    {
-      "file": "ai/models/content-normalize.ts",
-      "name": "normalizeUserContent",
-      "type": "named"
-    },
-    {
-      "file": "ai/models/content-normalize.ts",
-      "name": "normalizeSystemContent",
-      "type": "named"
-    },
-    {
-      "file": "ai/models/content-normalize.ts",
-      "name": "normalizeAssistantContent",
-      "type": "named"
-    },
-    {
-      "file": "ai/models/convert.ts",
-      "name": "toModelMessages",
-      "type": "re-export"
     },
     {
       "file": "ai/models/message-convert.ts",
@@ -1313,18 +462,8 @@
       "type": "named"
     },
     {
-      "file": "ai/models/retry-engine.ts",
-      "name": "isValidFinalResponse",
-      "type": "named"
-    },
-    {
       "file": "ai/providers/definitions.ts",
       "name": "PROVIDER_REGISTRY",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/definitions.ts",
-      "name": "getProviderDefinition",
       "type": "named"
     },
     {
@@ -1343,11 +482,6 @@
       "type": "named"
     },
     {
-      "file": "ai/providers/instance-id.ts",
-      "name": "buildProviderInstanceId",
-      "type": "named"
-    },
-    {
       "file": "ai/providers/instance-migrate.ts",
       "name": "materializeProfileWithProvider",
       "type": "named"
@@ -1358,38 +492,8 @@
       "type": "named"
     },
     {
-      "file": "ai/providers/instance-models.ts",
-      "name": "normalizeProviderModels",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/instance-models.ts",
-      "name": "mergeProviderModels",
-      "type": "named"
-    },
-    {
       "file": "ai/providers/instance-normalize.ts",
       "name": "normalizeProviderType",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/instance-normalize.ts",
-      "name": "isProviderRegistry",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/instance-normalize.ts",
-      "name": "normalizeProviderInstance",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/instance-normalize.ts",
-      "name": "buildProviderFromProfile",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/instance-registry.ts",
-      "name": "getProviderRegistry",
       "type": "named"
     },
     {
@@ -1400,16 +504,6 @@
     {
       "file": "ai/providers/instance-registry.ts",
       "name": "getProviderInstance",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/instance-registry.ts",
-      "name": "ensureProviderModel",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/model-listing.ts",
-      "name": "extractModelEntries",
       "type": "named"
     },
     {
@@ -1429,17 +523,7 @@
     },
     {
       "file": "ai/providers/registry.ts",
-      "name": "PROVIDER_REGISTRY",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
       "name": "getAllProviders",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "getApiKeyProviders",
       "type": "re-export"
     },
     {
@@ -1449,27 +533,12 @@
     },
     {
       "file": "ai/providers/registry.ts",
-      "name": "getProviderDefinition",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
       "name": "",
       "type": "re-export"
     },
     {
       "file": "ai/providers/registry.ts",
-      "name": "fetchModelsForProvider",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
       "name": "resolveProviderSdk",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "buildProviderInstanceId",
       "type": "re-export"
     },
     {
@@ -1499,37 +568,7 @@
     },
     {
       "file": "ai/providers/registry.ts",
-      "name": "listProviderInstances",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "getProviderInstance",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "ensureProviderModel",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "materializeProfileWithProvider",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "migrateSettingsToProviderRegistry",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
       "name": "normalizeProviderModels",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/providers/registry.ts",
-      "name": "mergeProviderModels",
       "type": "re-export"
     },
     {
@@ -1553,129 +592,14 @@
       "type": "named"
     },
     {
-      "file": "ai/providers/types.ts",
-      "name": "ProviderDefinition",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/types.ts",
-      "name": "ProviderCredentials",
-      "type": "named"
-    },
-    {
-      "file": "ai/providers/types.ts",
-      "name": "ModelEntry",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/codex-oauth.ts",
-      "name": "CODEX_OAUTH_BASE_URL",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/codex-oauth.ts",
-      "name": "isCodexOAuthProvider",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/codex-oauth.ts",
-      "name": "buildCodexOAuthProviderOptions",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "name": "SDKModelSettings",
-      "type": "re-export"
-    },
-    {
       "file": "ai/sdk/index.ts",
       "name": "ToolDefinition",
       "type": "re-export"
     },
     {
       "file": "ai/sdk/index.ts",
-      "name": "normalizeOpenRouterModelId",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "name": "resolveLanguageModel",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "name": "buildToolSet",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "name": "describeImageWithModel",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/index.ts",
       "name": "CODEX_OAUTH_BASE_URL",
       "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "name": "buildCodexOAuthProviderOptions",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/index.ts",
-      "name": "isCodexOAuthProvider",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/model-normalize.ts",
-      "name": "normalizeOpenRouterModelId",
-      "type": "re-export"
-    },
-    {
-      "file": "ai/sdk/provider-oauth.ts",
-      "name": "resolveOAuthProvider",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-proxy.ts",
-      "name": "resolveProxyProvider",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-resolve.ts",
-      "name": "resolveLanguageModel",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-standard.ts",
-      "name": "resolveAnthropicCompatibleProvider",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-standard.ts",
-      "name": "resolveOpenRouterProvider",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-standard.ts",
-      "name": "resolveCustomProvider",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-types.ts",
-      "name": "SDKModelSettings",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-utils.ts",
-      "name": "toAnthropicBaseUrl",
-      "type": "named"
-    },
-    {
-      "file": "ai/sdk/provider-utils.ts",
-      "name": "buildAnthropicCompatibleHeaders",
-      "type": "named"
     },
     {
       "file": "ai/sdk/tool-builder.ts",
@@ -1686,81 +610,6 @@
       "file": "ai/sdk/tool-builder.ts",
       "name": "ToolDefinition",
       "type": "re-export"
-    },
-    {
-      "file": "background/agent/agent-loop/assembly.ts",
-      "name": "assemblePreparedAgentLoop",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/context.ts",
-      "name": "checkKimiHeaderRequirement",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/context.ts",
-      "name": "shouldEnableAnthropicThinking",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/context.ts",
-      "name": "parseBooleanSetting",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/diagnostics.ts",
-      "name": "createLatencyMetricsBuilder",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/diagnostics.ts",
-      "name": "createBenchmarkContextBuilder",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/diagnostics.ts",
-      "name": "createInitialDiagnostics",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/execution.ts",
-      "name": "emitAssistantFinalTrace",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/execution.ts",
-      "name": "handleAgentError",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/execution.ts",
-      "name": "sendUserRunStart",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/execution.ts",
-      "name": "sendAssistantFinal",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/model-selection.ts",
-      "name": "OAUTH_PROVIDER_MAP",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/model-selection.ts",
-      "name": "inferModelFamily",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/model.ts",
-      "name": "ModelConfig",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/model.ts",
-      "name": "buildModelConfig",
-      "type": "named"
     },
     {
       "file": "background/agent/agent-loop/model.ts",
@@ -1778,23 +627,8 @@
       "type": "named"
     },
     {
-      "file": "background/agent/agent-loop/profile.ts",
-      "name": "resolveOauthProviderKey",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/profile.ts",
-      "name": "inferModelFamilyFromId",
-      "type": "named"
-    },
-    {
       "file": "background/agent/agent-loop/shared.ts",
       "name": "AgentErrorContext",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "AgentLoopDiagnostics",
       "type": "named"
     },
     {
@@ -1803,78 +637,8 @@
       "type": "named"
     },
     {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "MatchedSkill",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "AgentLoopContext",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "RecordedContext",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "AgentSettings",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "AgentProfile",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "PreparedAgentLoopRun",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "PreparedAgentLoopBlocked",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "AgentModelPassResult",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/agent-loop/shared.ts",
-      "name": "AgentResponseResult",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/decision.ts",
-      "name": "CompactionDecision",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/decision.ts",
-      "name": "evaluateCompactionDecision",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/decision.ts",
-      "name": "buildCompactionMetrics",
-      "type": "named"
-    },
-    {
       "file": "background/agent/compaction/messages.ts",
       "name": "isSafeAnchorMessage",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/messages.ts",
-      "name": "buildContinuationMessage",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/messages.ts",
-      "name": "assembleCompactedMessages",
       "type": "named"
     },
     {
@@ -1884,82 +648,12 @@
     },
     {
       "file": "background/agent/compaction/shared.ts",
-      "name": "RunContextCompactionOptions",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/shared.ts",
-      "name": "CompactionCheckSnapshot",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/shared.ts",
-      "name": "CompactionSummaryResult",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/shared.ts",
-      "name": "PreparedCompactionSlice",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/shared.ts",
       "name": "CompactionExecutionContext",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/shared.ts",
-      "name": "profileUsesCodexOAuth",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/slicing.ts",
-      "name": "prepareCompactionSlice",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/telemetry.ts",
-      "name": "emitCompactionDecisionTelemetry",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/telemetry.ts",
-      "name": "emitCompactionSkippedTelemetry",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/telemetry.ts",
-      "name": "emitCompactionStartTelemetry",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/trace.ts",
-      "name": "toContentPreview",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/trace.ts",
-      "name": "messageSignature",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/compaction/trace.ts",
-      "name": "buildToolTraceMessage",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/history-prep.ts",
-      "name": "prepareConversationHistory",
       "type": "named"
     },
     {
       "file": "background/agent/response-materializer.ts",
       "name": "NormalizedToolResult",
-      "type": "named"
-    },
-    {
-      "file": "background/agent/response-materializer.ts",
-      "name": "buildResponseMessages",
       "type": "named"
     },
     {
@@ -1978,21 +672,6 @@
       "type": "named"
     },
     {
-      "file": "background/browser-compat.ts",
-      "name": "getRuntimeFeatureFlags",
-      "type": "named"
-    },
-    {
-      "file": "background/browser-compat.ts",
-      "name": "setupActionClickOpensPanel",
-      "type": "named"
-    },
-    {
-      "file": "background/browser-compat.ts",
-      "name": "setupKimiUserAgentHeaderSupport",
-      "type": "named"
-    },
-    {
       "file": "background/content-perf.ts",
       "name": "clampContentPerfString",
       "type": "named"
@@ -2008,103 +687,8 @@
       "type": "named"
     },
     {
-      "file": "background/message-handlers/core.ts",
-      "name": "normalizeSessionId",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/core.ts",
-      "name": "handleUserMessage",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/core.ts",
-      "name": "handleCompactContext",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/recording.ts",
-      "name": "handleRecordingDiscard",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/recording.ts",
-      "name": "handleRecordingEvent",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/run.ts",
-      "name": "handleStopRun",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/system.ts",
-      "name": "handleContentPerfEvent",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/system.ts",
-      "name": "handleContentScriptReady",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/test.ts",
-      "name": "handleConfigureSessionTabsTest",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/test.ts",
-      "name": "handlePingTest",
-      "type": "named"
-    },
-    {
-      "file": "background/message-handlers/tools.ts",
-      "name": "handleSubagentInstruction",
-      "type": "named"
-    },
-    {
       "file": "background/message-response.ts",
       "name": "RuntimeMessageResponse",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "RuntimeSendResponse",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "serializeRuntimeError",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "respondOk",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "respondAccepted",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "assertNonEmptyString",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "assertArray",
-      "type": "named"
-    },
-    {
-      "file": "background/message-response.ts",
-      "name": "createResponseController",
-      "type": "named"
-    },
-    {
-      "file": "background/model-profiles.ts",
-      "name": "hasOwnApiKey",
       "type": "named"
     },
     {
@@ -2133,61 +717,6 @@
       "type": "named"
     },
     {
-      "file": "background/model-profiles.ts",
-      "name": "applyConvexProxyProfile",
-      "type": "named"
-    },
-    {
-      "file": "background/model-profiles.ts",
-      "name": "resolveRuntimeModelProfile",
-      "type": "named"
-    },
-    {
-      "file": "background/model-profiles.ts",
-      "name": "resolveProfile",
-      "type": "named"
-    },
-    {
-      "file": "background/model-profiles.ts",
-      "name": "resolveTeamProfiles",
-      "type": "named"
-    },
-    {
-      "file": "background/model-profiles.ts",
-      "name": "isVisionModelProfile",
-      "type": "named"
-    },
-    {
-      "file": "background/relay/relay-config.ts",
-      "name": "createApplyRelayConfig",
-      "type": "named"
-    },
-    {
-      "file": "background/relay/relay-config.ts",
-      "name": "scheduleRelayAutoPairCheck",
-      "type": "named"
-    },
-    {
-      "file": "background/relay/relay-handler.ts",
-      "name": "createRelayBridge",
-      "type": "named"
-    },
-    {
-      "file": "background/relay/relay-handler.ts",
-      "name": "createApplyRelayConfig",
-      "type": "re-export"
-    },
-    {
-      "file": "background/relay/relay-handler.ts",
-      "name": "initRelay",
-      "type": "re-export"
-    },
-    {
-      "file": "background/relay/relay-handler.ts",
-      "name": "scheduleRelayAutoPairCheck",
-      "type": "re-export"
-    },
-    {
       "file": "background/relay/relay-handler.ts",
       "name": "type RelayRpcHandler",
       "type": "re-export"
@@ -2199,78 +728,8 @@
     },
     {
       "file": "background/relay/relay-handler.ts",
-      "name": "handleRelayRpc",
-      "type": "re-export"
-    },
-    {
-      "file": "background/relay/relay-handler.ts",
       "name": "",
       "type": "re-export"
-    },
-    {
-      "file": "background/relay/relay-rpc.ts",
-      "name": "RelayRpcHandler",
-      "type": "named"
-    },
-    {
-      "file": "background/relay/relay-rpc.ts",
-      "name": "buildRelayRpcHandlers",
-      "type": "named"
-    },
-    {
-      "file": "background/report-images.ts",
-      "name": "estimateDataUrlBytes",
-      "type": "named"
-    },
-    {
-      "file": "background/report-images.ts",
-      "name": "getReportImageSummary",
-      "type": "named"
-    },
-    {
-      "file": "background/report-images.ts",
-      "name": "trimReportImages",
-      "type": "named"
-    },
-    {
-      "file": "background/report-images.ts",
-      "name": "captureReportImage",
-      "type": "named"
-    },
-    {
-      "file": "background/report-images.ts",
-      "name": "applyReportImageSelection",
-      "type": "named"
-    },
-    {
-      "file": "background/service-context.ts",
-      "name": "ActiveRun",
-      "type": "named"
-    },
-    {
-      "file": "background/service-context.ts",
-      "name": "TokenTracePayload",
-      "type": "named"
-    },
-    {
-      "file": "background/service-context.ts",
-      "name": "ServiceContext",
-      "type": "named"
-    },
-    {
-      "file": "background/service-types.ts",
-      "name": "RunMeta",
-      "type": "named"
-    },
-    {
-      "file": "background/service-types.ts",
-      "name": "ReportImage",
-      "type": "named"
-    },
-    {
-      "file": "background/service-types.ts",
-      "name": "SessionTokenVisibility",
-      "type": "named"
     },
     {
       "file": "background/service-types.ts",
@@ -2279,62 +738,12 @@
     },
     {
       "file": "background/service-types.ts",
-      "name": "SubagentResult",
-      "type": "named"
-    },
-    {
-      "file": "background/service-types.ts",
-      "name": "HistoricalSubagent",
-      "type": "named"
-    },
-    {
-      "file": "background/service-types.ts",
       "name": "SessionAttachment",
-      "type": "named"
-    },
-    {
-      "file": "background/service-types.ts",
-      "name": "SessionState",
-      "type": "named"
-    },
-    {
-      "file": "background/service.ts",
-      "name": "BackgroundService",
-      "type": "named"
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "name": "isRunCancelled",
       "type": "named"
     },
     {
       "file": "background/session-lifecycle.ts",
       "name": "stopRun",
-      "type": "named"
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "name": "stopRunBySession",
-      "type": "named"
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "name": "stopAllSidepanelRuns",
-      "type": "named"
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "name": "registerActiveRun",
-      "type": "named"
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "name": "cleanupRun",
-      "type": "named"
-    },
-    {
-      "file": "background/session-lifecycle.ts",
-      "name": "sendRuntime",
       "type": "named"
     },
     {
@@ -2348,68 +757,13 @@
       "type": "named"
     },
     {
-      "file": "background/session-manager.ts",
-      "name": "getSessionState",
-      "type": "named"
-    },
-    {
-      "file": "background/session-manager.ts",
-      "name": "getBrowserTools",
-      "type": "named"
-    },
-    {
-      "file": "background/session-tokens.ts",
-      "name": "defaultTokenVisibility",
-      "type": "named"
-    },
-    {
-      "file": "background/session-tokens.ts",
-      "name": "normalizeContextPercent",
-      "type": "named"
-    },
-    {
-      "file": "background/session-tokens.ts",
-      "name": "getTokenVisibilitySnapshot",
-      "type": "named"
-    },
-    {
       "file": "background/session-tokens.ts",
       "name": "updateSessionTokenVisibility",
       "type": "named"
     },
     {
-      "file": "background/session-tokens.ts",
-      "name": "emitTokenTrace",
-      "type": "named"
-    },
-    {
-      "file": "background/subagent-tab-badges.ts",
-      "name": "SubagentTabBadgeState",
-      "type": "named"
-    },
-    {
-      "file": "background/system-prompt.ts",
-      "name": "enhanceSystemPrompt",
-      "type": "named"
-    },
-    {
       "file": "background/telemetry.ts",
       "name": "TelemetryEvent",
-      "type": "named"
-    },
-    {
-      "file": "background/telemetry.ts",
-      "name": "captureException",
-      "type": "named"
-    },
-    {
-      "file": "background/telemetry.ts",
-      "name": "captureMessage",
-      "type": "named"
-    },
-    {
-      "file": "background/telemetry.ts",
-      "name": "captureCompaction",
       "type": "named"
     },
     {
@@ -2428,83 +782,8 @@
       "type": "named"
     },
     {
-      "file": "background/tools/orchestrator/plan-definitions.ts",
-      "name": "getPlanToolDefinitions",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/subagent-definitions.ts",
-      "name": "getSubagentToolDefinitions",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/subagent-tracking.ts",
-      "name": "listHistoricalSubagents",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/subagent-tracking.ts",
-      "name": "listRunningSubagents",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/subagent-tracking.ts",
-      "name": "recordSubagentStart",
-      "type": "named"
-    },
-    {
       "file": "background/tools/orchestrator/subagent-tracking.ts",
       "name": "recordSubagentCompletion",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/task-utils.ts",
-      "name": "normalizeTaskStatus",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/task-utils.ts",
-      "name": "clonePlan",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/task-utils.ts",
-      "name": "syncReadyStatuses",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/task-utils.ts",
-      "name": "buildPlanSummary",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/task-utils.ts",
-      "name": "findTask",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/tool-definitions.ts",
-      "name": "getOrchestratorToolDefinitions",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/whiteboard.ts",
-      "name": "snapshotWhiteboard",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/whiteboard.ts",
-      "name": "writeTaskOutputsToWhiteboard",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/whiteboard.ts",
-      "name": "seedCompletedTaskOutputs",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/orchestrator/whiteboard.ts",
-      "name": "validateTaskAgainstWhiteboard",
       "type": "named"
     },
     {
@@ -2518,43 +797,8 @@
       "type": "named"
     },
     {
-      "file": "background/tools/subagent/loop-utils.ts",
-      "name": "buildPendingInstructionsResult",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/loop-utils.ts",
-      "name": "attachQueuedInstructions",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/loop-utils.ts",
-      "name": "SUBAGENT_COMPLETE_TOOL",
-      "type": "named"
-    },
-    {
       "file": "background/tools/subagent/result-handler.ts",
       "name": "SubagentCompletionEmitter",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/result-handler.ts",
-      "name": "emitSubagentCompletion",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/result-handler.ts",
-      "name": "buildSuccessResult",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/result-handler.ts",
-      "name": "buildFailureResult",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/result-handler.ts",
-      "name": "sendFinalAssistantMessage",
       "type": "named"
     },
     {
@@ -2563,119 +807,14 @@
       "type": "named"
     },
     {
-      "file": "background/tools/subagent/stream-handler.ts",
-      "name": "createStreamContext",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/stream-handler.ts",
-      "name": "handleReasoningChunk",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/subagent/types.ts",
-      "name": "SubagentLoopContext",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-catalog.ts",
-      "name": "getToolsForSession",
-      "type": "named"
-    },
-    {
       "file": "background/tools/tool-executor/browser-gate.ts",
       "name": "BrowserToolGateResult",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/orchestrator-test-mode.ts",
-      "name": "getSyntheticSubagentSpecs",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/orchestrator.ts",
-      "name": "recordSubagentCompletion",
-      "type": "re-export"
-    },
-    {
-      "file": "background/tools/tool-executor/orchestrator.ts",
-      "name": "recordSubagentStart",
-      "type": "re-export"
-    },
-    {
-      "file": "background/tools/tool-executor/postprocess.ts",
-      "name": "applyFailureDedup",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/postprocess.ts",
-      "name": "broadcastTabStateIfNeeded",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/postprocess.ts",
-      "name": "updateVerificationState",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/runtime.ts",
-      "name": "createToolRuntimeEmitter",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "ToolExecutionArgs",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "ToolExecutionSettings",
       "type": "named"
     },
     {
       "file": "background/tools/tool-executor/shared.ts",
       "name": "ToolExecutionProfile",
       "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "ToolExecutionOptions",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "NestedToolExecutor",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "isObjectRecord",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "formatToolExecutorError",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/shared.ts",
-      "name": "attachPlanToResult",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/subagent-runner.ts",
-      "name": "NestedToolExecutor",
-      "type": "re-export"
-    },
-    {
-      "file": "background/tools/tool-executor/subagent-runner.ts",
-      "name": "ToolExecutionArgs",
-      "type": "re-export"
-    },
-    {
-      "file": "background/tools/tool-executor/subagent-runner.ts",
-      "name": "ToolExecutionOptions",
-      "type": "re-export"
     },
     {
       "file": "background/tools/tool-executor/subagent-runner.ts",
@@ -2685,16 +824,6 @@
     {
       "file": "background/tools/tool-executor/subagent-tab.ts",
       "name": "SubagentTab",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/tool-executor/subagent-tab.ts",
-      "name": "cleanupSubagentTab",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/xml-tool-parser.ts",
-      "name": "extractXmlToolCalls",
       "type": "named"
     },
     {
@@ -2714,67 +843,12 @@
     },
     {
       "file": "background/tools/xml-tool-parser.ts",
-      "name": "stripXmlToolCalls",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/xml-tool-parser.ts",
       "name": "parsePlanSteps",
-      "type": "named"
-    },
-    {
-      "file": "background/tools/xml-tool-parser.ts",
-      "name": "buildPlanFromArgs",
-      "type": "named"
-    },
-    {
-      "file": "content-action-overlay.ts",
-      "name": "ActionOverlayController",
-      "type": "named"
-    },
-    {
-      "file": "content-element-inspection.ts",
-      "name": "getElementInfo",
       "type": "named"
     },
     {
       "file": "content-element-inspection.ts",
       "name": "isElementVisible",
-      "type": "named"
-    },
-    {
-      "file": "content-highlight.ts",
-      "name": "highlightElement",
-      "type": "named"
-    },
-    {
-      "file": "content-highlight.ts",
-      "name": "unhighlightAll",
-      "type": "named"
-    },
-    {
-      "file": "content-subagent-badge.ts",
-      "name": "SubagentBadgeController",
-      "type": "named"
-    },
-    {
-      "file": "content-types.ts",
-      "name": "HighlightEntry",
-      "type": "named"
-    },
-    {
-      "file": "content-types.ts",
-      "name": "OverlayState",
-      "type": "named"
-    },
-    {
-      "file": "content-types.ts",
-      "name": "createOverlayState",
-      "type": "named"
-    },
-    {
-      "file": "convex/client.ts",
-      "name": "CONVEX_DEPLOYMENT_URL",
       "type": "named"
     },
     {
@@ -2789,38 +863,8 @@
     },
     {
       "file": "convex/client.ts",
-      "name": "isUsableRuntimeJwt",
-      "type": "named"
-    },
-    {
-      "file": "convex/client.ts",
       "name": "chromeTokenStorage",
       "type": "named"
-    },
-    {
-      "file": "convex/client.ts",
-      "name": "hasActiveSubscription",
-      "type": "named"
-    },
-    {
-      "file": "oauth/flow-device-code.ts",
-      "name": "DeviceCodeFlowCallbacks",
-      "type": "named"
-    },
-    {
-      "file": "oauth/manager.ts",
-      "name": "getProviderConfig",
-      "type": "named"
-    },
-    {
-      "file": "oauth/manager.ts",
-      "name": "cancelConnection",
-      "type": "named"
-    },
-    {
-      "file": "oauth/manager.ts",
-      "name": "OAuthProviderKey",
-      "type": "re-export"
     },
     {
       "file": "oauth/manager.ts",
@@ -2830,21 +874,6 @@
     {
       "file": "oauth/manager.ts",
       "name": "OAuthTokenSet",
-      "type": "re-export"
-    },
-    {
-      "file": "oauth/manager.ts",
-      "name": "DeviceCodeResponse",
-      "type": "re-export"
-    },
-    {
-      "file": "oauth/manager.ts",
-      "name": "OAUTH_PROVIDERS",
-      "type": "re-export"
-    },
-    {
-      "file": "oauth/manager.ts",
-      "name": "getAllProviderStates",
       "type": "re-export"
     },
     {
@@ -2859,48 +888,13 @@
     },
     {
       "file": "oauth/model-candidates.ts",
-      "name": "prioritizeOAuthModelCandidates",
-      "type": "re-export"
-    },
-    {
-      "file": "oauth/model-candidates.ts",
       "name": "",
-      "type": "re-export"
-    },
-    {
-      "file": "oauth/model-listing.ts",
-      "name": "getStaticOAuthModelIds",
-      "type": "named"
-    },
-    {
-      "file": "oauth/model-normalization.ts",
-      "name": "normalizeOAuthModelIdForProvider",
-      "type": "re-export"
-    },
-    {
-      "file": "oauth/model-normalization.ts",
-      "name": "normalizeOAuthModelIdsForProvider",
       "type": "re-export"
     },
     {
       "file": "oauth/model-normalization.ts",
       "name": "",
       "type": "re-export"
-    },
-    {
-      "file": "oauth/pkce.ts",
-      "name": "generateCodeVerifier",
-      "type": "named"
-    },
-    {
-      "file": "oauth/pkce.ts",
-      "name": "generateState",
-      "type": "named"
-    },
-    {
-      "file": "oauth/providers.ts",
-      "name": "OAUTH_PROVIDERS",
-      "type": "named"
     },
     {
       "file": "oauth/providers.ts",
@@ -2909,37 +903,7 @@
     },
     {
       "file": "oauth/types.ts",
-      "name": "OAuthProviderKey",
-      "type": "named"
-    },
-    {
-      "file": "oauth/types.ts",
       "name": "OAuthFlowType",
-      "type": "named"
-    },
-    {
-      "file": "oauth/types.ts",
-      "name": "OAuthProviderConfig",
-      "type": "named"
-    },
-    {
-      "file": "oauth/types.ts",
-      "name": "OAuthProviderModel",
-      "type": "named"
-    },
-    {
-      "file": "oauth/types.ts",
-      "name": "OAuthTokenSet",
-      "type": "named"
-    },
-    {
-      "file": "oauth/types.ts",
-      "name": "OAuthProviderState",
-      "type": "named"
-    },
-    {
-      "file": "oauth/types.ts",
-      "name": "DeviceCodeResponse",
       "type": "named"
     },
     {
@@ -2950,86 +914,6 @@
     {
       "file": "oauth/types.ts",
       "name": "OAuthEvent",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-coordinator.ts",
-      "name": "RecordingCoordinator",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "MAX_DURATION_MS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "SCREENSHOT_INTERVAL_MS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "MAX_SCREENSHOTS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "MAX_EVENTS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "CLICK_DEDUP_MS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "SCROLL_MERGE_MS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "INPUT_MERGE_MS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "MUTATION_MERGE_MS",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "EVENT_PRIORITY",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "isRestrictedRecordingUrl",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-rules.ts",
-      "name": "shouldSkipInlineRecordingEvent",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-summary.ts",
-      "name": "deduplicateRecordingEvents",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-summary.ts",
-      "name": "buildRecordingUrlTimeline",
-      "type": "named"
-    },
-    {
-      "file": "recording/recording-summary.ts",
-      "name": "generateRecordingSummary",
-      "type": "named"
-    },
-    {
-      "file": "relay/relay-bridge.ts",
-      "name": "RelayBridge",
       "type": "named"
     },
     {
@@ -3049,52 +933,7 @@
     },
     {
       "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "PARCHI_PAID_DEFAULT_MODEL",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
       "name": "LEGACY_MANAGED_DEFAULT_MODEL",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "PARCHI_RUNTIME_STATUS_KEY",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "PARCHI_RUNTIME_STATUS_TTL_MS",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "ACCOUNT_SETUP_STORAGE_KEYS",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "setHidden",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "toUsageLabel",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "isRecord",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "normalizeManagedModelId",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "hasConfiguredModel",
       "type": "named"
     },
     {
@@ -3108,88 +947,13 @@
       "type": "named"
     },
     {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "isManagedProvider",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-formatters.ts",
-      "name": "updateStatusCopy",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/account/account-managed.ts",
       "name": "MANAGED_PROFILE_NAME",
       "type": "re-export"
     },
     {
-      "file": "sidepanel/ui/account/account-mode.ts",
-      "name": "ACCOUNT_MODE_KEY",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-mode.ts",
-      "name": "ACCOUNT_MODE_BYOK",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-mode.ts",
-      "name": "ACCOUNT_MODE_PAID",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/account/account-mode.ts",
-      "name": "hasConfiguredByokProvider",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-assistant-new.ts",
-      "name": "renderNewAssistantMessage",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-assistant-streamed.ts",
-      "name": "renderStreamedContainer",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-cleanup.ts",
-      "name": "hasVisibleContent",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-cleanup.ts",
-      "name": "removeEmptyAssistantContainers",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "name": "formatTraceNumber",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "name": "formatTraceSignedDelta",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "name": "formatTracePercent",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "name": "MAX_DISPLAY_HISTORY",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/chat/chat-utils.ts",
       "name": "truncate",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "name": "sanitizeForMessaging",
       "type": "named"
     },
     {
@@ -3200,91 +964,6 @@
     {
       "file": "sidepanel/ui/chat/chat-utils.ts",
       "name": "isMissingReceiverError",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/chat-utils.ts",
-      "name": "sendRuntimeMessageWithRetry",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/context-inspector-utils.ts",
-      "name": "formatClockTime",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/context-inspector-utils.ts",
-      "name": "toFiniteNumber",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/context-inspector-utils.ts",
-      "name": "toPlainObject",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/context-inspector-utils.ts",
-      "name": "compactionStageLabel",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/markdown-highlighter.ts",
-      "name": "COPY_ICON",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/markdown-highlighter.ts",
-      "name": "highlightCodeBlock",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/markdown-table.ts",
-      "name": "renderMarkdownTable",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-export-shared.ts",
-      "name": "sidePanelProto",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-streaming-helpers.ts",
-      "name": "formatStreamingElapsed",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-streaming-helpers.ts",
-      "name": "nextStreamingVerb",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "name": "sidePanelProto",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "name": "dataUrlToBlobUrl",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "name": "toolIcons",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "name": "MAX_REPORT_IMAGES",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "name": "MAX_REPORT_IMAGE_BYTES",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/panel-tools-shared.ts",
-      "name": "MAX_TOOL_CALL_VIEWS",
       "type": "named"
     },
     {
@@ -3300,11 +979,6 @@
     {
       "file": "sidepanel/ui/chat/recording-to-skill.ts",
       "name": "deriveSkillMetadata",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/chat/recording-to-skill.ts",
-      "name": "buildSkillFromEvents",
       "type": "named"
     },
     {
@@ -3324,17 +998,7 @@
     },
     {
       "file": "sidepanel/ui/core/dom-utils.ts",
-      "name": "debounce",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/dom-utils.ts",
       "name": "resolveTextAreaMaxHeight",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/dom-utils.ts",
-      "name": "autoResizeTextArea",
       "type": "named"
     },
     {
@@ -3380,21 +1044,6 @@
     {
       "file": "sidepanel/ui/core/history-manager.ts",
       "name": "MAX_TOOL_EVENTS_PER_TURN",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/history-manager.ts",
-      "name": "clampHistoryTurnMap",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/history-manager.ts",
-      "name": "capTurnToolEvents",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/layout-loader.ts",
-      "name": "loadPanelLayout",
       "type": "named"
     },
     {
@@ -3503,68 +1152,13 @@
       "type": "default"
     },
     {
-      "file": "sidepanel/ui/core/panel-elements-mission-control.ts",
-      "name": "getMissionControlElements",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-elements-settings.ts",
-      "name": "getSettingsFormElements",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-elements.ts",
-      "name": "SidePanelElements",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-elements.ts",
-      "name": "getSidePanelElements",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/core/panel-navigation.ts",
       "name": "RightPanelName",
       "type": "named"
     },
     {
-      "file": "sidepanel/ui/core/panel-navigation.ts",
-      "name": "setSidebarOpen",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-navigation.ts",
-      "name": "showRightPanel",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-navigation.ts",
-      "name": "bindSidebarNavigation",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/core/panel-session-memory.ts",
       "name": "CONTEXT_HISTORY_SOFT_CAP",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-session-memory.ts",
-      "name": "clampContextHistory",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-session-memory.ts",
-      "name": "clearToolCallViews",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-session-memory.ts",
-      "name": "clearReportImages",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/core/panel-ui.ts",
-      "name": "SidePanelUI",
       "type": "named"
     },
     {
@@ -3608,11 +1202,6 @@
       "type": "named"
     },
     {
-      "file": "sidepanel/ui/core/trace-sanitizer.ts",
-      "name": "sanitizeTracePayload",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/core/watchdog-manager.ts",
       "name": "startWatchdog",
       "type": "named"
@@ -3643,16 +1232,6 @@
       "type": "named"
     },
     {
-      "file": "sidepanel/ui/settings/oauth-profiles.ts",
-      "name": "getOAuthProfileNameForProvider",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/panel-model-selector.ts",
-      "name": "getProviderSvg",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/settings/panel-profiles.ts",
       "name": "BooleanBinding",
       "type": "re-export"
@@ -3676,41 +1255,6 @@
       "file": "sidepanel/ui/settings/panel-profiles.ts",
       "name": "resizeProfilePromptInput",
       "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "name": "BooleanBinding",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "name": "NumberBinding",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "name": "PROFILE_EDITOR_BOOLEAN_BINDINGS",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "name": "PROFILE_EDITOR_NUMBER_BINDINGS",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "name": "SETTINGS_FORM_BOOLEAN_BINDINGS",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-bindings.ts",
-      "name": "SETTINGS_FORM_NUMBER_BINDINGS",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-form-helpers.ts",
-      "name": "readControlValue",
-      "type": "named"
     },
     {
       "file": "sidepanel/ui/settings/profile-form-helpers.ts",
@@ -3730,41 +1274,6 @@
     {
       "file": "sidepanel/ui/settings/profile-form-helpers.ts",
       "name": "toBooleanWithDefault",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-form-helpers.ts",
-      "name": "applyBooleanBindings",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-form-helpers.ts",
-      "name": "readBooleanBindings",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-form-helpers.ts",
-      "name": "applyNumberBindings",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-form-helpers.ts",
-      "name": "readNumberBindings",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-json-editor.ts",
-      "name": "formatHeadersJson",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/profile-json-editor.ts",
-      "name": "resizeProfilePromptInput",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/settings-validation.ts",
-      "name": "parseHeadersJson",
       "type": "named"
     },
     {
@@ -3808,51 +1317,6 @@
       "type": "named"
     },
     {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "CORE_THEMES_1",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "CORE_THEMES_2",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "EXTENDED_THEMES_A1",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "EXTENDED_THEMES_A2",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "EXTENDED_THEMES_B1",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "EXTENDED_THEMES_B2",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "HIGH_CONTRAST_THEMES_1",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-catalog/index.ts",
-      "name": "HIGH_CONTRAST_THEMES_2",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/settings/theme-definition.ts",
-      "name": "ThemeDefinition",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/settings/theme-high-contrast-helpers.ts",
       "name": "HighContrastThemeInput",
       "type": "named"
@@ -3863,31 +1327,6 @@
       "type": "named"
     },
     {
-      "file": "sidepanel/ui/settings/theme-high-contrast-helpers.ts",
-      "name": "createHighContrastTheme",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/themes.ts",
-      "name": "THEMES",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/themes.ts",
-      "name": "DEFAULT_THEME_ID",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/themes.ts",
-      "name": "getThemeById",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/themes.ts",
-      "name": "applyTheme",
-      "type": "named"
-    },
-    {
       "file": "sidepanel/ui/settings/themes.ts",
       "name": "ThemeDefinition",
       "type": "re-export"
@@ -3895,11 +1334,6 @@
     {
       "file": "sidepanel/ui/settings/usage-store.ts",
       "name": "UsageDailyEntry",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/settings/usage-store.ts",
-      "name": "UsageTotalEntry",
       "type": "named"
     },
     {
@@ -3915,56 +1349,6 @@
     {
       "file": "sidepanel/ui/status/model-utils.ts",
       "name": "OPENROUTER_BASE_URL",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "normalizeProvider",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "normalizeHeaders",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "normalizeEndpointBase",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "buildModelEndpointCandidates",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "encodeModelSelectValue",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "decodeModelSelectValue",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "extractModelIds",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "populateModelSelectElement",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "populateModelSuggestionList",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/status/model-utils.ts",
-      "name": "withTimeout",
       "type": "named"
     },
     {
@@ -4030,16 +1414,6 @@
     {
       "file": "sidepanel/ui/status/panel-status.ts",
       "name": "",
-      "type": "re-export"
-    },
-    {
-      "file": "sidepanel/ui/types/panel-types.ts",
-      "name": "SubagentEntry",
-      "type": "named"
-    },
-    {
-      "file": "sidepanel/ui/types/panel-types.ts",
-      "name": "UsagePayload",
       "type": "re-export"
     },
     {
@@ -4063,16 +1437,6 @@
       "type": "named"
     },
     {
-      "file": "state/core/store.ts",
-      "name": "createStore",
-      "type": "named"
-    },
-    {
-      "file": "state/persistence/session-history-repository.ts",
-      "name": "ChatSessionEntry",
-      "type": "named"
-    },
-    {
       "file": "state/persistence/session-history-repository.ts",
       "name": "normalizeStoredSessions",
       "type": "named"
@@ -4083,53 +1447,13 @@
       "type": "named"
     },
     {
-      "file": "state/persistence/session-history-repository.ts",
-      "name": "subscribeToChatSessionChanges",
-      "type": "named"
-    },
-    {
-      "file": "state/persistence/settings-repository.ts",
-      "name": "SettingsSnapshot",
-      "type": "named"
-    },
-    {
       "file": "state/persistence/settings-repository.ts",
       "name": "pickSettingsSnapshot",
       "type": "named"
     },
     {
-      "file": "state/persistence/settings-repository.ts",
-      "name": "mergeSettingsSnapshot",
-      "type": "named"
-    },
-    {
-      "file": "state/persistence/settings-repository.ts",
-      "name": "sanitizeImportedSettings",
-      "type": "named"
-    },
-    {
-      "file": "state/persistence/settings-repository.ts",
-      "name": "createSettingsExportPayload",
-      "type": "named"
-    },
-    {
-      "file": "state/persistence/settings-repository.ts",
-      "name": "subscribeToSettingsChanges",
-      "type": "named"
-    },
-    {
       "file": "state/stores/session-history-store.ts",
       "name": "SessionHistoryStoreState",
-      "type": "named"
-    },
-    {
-      "file": "state/stores/session-history-store.ts",
-      "name": "getSessionHistoryEntries",
-      "type": "named"
-    },
-    {
-      "file": "state/stores/session-history-store.ts",
-      "name": "startSessionHistoryStoreSync",
       "type": "named"
     },
     {
@@ -4149,11 +1473,6 @@
     },
     {
       "file": "state/stores/settings-store.ts",
-      "name": "startSettingsStoreSync",
-      "type": "named"
-    },
-    {
-      "file": "state/stores/settings-store.ts",
       "name": "buildSettingsStoreExport",
       "type": "named"
     },
@@ -4163,73 +1482,13 @@
       "type": "named"
     },
     {
-      "file": "subagent-colors.ts",
-      "name": "SUBAGENT_COLORS",
-      "type": "named"
-    },
-    {
-      "file": "subagent-colors.ts",
-      "name": "getSubagentColor",
-      "type": "named"
-    },
-    {
-      "file": "subagent-colors.ts",
-      "name": "getSubagentColorStyle",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-debug-tools.ts",
-      "name": "BrowserDebugManager",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-eval-shared.ts",
-      "name": "EVALUATE_TOOL_MAX_SCRIPT_LENGTH",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-eval-shared.ts",
-      "name": "DEFAULT_WAIT_POLL_INTERVAL_MS",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-eval-shared.ts",
-      "name": "MIN_WAIT_POLL_INTERVAL_MS",
-      "type": "named"
-    },
-    {
       "file": "tools/browser-eval-shared.ts",
       "name": "toJsonSafe",
       "type": "named"
     },
     {
-      "file": "tools/browser-session-state.ts",
-      "name": "getGroupTitle",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-definitions-advanced.ts",
-      "name": "ADVANCED_BROWSER_TOOL_DEFINITIONS",
-      "type": "named"
-    },
-    {
       "file": "tools/browser-tool-definitions.ts",
       "name": "BASE_BROWSER_TOOL_DEFINITIONS",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-definitions.ts",
-      "name": "BrowserToolName",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-definitions.ts",
-      "name": "getBrowserToolDefinitions",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-definitions.ts",
-      "name": "getBrowserToolMap",
       "type": "named"
     },
     {
@@ -4239,32 +1498,7 @@
     },
     {
       "file": "tools/browser-tool-handlers.ts",
-      "name": "ToolHandlerMap",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-handlers.ts",
-      "name": "createToolHandlers",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-handlers.ts",
       "name": "hasToolHandler",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "SessionTabSummary",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "GroupOptions",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "ActionOverlayPayload",
       "type": "named"
     },
     {
@@ -4279,37 +1513,7 @@
     },
     {
       "file": "tools/browser-tool-shared.ts",
-      "name": "BrowserToolArgs",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "BrowserToolResult",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
       "name": "BrowserToolSuccessResult",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "BrowserNetworkLogEntry",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "BrowserToolsDelegate",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "MAX_SESSION_TABS",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "DEFAULT_SESSION_GROUP",
       "type": "named"
     },
     {
@@ -4318,48 +1522,8 @@
       "type": "named"
     },
     {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "MAX_WAIT_TIMEOUT_MS",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "resolveWaitTimeoutMs",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "missingSessionTabError",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "formatToolError",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "isToolFailure",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tool-shared.ts",
-      "name": "isToolSuccess",
-      "type": "named"
-    },
-    {
-      "file": "tools/browser-tools.ts",
-      "name": "BrowserTools",
-      "type": "named"
-    },
-    {
       "file": "tools/injected/click.ts",
       "name": "InjectedClickResult",
-      "type": "named"
-    },
-    {
-      "file": "tools/injected/click.ts",
-      "name": "injectedClick",
       "type": "named"
     },
     {
@@ -4378,43 +1542,13 @@
       "type": "named"
     },
     {
-      "file": "tools/injected/type.ts",
-      "name": "injectedType",
-      "type": "named"
-    },
-    {
       "file": "tools/injected/video-frame.ts",
       "name": "InjectedVideoFrameResult",
       "type": "named"
     },
     {
-      "file": "tools/injected/video-frame.ts",
-      "name": "injectedCaptureVideoFrame",
-      "type": "named"
-    },
-    {
       "file": "tools/injected/video.ts",
       "name": "InjectedVideoCheckResult",
-      "type": "named"
-    },
-    {
-      "file": "tools/injected/video.ts",
-      "name": "injectedVideoCheck",
-      "type": "named"
-    },
-    {
-      "file": "tools/selector-spec.ts",
-      "name": "SelectorSpec",
-      "type": "named"
-    },
-    {
-      "file": "tools/selector-spec.ts",
-      "name": "parseSelectorSpec",
-      "type": "named"
-    },
-    {
-      "file": "utils/active-tab.ts",
-      "name": "getActiveTab",
       "type": "named"
     },
     {
@@ -4428,6 +1562,15 @@
       "type": "named"
     }
   ],
+  "suspiciousImports": [
+    {
+      "file": "oauth/manager.ts",
+      "name": "getProviderConfig",
+      "importedBy": [
+        "background/model-profiles.ts"
+      ]
+    }
+  ],
   "barrelChains": [
     {
       "file": "ai/compaction/index.ts",
@@ -4439,31 +1582,31 @@
       "file": "ai/compaction/index.ts",
       "name": "DEFAULT_COMPACTION_SETTINGS",
       "reExportsFrom": "./settings.js",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "ai/compaction/index.ts",
       "name": "SUMMARIZATION_PROMPT",
       "reExportsFrom": "./settings.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/compaction/index.ts",
       "name": "SUMMARIZATION_SYSTEM_PROMPT",
       "reExportsFrom": "./settings.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/compaction/index.ts",
       "name": "UPDATE_SUMMARIZATION_PROMPT",
       "reExportsFrom": "./settings.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/compaction/index.ts",
       "name": "shouldCompact",
       "reExportsFrom": "./settings.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/compaction/index.ts",
@@ -4475,13 +1618,13 @@
       "file": "ai/compaction/index.ts",
       "name": "estimateContextTokens",
       "reExportsFrom": "./tokens.js",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "ai/compaction/index.ts",
       "name": "findCutPoint",
       "reExportsFrom": "./tokens.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/compaction/index.ts",
@@ -4493,13 +1636,13 @@
       "file": "ai/compaction/index.ts",
       "name": "buildCompactionSummaryMessage",
       "reExportsFrom": "./messages.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/compaction/index.ts",
       "name": "serializeConversation",
       "reExportsFrom": "./messages.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/messages/schema.ts",
@@ -4511,13 +1654,13 @@
       "file": "ai/messages/schema.ts",
       "name": "Message",
       "reExportsFrom": "./types.js",
-      "finalConsumers": 0
+      "finalConsumers": 20
     },
     {
       "file": "ai/messages/schema.ts",
       "name": "MessageContent",
       "reExportsFrom": "./types.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/messages/schema.ts",
@@ -4565,13 +1708,13 @@
       "file": "ai/messages/schema.ts",
       "name": "createMessage",
       "reExportsFrom": "./factory.js",
-      "finalConsumers": 0
+      "finalConsumers": 4
     },
     {
       "file": "ai/messages/schema.ts",
       "name": "normalizeConversationHistory",
       "reExportsFrom": "./factory.js",
-      "finalConsumers": 0
+      "finalConsumers": 7
     },
     {
       "file": "ai/messages/schema.ts",
@@ -4589,7 +1732,7 @@
       "file": "ai/models/convert.ts",
       "name": "toModelMessages",
       "reExportsFrom": "./message-convert.js",
-      "finalConsumers": 0
+      "finalConsumers": 3
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4613,7 +1756,7 @@
       "file": "ai/providers/registry.ts",
       "name": "PROVIDER_REGISTRY",
       "reExportsFrom": "./definitions.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4625,7 +1768,7 @@
       "file": "ai/providers/registry.ts",
       "name": "getApiKeyProviders",
       "reExportsFrom": "./definitions.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4637,7 +1780,7 @@
       "file": "ai/providers/registry.ts",
       "name": "getProviderDefinition",
       "reExportsFrom": "./definitions.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4649,7 +1792,7 @@
       "file": "ai/providers/registry.ts",
       "name": "fetchModelsForProvider",
       "reExportsFrom": "./fetch.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4661,7 +1804,7 @@
       "file": "ai/providers/registry.ts",
       "name": "buildProviderInstanceId",
       "reExportsFrom": "./instance-id.js",
-      "finalConsumers": 0
+      "finalConsumers": 3
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4697,31 +1840,31 @@
       "file": "ai/providers/registry.ts",
       "name": "listProviderInstances",
       "reExportsFrom": "./instance-registry.js",
-      "finalConsumers": 0
+      "finalConsumers": 3
     },
     {
       "file": "ai/providers/registry.ts",
       "name": "getProviderInstance",
       "reExportsFrom": "./instance-registry.js",
-      "finalConsumers": 0
+      "finalConsumers": 4
     },
     {
       "file": "ai/providers/registry.ts",
       "name": "ensureProviderModel",
       "reExportsFrom": "./instance-registry.js",
-      "finalConsumers": 0
+      "finalConsumers": 6
     },
     {
       "file": "ai/providers/registry.ts",
       "name": "materializeProfileWithProvider",
       "reExportsFrom": "./instance-migrate.js",
-      "finalConsumers": 0
+      "finalConsumers": 11
     },
     {
       "file": "ai/providers/registry.ts",
       "name": "migrateSettingsToProviderRegistry",
       "reExportsFrom": "./instance-migrate.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/providers/registry.ts",
@@ -4733,13 +1876,13 @@
       "file": "ai/providers/registry.ts",
       "name": "mergeProviderModels",
       "reExportsFrom": "./instance-models.js",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "ai/sdk/index.ts",
       "name": "SDKModelSettings",
       "reExportsFrom": "./provider-types.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/sdk/index.ts",
@@ -4751,25 +1894,25 @@
       "file": "ai/sdk/index.ts",
       "name": "normalizeOpenRouterModelId",
       "reExportsFrom": "./model-normalize.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/sdk/index.ts",
       "name": "resolveLanguageModel",
       "reExportsFrom": "./provider-resolve.js",
-      "finalConsumers": 0
+      "finalConsumers": 4
     },
     {
       "file": "ai/sdk/index.ts",
       "name": "buildToolSet",
       "reExportsFrom": "./tool-builder.js",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "ai/sdk/index.ts",
       "name": "describeImageWithModel",
       "reExportsFrom": "./vision.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "ai/sdk/index.ts",
@@ -4781,19 +1924,19 @@
       "file": "ai/sdk/index.ts",
       "name": "buildCodexOAuthProviderOptions",
       "reExportsFrom": "./codex-oauth.js",
-      "finalConsumers": 0
+      "finalConsumers": 5
     },
     {
       "file": "ai/sdk/index.ts",
       "name": "isCodexOAuthProvider",
       "reExportsFrom": "./codex-oauth.js",
-      "finalConsumers": 0
+      "finalConsumers": 4
     },
     {
       "file": "ai/sdk/model-normalize.ts",
       "name": "normalizeOpenRouterModelId",
       "reExportsFrom": "../models/normalize.js",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "ai/sdk/tool-builder.ts",
@@ -4809,17 +1952,17 @@
     {
       "file": "background/relay/relay-handler.ts",
       "name": "createApplyRelayConfig",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/relay/relay-handler.ts",
       "name": "initRelay",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/relay/relay-handler.ts",
       "name": "scheduleRelayAutoPairCheck",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/relay/relay-handler.ts",
@@ -4834,7 +1977,7 @@
     {
       "file": "background/relay/relay-handler.ts",
       "name": "handleRelayRpc",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/relay/relay-handler.ts",
@@ -4845,28 +1988,28 @@
       "file": "background/tools/tool-executor/orchestrator.ts",
       "name": "recordSubagentCompletion",
       "reExportsFrom": "../orchestrator/subagent-tracking.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/tools/tool-executor/orchestrator.ts",
       "name": "recordSubagentStart",
       "reExportsFrom": "../orchestrator/subagent-tracking.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/tools/tool-executor/subagent-runner.ts",
       "name": "NestedToolExecutor",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/tools/tool-executor/subagent-runner.ts",
       "name": "ToolExecutionArgs",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/tools/tool-executor/subagent-runner.ts",
       "name": "ToolExecutionOptions",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "background/tools/tool-executor/subagent-runner.ts",
@@ -4876,7 +2019,7 @@
     {
       "file": "oauth/manager.ts",
       "name": "OAuthProviderKey",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "oauth/manager.ts",
@@ -4891,19 +2034,19 @@
     {
       "file": "oauth/manager.ts",
       "name": "DeviceCodeResponse",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "oauth/manager.ts",
       "name": "OAUTH_PROVIDERS",
       "reExportsFrom": "./providers.js",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "oauth/manager.ts",
       "name": "getAllProviderStates",
       "reExportsFrom": "./store.js",
-      "finalConsumers": 0
+      "finalConsumers": 3
     },
     {
       "file": "oauth/manager.ts",
@@ -4921,7 +2064,7 @@
       "file": "oauth/model-candidates.ts",
       "name": "prioritizeOAuthModelCandidates",
       "reExportsFrom": "../ai/models/normalize.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "oauth/model-candidates.ts",
@@ -4933,13 +2076,13 @@
       "file": "oauth/model-normalization.ts",
       "name": "normalizeOAuthModelIdForProvider",
       "reExportsFrom": "../ai/models/normalize.js",
-      "finalConsumers": 0
+      "finalConsumers": 4
     },
     {
       "file": "oauth/model-normalization.ts",
       "name": "normalizeOAuthModelIdsForProvider",
       "reExportsFrom": "../ai/models/normalize.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "oauth/model-normalization.ts",
@@ -5001,49 +2144,49 @@
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "CORE_THEMES_1",
       "reExportsFrom": "./core-1.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "CORE_THEMES_2",
       "reExportsFrom": "./core-2.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "EXTENDED_THEMES_A1",
       "reExportsFrom": "./extended-a1.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "EXTENDED_THEMES_A2",
       "reExportsFrom": "./extended-a2.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "EXTENDED_THEMES_B1",
       "reExportsFrom": "./extended-b1.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "EXTENDED_THEMES_B2",
       "reExportsFrom": "./extended-b2.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "HIGH_CONTRAST_THEMES_1",
       "reExportsFrom": "./high-contrast-1.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/theme-catalog/index.ts",
       "name": "HIGH_CONTRAST_THEMES_2",
       "reExportsFrom": "./high-contrast-2.js",
-      "finalConsumers": 0
+      "finalConsumers": 1
     },
     {
       "file": "sidepanel/ui/settings/themes.ts",
@@ -5133,7 +2276,7 @@
       "file": "sidepanel/ui/types/panel-types.ts",
       "name": "UsagePayload",
       "reExportsFrom": "@parchi/shared",
-      "finalConsumers": 0
+      "finalConsumers": 2
     },
     {
       "file": "sidepanel/ui/types/panel-types.ts",
@@ -5144,107 +2287,370 @@
   ],
   "mostConnected": [
     {
-      "file": "ai/compaction/index.ts",
-      "name": "CompactionSettings",
-      "consumerCount": 0
+      "file": "sidepanel/ui/core/panel-ui.ts",
+      "name": "SidePanelUI",
+      "consumerCount": 93,
+      "actuallyUsed": 93
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "DEFAULT_COMPACTION_SETTINGS",
-      "consumerCount": 0
+      "file": "background/service-context.ts",
+      "name": "ServiceContext",
+      "consumerCount": 39,
+      "actuallyUsed": 39
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "SUMMARIZATION_PROMPT",
-      "consumerCount": 0
+      "file": "background/service-types.ts",
+      "name": "SessionState",
+      "consumerCount": 23,
+      "actuallyUsed": 23
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "SUMMARIZATION_SYSTEM_PROMPT",
-      "consumerCount": 0
+      "file": "ai/messages/schema.ts",
+      "name": "Message",
+      "consumerCount": 20,
+      "actuallyUsed": 20
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "UPDATE_SUMMARIZATION_PROMPT",
-      "consumerCount": 0
+      "file": "background/service-types.ts",
+      "name": "RunMeta",
+      "consumerCount": 19,
+      "actuallyUsed": 19
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "shouldCompact",
-      "consumerCount": 0
+      "file": "tools/browser-tool-shared.ts",
+      "name": "BrowserToolArgs",
+      "consumerCount": 14,
+      "actuallyUsed": 14
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "",
-      "consumerCount": 0
+      "file": "background/tools/tool-executor/shared.ts",
+      "name": "ToolExecutionOptions",
+      "consumerCount": 12,
+      "actuallyUsed": 12
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "estimateContextTokens",
-      "consumerCount": 0
+      "file": "ai/providers/registry.ts",
+      "name": "materializeProfileWithProvider",
+      "consumerCount": 11,
+      "actuallyUsed": 11
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "findCutPoint",
-      "consumerCount": 0
+      "file": "background/tools/tool-executor/shared.ts",
+      "name": "ToolExecutionArgs",
+      "consumerCount": 11,
+      "actuallyUsed": 11
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "applyCompaction",
-      "consumerCount": 0
+      "file": "oauth/types.ts",
+      "name": "OAuthProviderKey",
+      "consumerCount": 11,
+      "actuallyUsed": 11
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "buildCompactionSummaryMessage",
-      "consumerCount": 0
+      "file": "tools/browser-tool-shared.ts",
+      "name": "BrowserToolsDelegate",
+      "consumerCount": 11,
+      "actuallyUsed": 11
     },
     {
-      "file": "ai/compaction/index.ts",
-      "name": "serializeConversation",
-      "consumerCount": 0
+      "file": "sidepanel/ui/settings/theme-definition.ts",
+      "name": "ThemeDefinition",
+      "consumerCount": 10,
+      "actuallyUsed": 10
     },
     {
-      "file": "ai/compaction/messages.ts",
-      "name": "serializeConversation",
-      "consumerCount": 0
+      "file": "tools/browser-tool-shared.ts",
+      "name": "missingSessionTabError",
+      "consumerCount": 10,
+      "actuallyUsed": 10
     },
     {
-      "file": "ai/compaction/messages.ts",
-      "name": "buildCompactionSummaryMessage",
-      "consumerCount": 0
+      "file": "background/agent/agent-loop/shared.ts",
+      "name": "AgentLoopDiagnostics",
+      "consumerCount": 8,
+      "actuallyUsed": 8
     },
     {
-      "file": "ai/compaction/messages.ts",
-      "name": "applyCompaction",
-      "consumerCount": 0
+      "file": "background/agent/agent-loop/shared.ts",
+      "name": "PreparedAgentLoopRun",
+      "consumerCount": 8,
+      "actuallyUsed": 8
     },
     {
-      "file": "ai/compaction/settings.ts",
-      "name": "CompactionSettings",
-      "consumerCount": 0
+      "file": "ai/messages/schema.ts",
+      "name": "normalizeConversationHistory",
+      "consumerCount": 7,
+      "actuallyUsed": 7
     },
     {
-      "file": "ai/compaction/settings.ts",
-      "name": "DEFAULT_COMPACTION_SETTINGS",
-      "consumerCount": 0
+      "file": "background/message-response.ts",
+      "name": "RuntimeSendResponse",
+      "consumerCount": 7,
+      "actuallyUsed": 7
     },
     {
-      "file": "ai/compaction/settings.ts",
-      "name": "SUMMARIZATION_SYSTEM_PROMPT",
-      "consumerCount": 0
+      "file": "background/message-response.ts",
+      "name": "respondOk",
+      "consumerCount": 7,
+      "actuallyUsed": 7
     },
     {
-      "file": "ai/compaction/settings.ts",
-      "name": "SUMMARIZATION_PROMPT",
-      "consumerCount": 0
+      "file": "tools/browser-tools.ts",
+      "name": "BrowserTools",
+      "consumerCount": 7,
+      "actuallyUsed": 7
     },
     {
-      "file": "ai/compaction/settings.ts",
-      "name": "UPDATE_SUMMARIZATION_PROMPT",
-      "consumerCount": 0
+      "file": "ai/providers/registry.ts",
+      "name": "ensureProviderModel",
+      "consumerCount": 6,
+      "actuallyUsed": 6
     }
   ],
-  "leastConnected": [],
+  "leastConnected": [
+    {
+      "file": "subagent-colors.ts",
+      "name": "getSubagentColor",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "subagent-colors.ts",
+      "name": "getSubagentColorStyle",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-debug-tools.ts",
+      "name": "BrowserDebugManager",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-eval-shared.ts",
+      "name": "DEFAULT_WAIT_POLL_INTERVAL_MS",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-eval-shared.ts",
+      "name": "MIN_WAIT_POLL_INTERVAL_MS",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-session-state.ts",
+      "name": "getGroupTitle",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-definitions-advanced.ts",
+      "name": "ADVANCED_BROWSER_TOOL_DEFINITIONS",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-definitions.ts",
+      "name": "getBrowserToolDefinitions",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-definitions.ts",
+      "name": "getBrowserToolMap",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-handlers.ts",
+      "name": "ToolHandlerMap",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-handlers.ts",
+      "name": "createToolHandlers",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-shared.ts",
+      "name": "ActionOverlayPayload",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-shared.ts",
+      "name": "BrowserNetworkLogEntry",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/browser-tool-shared.ts",
+      "name": "isToolSuccess",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/injected/click.ts",
+      "name": "injectedClick",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/injected/type.ts",
+      "name": "injectedType",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/injected/video-frame.ts",
+      "name": "injectedCaptureVideoFrame",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/injected/video.ts",
+      "name": "injectedVideoCheck",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/selector-spec.ts",
+      "name": "SelectorSpec",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    },
+    {
+      "file": "tools/selector-spec.ts",
+      "name": "parseSelectorSpec",
+      "consumerCount": 1,
+      "actuallyUsed": 1
+    }
+  ],
+  "importChains": [
+    {
+      "file": "background.ts",
+      "depth": 14
+    },
+    {
+      "file": "background/service.ts",
+      "depth": 13
+    },
+    {
+      "file": "background/tools/tool-executor/index.ts",
+      "depth": 12
+    },
+    {
+      "file": "background/tools/tool-executor/builtins.ts",
+      "depth": 11
+    },
+    {
+      "file": "background/agent/agent-loop/index.ts",
+      "depth": 10
+    },
+    {
+      "file": "background/agent/compaction/runner.ts",
+      "depth": 10
+    },
+    {
+      "file": "background/tools/tool-executor/subagent.ts",
+      "depth": 10
+    },
+    {
+      "file": "background/agent/agent-loop/prepare.ts",
+      "depth": 9
+    },
+    {
+      "file": "background/agent/agent-loop/response.ts",
+      "depth": 9
+    },
+    {
+      "file": "background/agent/compaction/core.ts",
+      "depth": 9
+    },
+    {
+      "file": "background/tools/tool-executor/orchestrator.ts",
+      "depth": 9
+    },
+    {
+      "file": "sidepanel/panel.ts",
+      "depth": 9
+    },
+    {
+      "file": "background/agent/agent-loop/assembly.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/agent/agent-loop/model-fallback.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/agent/compaction/telemetry.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/message-router.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/tools/orchestrator/dispatch.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/tools/subagent/ai-client.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/tools/tool-executor/subagent-runner.ts",
+      "depth": 8
+    },
+    {
+      "file": "sidepanel/ui/panel-modules.ts",
+      "depth": 8
+    },
+    {
+      "file": "background/agent/agent-loop/context.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/agent-loop/diagnostics.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/agent-loop/execution.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/agent-loop/model-pass.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/agent-loop/model.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/agent-loop/profile.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/compaction/apply.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/compaction/decision.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/compaction/slicing.ts",
+      "depth": 7
+    },
+    {
+      "file": "background/agent/compaction/summary.ts",
+      "depth": 7
+    }
+  ],
   "singleImplementationInterfaces": [
     {
       "interface": "CompactionSettings",
