@@ -168,7 +168,9 @@ export async function fetchOpenAICompatibleModels(token: string, baseUrl: string
       const data = await response.json();
       const ids = extractModelIds(data);
       if (ids.length > 0) return ids;
-    } catch {}
+    } catch (_fetchErr) {
+      // Model list fetch failed for this URL; skip.
+    }
   }
   return [];
 }

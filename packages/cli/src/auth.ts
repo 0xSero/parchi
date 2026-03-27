@@ -53,7 +53,10 @@ export function writePid(pid: number): void {
 export function removePid(): void {
   try {
     fs.unlinkSync(PID_FILE);
-  } catch {}
+  } catch (err) {
+    // PID file may not exist or may be inaccessible; ignore.
+    console.warn('[auth] Failed to remove PID file:', err);
+  }
 }
 
 export function isDaemonRunning(): boolean {

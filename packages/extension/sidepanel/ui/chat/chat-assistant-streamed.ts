@@ -190,5 +190,7 @@ function playTurnCompletePing(self: SidePanelUI) {
     osc.connect(gain);
     osc.start();
     osc.stop(ctx.currentTime + 0.12);
-  } catch {}
+  } catch (_audioErr) {
+    // Web Audio API may not be available; ignore silently.
+  }
 }

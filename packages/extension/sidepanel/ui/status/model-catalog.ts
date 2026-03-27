@@ -114,7 +114,9 @@ sidePanelProto.refreshModelCatalog = async function refreshModelCatalog({ force 
           discovered.push({ provider: providerKey, model: modelId });
         }
       }
-    } catch {}
+    } catch (_oauthErr) {
+      // OAuth model list fetch failed; continue with catalog targets.
+    }
 
     const targets = await this.collectModelCatalogTargets();
     const results = await Promise.all(

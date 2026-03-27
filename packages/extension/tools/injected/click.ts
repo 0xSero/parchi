@@ -49,7 +49,9 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
         visited += 1;
         try {
           if (node.matches(css)) out.push(node as HTMLElement);
-        } catch {}
+        } catch (_matchErr) {
+          // Element.matches() can throw for some selectors; skip this node.
+        }
         const sr = (node as any).shadowRoot as ShadowRoot | null | undefined;
         if (sr) stack.push(sr);
         for (const child of Array.from(node.children)) stack.push(child);
@@ -180,7 +182,9 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
   const clickElement = (el: HTMLElement) => {
     try {
       el.scrollIntoView({ block: 'center', inline: 'center' } as any);
-    } catch {}
+    } catch (_scrollErr) {
+      // scrollIntoView may fail in certain contexts; proceed anyway.
+    }
     el.focus?.();
 
     const rect = el.getBoundingClientRect();
@@ -217,7 +221,9 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
             isPrimary: true,
           }),
         );
-      } catch {}
+      } catch (_pointerErr) {
+        // PointerEvent may not be supported in all contexts.
+      }
     };
 
     firePointer('pointerover');

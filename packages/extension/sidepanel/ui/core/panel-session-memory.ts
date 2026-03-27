@@ -34,7 +34,9 @@ export function clearReportImages(
       if (blobUrl) {
         try {
           URL.revokeObjectURL(blobUrl);
-        } catch {}
+        } catch (_revokeErr) {
+          // URL may already be revoked; ignore.
+        }
       }
       if (image && typeof image === 'object' && '_blobUrl' in image) {
         delete image._blobUrl;

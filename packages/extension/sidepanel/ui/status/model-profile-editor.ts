@@ -130,7 +130,9 @@ sidePanelProto.refreshModelCatalogForProfileEditor = async function refreshModel
         const { extractModelIds } = await import('./model-utils.js');
         modelIds = extractModelIds(payload).slice(0, 250);
         if (modelIds.length > 0) break;
-      } catch {}
+      } catch (_fetchErr) {
+        // Model list endpoint failed for this provider; skip.
+      }
     }
     this._profileEditorModels = modelIds.sort((a: string, b: string) => a.localeCompare(b));
     if (providerInstance && modelIds.length > 0) {

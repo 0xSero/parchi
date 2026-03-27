@@ -23,7 +23,9 @@ function waitForDaemon(port: number, timeoutMs = 5_000): Promise<void> {
       try {
         const res = await fetch(`http://127.0.0.1:${port}/healthz`);
         if (res.ok) return resolve();
-      } catch {}
+      } catch (_healthErr) {
+        // Daemon not ready yet; retry.
+      }
       if (Date.now() - start > timeoutMs) return reject(new Error('Daemon failed to start within timeout'));
       setTimeout(attempt, 200);
     };

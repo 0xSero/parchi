@@ -89,7 +89,9 @@ export async function clickAtTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
             isPrimary: true,
           }),
         );
-      } catch {}
+      } catch (_pointerErr) {
+        // PointerEvent may not be supported; fall back to MouseEvent.
+      }
     };
 
     const fireMouse = (type: string, target: EventTarget) => {

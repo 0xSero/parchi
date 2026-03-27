@@ -123,7 +123,9 @@ sidePanelProto.fetchModelIdsForTarget = async function fetchModelIdsForTarget(ta
       if (modelIds.length > 0) {
         return modelIds;
       }
-    } catch {}
+    } catch (_fetchErr) {
+      // Model list fetch failed; skip this URL.
+    }
   }
   return [];
 };

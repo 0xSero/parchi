@@ -142,7 +142,9 @@ export const setupSettingsListeners = function setupSettingsListeners(this: Side
     // Ensure the MV3 service worker wakes up and immediately applies the new config.
     try {
       await chrome.runtime.sendMessage({ type: 'relay_reconfigure' });
-    } catch {}
+    } catch (_msgErr) {
+      // Service worker may not be active; ignore.
+    }
   });
 
   this.elements.copyRelayEnvBtn?.addEventListener('click', async () => {

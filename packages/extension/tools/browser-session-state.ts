@@ -98,7 +98,9 @@ export async function updateGroupTitleState(
     await chrome.tabGroups.update(sessionTabGroupId, {
       title: getGroupTitle(sessionTabs, DEFAULT_SESSION_GROUP),
     });
-  } catch {}
+  } catch (err) {
+    console.warn('[session-state] Failed to update group title:', err);
+  }
 }
 
 export async function resolveSessionWindowIdState(
@@ -131,7 +133,9 @@ export async function resolveSessionWindowIdState(
     if (activeTab && typeof activeTab.windowId === 'number') {
       return activeTab.windowId;
     }
-  } catch {}
+  } catch (err) {
+    console.warn('[session-state] Failed to resolve active window:', err);
+  }
 
   return undefined;
 }

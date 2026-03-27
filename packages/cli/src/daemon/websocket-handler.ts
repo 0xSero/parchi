@@ -89,7 +89,9 @@ function handleNotification(
     if (existing) {
       try {
         existing.ws.close();
-      } catch {}
+      } catch (closeErr) {
+        console.warn('[ws-handler] Failed to close existing agent connection:', closeErr);
+      }
     }
     const conn: AgentConnection = {
       agentId: newAgentId,

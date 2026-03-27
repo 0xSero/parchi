@@ -64,7 +64,9 @@ export class RelayBridge {
     if (this.ws) {
       try {
         this.ws.close();
-      } catch {}
+      } catch (e) {
+        console.warn('[relay] failed to close WebSocket during disconnect:', e);
+      }
     }
     this.ws = null;
   }
@@ -157,7 +159,9 @@ export class RelayBridge {
       const resp: JsonRpcResponse = { jsonrpc: '2.0', id: req.id, error: { code: -32000, message } };
       try {
         ws.send(JSON.stringify(resp));
-      } catch {}
+      } catch (sendErr) {
+        console.warn('[relay] failed to send error response:', sendErr);
+      }
     }
   }
 
@@ -166,6 +170,8 @@ export class RelayBridge {
     const msg: JsonRpcNotification = { jsonrpc: '2.0', method, params };
     try {
       this.ws.send(JSON.stringify(msg));
-    } catch {}
+    } catch (notifyErr) {
+      console.warn('[relay] failed to send notification:', notifyErr);
+    }
   }
 }

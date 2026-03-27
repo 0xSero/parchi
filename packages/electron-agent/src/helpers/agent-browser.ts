@@ -9,7 +9,9 @@ const maybeParseJson = (stdout: string): unknown | undefined => {
   if (!trimmed) return undefined;
   try {
     return JSON.parse(trimmed);
-  } catch {}
+  } catch (_parseErr) {
+    // Not valid JSON; try line-by-line below.
+  }
   const lines = trimmed
     .split(/\r?\n/)
     .map((line) => line.trim())
@@ -18,7 +20,9 @@ const maybeParseJson = (stdout: string): unknown | undefined => {
     const line = lines[i];
     try {
       return JSON.parse(line);
-    } catch {}
+    } catch (_lineParseErr) {
+      // Not valid JSON; try previous line.
+    }
   }
   return undefined;
 };
@@ -37,7 +41,9 @@ export const resolveAgentBrowserCommandPrefix = (rawOverride: string | undefined
         if (Array.isArray(parsed) && parsed.every((item) => typeof item === 'string' && item.trim())) {
           return parsed.map((item) => item.trim());
         }
-      } catch {}
+      } catch (_parseErr) {
+        // Not a valid JSON array override; fall through.
+      }
     }
     const split = splitCommandString(override);
     if (split.length > 0) return split;

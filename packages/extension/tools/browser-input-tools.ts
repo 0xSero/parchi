@@ -90,7 +90,9 @@ export async function pressKeyTool(ctx: BrowserToolsDelegate, args: BrowserToolA
         if (maybeForm && typeof (maybeForm as HTMLFormElement).requestSubmit === 'function') {
           try {
             (maybeForm as HTMLFormElement).requestSubmit();
-          } catch {}
+          } catch (_submitErr) {
+            // requestSubmit may not be supported; fall back to click.
+          }
         }
 
         const clickish =
@@ -100,7 +102,9 @@ export async function pressKeyTool(ctx: BrowserToolsDelegate, args: BrowserToolA
         if (clickish && typeof (active as HTMLButtonElement).click === 'function') {
           try {
             (active as HTMLButtonElement).click();
-          } catch {}
+          } catch (_clickErr) {
+            // Click simulation may fail; continue.
+          }
         }
       }
 

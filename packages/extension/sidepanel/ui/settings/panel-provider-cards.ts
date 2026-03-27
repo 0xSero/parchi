@@ -196,7 +196,9 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
           this.renderApiProviderGrid();
           void this.persistAllSettings({ silent: true });
         }
-      } catch {}
+      } catch (_renderErr) {
+        console.warn('[provider-cards] Failed to render after provider removal:', _renderErr);
+      }
     })();
   }
 };

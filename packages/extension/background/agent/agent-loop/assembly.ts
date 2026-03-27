@@ -102,7 +102,9 @@ export function assemblePreparedAgentLoop(params: {
         activeConfig.model = trimmed;
         configs[configName] = activeConfig;
         await patchSettingsSnapshot({ model: trimmed, configs });
-      } catch {}
+      } catch (_patchErr) {
+        console.warn('[assembly] Failed to patch settings after model rename:', _patchErr);
+      }
     },
     captureErrorClassificationContext() {
       diagnostics.latestErrorContext = {

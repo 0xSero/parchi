@@ -35,7 +35,9 @@ class ElectronRelayAgent {
     if (this.ws) {
       try {
         this.ws.close();
-      } catch {}
+      } catch (closeErr) {
+        console.warn('[main] Failed to close WebSocket on shutdown:', closeErr);
+      }
       this.ws = null;
     }
     process.exit(exitCode);

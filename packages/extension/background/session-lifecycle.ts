@@ -22,7 +22,9 @@ export function stopRun(ctx: ServiceContext, runId: string, note = 'Stopped') {
 
   try {
     active.controller.abort(note);
-  } catch {}
+  } catch (_abortErr) {
+    // Controller may already be aborted; ignore.
+  }
 
   if (active.origin === 'relay') {
     ctx.relayActiveRunIds.delete(runId);

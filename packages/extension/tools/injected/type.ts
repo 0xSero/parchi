@@ -124,7 +124,9 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
     }
     try {
       el.scrollIntoView({ block: 'center', inline: 'center' } as any);
-    } catch {}
+    } catch (_scrollErr) {
+      // scrollIntoView may fail in certain contexts; proceed anyway.
+    }
     el.focus();
     if (typeof el.select === 'function') {
       el.select();
@@ -137,7 +139,9 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
   if ((el as HTMLElement).isContentEditable) {
     try {
       el.scrollIntoView({ block: 'center', inline: 'center' } as any);
-    } catch {}
+    } catch (_scrollErr) {
+      // scrollIntoView may fail in certain contexts; proceed anyway.
+    }
     el.focus();
     const selection = window.getSelection();
     if (selection) {

@@ -169,7 +169,9 @@ export class RecordingCoordinator {
         func: () => {
           try {
             window.__parchiRecordingCleanup?.();
-          } catch {}
+          } catch (cleanupErr) {
+            console.warn('[recording] Cleanup script threw:', cleanupErr);
+          }
         },
       });
     } catch {

@@ -81,10 +81,14 @@ export const requestRunStop = function requestRunStop(this: SidePanelUI & Record
   };
   try {
     void chrome.runtime.sendMessage(payload);
-  } catch {}
+  } catch (_msgErr) {
+    // Service worker may not be active; ignore.
+  }
   try {
     this.lifecyclePort?.postMessage(payload);
-  } catch {}
+  } catch (_portErr) {
+    // Port may be disconnected; ignore.
+  }
 };
 
 sidePanelProto.requestRunStop = requestRunStop;

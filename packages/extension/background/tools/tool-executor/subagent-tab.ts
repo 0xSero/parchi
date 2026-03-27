@@ -31,7 +31,9 @@ export async function createSubagentTab(
   let windowId: number | undefined;
   try {
     windowId = await parentBrowserTools.resolveSessionWindowId();
-  } catch {}
+  } catch (_windowErr) {
+    // Could not resolve window; open in default window.
+  }
 
   const tab = await chrome.tabs.create({
     url,

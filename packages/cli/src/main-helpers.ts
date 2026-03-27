@@ -91,11 +91,17 @@ export function detectExtensionId(): string | null {
                 const raw = fs.readFileSync(manifestPath, 'utf8');
                 const manifest = JSON.parse(raw);
                 if (manifest.name === 'Parchi') return extId;
-              } catch {}
+              } catch (_parseErr) {
+                // Skip unreadable or invalid manifest entries.
+              }
             }
-          } catch {}
+          } catch (_readErr) {
+            // Skip unreadable version directories.
+          }
         }
-      } catch {}
+      } catch (_extErr) {
+        // Skip unreadable extension directories.
+      }
     }
   }
   return null;
@@ -120,7 +126,9 @@ export function installNativeHostManifest(extensionId: string): string[] {
       fs.mkdirSync(path.dirname(p), { recursive: true });
       fs.writeFileSync(p, JSON.stringify(manifest, null, 2));
       installed.push(p);
-    } catch {}
+    } catch (writeErr) {
+      console.warn('[native-host] Failed to write manifest to', p, writeErr);
+    }
   }
   return installed;
 }
