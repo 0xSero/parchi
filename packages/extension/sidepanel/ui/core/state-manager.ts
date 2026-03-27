@@ -105,6 +105,18 @@ export const setupResizeObserver = function setupResizeObserver(this: SidePanelU
 sidePanelProto.setupResizeObserver = setupResizeObserver;
 
 /**
+ * Disconnect resize observer to prevent memory leaks when sidepanel closes
+ */
+export const destroy = function destroy(this: SidePanelUI & Record<string, unknown>) {
+  if (this.chatResizeObserver) {
+    this.chatResizeObserver.disconnect();
+    this.chatResizeObserver = null;
+  }
+};
+
+sidePanelProto.destroy = destroy;
+
+/**
  * Flush any queued message and send it
  */
 export const flushQueuedMessage = function flushQueuedMessage(this: SidePanelUI & Record<string, unknown>) {

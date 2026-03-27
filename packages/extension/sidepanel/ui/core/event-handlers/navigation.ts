@@ -21,10 +21,14 @@ export const setupNavigationListeners = function setupNavigationListeners(this: 
   const stopOnClose = () => {
     this.requestRunStop('Stopped (panel closed)');
   };
-  window.addEventListener('pagehide', stopOnClose);
+  window.addEventListener('pagehide', () => {
+    stopOnClose();
+    this.destroy?.();
+  });
   window.addEventListener('beforeunload', () => {
     stopOnClose();
     this.autoSaveSessionJsonl?.();
+    this.destroy?.();
   });
 
   // Session buttons
