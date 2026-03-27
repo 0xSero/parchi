@@ -49,13 +49,17 @@ sidePanelProto.openSettingsPanel = function openSettingsPanel() {
   this.openSidebar();
   this.showRightPanel('settings');
   this.switchSettingsTab(this.currentSettingsTab || 'providers');
-  void this.refreshAccountPanel?.({ silent: true });
+  void this.refreshAccountPanel?.({ silent: true }).catch((err) => {
+    console.warn('[panel-view] Failed to refresh account panel:', err);
+  });
 };
 
 sidePanelProto.openAccountPanel = function openAccountPanel() {
   this.openSidebar();
   this.showRightPanel('account');
-  void this.refreshAccountPanel?.({ silent: true });
+  void this.refreshAccountPanel?.({ silent: true }).catch((err) => {
+    console.warn('[panel-view] Failed to refresh account panel:', err);
+  });
 };
 
 sidePanelProto.startNewSession = function startNewSession() {

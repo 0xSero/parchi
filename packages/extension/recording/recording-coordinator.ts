@@ -72,7 +72,11 @@ export class RecordingCoordinator {
       });
     }, 1000);
 
-    this.maxDurationTimer = setTimeout(() => this.stopRecording(), MAX_DURATION_MS);
+    this.maxDurationTimer = setTimeout(() => {
+      void this.stopRecording().catch((err) => {
+        console.warn('[RecordingCoordinator] Max duration stop failed:', err);
+      });
+    }, MAX_DURATION_MS);
     this.registerTabListeners();
   }
 
@@ -147,7 +151,9 @@ export class RecordingCoordinator {
     this.eventBuffer = [];
     this.state = null;
     if (typeof tabId === 'number') {
-      void this.forceCleanupContentScript(tabId);
+      void this.forceCleanupContentScript(tabId).catch((err) => {
+        console.warn('[RecordingCoordinator] Force cleanup failed during discard:', err);
+      });
     }
   }
 
@@ -239,7 +245,9 @@ export class RecordingCoordinator {
 
   private sendToSidePanel(message: Record<string, unknown>): void {
     try {
-      chrome.runtime.sendMessage(message);
+      void chrome.runtime.sendMessage(message).catch(() => {
+        // Sidepanel may not be open.
+      });
     } catch {
       // Sidepanel may not be open.
     }

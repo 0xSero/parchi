@@ -22,7 +22,9 @@ class ContentScriptHandler {
     this.overlayController = new ActionOverlayController();
     this.subagentBadgeController = new SubagentBadgeController();
     this.messageListener = (message, sender, sendResponse) => {
-      void this.handleMessage(message, sender, sendResponse);
+      void this.handleMessage(message, sender, sendResponse).catch((err) => {
+        console.warn('[content] Message handling failed:', err);
+      });
       return true;
     };
     this.init();

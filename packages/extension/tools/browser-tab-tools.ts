@@ -113,7 +113,9 @@ export async function openTabTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
           console.warn('Failed to add tab to session group:', error);
         }
       }
-      void ctx.sendOverlay(tab.id, { label: 'Opened tab', note: url.replace(/^https?:\/\//, '') }, 2);
+      void ctx.sendOverlay(tab.id, { label: 'Opened tab', note: url.replace(/^https?:\/\//, '') }, 2).catch((err) => {
+        console.warn('[browser-tab-tools] Failed to send overlay for opened tab:', err);
+      });
     }
     return { success: true, tabId: tab.id, url };
   } catch (error) {

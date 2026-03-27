@@ -38,7 +38,9 @@ export const setupUIListeners = function setupUIListeners(this: SidePanelUI & Re
     event.preventDefault();
     event.stopPropagation();
     this.closeContextInspectorPopover?.();
-    void this.requestManualContextCompaction?.();
+    void this.requestManualContextCompaction?.().catch((err) => {
+      console.warn('[ui] Manual context compaction failed:', err);
+    });
   });
 
   document.addEventListener('click', (event: Event) => {
@@ -53,12 +55,16 @@ export const setupUIListeners = function setupUIListeners(this: SidePanelUI & Re
 
   // Model selector
   this.elements.modelSelect?.addEventListener('change', () => {
-    void this.handleModelSelectChange();
+    void this.handleModelSelectChange().catch((err) => {
+      console.warn('[ui] Model select change failed:', err);
+    });
   });
   // Initialize searchable model dropdown
   this.initSearchableModelSelector?.();
   this.elements.setupAccessBtn?.addEventListener('click', () => {
-    void this.handleSetupAccessClick?.();
+    void this.handleSetupAccessClick?.().catch((err) => {
+      console.warn('[ui] Setup access click failed:', err);
+    });
   });
 
   // File upload

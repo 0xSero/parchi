@@ -171,7 +171,9 @@ async function handleRelayAgentRun(ctx: ServiceContext, params: unknown) {
     if (activeTab) selectedTabs.push(activeTab);
   }
 
-  void ctx.processUserMessage(prompt, [], selectedTabs, sessionId, { runId, turnId, origin: 'relay' });
+  void ctx.processUserMessage(prompt, [], selectedTabs, sessionId, { runId, turnId, origin: 'relay' }).catch((err) => {
+    console.warn('[relay-rpc] Agent run failed:', err);
+  });
   return { runId, sessionId };
 }
 

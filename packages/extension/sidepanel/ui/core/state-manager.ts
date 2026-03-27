@@ -79,11 +79,9 @@ export const requestRunStop = function requestRunStop(this: SidePanelUI & Record
     sessionId: this.sessionId,
     note,
   };
-  try {
-    void chrome.runtime.sendMessage(payload);
-  } catch (_msgErr) {
+  void chrome.runtime.sendMessage(payload).catch(() => {
     // Service worker may not be active; ignore.
-  }
+  });
   try {
     this.lifecyclePort?.postMessage(payload);
   } catch (_portErr) {

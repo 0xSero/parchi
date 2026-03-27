@@ -113,7 +113,9 @@ export class BrowserDebugManager {
   private bindListeners() {
     if (this.listenersBound) return;
     chrome.debugger.onEvent.addListener((source, method, params) => {
-      void this.handleEvent(source, method, (params || {}) as Record<string, any>);
+      void this.handleEvent(source, method, (params || {}) as Record<string, any>).catch((err) => {
+        console.warn('[browser-debug-tools] Event handling failed:', err);
+      });
     });
     chrome.debugger.onDetach.addListener((source) => {
       if (typeof source.tabId === 'number') {

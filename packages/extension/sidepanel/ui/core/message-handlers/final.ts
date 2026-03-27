@@ -74,7 +74,9 @@ export const handleAssistantFinal = function handleAssistantFinal(
     this.pendingTurnDraft = null;
   }
 
-  void this.clearParchiRuntimeHealth?.();
+  void this.clearParchiRuntimeHealth?.().catch((err) => {
+    console.warn('[final] Failed to clear runtime health:', err);
+  });
 };
 
 sidePanelProto.handleAssistantFinal = handleAssistantFinal;

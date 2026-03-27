@@ -177,7 +177,9 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
   this.populateProviderDropdown?.();
   this.renderApiProviderGrid();
   this.renderModelSelectorGrid?.();
-  void this.persistAllSettings();
+  void this.persistAllSettings().catch((err) => {
+    console.warn('[provider-cards] Failed to persist settings:', err);
+  });
   this.updateStatus(`${def.name} configured`, 'success');
 
   // Async: fetch full model list from API for providers that support it
@@ -194,7 +196,9 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
           this.providers = { ...(this.providers || {}), [provider.id]: updated };
           this.renderModelSelectorGrid?.();
           this.renderApiProviderGrid();
-          void this.persistAllSettings({ silent: true });
+          void this.persistAllSettings({ silent: true }).catch((err) => {
+            console.warn('[provider-cards] Failed to persist settings after removal:', err);
+          });
         }
       } catch (_renderErr) {
         console.warn('[provider-cards] Failed to render after provider removal:', _renderErr);
@@ -227,7 +231,9 @@ sidePanelProto.removeProviderKey = function removeProviderKey(providerId: string
 
   this.populateProviderDropdown?.();
   this.renderApiProviderGrid();
-  void this.persistAllSettings();
+  void this.persistAllSettings().catch((err) => {
+    console.warn('[provider-cards] Failed to persist settings after delete:', err);
+  });
   this.updateStatus(`${removed?.name || 'Provider'} deleted`, 'success');
 };
 

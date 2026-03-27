@@ -23,14 +23,18 @@ export function handleUserMessage(ctx: ServiceContext, message: any, sendRespons
   const sessionId = normalizeSessionId(message.sessionId, `session-${Date.now()}`);
   const userMessage = typeof message.message === 'string' ? message.message : '';
   respondAccepted(sendResponse, sessionId);
-  void ctx.processUserMessage(
-    userMessage,
-    message.conversationHistory,
-    message.selectedTabs || [],
-    sessionId,
-    undefined,
-    message.recordedContext,
-  );
+  void ctx
+    .processUserMessage(
+      userMessage,
+      message.conversationHistory,
+      message.selectedTabs || [],
+      sessionId,
+      undefined,
+      message.recordedContext,
+    )
+    .catch((err) => {
+      console.warn('[message-handler] User message processing failed:', err);
+    });
 }
 
 // Context compaction handler
@@ -40,8 +44,12 @@ export function handleCompactContext(ctx: ServiceContext, message: any, sendResp
     ? (message.conversationHistory as Message[])
     : [];
   respondAccepted(sendResponse, sessionId);
-  void ctx.processContextCompaction(conversationHistory, sessionId, {
-    source: typeof message.trigger === 'string' ? message.trigger : 'manual',
-    force: true,
-  });
+  void ctx
+    .processContextCompaction(conversationHistory, sessionId, {
+      source: typeof message.trigger === 'string' ? message.trigger : 'manual',
+      force: true,
+    })
+    .catch((err) => {
+      console.warn('[message-handler] Context compaction failed:', err);
+    });
 }

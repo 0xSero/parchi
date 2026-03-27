@@ -277,6 +277,8 @@ export class SidePanelUI {
     this.modelCatalogUpdatedAt = 0;
     this.modelCatalogRefreshPromise = null;
     this._autoSaveDirHandle = null;
-    void this.init();
+    void this.init().catch((err) => {
+      console.error('[panel-ui] Sidepanel UI initialization failed:', err);
+    });
   }
 }

@@ -42,6 +42,8 @@ export const handleRunError = function handleRunError(this: SidePanelUI & Record
     summary: String(message.message || 'Paid runtime failed.'),
     detail: String(message.action || ''),
     category: String(message.errorCategory || ''),
+  }).catch((err) => {
+    console.warn('[errors] Failed to set runtime health (error):', err);
   });
   this.updateStatus('Error', 'error');
   this.flushQueuedMessage?.();
@@ -73,6 +75,8 @@ export const handleRunWarning = function handleRunWarning(this: SidePanelUI & Re
       void this.setParchiRuntimeHealth?.({
         level: 'warning',
         summary: warningText,
+      }).catch((err) => {
+        console.warn('[errors] Failed to set runtime health (warning):', err);
       });
     }
   }

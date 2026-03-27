@@ -150,7 +150,9 @@ export const handleContextCompaction = function handleContextCompaction(
     }),
   }).finally(() => {
     if (this.isContextInspectorPopoverOpen?.()) {
-      void this.refreshContextInspectorLog?.();
+      void this.refreshContextInspectorLog?.().catch((err) => {
+        console.warn('[context-handler] Failed to refresh context inspector log:', err);
+      });
     }
   });
 

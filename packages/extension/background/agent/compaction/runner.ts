@@ -147,12 +147,16 @@ export async function processContextCompaction(
       'failed',
       { error: message },
       { sessionId: runMeta.sessionId, runId: runMeta.runId, turnId: runMeta.turnId },
-    );
+    ).catch((err) => {
+      console.warn('[compaction-runner] Failed to capture compaction telemetry:', err);
+    });
     void captureException(
       error instanceof Error ? error : new Error(message),
       { stage: 'compaction' },
       { sessionId: runMeta.sessionId, runId: runMeta.runId },
-    );
+    ).catch((err) => {
+      console.warn('[compaction-runner] Failed to capture exception:', err);
+    });
     ctx.sendRuntime(runMeta, {
       type: 'run_error',
       message,

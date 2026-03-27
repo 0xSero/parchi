@@ -38,7 +38,9 @@ sidePanelProto.setContextCompactionState = function setContextCompactionState(ne
   this.contextCompactionState = { ...current, ...nextState } as SidePanelUI['contextCompactionState'];
   this.updateContextInspector?.();
   if (this.isContextInspectorPopoverOpen?.()) {
-    void this.refreshContextInspectorLog?.();
+    void this.refreshContextInspectorLog?.().catch((err) => {
+      console.warn('[panel-context] Failed to refresh context inspector log:', err);
+    });
   }
 };
 
@@ -64,7 +66,9 @@ sidePanelProto.toggleContextInspectorPopover = function toggleContextInspectorPo
   }
   popover.classList.remove('hidden');
   this.elements.contextInspectorBtn?.setAttribute('aria-expanded', 'true');
-  void this.refreshContextInspectorLog?.();
+  void this.refreshContextInspectorLog().catch((err) => {
+    console.warn('[panel-context] Failed to refresh context inspector log:', err);
+  });
 };
 
 sidePanelProto.refreshContextInspectorLog = async function refreshContextInspectorLog() {

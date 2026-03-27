@@ -9,7 +9,9 @@ export function handleContentPerfEvent(
   sendResponse: RuntimeSendResponse,
   sender: chrome.runtime.MessageSender,
 ) {
-  void recordContentPerfEvent(message.event, sender);
+  void recordContentPerfEvent(message.event, sender).catch((err) => {
+    console.warn('[system] Failed to record content perf event:', err);
+  });
   respondOk(sendResponse);
 }
 

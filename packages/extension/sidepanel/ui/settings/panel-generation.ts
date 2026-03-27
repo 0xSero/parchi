@@ -76,5 +76,7 @@ sidePanelProto.updateActiveConfigFromGenerationTab = function updateActiveConfig
     config.screenshotQuality = this.elements.genScreenshotQuality.value || 'high';
   }
 
-  void this.persistAllSettings?.({ silent: true });
+  void this.persistAllSettings?.({ silent: true }).catch((err) => {
+    console.warn('[generation] Failed to persist settings:', err);
+  });
 };

@@ -57,7 +57,9 @@ export function emitCompactionDecisionTelemetry(
       approxTokens: compactionCheck.approxTokens,
     },
     { sessionId: options.runMeta.sessionId, runId: options.runMeta.runId, turnId: options.runMeta.turnId },
-  );
+  ).catch((err) => {
+    console.warn('[compaction-telemetry] Failed to capture decision telemetry:', err);
+  });
 }
 
 export function emitCompactionSkippedTelemetry(
@@ -101,7 +103,9 @@ export function emitCompactionSkippedTelemetry(
     'skipped',
     { reason: 'below_threshold', percent: currentPercent, approxTokens: compactionCheck.approxTokens },
     { sessionId: options.runMeta.sessionId, runId: options.runMeta.runId, turnId: options.runMeta.turnId },
-  );
+  ).catch((err) => {
+    console.warn('[compaction-telemetry] Failed to capture skipped telemetry:', err);
+  });
 }
 
 export function emitCompactionStartTelemetry(
@@ -143,7 +147,9 @@ export function emitCompactionStartTelemetry(
     'start',
     { forced: forceCompaction, percent: currentPercent, approxTokens: compactionCheck.approxTokens },
     { sessionId: options.runMeta.sessionId, runId: options.runMeta.runId, turnId: options.runMeta.turnId },
-  );
+  ).catch((err) => {
+    console.warn('[compaction-telemetry] Failed to capture start telemetry:', err);
+  });
 
   ctx.sendRuntime(options.runMeta, {
     type: 'run_status',

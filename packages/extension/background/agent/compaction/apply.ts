@@ -128,7 +128,9 @@ export async function applyCompactionResult(
       summaryUsage,
     },
     { sessionId: options.runMeta.sessionId, runId: options.runMeta.runId, turnId: options.runMeta.turnId },
-  );
+  ).catch((err) => {
+    console.warn('[compaction-apply] Failed to capture applied telemetry:', err);
+  });
 
   void captureMessage(
     'Context compaction completed',
@@ -139,7 +141,9 @@ export async function applyCompactionResult(
       tokensRemoved: removedApproxTokensLowerBound,
     },
     { sessionId: options.runMeta.sessionId, runId: options.runMeta.runId },
-  );
+  ).catch((err) => {
+    console.warn('[compaction-apply] Failed to capture message telemetry:', err);
+  });
 
   ctx.sendRuntime(options.runMeta, {
     type: 'run_status',

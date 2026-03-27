@@ -116,8 +116,18 @@ export class BackgroundService implements ServiceContext {
         console.warn('Failed to configure Kimi User-Agent header support:', error);
       });
 
-    chrome.runtime.onStartup?.addListener(() => void this.applyRelayConfig());
-    chrome.runtime.onInstalled?.addListener(() => void this.applyRelayConfig());
+    chrome.runtime.onStartup?.addListener(
+      () =>
+        void this.applyRelayConfig().catch((err) => {
+          console.warn('[service] Failed to apply relay config on startup:', err);
+        }),
+    );
+    chrome.runtime.onInstalled?.addListener(
+      () =>
+        void this.applyRelayConfig().catch((err) => {
+          console.warn('[service] Failed to apply relay config on install:', err);
+        }),
+    );
     chrome.tabs.onRemoved.addListener((tabId) => this.subagentTabBadges.delete(tabId));
 
     chrome.runtime.onConnect.addListener((port) => {
@@ -146,7 +156,9 @@ export class BackgroundService implements ServiceContext {
       }
     });
 
-    void initRelay(this, this.applyRelayConfig);
+    void initRelay(this, this.applyRelayConfig).catch((err) => {
+      console.warn('[service] Relay initialization failed:', err);
+    });
   }
 
   // ServiceContext implementation
@@ -175,12 +187,17 @@ export class BackgroundService implements ServiceContext {
 
   setSubagentTabBadge(tabId: number, state: SubagentTabBadgeState) {
     this.subagentTabBadges.set(tabId, state);
-    void sendSubagentTabBadge(tabId, state);
+    void sendSubagentTabBadge(tabId, state).catch((err) => {
+      console.warn('[service] Failed to send subagent tab badge:', err);
+    });
   }
 
   syncSubagentTabBadge(tabId: number) {
     const state = this.subagentTabBadges.get(tabId);
-    if (state) void sendSubagentTabBadge(tabId, state);
+    if (state)
+      void sendSubagentTabBadge(tabId, state).catch((err) => {
+        console.warn('[service] Failed to sync subagent tab badge:', err);
+      });
   }
 
   emitTokenTrace(runMeta: RunMeta, sessionState: SessionState, payload: TokenTracePayload) {

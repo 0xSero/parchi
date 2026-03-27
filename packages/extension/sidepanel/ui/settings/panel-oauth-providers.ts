@@ -102,8 +102,14 @@ sidePanelProto.renderOAuthProviderGrid = async function renderOAuthProviderGrid(
       const action = btn.dataset.action;
       const provider = btn.dataset.provider as OAuthProviderKey;
       if (!provider) return;
-      if (action === 'connect') void this.startOAuthConnect(provider);
-      if (action === 'disconnect') void this.startOAuthDisconnect(provider);
+      if (action === 'connect')
+        void this.startOAuthConnect(provider).catch((err) => {
+          console.warn('[oauth-providers] OAuth connect failed:', err);
+        });
+      if (action === 'disconnect')
+        void this.startOAuthDisconnect(provider).catch((err) => {
+          console.warn('[oauth-providers] OAuth disconnect failed:', err);
+        });
       return;
     }
   };
@@ -114,7 +120,9 @@ sidePanelProto.renderOAuthProviderGrid = async function renderOAuthProviderGrid(
     if (!select.classList.contains('oauth-model-select')) return;
     const providerKey = select.dataset.provider as OAuthProviderKey;
     if (!providerKey) return;
-    void this.updateOAuthProfileModel(providerKey, select.value);
+    void this.updateOAuthProfileModel(providerKey, select.value).catch((err) => {
+      console.warn('[oauth-providers] Profile model update failed:', err);
+    });
   };
 };
 

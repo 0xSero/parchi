@@ -69,7 +69,9 @@ export const setupSettingsListeners = function setupSettingsListeners(this: Side
     const profileName = input?.dataset.teamProfile;
     if (!profileName) return;
     this.toggleAuxProfile(profileName);
-    void this.persistAllSettings?.({ silent: true });
+    void this.persistAllSettings?.({ silent: true }).catch((err) => {
+      console.warn('[settings] Failed to persist settings after team profile toggle:', err);
+    });
     this.renderTeamProfileList?.();
   });
 
@@ -135,7 +137,9 @@ export const setupSettingsListeners = function setupSettingsListeners(this: Side
 
   // Save settings
   this.elements.saveSettingsBtn?.addEventListener('click', () => {
-    void this.saveSettings();
+    void this.saveSettings().catch((err) => {
+      console.warn('[settings] Failed to save settings:', err);
+    });
   });
   this.elements.saveRelayBtn?.addEventListener('click', async () => {
     await this.persistAllSettings({ silent: false });
@@ -186,7 +190,9 @@ export PARCHI_RELAY_PORT="${port}"`;
 
   // Cancel settings
   this.elements.cancelSettingsBtn?.addEventListener('click', () => {
-    void this.cancelSettings();
+    void this.cancelSettings().catch((err) => {
+      console.warn('[settings] Failed to cancel settings:', err);
+    });
   });
 
   // Provider headers validation

@@ -202,7 +202,9 @@ export async function initRelay(ctx: ServiceContext, applyRelayConfig: () => Pro
   chrome.storage.onChanged.addListener((changes, areaName) => {
     if (areaName !== 'local') return;
     if (!RELAY_STORAGE_KEYS.some((key) => key in changes)) return;
-    void applyRelayConfig();
+    void applyRelayConfig().catch((err) => {
+      console.warn('[relay] Failed to apply relay config on storage change:', err);
+    });
   });
 
   tryNativeMessagingPair();
@@ -214,7 +216,9 @@ export function scheduleRelayAutoPairCheck(ctx: ServiceContext, delayMs = 1500) 
   ctx._relayAutoPairTimer = setTimeout(
     () => {
       ctx._relayAutoPairTimer = undefined;
-      void tryLoopbackHttpPair();
+      void tryLoopbackHttpPair().catch((err) => {
+        console.warn('[relay] Loopback HTTP pair check failed:', err);
+      });
     },
     Math.max(0, delayMs),
   );

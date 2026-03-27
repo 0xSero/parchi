@@ -32,7 +32,9 @@ sidePanelProto.persistHistory = async function persistHistory() {
 
   try {
     await upsertSessionHistoryEntry(entry);
-    void this.loadHistoryList();
+    void this.loadHistoryList().catch((err) => {
+      console.warn('[history] Failed to reload history list after save:', err);
+    });
   } catch (e) {
     console.error('Failed to persist history:', e);
   }
@@ -41,7 +43,9 @@ sidePanelProto.persistHistory = async function persistHistory() {
 sidePanelProto.deleteSession = async function deleteSession(sessionId: string) {
   try {
     await deleteSessionHistoryEntry(sessionId);
-    void this.loadHistoryList();
+    void this.loadHistoryList().catch((err) => {
+      console.warn('[history] Failed to reload history list after delete:', err);
+    });
   } catch (e) {
     console.error('Failed to delete session:', e);
   }
@@ -55,7 +59,9 @@ sidePanelProto.clearAllHistory = async function clearAllHistory() {
     this._clearHistoryPendingAt = 0;
     try {
       await clearSessionHistoryStore();
-      void this.loadHistoryList();
+      void this.loadHistoryList().catch((err) => {
+        console.warn('[history] Failed to reload history list after clear:', err);
+      });
       this.updateStatus('History cleared', 'success');
     } catch (e) {
       console.error('Failed to clear history:', e);

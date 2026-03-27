@@ -58,7 +58,9 @@ export async function handleProviderCompactionDetection(
           tokensRemoved,
         },
         { sessionId: runMeta.sessionId, runId: runMeta.runId, turnId: runMeta.turnId },
-      );
+      ).catch((err) => {
+        console.warn('[execution] Failed to capture compaction telemetry:', err);
+      });
     }
   }
 }

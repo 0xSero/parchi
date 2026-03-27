@@ -11,8 +11,12 @@ const init = async () => {
   await loadPanelLayout();
   startSettingsStoreSync();
   startSessionHistoryStoreSync();
-  void hydrateSettingsStore();
-  void hydrateSessionHistoryStore();
+  void hydrateSettingsStore().catch((err) => {
+    console.warn('[panel] Settings hydration failed:', err);
+  });
+  void hydrateSessionHistoryStore().catch((err) => {
+    console.warn('[panel] Session history hydration failed:', err);
+  });
   const ui = new SidePanelUI();
   const debugWindow = window as Window & { sidePanelUI?: SidePanelUI; __PERF_DEBUG__?: boolean };
   debugWindow.sidePanelUI = ui;
@@ -23,4 +27,6 @@ const init = async () => {
   }
 };
 
-void init();
+void init().catch((err) => {
+  console.error('[panel] Sidepanel initialization failed:', err);
+});

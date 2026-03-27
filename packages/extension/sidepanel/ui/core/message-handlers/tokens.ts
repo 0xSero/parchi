@@ -131,7 +131,9 @@ export const handleCompactionEvent = function handleCompactionEvent(
     details,
   }).finally(() => {
     if (this.isContextInspectorPopoverOpen?.()) {
-      void this.refreshContextInspectorLog?.();
+      void this.refreshContextInspectorLog?.().catch((err) => {
+        console.warn('[tokens] Failed to refresh context inspector log:', err);
+      });
     }
   });
 };

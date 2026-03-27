@@ -91,7 +91,10 @@ sidePanelProto.renderAgentNav = function renderAgentNav() {
       event.preventDefault();
       event.stopPropagation();
       const agentId = (el as HTMLElement).dataset.closeAgent;
-      if (agentId) void this.closeSubagentSession?.(agentId);
+      if (agentId)
+        void this.closeSubagentSession?.(agentId).catch((err) => {
+          console.warn('[agent-nav] Failed to close subagent session:', err);
+        });
     });
   });
 };

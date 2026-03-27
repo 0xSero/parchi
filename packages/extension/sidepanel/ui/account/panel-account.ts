@@ -74,7 +74,9 @@ sidePanelProto.bindAccountEventListeners = function bindAccountEventListeners() 
     void this.openAccountBillingPortal();
   });
   this.elements.accountRefreshBtn?.addEventListener('click', () => {
-    void this.refreshAccountPanel();
+    void this.refreshAccountPanel().catch((err) => {
+      console.warn('[account] Refresh failed:', err);
+    });
   });
   this.elements.accountSignOutBtn?.addEventListener('click', () => {
     void this.signOutFromAccount();

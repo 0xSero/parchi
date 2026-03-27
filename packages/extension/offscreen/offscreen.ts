@@ -37,4 +37,6 @@ async function run() {
   }
 }
 
-void run();
+void run().catch((err) => {
+  console.error('[offscreen] Offscreen document initialization failed:', err);
+});

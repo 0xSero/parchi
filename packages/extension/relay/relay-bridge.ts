@@ -145,7 +145,9 @@ export class RelayBridge {
         return;
       }
       if (!isJsonRpcRequest(parsed)) return;
-      void this.handleRequest(ws, parsed);
+      void this.handleRequest(ws, parsed).catch((err) => {
+        console.warn('[relay-bridge] Request handling failed:', err);
+      });
     };
   }
 

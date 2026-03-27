@@ -183,7 +183,9 @@ sidePanelProto.selectModelFromGrid = function selectModelFromGrid(providerId: st
     this.editProfile?.(targetConfigName, true);
     this.updateScreenshotToggleState?.();
   }
-  void this.persistAllSettings?.({ silent: true });
+  void this.persistAllSettings?.({ silent: true }).catch((err) => {
+    console.warn('[model-selector] Failed to persist settings:', err);
+  });
   this.populateModelSelect?.();
   this.updateModelDisplay?.();
   this.populateGenerationTab?.();

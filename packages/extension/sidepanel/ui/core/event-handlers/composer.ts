@@ -83,7 +83,9 @@ export const setupComposerListeners = function setupComposerListeners(this: Side
     const files = extractFilesFromClipboardEvent(event);
     if (!files.length) return;
     event.preventDefault();
-    void this.ingestFilesIntoComposer?.(files, 'paste');
+    void this.ingestFilesIntoComposer?.(files, 'paste').catch((err) => {
+      console.warn('[composer] File ingestion failed:', err);
+    });
   });
 
   // Auto-expand textarea height as user types
