@@ -1,0 +1,45 @@
+{
+  "featureId": "fix-floating-promises",
+  "reviewedAt": "2026-03-27T23:48:11Z",
+  "commitId": "4f14eb7",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The worker added catch handlers to many promise fire-and-forget sites and addressed the requested hotspots in service.ts, relay-rpc.ts, and recording-coordinator.ts, but the implementation does not satisfy VAL-CRIT-005 because multiple void promise calls remain without .catch() handlers.",
+    "issues": [
+      {
+        "file": "packages/extension/sidepanel/ui/account/panel-account.ts",
+        "line": 53,
+        "severity": "blocking",
+        "description": "Several async UI actions are still invoked as bare `void this...()` calls without `.catch()` handlers (`chooseAccountMode`, `handleAccountPasswordAuth`, `handleAccountOAuth`, `startAccountCheckout`, `openAccountBillingPortal`, `signOutFromAccount`). Since these methods are defined as async, rejected promises from click handlers will still become unhandled rejections, so VAL-CRIT-005 is not fully met."
+      },
+      {
+        "file": "packages/extension/sidepanel/ui/settings/panel-model-selector.ts",
+        "line": 56,
+        "severity": "blocking",
+        "description": "`syncOAuthProfiles(this)` is still fired with `void ...then(...).catch(() => {})`, and the follow-up dynamic import write at line 206 uses `void import(...).then(...)` with no outer `.catch()`. If the import itself rejects, the promise chain is unhandled. Similar unguarded `void import(...).then(...)` patterns remain in `packages/extension/sidepanel/ui/settings/settings-ui-zoom.ts:35`, `packages/extension/sidepanel/ui/settings/settings-ui-zoom.ts:51`, and `packages/extension/sidepanel/ui/settings/settings-theme.ts:48`."
+      },
+      {
+        "file": "packages/extension/sidepanel/ui/settings/panel-provider-cards.ts",
+        "line": 187,
+        "severity": "blocking",
+        "description": "The fire-and-forget async IIFE `void (async () => { ... })();` still has no terminal `.catch()` handler. Any rejection before the internal try/catch or from future edits will surface as an unhandled promise rejection, leaving VAL-CRIT-005 incomplete."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The cleanup-worker skill's 'Fix Empty Catch Blocks' section only talks about `catch {}` patterns and never mentions the mission requirement that all fire-and-forget async calls must terminate with `.catch()` handlers. The worker expanded scope on their own after discovering broader violations.",
+      "evidence": ".factory/skills/cleanup-worker/SKILL.md omits floating-promise guidance, while the handoff skillFeedback notes a scope expansion because VAL-CRIT-005 required all `void` promise calls to have `.catch()` handlers."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The validation contract says 'All `void` promise calls have `.catch()` handlers,' but several accepted patterns in the codebase still use async click handlers or `void import(...).then(...)` without an outer catch. The shared guidance does not explain how reviewers/workers should treat promise-returning dynamic imports or async UI handlers under VAL-CRIT-005.",
+      "evidence": "Remaining examples include packages/extension/sidepanel/ui/account/panel-account.ts:53-82 and packages/extension/sidepanel/ui/settings/panel-model-selector.ts:56,206 despite commit 4f14eb7 claiming the codebase fully satisfies VAL-CRIT-005."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Review failed. The fix improved many hotspots, but commit 4f14eb7 still leaves multiple unhandled fire-and-forget promise sites, so the feature does not yet satisfy VAL-CRIT-005."
+}
