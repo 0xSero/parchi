@@ -1,6 +1,6 @@
 {
   "featureId": "fix-dom-element-leaks",
-  "reviewedAt": "2026-03-27T23:59:00Z",
+  "reviewedAt": "2026-03-27T23:59:24Z",
   "commitId": "369b2aeace96a2c5b8ac47918bb3c9ed1df18fd1",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
