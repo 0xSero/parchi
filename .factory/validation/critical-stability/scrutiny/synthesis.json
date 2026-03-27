@@ -1,0 +1,83 @@
+{
+  "milestone": "critical-stability",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "npm run test:unit",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "npm run lint",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 5,
+    "passed": 1,
+    "failed": 4,
+    "failedFeatures": [
+      "fix-dom-element-leaks",
+      "fix-runtime-listener-leaks",
+      "fix-empty-catch-blocks",
+      "fix-floating-promises"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "fix-dom-element-leaks",
+      "severity": "blocking",
+      "description": "packages/extension/content.ts still calls clearActionOverlay() and clearBadge() instead of destroyOverlay()/destroyBadge(), so injected overlay and badge nodes remain attached and VAL-CRIT-001 is not satisfied."
+    },
+    {
+      "featureId": "fix-runtime-listener-leaks",
+      "severity": "blocking",
+      "description": "packages/extension/content.ts defines ContentScriptHandler.destroy() but never stores the handler instance or wires destroy() to pagehide/beforeunload, so removeListener is never called and the content-script runtime listener still leaks."
+    },
+    {
+      "featureId": "fix-empty-catch-blocks",
+      "severity": "blocking",
+      "description": "Six empty catch blocks remain in test files (tests/e2e/run-orchestrator-runtime-e2e.ts, tests/relay/run-relay-tests.ts, tests/relay/run-electron-agent-tests.ts, tests/perf/run-perf-profile.ts), so the codebase-wide VAL-CRIT-004 assertion is not met."
+    },
+    {
+      "featureId": "fix-floating-promises",
+      "severity": "blocking",
+      "description": "Meaningless empty catch handlers remain on fire-and-forget promises in packages/extension/recording/recording-coordinator.ts, sidepanel/ui/chat/panel-recorder.ts, and sidepanel/ui/core/state-manager.ts, leaving silent failure paths and failing VAL-CRIT-005."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "AGENTS.md",
+      "suggestion": "Ensure mission guidance only tells workers to invoke a custom skill when that skill is actually registered and invokable, or explicitly instruct them to read the project SKILL.md file directly as the fallback path.",
+      "evidence": "Feature fix-resize-observer-leak transcript shows Skill(\"cleanup-worker\") failed with \"Skill not found\" even though mission AGENTS.md says the mission uses cleanup-worker for all cleanup tasks.",
+      "isSystemic": true
+    },
+    {
+      "target": "cleanup-worker skill",
+      "suggestion": "Strengthen the memory-leak checklist to require proof that new cleanup helpers are reachable from real lifecycle hooks or call sites, not merely implemented.",
+      "evidence": "Both fix-dom-element-leaks and fix-runtime-listener-leaks added destroy()/destroyBadge()/destroyOverlay() helpers, but review found the content-script lifecycle still never calls them.",
+      "isSystemic": true
+    },
+    {
+      "target": "cleanup-worker skill",
+      "suggestion": "For codebase-wide error-handling tasks, require repo-wide verification (including tests when the feature says \"codebase\") and explicitly disallow empty `.catch(() => {})` handlers as acceptable floating-promise remediation.",
+      "evidence": "fix-empty-catch-blocks verified only packages/ and left six empty catches in tests; fix-floating-promises left four production fire-and-forget calls with empty catch handlers that still silence failures.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "The second cleanup-hook observation from fix-runtime-listener-leaks duplicated the same root pattern already captured from fix-dom-element-leaks.",
+      "reason": "duplicate"
+    }
+  ],
+  "previousRound": null
+}

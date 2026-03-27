@@ -1,21 +1,15 @@
 {
   "featureId": "fix-resize-observer-leak",
-  "reviewedAt": "2026-03-27T23:52:35.130172Z",
+  "reviewedAt": "2026-03-27T23:59:18.095373+00:00",
   "commitId": "dfdbc80",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "pass",
   "codeReview": {
-    "summary": "The feature correctly addresses VAL-CRIT-002. It adds a dedicated destroy() cleanup path that disconnects the sidepanel ResizeObserver and clears the stored reference, and wires that cleanup into both pagehide and beforeunload so the observer is released when the sidepanel is closed or navigated away from. I did not find correctness or regression issues in the reviewed change.",
+    "summary": "The feature satisfies VAL-CRIT-002. The sidepanel stores the ResizeObserver reference, disconnects it in a dedicated destroy() cleanup method, nulls the reference, and invokes that cleanup from both pagehide and beforeunload so the observer is released when the sidepanel closes or unloads.",
     "issues": []
   },
-  "sharedStateObservations": [
-    {
-      "area": "skills",
-      "observation": "Mission guidance says this mission uses the custom cleanup-worker skill, but the worker could not invoke that skill and had to fall back to reading the SKILL.md file directly.",
-      "evidence": "Mission AGENTS.md states 'This mission uses a custom cleanup-worker skill for all cleanup tasks.' Transcript skeleton for workerSessionId a7db0784-bb2c-4ab1-96f6-e49f5bbcb4db shows `## Tool: Skill {\"skill\": \"cleanup-worker\"}` followed by `## Tool Result Error: Skill \"cleanup-worker\" not found`, then a manual read of `/Users/sero/projects/browser-ai/.factory/skills/cleanup-worker/SKILL.md`."
-    }
-  ],
+  "sharedStateObservations": [],
   "addressesFailureFrom": null,
-  "summary": "Pass. The reviewed commit disconnects the sidepanel ResizeObserver in a new destroy() method and invokes that cleanup from both pagehide and beforeunload, satisfying VAL-CRIT-002. No blocking or non-blocking code issues were found; one shared-state observation was noted about cleanup-worker skill availability not matching mission guidance."
+  "summary": "Pass. The reviewed commit disconnects the sidepanel ResizeObserver during teardown and triggers that teardown on both pagehide and beforeunload, satisfying the expected behavior for fix-resize-observer-leak / VAL-CRIT-002. No blocking or non-blocking code issues were identified in the reviewed implementation."
 }
