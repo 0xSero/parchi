@@ -155,6 +155,14 @@ export class ActionOverlayController {
     this.overlay.trackingStartedAt = null;
   }
 
+  destroyOverlay() {
+    this.clearActionOverlay();
+    const { root, styleEl } = this.overlay;
+    if (styleEl && styleEl.isConnected) styleEl.remove();
+    if (root && root.isConnected) root.remove();
+    this.overlay = createOverlayState();
+  }
+
   showActionOverlay(payload: Record<string, unknown>) {
     const { label: overlayLabel, selector, note, status, durationMs, bringIntoView } = payload || {};
     this.ensureOverlayRoot();

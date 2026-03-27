@@ -70,4 +70,12 @@ export class SubagentBadgeController {
     if (this.badge.bar) this.badge.bar.style.opacity = '0';
     if (this.badge.tag) this.badge.tag.style.opacity = '0';
   }
+
+  destroyBadge() {
+    const { bar, tag, styleEl } = this.badge;
+    if (bar && bar.isConnected) bar.remove();
+    if (tag && tag.isConnected) tag.remove();
+    if (styleEl && styleEl.isConnected) styleEl.remove();
+    this.badge = { bar: null, tag: null, tagLabel: null, styleEl: null };
+  }
 }
