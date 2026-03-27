@@ -1,62 +1,37 @@
 #!/bin/bash
-# Mission initialization script for Parchi refactoring
-# This script is idempotent - safe to run multiple times
+# Browser-AI Cleanup Mission Init Script
 
 set -e
 
-echo "=== Parchi Refactoring Mission Init ==="
+echo "Initializing cleanup mission environment..."
 
-# Check Node.js version
-NODE_VERSION=$(node --version 2>/dev/null || echo "none")
-if [ "$NODE_VERSION" = "none" ]; then
-    echo "ERROR: Node.js not found. Please install Node.js 18+"
+# Verify Node.js is available
+if ! command -v node &> /dev/null; then
+    echo "Error: Node.js is required but not installed"
     exit 1
 fi
-echo "Node.js version: $NODE_VERSION"
 
-# Install dependencies if node_modules doesn't exist or package-lock changed
-if [ ! -d "node_modules" ] || [ "package-lock.json" -nt "node_modules" ]; then
+# Verify npm is available
+if ! command -v npm &> /dev/null; then
+    echo "Error: npm is required but not installed"
+    exit 1
+fi
+
+# Install dependencies if node_modules doesn't exist
+if [ ! -d "node_modules" ]; then
     echo "Installing dependencies..."
     npm install
-else
-    echo "Dependencies already installed"
 fi
 
 # Verify build works
 echo "Verifying build..."
-if ! npm run build > /dev/null 2>&1; then
-    echo "WARNING: Build failed. This may be expected if refactoring in progress."
-fi
+npm run build
 
-# Run typecheck to establish baseline
-echo "Running typecheck..."
-if npm run typecheck > /dev/null 2>&1; then
-    echo "TypeScript: OK"
-else
-    echo "TypeScript: Issues found (may be expected during refactoring)"
-fi
-
-# Check for test infrastructure
-if [ -d "tests" ]; then
-    echo "Test infrastructure: OK"
-else
-    echo "WARNING: tests/ directory not found"
-fi
-
-# Check for required environment variables (for e2e tests)
-if [ -n "$DECOMPOSER_API_KEY" ]; then
-    echo "E2E test credentials: Configured"
-else
-    echo "E2E test credentials: Not set (set DECOMPOSER_API_KEY for e2e tests)"
-fi
-
+echo "Environment initialized successfully!"
 echo ""
-echo "=== Init Complete ==="
-echo "Ready for refactoring work."
-echo ""
-echo "Key commands:"
-echo "  npm run build          - Build extension"
-echo "  npm run typecheck      - TypeScript check"
-echo "  npm run test:unit      - Run unit tests"
-echo "  npm run test:coverage  - Run coverage validation"
-echo "  npm run lint           - Run linter"
+echo "Available commands:"
+echo "  npm run build       - Build the extension"
+echo "  npm run typecheck   - Run TypeScript type checking"
+echo "  npm run lint        - Run Biome linting"
+echo "  npm run knip        - Run dead code detection"
+echo "  npm run test:unit   - Run unit tests"

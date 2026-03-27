@@ -280,8 +280,8 @@
 }
 
 .tool-row.error {
-  border-left-color: rgba(200, 80, 80, 0.4);
   border-color: rgba(200, 80, 80, 0.1);
+  border-left-color: rgba(200, 80, 80, 0.4);
 }
 
 /* Repl / evaluate — terminal feel */

@@ -1,179 +1,63 @@
-# Architecture
+# Browser-AI Architecture
 
-Architectural decisions, patterns, and structure discovered during the refactoring mission.
+## Overview
+Parchi is a Chrome/Firefox extension for AI-powered browser automation. It consists of:
 
-**What belongs here:** Architectural patterns, module organization, key design decisions.
-**What does NOT belong here:** Implementation details (put in code comments), operational details (put in AGENTS.md).
+- **Background Service Worker**: Orchestrates AI calls, tool execution, session management
+- **Sidepanel UI**: User interface for chat, settings, history
+- **Content Scripts**: DOM access for browser automation tools
+- **Shared Package**: Types and utilities shared across packages
 
----
+## Key Components
 
-## Package Structure
+### Background Service (`background/`)
+- `service.ts`: Main BackgroundService class, central hub
+- `agent/agent-loop/`: AI conversation handling
+- `tools/`: Browser automation tool execution
+- `session-*.ts`: Session lifecycle and state management
 
-```
-packages/
-├── shared/           # Shared types and utilities (no runtime deps)
-├── extension/        # Browser extension (Chrome MV3 / Firefox)
-├── backend/          # Convex cloud backend (auth, billing, proxy)
-├── cli/              # CLI + relay daemon (merged from relay-service)
-├── electron-agent/   # Electron desktop automation agent
-└── website/          # Static website + billing pages
-```
+### Sidepanel UI (`sidepanel/`)
+- `ui/core/panel-ui.ts`: Main SidePanelUI class
+- `ui/chat/`: Chat interface components
+- `ui/settings/`: Settings panels
+- `styles/`: CSS files
 
----
+### Content Scripts
+- `content.ts`: Main content script for DOM interaction
+- `content-recording.ts`: Recording functionality
+- `tools/injected/`: Scripts injected into page context
 
-## Key Architectural Patterns
+### AI Module (`ai/`)
+- `sdk/`: AI SDK integration (provider resolution)
+- `providers/`: Provider registry and management
+- `compaction/`: Context window compaction
 
-### 1. Message-Based Communication
+### State Management (`state/`)
+- `stores/`: Reactive stores for UI state
+- `persistence/`: chrome.storage integration
 
-Extension uses runtime messages between:
-- **Sidepanel UI** ↔ **Background Service Worker**
+## Data Flow
 
-Message types defined in `@parchi/shared/runtime-message-definitions.ts`:
-- 21 message variants (streaming, tools, planning, status, etc.)
-- Schema versioning for backwards compatibility
-- Type guards for safe message handling
+1. User sends message in Sidepanel UI
+2. Message sent to Background via chrome.runtime
+3. Background processes through Agent Loop
+4. AI provider called with tools
+5. Tool execution dispatched to BrowserTools
+6. Content scripts execute DOM operations
+7. Results streamed back to Sidepanel UI
 
-### 2. Dependency Injection
+## Key Patterns
 
-Preferred pattern for complex modules:
-```typescript
-// Good: Dependencies explicit
-export function createAgentLoop(deps: {
-  messageRouter: MessageRouter;
-  toolExecutor: ToolExecutor;
-}): AgentLoop { ... }
-```
+- **Barrel Exports**: Clean APIs via index.ts files
+- **Prototype Augmentation**: SidePanelUI methods added via modules
+- **Store + Repository**: UI state separated from persistence
+- **Service Context**: Dependency injection for background
 
-### 3. Factory Functions
+## Known Issues
 
-Preferred over classes for most use cases:
-```typescript
-// Good: Factory function
-export function createToolExecutor(config: Config): ToolExecutor {
-  return {
-    execute: (tool) => ...,
-    dispose: () => ...
-  };
-}
-```
-
-### 4. Event-Driven Updates
-
-UI updates via message passing:
-- Background sends runtime messages
-- Sidepanel subscribes and re-renders
-- No shared mutable state
-
----
-
-## Module Organization
-
-### Extension Package
-
-```
-extension/
-├── background/       # Service worker (agent loop, routing, tools)
-│   ├── agent/        # Agent loop implementation
-│   ├── tools/        # Tool execution
-│   └── relay/        # Relay client
-├── sidepanel/        # UI code
-│   └── ui/           # Panel components
-│       ├── core/     # Base panel infrastructure
-│       ├── chat/     # Chat panel
-│       ├── settings/ # Settings panels
-│       └── ...
-├── ai/               # AI/LLM integration
-├── tools/            # Browser automation tools
-├── state/            # State management
-└── utils/            # Utilities
-```
-
-### Shared Package
-
-```
-shared/src/
-├── runtime-message-definitions.ts  # Message types
-├── runtime-messages.ts             # Message utilities
-├── orchestrator.ts                 # Multi-agent orchestration
-├── plan.ts                         # Simple linear plans
-├── profile.ts                      # Profile configuration
-├── providers.ts                    # Provider instances
-├── json-rpc.ts                     # JSON-RPC types
-├── tools.ts                        # Tool definitions
-└── utils/                          # JSON, HTML utilities
-```
-
----
-
-## Key Interfaces
-
-### RuntimeMessage
-```typescript
-type RuntimeMessage =
-  | AssistantStreamStart
-  | AssistantStreamDelta
-  | AssistantStreamStop
-  | ToolExecutionStart
-  | ToolExecutionResult
-  | PlanUpdate
-  | RunStatus
-  | RunError
-  | AssistantResponse
-  | AssistantFinal
-  // ... 21 total variants
-```
-
-### ToolDefinition
-```typescript
-interface ToolDefinition {
-  name: string;
-  description: string;
-  parameters: JSONSchema;
-  execute: (params: unknown) => Promise<unknown>;
-}
-```
-
-### ProfileConfig
-```typescript
-interface ProfileConfig {
-  provider: string;
-  model: string;
-  apiKey?: string;
-  customEndpoint?: string;
-  extraHeaders?: Record<string, string>;
-}
-```
-
----
-
-## Design Decisions
-
-### Why JSON-RPC for Relay?
-- Standard protocol with good tooling
-- Supports both request/response and notifications
-- Easy to implement over WebSocket and HTTP
-
-### Why Separate Packages for CLI and Relay?
-- Originally separate for unclear reasons
-- **DECISION**: Merge relay-service into cli (reduces duplication)
-- Relay daemon is just a CLI feature
-
-### Why Biome over ESLint?
-- Faster
-- Simpler configuration
-- Built-in formatting
-
-### Why esbuild over webpack/rollup?
-- Much faster builds
-- Simpler configuration
-- Good enough for extension bundling
-
----
-
-## Anti-Patterns to Avoid
-
-1. **God Objects**: Files over 500 lines doing too many things
-2. **Implicit Dependencies**: Using globals instead of injection
-3. **Deep Nesting**: More than 3 levels of conditionals
-4. **Mixed Concerns**: UI logic in business logic files
-5. **Duplicate Types**: Same type defined in multiple places
+- 50+ orphaned files (never imported)
+- 33 single-implementation interfaces
+- 1 circular dependency (subagent-runner ↔ ai-client)
+- Deep import chains (14 levels in background.ts)
+- Memory leaks in content scripts
+- 27 empty catch blocks
