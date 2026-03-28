@@ -1,0 +1,28 @@
+{
+  "featureId": "fix-non-null-assertions",
+  "reviewedAt": "2026-03-28T10:32:40Z",
+  "commitId": "f4079f5",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature correctly replaces the targeted non-null assertions in the reviewed OAuth and proxy code paths with explicit runtime guards, but it does not fully satisfy the feature contract because the added regression coverage only exercises the proxy guard and leaves the OAuth guard paths untested.",
+    "issues": [
+      {
+        "file": "tests/unit/suites/non-null-assertions.test.ts",
+        "line": 7,
+        "severity": "blocking",
+        "description": "The new regression suite covers only `resolveProxyProvider` missing `proxyBaseUrl`. The feature description calls for fixing 5 risky non-null assertions across `oauth/` and `ai/sdk/`, but there are no tests covering the new OAuth guard paths in `runAuthCodePkceFlow` / `runDeviceCodeFlow`. That leaves the milestone's critical auth-flow fixes unverified by automated regression coverage despite the worker adding a dedicated suite for this feature."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The refactor-worker skill requires `npm run lint` and `npm run test:integration` during final validation, but this feature handoff skipped both and still marked the feature successful based on narrower checks plus pre-commit hooks/scoped standards checks.",
+      "evidence": "Mission skill `.factory/skills/refactor-worker/SKILL.md` step 8 lists `npm run test:integration` and `npm run lint`; the handoff at `/Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/handoffs/2026-03-28T10-17-07-361Z__fix-non-null-assertions__1eb7419e-bdeb-4424-a746-be05e93831a4.json` records only `test:unit`, `typecheck`, `build`, and repo-standards checks, with `skillFeedback.followedProcedure` set to false for that reason."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed handoff, transcript skeleton, commit `f4079f5`, and current files. Implementation fixes the targeted non-null assertions in the inspected OAuth and proxy paths, but I marked the review failed because the dedicated regression test only covers the proxy guard and does not verify the newly added OAuth null checks that are part of the feature contract."
+}
