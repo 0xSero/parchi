@@ -13,7 +13,7 @@ const byIdAny = <T extends HTMLElement>(...ids: string[]): NullableElement<T> =>
 };
 const bySelector = <T extends Element>(selector: string): NullableElement<T> =>
   document.querySelector(selector) as NullableElement<T>;
-export type SidePanelElements = Record<string, any>;
+export type SidePanelElements = { [key: string]: any };
 export const getSidePanelElements = (): SidePanelElements => ({
   // Sidebar
   sidebar: byId<HTMLElement>('sidebar'),

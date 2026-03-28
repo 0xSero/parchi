@@ -9,7 +9,7 @@ import {
   resolveRuntimeModelProfile,
 } from './model-profiles.js';
 
-const profileUsesCodexOAuth = (profile: Record<string, any> | null | undefined) =>
+const profileUsesCodexOAuth = (profile: Record<string, unknown> | null | undefined) =>
   isCodexOAuthProvider(String(profile?.provider || ''));
 
 export async function runApiSmokeTest(
@@ -28,7 +28,7 @@ export async function runApiSmokeTest(
   prompt: string,
 ) {
   try {
-    const runtimeSettings = settings as Record<string, any>;
+    const runtimeSettings = settings as Record<string, unknown>;
     if (!hasOwnApiKey({ apiKey: settings.apiKey || '' })) {
       await refreshConvexProxyAuthSession(runtimeSettings);
     }
@@ -58,7 +58,7 @@ export async function runApiSmokeTest(
     const model = resolveLanguageModel(resolvedProfile as any);
     const smokeUsesCodexOAuth = profileUsesCodexOAuth(resolvedProfile as any);
     const smokeProvider = String(
-      (resolvedProfile as Record<string, any>)?.provider || settings.provider || '',
+      (resolvedProfile as Record<string, unknown>)?.provider || settings.provider || '',
     ).toLowerCase();
     const maxOutputTokens = smokeUsesCodexOAuth ? undefined : smokeProvider === 'minimax' ? 256 : 64;
 

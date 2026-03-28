@@ -52,7 +52,7 @@ export const sanitizeTracePayload = (value: any, depth = 0): any => {
   }
 
   if (typeof value === 'object') {
-    const out: Record<string, any> = {};
+    const out: Record<string, unknown> = {};
     let keysSeen = 0;
     for (const [key, raw] of Object.entries(value)) {
       keysSeen += 1;

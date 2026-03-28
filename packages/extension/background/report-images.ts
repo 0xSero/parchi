@@ -44,8 +44,8 @@ export function trimReportImages(sessionState: SessionState) {
 
 export function captureReportImage(
   sessionState: SessionState,
-  result: Record<string, any>,
-  args: Record<string, any>,
+  result: Record<string, unknown>,
+  args: Record<string, unknown>,
   toolCallId: string,
 ): ReportImage | null {
   const dataUrl = typeof result?.dataUrl === 'string' ? result.dataUrl : '';

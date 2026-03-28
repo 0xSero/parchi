@@ -23,7 +23,7 @@ export type TokenTracePayload = {
 export type ServiceContext = {
   // Shared state
   browserTools: BrowserTools;
-  currentSettings: Record<string, any> | null;
+  currentSettings: Record<string, unknown> | null;
   currentSessionId: string | null;
   currentPlan: RunPlan | null;
   subAgentCount: number;
@@ -78,22 +78,22 @@ export type ServiceContext = {
 
   executeToolByName(
     toolName: string,
-    args: Record<string, any>,
+    args: Record<string, unknown>,
     options: {
       runMeta: RunMeta;
-      settings: Record<string, any>;
-      visionProfile?: Record<string, any> | null;
+      settings: Record<string, unknown>;
+      visionProfile?: Record<string, unknown> | null;
     },
     toolCallId?: string,
   ): Promise<any>;
 
   getToolsForSession(
-    settings: Record<string, any>,
+    settings: Record<string, unknown>,
     includeOrchestrator?: boolean,
     teamProfiles?: Array<{ name: string }>,
     includeVisionTools?: boolean,
   ): any[];
 
-  runApiSmokeTest(settings: Record<string, any>, prompt: string): Promise<any>;
+  runApiSmokeTest(settings: Record<string, unknown>, prompt: string): Promise<any>;
   generateWorkflowPrompt(sessionContext: string, maxOutputTokens?: number): Promise<{ prompt: string; error?: string }>;
 };

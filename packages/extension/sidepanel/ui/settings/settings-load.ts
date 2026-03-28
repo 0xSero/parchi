@@ -6,7 +6,7 @@ import { DEFAULT_THEME_ID } from './themes.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
 sidePanelProto.loadSettings = async function loadSettings() {
-  let settings: Record<string, any> = {};
+  let settings: Record<string, unknown> = {};
   try {
     settings = await hydrateSettingsStore();
   } catch (error) {
@@ -14,7 +14,10 @@ sidePanelProto.loadSettings = async function loadSettings() {
     this.updateStatus('Failed to load settings', 'error');
   }
 
-  const storedConfigs = settings.configs || {};
+  const storedConfigs =
+    settings.configs && typeof settings.configs === 'object' && !Array.isArray(settings.configs)
+      ? settings.configs
+      : {};
   const baseConfig = {
     provider: '',
     apiKey: '',
@@ -37,10 +40,13 @@ sidePanelProto.loadSettings = async function loadSettings() {
   };
 
   this.configs = {
-    default: { ...baseConfig, ...(storedConfigs.default || {}) },
+    default: { ...baseConfig, ...((storedConfigs as Record<string, Record<string, unknown>>).default || {}) },
     ...storedConfigs,
   };
-  this.providers = settings.providers || {};
+  this.providers =
+    settings.providers && typeof settings.providers === 'object' && !Array.isArray(settings.providers)
+      ? settings.providers
+      : {};
   const storedActiveConfig = typeof settings.activeConfig === 'string' ? settings.activeConfig : '';
   const storedActiveProvider = String(settings.provider || '')
     .trim()
@@ -66,20 +72,23 @@ sidePanelProto.loadSettings = async function loadSettings() {
     });
   })();
   this.currentConfig = this.configs[storedActiveConfig] ? storedActiveConfig : legacyActiveConfig || 'default';
-  this.auxAgentProfiles = settings.auxAgentProfiles || [];
+  this.auxAgentProfiles = Array.isArray(settings.auxAgentProfiles) ? settings.auxAgentProfiles : [];
   this.visibleModels = Array.isArray(settings.visibleModels) ? settings.visibleModels : [];
   this.applyUiZoom(settings.uiZoom ?? 1, { persist: false });
   this.applyTypography(settings.fontPreset ?? 'default', settings.fontStylePreset ?? 'normal', { persist: false });
-  this.currentTheme = settings.theme || DEFAULT_THEME_ID;
+  this.currentTheme = typeof settings.theme === 'string' ? settings.theme : DEFAULT_THEME_ID;
 
   const { applyTheme } = await import('./themes.js');
   applyTheme(this.currentTheme);
   this.renderThemeGrid?.();
 
   if (this.elements.visionBridge) this.elements.visionBridge.checked = settings.visionBridge !== false;
-  if (this.elements.visionProfile) this.elements.visionProfile.value = settings.visionProfile || '';
+  if (this.elements.visionProfile)
+    this.elements.visionProfile.value = typeof settings.visionProfile === 'string' ? settings.visionProfile : '';
   if (this.elements.orchestratorToggle) this.elements.orchestratorToggle.checked = settings.useOrchestrator === true;
-  if (this.elements.orchestratorProfile) this.elements.orchestratorProfile.value = settings.orchestratorProfile || '';
+  if (this.elements.orchestratorProfile)
+    this.elements.orchestratorProfile.value =
+      typeof settings.orchestratorProfile === 'string' ? settings.orchestratorProfile : '';
   const orchEnabled = this.elements.orchestratorToggle?.checked === true;
   if (this.elements.orchestratorProfileSelectGroup)
     this.elements.orchestratorProfileSelectGroup.style.display = orchEnabled ? '' : 'none';
@@ -98,8 +107,10 @@ sidePanelProto.loadSettings = async function loadSettings() {
   this.timelineCollapsed = settings.timelineCollapsed !== undefined ? settings.timelineCollapsed !== false : true;
 
   if (this.elements.relayEnabled) this.elements.relayEnabled.checked = settings.relayEnabled === true;
-  if (this.elements.relayUrl) this.elements.relayUrl.value = settings.relayUrl || 'http://127.0.0.1:17373';
-  if (this.elements.relayToken) this.elements.relayToken.value = settings.relayToken || '';
+  if (this.elements.relayUrl)
+    this.elements.relayUrl.value = typeof settings.relayUrl === 'string' ? settings.relayUrl : 'http://127.0.0.1:17373';
+  if (this.elements.relayToken)
+    this.elements.relayToken.value = typeof settings.relayToken === 'string' ? settings.relayToken : '';
   this.updateRelayStatusFromSettings?.(settings);
 
   const defaultPermissions = {
@@ -111,7 +122,11 @@ sidePanelProto.loadSettings = async function loadSettings() {
   };
   const toolPermissions = {
     ...defaultPermissions,
-    ...(settings.toolPermissions || {}),
+    ...(settings.toolPermissions &&
+    typeof settings.toolPermissions === 'object' &&
+    !Array.isArray(settings.toolPermissions)
+      ? settings.toolPermissions
+      : {}),
   };
   this.toolPermissions = toolPermissions;
   if (this.elements.permissionRead) this.elements.permissionRead.checked = toolPermissions.read !== false;
@@ -120,7 +135,8 @@ sidePanelProto.loadSettings = async function loadSettings() {
   if (this.elements.permissionTabs) this.elements.permissionTabs.checked = toolPermissions.tabs !== false;
   if (this.elements.permissionScreenshots)
     this.elements.permissionScreenshots.checked = toolPermissions.screenshots !== false;
-  if (this.elements.allowedDomains) this.elements.allowedDomains.value = settings.allowedDomains || '';
+  if (this.elements.allowedDomains)
+    this.elements.allowedDomains.value = typeof settings.allowedDomains === 'string' ? settings.allowedDomains : '';
 
   await syncOAuthProfiles(this).catch((error) => {
     console.warn('[SettingsLoad] Failed to sync OAuth profiles:', error);
@@ -137,7 +153,7 @@ sidePanelProto.loadSettings = async function loadSettings() {
 };
 
 sidePanelProto.updateRelayStatusFromSettings = function updateRelayStatusFromSettings(
-  settings: Record<string, any> = {},
+  settings: Record<string, unknown> = {},
 ) {
   const connected = settings.relayConnected === true;
   if (this.elements.relayConnectedBadge) {

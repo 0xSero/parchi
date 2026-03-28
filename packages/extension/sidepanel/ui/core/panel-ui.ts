@@ -2,18 +2,19 @@ import type { RecordedContext, RunPlan } from '@parchi/shared';
 import type { Message } from '../../../ai/messages/schema.js';
 import type { SubagentEntry, UsageStats } from '../types/panel-types.js';
 import { getSidePanelElements } from './panel-elements.js';
+type LooseMap = { [key: string]: any };
 export class SidePanelUI {
   // Allow prototype augmentation across panel-*.ts modules.
   [key: string]: any;
-  elements: Record<string, any>;
+  elements: LooseMap;
   displayHistory: Message[];
   contextHistory: Message[];
   sessionId: string;
   sessionStartedAt: number;
   firstUserMessage: string;
   currentConfig: string;
-  configs: Record<string, any>;
-  providers: Record<string, any>;
+  configs: LooseMap;
+  providers: LooseMap;
   toolCallViews: Map<string, any>;
   lastChatTurn: HTMLElement | null;
   selectedTabs: Map<number, any>;

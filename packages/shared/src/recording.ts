@@ -76,7 +76,7 @@ export type RecordingMessageType = RecordingCommand['type'] | RecordingUpdate['t
 
 export type AtomicSkill = {
   tool: string;
-  args: Record<string, any>;
+  args: Record<string, unknown>;
   precondition?: { urlPattern?: string; requireSelector?: string };
   postcondition?: { expectUrlChange?: boolean; expectSelector?: string };
 };
@@ -88,8 +88,8 @@ export type ComposedSkill = {
   sitePattern: string;
   steps: AtomicSkill[];
   prompt?: string;
-  positiveExamples: Array<{ tool: string; args: Record<string, any>; result: string }>;
-  negativeExamples: Array<{ tool: string; args: Record<string, any>; error: string; count: number }>;
+  positiveExamples: Array<{ tool: string; args: Record<string, unknown>; result: string }>;
+  negativeExamples: Array<{ tool: string; args: Record<string, unknown>; error: string; count: number }>;
   createdAt: number;
   sourceSessionId?: string;
   successCount: number;

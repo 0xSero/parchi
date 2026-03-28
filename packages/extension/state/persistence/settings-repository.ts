@@ -1,7 +1,7 @@
 import { PARCHI_STORAGE_KEYS, asRecord } from '@parchi/shared';
 import { migrateSettingsToProviderRegistry } from '../../ai/providers/registry.js';
 
-export type SettingsSnapshot = Record<string, any>;
+export type SettingsSnapshot = Record<string, unknown>;
 
 const SETTINGS_KEYS = [...PARCHI_STORAGE_KEYS] as string[];
 

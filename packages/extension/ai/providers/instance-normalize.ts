@@ -68,7 +68,7 @@ export const normalizeProviderInstance = (value: unknown): ProviderInstance | nu
 
 export const buildProviderFromProfile = (
   profileName: string,
-  profile: Record<string, any>,
+  profile: Record<string, unknown>,
   existingProviders: Record<string, ProviderInstance>,
 ) => {
   const providerType = normalizeProviderType(profile.provider);
@@ -115,7 +115,12 @@ export const buildProviderFromProfile = (
     oauthError: prior?.oauthError,
     isConnected: authType === 'oauth' ? prior?.isConnected === true : authType === 'managed' ? true : Boolean(apiKey),
     models,
-    supportsImages: prior?.supportsImages ?? profile.supportsImages ?? undefined,
+    supportsImages:
+      typeof prior?.supportsImages === 'boolean'
+        ? prior.supportsImages
+        : typeof profile.supportsImages === 'boolean'
+          ? profile.supportsImages
+          : undefined,
     createdAt: Number(prior?.createdAt || now),
     updatedAt: now,
     source: prior?.source || 'migration',

@@ -132,7 +132,7 @@ export async function callBuiltin(
     nestedToolExecutor,
   );
   if (!result.handled) throw new Error(`Builtin ${toolName} was not handled.`);
-  return result.result as Record<string, any>;
+  return result.result as BuiltinResult;
 }
 
 export function createNestedSpawnStub(ctx: HarnessContext) {

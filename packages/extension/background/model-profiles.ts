@@ -1,3 +1,4 @@
+import { asString } from '@parchi/shared';
 import { materializeProfileWithProvider } from '../ai/providers/registry.js';
 import { normalizeOpenRouterModelId } from '../ai/sdk/index.js';
 import { invalidateRuntimeAuthSession, isUsableRuntimeJwt, refreshRuntimeAuthSession } from '../convex/client.js';
@@ -8,15 +9,15 @@ import {
 } from '../oauth/manager.js';
 import type { OAuthProviderKey } from '../oauth/types.js';
 
-export function hasOwnApiKey(profile: Record<string, any> | null | undefined) {
+export function hasOwnApiKey(profile: Record<string, unknown> | null | undefined) {
   return Boolean(String(profile?.apiKey || '').trim());
 }
 
-export function hasConfiguredModel(profile: Record<string, any> | null | undefined) {
+export function hasConfiguredModel(profile: Record<string, unknown> | null | undefined) {
   return Boolean(String(profile?.model || '').trim());
 }
 
-export async function injectOAuthTokens(profile: Record<string, any>): Promise<Record<string, any>> {
+export async function injectOAuthTokens(profile: Record<string, unknown>): Promise<Record<string, unknown>> {
   const provider = String(profile?.provider || '')
     .trim()
     .toLowerCase();
@@ -43,7 +44,7 @@ export function normalizeProxyModelId(provider: string, modelId: string) {
   return normalizeOpenRouterModelId(model);
 }
 
-export function hasActivePaidSubscription(settings: Record<string, any> = {}) {
+export function hasActivePaidSubscription(settings: Record<string, unknown> = {}) {
   const mode = String(settings.accountModeChoice || '').toLowerCase();
   if (mode !== 'paid') return false;
   const status = String(settings.convexSubscriptionStatus || '').toLowerCase();
@@ -51,7 +52,7 @@ export function hasActivePaidSubscription(settings: Record<string, any> = {}) {
   return plan === 'pro' && status === 'active';
 }
 
-export function resolveConvexProxyBaseUrl(settings: Record<string, any> = {}) {
+export function resolveConvexProxyBaseUrl(settings: Record<string, unknown> = {}) {
   const explicitSite = String(settings.convexSiteUrl || '').trim();
   const rawBase = explicitSite || String(settings.convexUrl || '').trim();
   if (!rawBase) return '';
@@ -66,14 +67,17 @@ export function resolveConvexProxyBaseUrl(settings: Record<string, any> = {}) {
   }
 }
 
-export function canUseConvexProxy(settings: Record<string, any> = {}) {
+export function canUseConvexProxy(settings: Record<string, unknown> = {}) {
   return Boolean(
     resolveConvexProxyBaseUrl(settings) &&
       isUsableRuntimeJwt(settings.convexAccessToken, settings.convexTokenExpiresAt, { minRemainingMs: 0 }),
   );
 }
 
-export async function refreshConvexProxyAuthSession(settings: Record<string, any>, options: { force?: boolean } = {}) {
+export async function refreshConvexProxyAuthSession(
+  settings: Record<string, unknown>,
+  options: { force?: boolean } = {},
+) {
   const mode = String(settings.accountModeChoice || '')
     .trim()
     .toLowerCase();
@@ -103,7 +107,7 @@ export async function refreshConvexProxyAuthSession(settings: Record<string, any
   }
 }
 
-export function applyConvexProxyProfile(profile: Record<string, any>, settings: Record<string, any>) {
+export function applyConvexProxyProfile(profile: Record<string, unknown>, settings: Record<string, unknown>) {
   const preferredProvider =
     profile?.provider === 'kimi'
       ? 'kimi'
@@ -128,7 +132,7 @@ export function applyConvexProxyProfile(profile: Record<string, any>, settings: 
   };
 }
 
-export function resolveRuntimeModelProfile(profile: Record<string, any>, settings: Record<string, any>) {
+export function resolveRuntimeModelProfile(profile: Record<string, unknown>, settings: Record<string, unknown>) {
   if (!hasConfiguredModel(profile)) {
     return {
       allowed: false,
@@ -171,7 +175,7 @@ export function resolveRuntimeModelProfile(profile: Record<string, any>, setting
   };
 }
 
-export function resolveProfile(settings: Record<string, any>, name = 'default') {
+export function resolveProfile(settings: Record<string, unknown>, name = 'default') {
   const base = {
     provider: settings.provider,
     providerId: settings.providerId,
@@ -196,7 +200,7 @@ export function resolveProfile(settings: Record<string, any>, name = 'default') 
   return materializeProfileWithProvider(settings, name, { ...base, ...profile });
 }
 
-export function resolveTeamProfiles(settings: Record<string, any>) {
+export function resolveTeamProfiles(settings: Record<string, unknown>) {
   const names = Array.isArray(settings.auxAgentProfiles) ? settings.auxAgentProfiles : [];
   const unique = Array.from(new Set(names)).filter(
     (name): name is string => typeof name === 'string' && name.trim().length > 0,
@@ -205,13 +209,13 @@ export function resolveTeamProfiles(settings: Record<string, any>) {
     const profile = resolveProfile(settings, name);
     return {
       name,
-      provider: profile.provider || '',
-      model: profile.model || '',
+      provider: asString(profile.provider),
+      model: asString(profile.model),
     };
   });
 }
 
-export function isVisionModelProfile(profile: Record<string, any> | null | undefined) {
+export function isVisionModelProfile(profile: Record<string, unknown> | null | undefined) {
   const provider = String(profile?.provider || '').toLowerCase();
   const model = String(profile?.model || '').toLowerCase();
 

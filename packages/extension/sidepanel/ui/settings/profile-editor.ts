@@ -48,14 +48,14 @@ sidePanelProto.editProfile = function editProfile(name: string, silent = false) 
     this.elements.profileEditorName.classList.toggle('oauth-readonly', isOAuth);
   }
   if (this.elements.profileEditorProvider) {
-    this.elements.profileEditorProvider.value = config.providerId || '';
+    this.elements.profileEditorProvider.value = String(config.providerId || '');
     (this.elements.profileEditorProvider as HTMLSelectElement).disabled = false;
   }
   if (this.elements.profileEditorModelInput) {
-    this.elements.profileEditorModelInput.value = config.modelId || config.model || '';
+    this.elements.profileEditorModelInput.value = String(config.modelId || config.model || '');
   }
   if (this.elements.profileEditorModel) {
-    const modelVal = config.modelId || config.model || '';
+    const modelVal = String(config.modelId || config.model || '');
     const modelSelect = this.elements.profileEditorModel as HTMLSelectElement;
     if (modelVal && !Array.from(modelSelect.options).some((o: HTMLOptionElement) => o.value === modelVal)) {
       const opt = document.createElement('option');

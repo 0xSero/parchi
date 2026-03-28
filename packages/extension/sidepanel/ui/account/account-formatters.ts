@@ -33,7 +33,7 @@ export const toUsageLabel = (usage: unknown) => {
   return `${requestCount} req · ${tokensUsed} tokens`;
 };
 
-export const isRecord = (value: unknown): value is Record<string, any> =>
+export const isRecord = (value: unknown): value is Record<string, unknown> =>
   Boolean(value && typeof value === 'object' && !Array.isArray(value));
 
 export const normalizeManagedModelId = (modelId: string) => {
@@ -58,10 +58,10 @@ export const normalizeManagedModelId = (modelId: string) => {
   return model;
 };
 
-export const hasConfiguredModel = (profile: Record<string, any> | null | undefined) =>
+export const hasConfiguredModel = (profile: Record<string, unknown> | null | undefined) =>
   Boolean(String(profile?.model || '').trim());
 
-export const hasConfiguredApiKey = (profile: Record<string, any> | null | undefined) =>
+export const hasConfiguredApiKey = (profile: Record<string, unknown> | null | undefined) =>
   Boolean(String(profile?.apiKey || '').trim());
 
 export const isOAuthProvider = (provider: unknown) =>

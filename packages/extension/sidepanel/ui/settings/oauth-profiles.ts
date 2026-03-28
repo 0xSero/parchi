@@ -20,7 +20,7 @@ function oauthKeyFromProfile(name: string): string | null {
   return name.slice(OAUTH_PROFILE_PREFIX.length);
 }
 
-function providerSyncSignature(provider: Record<string, any> | null | undefined): string {
+function providerSyncSignature(provider: Record<string, unknown> | null | undefined): string {
   return JSON.stringify({
     isConnected: provider?.isConnected === true,
     oauthEmail: String(provider?.oauthEmail || ''),
@@ -77,7 +77,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
     const oauthProviderType = `${config.key}-oauth`;
     for (const [existingId, existingProvider] of Object.entries(providers)) {
       if (existingId === providerId) continue;
-      const ep = existingProvider as Record<string, any>;
+      const ep = existingProvider as Record<string, unknown>;
       const isMatch =
         ep.oauthProviderKey === config.key ||
         ep.provider === oauthProviderType ||
@@ -127,7 +127,10 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       });
     }
     providers[providerId] = nextProvider;
-    if (providerSyncSignature(priorProvider) !== providerSyncSignature(nextProvider)) {
+    if (
+      providerSyncSignature(priorProvider as Record<string, unknown> | null | undefined) !==
+      providerSyncSignature(nextProvider as unknown as Record<string, unknown>)
+    ) {
       changed = true;
     }
 
@@ -152,7 +155,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       };
       changed = true;
     } else if (connected && configs[profileName]) {
-      const existing = configs[profileName] as Record<string, any>;
+      const existing = configs[profileName] as Record<string, unknown>;
       const currentModel = String(existing?.model || '').trim();
       const normalizedModel = normalizeOAuthModelIdForProvider(config.key, currentModel);
       const nextModel = normalizedModel || defaultModel;

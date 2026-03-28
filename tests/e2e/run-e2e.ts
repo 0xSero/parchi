@@ -910,7 +910,7 @@ test('Mascot opens context inspector popover with compaction controls', async ({
       const ui = (window as Window & { sidePanelUI?: Record<string, unknown> }).sidePanelUI as
         | (Record<string, unknown> & {
             sessionTokenTotals?: Record<string, number>;
-            configs?: Record<string, any>;
+            configs?: Record<string, unknown>;
             currentConfig?: string;
           })
         | undefined;

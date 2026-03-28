@@ -66,7 +66,7 @@ export function getSessionState(sessionStateById: Map<string, SessionState>, ses
 
 export function getBrowserTools(
   browserToolsBySessionId: Map<string, BrowserTools>,
-  currentSettings: Record<string, any> | null,
+  currentSettings: Record<string, unknown> | null,
   sessionId: string,
 ): BrowserTools {
   const id = typeof sessionId === 'string' && sessionId.trim() ? sessionId : 'default';

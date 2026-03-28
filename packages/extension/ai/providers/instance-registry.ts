@@ -3,7 +3,7 @@ import { type ProviderInstance, type ProviderModelEntry, asString } from '@parch
 import { normalizeProviderModels } from './instance-models.js';
 import { isProviderRegistry, normalizeProviderInstance } from './instance-normalize.js';
 
-type SettingsLike = Record<string, any>;
+type SettingsLike = Record<string, unknown>;
 
 export const getProviderRegistry = (settings: SettingsLike): Record<string, ProviderInstance> => {
   const providers = isProviderRegistry(settings.providers) ? settings.providers : {};

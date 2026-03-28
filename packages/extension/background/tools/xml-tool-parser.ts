@@ -100,7 +100,7 @@ export function parsePlanSteps(text: string) {
     .filter(Boolean);
 }
 
-export function buildPlanFromArgs(args: Record<string, any>, existingPlan?: RunPlan | null) {
+export function buildPlanFromArgs(args: Record<string, unknown>, existingPlan?: RunPlan | null) {
   const stepInput = Array.isArray(args?.steps) ? args.steps : null;
   const planText = typeof args?.plan === 'string' ? args.plan : '';
   const parsedSteps = planText ? parsePlanSteps(planText) : [];

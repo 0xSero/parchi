@@ -139,9 +139,11 @@ sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
   };
 };
 
-const collectCandidateProfiles = (stored: Record<string, any>) => {
+const collectCandidateProfiles = (stored: Record<string, unknown>) => {
   const configs = isRecord(stored.configs) ? stored.configs : {};
-  const configProfiles = Object.values(configs).filter((profile) => isRecord(profile)) as Array<Record<string, any>>;
+  const configProfiles = Object.values(configs).filter((profile) => isRecord(profile)) as Array<
+    Record<string, unknown>
+  >;
   const topLevelProfile = {
     provider: stored.provider,
     apiKey: stored.apiKey,

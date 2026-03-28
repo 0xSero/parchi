@@ -3,6 +3,7 @@
  * Handles assistant final message and usage tracking
  */
 
+import { asString } from '@parchi/shared';
 import { appendTrace } from '../../chat/trace-store.js';
 import { recordUsage } from '../../settings/usage-store.js';
 import { clampHistoryTurnMap } from '../history-manager.js';
@@ -53,9 +54,9 @@ export const handleAssistantFinal = function handleAssistantFinal(
 
   // Record usage to persistent local store
   if (message.usage && (message.usage.inputTokens || message.usage.outputTokens)) {
-    const activeConfig = (this.configs as Record<string, any>)?.[this.currentConfig as string] || {};
-    const usageModel = message.model || activeConfig.model || 'unknown';
-    const usageProvider = activeConfig.provider || 'unknown';
+    const activeConfig = this.configs?.[this.currentConfig as string] as Record<string, unknown> | undefined;
+    const usageModel = message.model || asString(activeConfig?.model) || 'unknown';
+    const usageProvider = asString(activeConfig?.provider) || 'unknown';
     recordUsage(usageModel, usageProvider, {
       inputTokens: message.usage.inputTokens || 0,
       outputTokens: message.usage.outputTokens || 0,

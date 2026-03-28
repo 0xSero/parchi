@@ -14,8 +14,8 @@ declare namespace chrome {
 
   namespace storage {
     interface StorageArea {
-      get(keys?: string[] | string | Record<string, any> | null): Promise<Record<string, any>>;
-      set(items: Record<string, any>): Promise<void>;
+      get(keys?: string[] | string | Record<string, unknown> | null): Promise<Record<string, unknown>>;
+      set(items: Record<string, unknown>): Promise<void>;
     }
   }
 

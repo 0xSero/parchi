@@ -1,3 +1,4 @@
+import { asString } from '@parchi/shared';
 import { SidePanelUI } from '../core/panel-ui.js';
 import type { BooleanBinding, NumberBinding } from './profile-bindings.js';
 import { SETTINGS_FORM_BOOLEAN_BINDINGS, SETTINGS_FORM_NUMBER_BINDINGS } from './profile-bindings.js';
@@ -5,18 +6,18 @@ import { formatHeadersJson } from './profile-json-editor.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
-export const readControlValue = (elements: Record<string, any>, elementKey: string) => {
-  const control = elements[elementKey];
+export const readControlValue = (elements: Record<string, unknown>, elementKey: string) => {
+  const control = elements[elementKey] as { value?: unknown } | undefined;
   return typeof control?.value === 'string' ? control.value : '';
 };
 
-export const setControlValue = (elements: Record<string, any>, elementKey: string, value: string | number) => {
-  const control = elements[elementKey];
+export const setControlValue = (elements: Record<string, unknown>, elementKey: string, value: string | number) => {
+  const control = elements[elementKey] as { value?: unknown } | undefined;
   if (!control || typeof control !== 'object' || !('value' in control)) return;
   control.value = String(value);
 };
 
-export const setCheckboxValue = (elements: Record<string, any>, elementKey: string, value: boolean) => {
+export const setCheckboxValue = (elements: Record<string, unknown>, elementKey: string, value: boolean) => {
   const control = elements[elementKey] as HTMLInputElement | null;
   if (!control) return;
   control.checked = value;
@@ -31,8 +32,8 @@ export const toBooleanWithDefault = (value: unknown, defaultTrue: boolean) =>
   defaultTrue ? value !== false : value === true;
 
 export const applyBooleanBindings = (
-  elements: Record<string, any>,
-  config: Record<string, any>,
+  elements: Record<string, unknown>,
+  config: Record<string, unknown>,
   bindings: BooleanBinding[],
 ) => {
   bindings.forEach(({ elementKey, configKey, defaultTrue }) => {
@@ -40,7 +41,7 @@ export const applyBooleanBindings = (
   });
 };
 
-export const readBooleanBindings = (elements: Record<string, any>, bindings: BooleanBinding[]) => {
+export const readBooleanBindings = (elements: Record<string, unknown>, bindings: BooleanBinding[]) => {
   const result: Record<string, boolean> = {};
   bindings.forEach(({ elementKey, configKey, defaultTrue }) => {
     const control = elements[elementKey] as HTMLInputElement | null;
@@ -50,8 +51,8 @@ export const readBooleanBindings = (elements: Record<string, any>, bindings: Boo
 };
 
 export const applyNumberBindings = (
-  elements: Record<string, any>,
-  config: Record<string, any>,
+  elements: Record<string, unknown>,
+  config: Record<string, unknown>,
   bindings: NumberBinding[],
 ) => {
   bindings.forEach(({ elementKey, configKey, fallback, parseMode }) => {
@@ -63,7 +64,7 @@ export const applyNumberBindings = (
   });
 };
 
-export const readNumberBindings = (elements: Record<string, any>, bindings: NumberBinding[]) => {
+export const readNumberBindings = (elements: Record<string, unknown>, bindings: NumberBinding[]) => {
   const result: Record<string, number> = {};
   bindings.forEach(({ elementKey, configKey, fallback, parseMode }) => {
     result[configKey] = parseNumeric(readControlValue(elements, elementKey), fallback, parseMode);
@@ -71,23 +72,25 @@ export const readNumberBindings = (elements: Record<string, any>, bindings: Numb
   return result;
 };
 
-sidePanelProto.populateFormFromConfig = function populateFormFromConfig(config: Record<string, any> = {}) {
-  if (this.elements.provider) this.elements.provider.value = config.provider || '';
-  if (this.elements.apiKey) this.elements.apiKey.value = config.apiKey || '';
+sidePanelProto.populateFormFromConfig = function populateFormFromConfig(config: Record<string, unknown> = {}) {
+  if (this.elements.provider) this.elements.provider.value = asString(config.provider);
+  if (this.elements.apiKey) this.elements.apiKey.value = asString(config.apiKey);
   if (this.elements.model) {
-    const modelVal = config.model || '';
+    const modelVal = asString(config.model);
     this.elements.model.value = modelVal;
   }
-  if (this.elements.customEndpoint) this.elements.customEndpoint.value = config.customEndpoint || '';
+  if (this.elements.customEndpoint) this.elements.customEndpoint.value = asString(config.customEndpoint);
   if (this.elements.customHeaders) {
-    this.elements.customHeaders.value = formatHeadersJson(config.extraHeaders) || '';
+    this.elements.customHeaders.value =
+      formatHeadersJson((config.extraHeaders as Record<string, unknown> | undefined) ?? undefined) || '';
   }
   if (this.elements.systemPrompt)
-    this.elements.systemPrompt.value = config.systemPrompt || this.getDefaultSystemPrompt();
+    this.elements.systemPrompt.value = asString(config.systemPrompt) || this.getDefaultSystemPrompt();
   applyNumberBindings(this.elements, config, SETTINGS_FORM_NUMBER_BINDINGS);
   if (this.elements.temperatureValue) {
     this.elements.temperatureValue.textContent = readControlValue(this.elements, 'temperature');
   }
   applyBooleanBindings(this.elements, config, SETTINGS_FORM_BOOLEAN_BINDINGS);
-  if (this.elements.screenshotQuality) this.elements.screenshotQuality.value = config.screenshotQuality || 'high';
+  if (this.elements.screenshotQuality)
+    this.elements.screenshotQuality.value = asString(config.screenshotQuality) || 'high';
 };

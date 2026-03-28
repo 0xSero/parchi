@@ -3,7 +3,17 @@ import { asRecord, asString } from '@parchi/shared';
 import { buildProviderFromProfile } from './instance-normalize.js';
 import { ensureProviderModel, getProviderRegistry } from './instance-registry.js';
 
-type SettingsLike = Record<string, any>;
+type SettingsLike = Record<string, unknown> & {
+  configs?: Record<string, Record<string, unknown>>;
+  providers?: Record<string, unknown>;
+  activeConfig?: string;
+  provider?: string;
+  apiKey?: string;
+  model?: string;
+  customEndpoint?: string;
+  extraHeaders?: Record<string, unknown>;
+  systemPrompt?: string;
+};
 
 const asRecordOrEmpty = (value: unknown): Record<string, unknown> => asRecord(value) ?? {};
 const asStringRecord = (value: unknown): Record<string, string> => {
@@ -17,8 +27,8 @@ const asStringRecord = (value: unknown): Record<string, string> => {
 export const materializeProfileWithProvider = (
   settings: SettingsLike,
   _name: string,
-  profile: Record<string, any>,
-): Record<string, any> => {
+  profile: Record<string, unknown>,
+): Record<string, unknown> => {
   const providers = getProviderRegistry(settings);
   const providerId = asString(profile.providerId);
   const provider = providerId ? providers[providerId] : null;
@@ -41,7 +51,7 @@ export const migrateSettingsToProviderRegistry = (settings: SettingsLike): Setti
   const next: SettingsLike = { ...settings };
   const providers = getProviderRegistry(next);
   const configs = asRecordOrEmpty(next.configs);
-  const migratedConfigs: Record<string, any> = {};
+  const migratedConfigs: Record<string, Record<string, unknown>> = {};
 
   for (const [name, rawProfile] of Object.entries(configs)) {
     const profile = asRecordOrEmpty(rawProfile);
@@ -71,7 +81,7 @@ export const migrateSettingsToProviderRegistry = (settings: SettingsLike): Setti
       extraHeaders: asStringRecord(next.extraHeaders),
       systemPrompt: asString(next.systemPrompt),
     };
-    if (migratedConfigs.default.provider) {
+    if (asString(migratedConfigs.default.provider)) {
       const instance = buildProviderFromProfile('default', migratedConfigs.default, providers);
       providers[instance.id] = ensureProviderModel(instance, asString(migratedConfigs.default.model));
       migratedConfigs.default.providerId = instance.id;

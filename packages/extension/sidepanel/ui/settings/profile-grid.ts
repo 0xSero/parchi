@@ -41,8 +41,9 @@ sidePanelProto.renderProfileGrid = function renderProfileGrid() {
       name !== 'default' && !isOAuth
         ? `<button class="agent-card-delete" data-delete-profile="${this.escapeHtml(name)}" title="Delete profile">&times;</button>`
         : '';
+    const providerType = String(config.provider || '');
     const providerLabel =
-      config.providerLabel || (isOAuth ? config.provider.replace(/-oauth$/, '') : config.provider || 'Provider');
+      config.providerLabel || (isOAuth ? providerType.replace(/-oauth$/, '') : providerType || 'Provider');
     const oauthTag = isOAuth ? '<span class="oauth-badge">OAuth</span>' : '';
     card.innerHTML = `
         <div class="agent-card-header">

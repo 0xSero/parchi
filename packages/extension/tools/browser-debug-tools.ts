@@ -113,7 +113,7 @@ export class BrowserDebugManager {
   private bindListeners() {
     if (this.listenersBound) return;
     chrome.debugger.onEvent.addListener((source, method, params) => {
-      void this.handleEvent(source, method, (params || {}) as Record<string, any>).catch((err) => {
+      void this.handleEvent(source, method, (params || {}) as Record<string, unknown>).catch((err) => {
         console.warn('[browser-debug-tools] Event handling failed:', err);
       });
     });
@@ -171,19 +171,22 @@ export class BrowserDebugManager {
     });
   }
 
-  private async handleEvent(source: DebugTarget, method: string, params: Record<string, any>) {
+  private async handleEvent(source: DebugTarget, method: string, params: Record<string, unknown>) {
     if (typeof source.tabId !== 'number') return;
     const session = this.sessions.get(source.tabId);
     if (!session) return;
 
     switch (method) {
       case 'Network.requestWillBeSent': {
-        const request = params.request || {};
+        const request =
+          params.request && typeof params.request === 'object' && !Array.isArray(params.request)
+            ? (params.request as Record<string, unknown>)
+            : {};
         session.requests.set(String(params.requestId), {
           requestId: String(params.requestId),
           url: String(request.url || ''),
           method: String(request.method || 'GET'),
-          requestHeaders: normalizeHeaders(request.headers),
+          requestHeaders: normalizeHeaders(request.headers as Record<string, unknown> | undefined),
           resourceType: typeof params.type === 'string' ? params.type : undefined,
           startedAt: Date.now(),
         });
@@ -193,11 +196,14 @@ export class BrowserDebugManager {
         const requestId = String(params.requestId);
         const draft = session.requests.get(requestId);
         if (!draft) break;
-        const response = params.response || {};
+        const response =
+          params.response && typeof params.response === 'object' && !Array.isArray(params.response)
+            ? (params.response as Record<string, unknown>)
+            : {};
         draft.status = Number(response.status || 0) || undefined;
         draft.statusText = typeof response.statusText === 'string' ? response.statusText : undefined;
         draft.mimeType = typeof response.mimeType === 'string' ? response.mimeType : undefined;
-        draft.responseHeaders = normalizeHeaders(response.headers);
+        draft.responseHeaders = normalizeHeaders(response.headers as Record<string, unknown> | undefined);
         draft.resourceType = typeof params.type === 'string' ? params.type : draft.resourceType;
         break;
       }

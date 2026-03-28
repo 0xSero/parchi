@@ -3,7 +3,7 @@ import { parseHeadersJson } from './settings-validation.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
-export const formatHeadersJson = (headers: Record<string, any> | undefined) => {
+export const formatHeadersJson = (headers: Record<string, unknown> | undefined) => {
   if (!headers || typeof headers !== 'object' || Array.isArray(headers)) return '';
   const entries = Object.entries(headers).filter(([_, value]) => value != null && String(value).length > 0);
   if (!entries.length) return '';
@@ -53,7 +53,7 @@ sidePanelProto.applyProfileJsonEditor = async function applyProfileJsonEditor() 
     this.updateStatus('Paste profile JSON first', 'warning');
     return;
   }
-  let parsed: Record<string, any>;
+  let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(raw);
   } catch {

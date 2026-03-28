@@ -32,7 +32,7 @@ sidePanelProto.persistAllSettings = async function persistAllSettings({ silent =
     );
     const rawRelayUrl = (this.elements.relayUrl?.value || '').trim();
     const normalizedRelayUrl = rawRelayUrl && !rawRelayUrl.includes('://') ? `http://${rawRelayUrl}` : rawRelayUrl;
-    const payload: Record<string, any> = {
+    const payload: Record<string, unknown> = {
       providers: this.providers || {},
       providerId: activeProfile.providerId ?? '',
       provider: activeProfile.provider ?? '',
@@ -88,7 +88,7 @@ sidePanelProto.persistAllSettings = async function persistAllSettings({ silent =
   }
 };
 
-sidePanelProto.patchSettings = async function patchSettings(patch: Record<string, any>) {
+sidePanelProto.patchSettings = async function patchSettings(patch: Record<string, unknown>) {
   try {
     await patchSettingsStoreSnapshot(patch);
   } catch (error) {

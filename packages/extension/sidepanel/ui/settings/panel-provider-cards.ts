@@ -215,9 +215,9 @@ sidePanelProto.removeProviderKey = function removeProviderKey(providerId: string
   this.providers = nextProviders;
 
   for (const [name, config] of Object.entries(this.configs || {})) {
-    if ((config as Record<string, any>)?.providerId === providerId) {
+    if ((config as Record<string, unknown>)?.providerId === providerId) {
       this.configs[name] = {
-        ...(config as Record<string, any>),
+        ...(config as Record<string, unknown>),
         providerId: '',
         provider: '',
         providerLabel: '',

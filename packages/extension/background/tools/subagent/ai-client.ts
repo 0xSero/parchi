@@ -41,7 +41,7 @@ export async function runSubagentAI(
   subRunMeta: RunMeta,
   args: ToolExecutionArgs,
   settings: ToolExecutionSettings,
-  profileSettings: Record<string, any>,
+  profileSettings: Record<string, unknown>,
   executeTool: NestedToolExecutor,
   runtimeMeta: NonNullable<ToolExecutionOptions['runtimeMeta']>,
   loopCtx: SubagentLoopContext,
@@ -108,8 +108,12 @@ export async function runSubagentAI(
     messages: toModelMessages(subHistory),
     tools: toolSet,
     abortSignal,
-    temperature: profileSettings.temperature ?? 0.4,
-    maxOutputTokens: usesOAuth ? undefined : (profileSettings.maxTokens ?? 1024),
+    temperature: typeof profileSettings.temperature === 'number' ? profileSettings.temperature : 0.4,
+    maxOutputTokens: usesOAuth
+      ? undefined
+      : typeof profileSettings.maxTokens === 'number'
+        ? profileSettings.maxTokens
+        : 1024,
     providerOptions: usesOAuth ? buildCodexOAuthProviderOptions(systemPrompt) : undefined,
     stopWhen: stepCountIs(24),
     onChunk: ({ chunk }) => handleReasoningChunk(ctx, parentRunMeta, chunk, runtimeMeta),
