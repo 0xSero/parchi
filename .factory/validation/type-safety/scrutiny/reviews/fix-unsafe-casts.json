@@ -1,0 +1,21 @@
+{
+  "featureId": "fix-unsafe-casts",
+  "reviewedAt": "2026-03-28T10:32:43.313995+00:00",
+  "commitId": "f9d1593f39c5e8dd15d845be2a6140ade1ee8aec",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "The feature removes the reviewed `as unknown as` double casts across production and test code, replacing them with narrower typed shapes, tuple-aware storage lookups, and safer chrome compatibility/test override patterns. The resulting code still matches the type-safety contract: repository source/tests no longer contain `as unknown as`, and the touched code paths preserve the existing data flow and browser-extension boundaries.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill requires a passing `npm run check:repo-standards`, but this mission regularly hits unrelated pre-existing repo-standards failures outside the assigned feature scope. The reviewed worker followed the feature-specific validation but had to mark `followedProcedure: false` solely because of those unrelated baseline violations.",
+      "evidence": "Handoff skillFeedback for worker session `20fe9896-3d21-43f6-9b62-d2265bb313ad` records a deviation on step 8 because `npm run check:repo-standards` failed only on untouched oversized files; mission `AGENTS.md` and `.factory/services.yaml` still present `check:repo-standards` as a required final validator without scoped guidance."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Reviewed commit `f9d1593f39c5e8dd15d845be2a6140ade1ee8aec` and the worker transcript/handoff for `fix-unsafe-casts`. The implementation satisfies the feature contract with no blocking or non-blocking code issues found; only a shared-state gap remains around how the refactor skill should treat unrelated repo-standards baseline failures."
+}
