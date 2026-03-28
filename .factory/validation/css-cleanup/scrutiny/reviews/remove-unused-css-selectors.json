@@ -1,0 +1,33 @@
+{
+  "featureId": "remove-unused-css-selectors",
+  "reviewedAt": "2026-03-28T12:29:05.164412Z",
+  "commitId": "45c3fd2a1cfceb0c595604c8a799e8bb00f86d9a",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The commit cleanly removes the requested dead selectors for `.fab-legacy-actions`, `.balance-popover*`, `.composer-legacy-controls`, `.mascot-antenna*`, and `.mascot-cheeks*`, and the handoff documents a successful build for VAL-CSS-004. However, the feature still does not satisfy VAL-CSS-002 because `.message-header` remains defined in `chat.css` and is still emitted by active sidepanel rendering code.",
+    "issues": [
+      {
+        "file": "packages/extension/sidepanel/styles/chat.css",
+        "line": 772,
+        "severity": "blocking",
+        "description": "`VAL-CSS-002` is not met: `.message-header` was part of this feature's removal list but the selector still exists here (and again at line 1981). Active UI renderers still emit `.message-header` markup in `packages/extension/sidepanel/ui/chat/chat-assistant-new.ts:40`, `packages/extension/sidepanel/ui/chat/chat-display-user.ts:20`, `packages/extension/sidepanel/ui/chat/chat-assistant-streamed.ts:47-49`, `packages/extension/sidepanel/ui/history/history-render.ts:23,32`, and `packages/extension/sidepanel/ui/agents/panel-agent-nav.ts:142`, so the implementation cannot both preserve behavior and satisfy the current contract as written."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "The mission feature metadata/validation contract labels `.message-header` as unused, but multiple active sidepanel render paths still generate that class. Shared cleanup guidance should require a quick source-reference audit before a selector is listed as dead CSS.",
+      "evidence": "Mission feature `remove-unused-css-selectors` and `validation-contract.md` target `.message-header`; active emitters exist in `packages/extension/sidepanel/ui/chat/chat-assistant-new.ts:40`, `packages/extension/sidepanel/ui/chat/chat-display-user.ts:20`, `packages/extension/sidepanel/ui/chat/chat-assistant-streamed.ts:47-49`, `packages/extension/sidepanel/ui/history/history-render.ts:23,32`, and `packages/extension/sidepanel/ui/agents/panel-agent-nav.ts:142`."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The status module still imports a `balance-popover` helper that references DOM ids for a popover UI, but no matching sidepanel template nodes were found. That makes the removed `.balance-popover*` CSS appear genuinely dead, and also suggests a separate stale-JS cleanup opportunity that is not recorded in shared state.",
+      "evidence": "`packages/extension/sidepanel/ui/status/panel-status.ts:6` imports `./balance-popover.js`; `packages/extension/sidepanel/ui/status/balance-popover.ts:12,26,38-40` queries `balancePopover`, `balanceSessionTokens`, `balanceCreditsValue`, `balancePlanValue`, and `balanceSpendValue`; grep across `packages/extension/sidepanel/templates/**/*.html` found no matching ids."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Review failed for contract compliance: the landed commit is safe for the selectors it removed and the recorded build evidence supports VAL-CSS-004, but VAL-CSS-002 remains unmet because `.message-header` is still present and actively used."
+}
