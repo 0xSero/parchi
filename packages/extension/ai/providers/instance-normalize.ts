@@ -24,12 +24,10 @@ export const isProviderRegistry = (value: unknown): value is Record<string, Prov
 export const normalizeProviderInstance = (value: unknown): ProviderInstance | null => {
   const providerRecord = asRecord(value);
   if (!providerRecord) return null;
-  const provider = providerRecord as unknown as ProviderInstance;
+  const provider = providerRecord as Partial<ProviderInstance> & { providerType?: unknown };
   const id = asString(provider.id);
   // Support both new 'provider' field and legacy 'providerType' for backward compatibility
-  const providerType = normalizeProviderType(
-    provider.provider ?? (provider as unknown as Record<string, string>).providerType,
-  );
+  const providerType = normalizeProviderType(provider.provider ?? provider.providerType);
   if (!id || !providerType) return null;
 
   const authType: ProviderInstance['authType'] = providerType.endsWith('-oauth')

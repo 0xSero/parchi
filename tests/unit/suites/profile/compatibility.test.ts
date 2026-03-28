@@ -123,10 +123,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
 
   runner.test('DEFAULT_CONNECTION_CONFIG is subset of DEFAULT_PROFILE', () => {
     for (const field of CONNECTION_CONFIG_FIELDS) {
-      runner.assertEqual(
-        (DEFAULT_PROFILE as unknown as Record<string, unknown>)[field],
-        (DEFAULT_CONNECTION_CONFIG as unknown as Record<string, unknown>)[field],
-      );
+      runner.assertEqual(DEFAULT_PROFILE[field], DEFAULT_CONNECTION_CONFIG[field]);
     }
   });
 

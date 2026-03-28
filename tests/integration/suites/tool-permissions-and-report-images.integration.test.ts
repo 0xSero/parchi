@@ -101,14 +101,19 @@ export async function runToolPermissionsAndReportImagesSuite(runner: AsyncTestRu
     const state = globalThis as typeof globalThis & { chrome?: typeof chrome };
     const originalChrome = state.chrome;
     const originalWarn = console.warn;
-    state.chrome = {
-      tabs: {
-        get: async () => {
-          throw new Error('tab lookup failed');
+    Object.defineProperty(state, 'chrome', {
+      configurable: true,
+      value: {
+        ...originalChrome,
+        tabs: {
+          ...originalChrome?.tabs,
+          get: async () => {
+            throw new Error('tab lookup failed');
+          },
+          query: async () => [{ id: 9, url: 'https://docs.example.com/guide' }],
         },
-        query: async () => [{ id: 9, url: 'https://docs.example.com/guide' }],
       },
-    } as unknown as typeof chrome;
+    });
 
     try {
       console.warn = () => {};

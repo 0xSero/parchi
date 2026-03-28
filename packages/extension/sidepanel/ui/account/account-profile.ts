@@ -78,7 +78,7 @@ sidePanelProto.handleSetupAccessClick = async function handleSetupAccessClick() 
 };
 
 sidePanelProto.showAccountOnboardingIfNeeded = async function showAccountOnboardingIfNeeded() {
-  const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
+  const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS);
   const hasChoice = stored[ACCOUNT_MODE_KEY] === ACCOUNT_MODE_BYOK || stored[ACCOUNT_MODE_KEY] === ACCOUNT_MODE_PAID;
   if (hasChoice) {
     setHidden(this.elements.accountOnboardingModal, true);

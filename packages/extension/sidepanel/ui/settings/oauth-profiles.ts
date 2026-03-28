@@ -20,7 +20,9 @@ function oauthKeyFromProfile(name: string): string | null {
   return name.slice(OAUTH_PROFILE_PREFIX.length);
 }
 
-function providerSyncSignature(provider: Record<string, unknown> | null | undefined): string {
+function providerSyncSignature(
+  provider: { isConnected?: unknown; oauthEmail?: unknown; oauthError?: unknown; models?: unknown } | null | undefined,
+): string {
   return JSON.stringify({
     isConnected: provider?.isConnected === true,
     oauthEmail: String(provider?.oauthEmail || ''),
@@ -127,10 +129,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       });
     }
     providers[providerId] = nextProvider;
-    if (
-      providerSyncSignature(priorProvider as Record<string, unknown> | null | undefined) !==
-      providerSyncSignature(nextProvider as unknown as Record<string, unknown>)
-    ) {
+    if (providerSyncSignature(priorProvider) !== providerSyncSignature(nextProvider)) {
       changed = true;
     }
 

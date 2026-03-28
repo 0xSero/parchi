@@ -33,7 +33,7 @@ sidePanelProto.startWatchdog = startWatchdog;
  */
 export const stopWatchdog = function stopWatchdog(this: SidePanelUI & Record<string, unknown>) {
   if (this._watchdogTimerId != null) {
-    clearInterval(this._watchdogTimerId as unknown as number);
+    clearInterval(this._watchdogTimerId);
     this._watchdogTimerId = null;
   }
 };

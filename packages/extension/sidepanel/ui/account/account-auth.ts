@@ -80,7 +80,7 @@ sidePanelProto.signOutFromAccount = async function signOutFromAccount() {
   this.setAccountUiBusy(true);
   try {
     await signOutAccount();
-    const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
+    const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS);
     if (hasConfiguredByokProvider(stored)) {
       await chrome.storage.local.set({ [ACCOUNT_MODE_KEY]: ACCOUNT_MODE_BYOK });
     } else {

@@ -91,43 +91,49 @@ export async function runPromptAndCatalogIntegrationSuite(runner: AsyncTestRunne
   await runner.test('getMatchedSkills returns matching skills and ignores broken patterns', async () => {
     const state = globalThis as typeof globalThis & { chrome?: typeof chrome };
     const originalChrome = state.chrome;
-    state.chrome = {
-      storage: {
-        local: {
-          get: async () => ({
-            skills: [
-              {
-                id: 'skill-1',
-                name: 'Checkout helper',
-                description: 'Helps with checkout pages',
-                sitePattern: 'example.com/.*',
-                steps: [
-                  { tool: 'click', args: { selector: '#checkout' } },
-                  { tool: 'type', args: { selector: '#email', text: 'user@example.com' } },
-                ],
-                positiveExamples: [],
-                negativeExamples: [],
-                createdAt: 1,
-                successCount: 0,
-                failureCount: 0,
-              },
-              {
-                id: 'skill-2',
-                name: 'Broken regex',
-                description: 'Should be ignored',
-                sitePattern: '[',
-                steps: [],
-                positiveExamples: [],
-                negativeExamples: [],
-                createdAt: 1,
-                successCount: 0,
-                failureCount: 0,
-              },
-            ],
-          }),
+    Object.defineProperty(state, 'chrome', {
+      configurable: true,
+      value: {
+        ...originalChrome,
+        storage: {
+          ...originalChrome?.storage,
+          local: {
+            ...originalChrome?.storage?.local,
+            get: async () => ({
+              skills: [
+                {
+                  id: 'skill-1',
+                  name: 'Checkout helper',
+                  description: 'Helps with checkout pages',
+                  sitePattern: 'example.com/.*',
+                  steps: [
+                    { tool: 'click', args: { selector: '#checkout' } },
+                    { tool: 'type', args: { selector: '#email', text: 'user@example.com' } },
+                  ],
+                  positiveExamples: [],
+                  negativeExamples: [],
+                  createdAt: 1,
+                  successCount: 0,
+                  failureCount: 0,
+                },
+                {
+                  id: 'skill-2',
+                  name: 'Broken regex',
+                  description: 'Should be ignored',
+                  sitePattern: '[',
+                  steps: [],
+                  positiveExamples: [],
+                  negativeExamples: [],
+                  createdAt: 1,
+                  successCount: 0,
+                  failureCount: 0,
+                },
+              ],
+            }),
+          },
         },
       },
-    } as unknown as typeof chrome;
+    });
 
     try {
       const matched = await getMatchedSkills('https://example.com/dashboard');
@@ -144,15 +150,21 @@ export async function runPromptAndCatalogIntegrationSuite(runner: AsyncTestRunne
     async () => {
       const state = globalThis as typeof globalThis & { chrome?: typeof chrome };
       const originalChrome = state.chrome;
-      state.chrome = {
-        storage: {
-          local: {
-            get: async () => {
-              throw new Error('storage unavailable');
+      Object.defineProperty(state, 'chrome', {
+        configurable: true,
+        value: {
+          ...originalChrome,
+          storage: {
+            ...originalChrome?.storage,
+            local: {
+              ...originalChrome?.storage?.local,
+              get: async () => {
+                throw new Error('storage unavailable');
+              },
             },
           },
         },
-      } as unknown as typeof chrome;
+      });
 
       try {
         runner.assertEqual(await getMatchedSkills('https://example.com'), []);

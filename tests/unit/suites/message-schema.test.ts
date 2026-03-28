@@ -25,7 +25,7 @@ export function runMessageSchemaSuite(runner: TestRunner) {
       { role: 'user', content: 'ok' },
       { role: 'invalid', content: 'skip' },
       null,
-    ] as unknown as Message[]);
+    ] as Message[]);
     runner.assertEqual(normalized.length, 1);
     runner.assertEqual(normalized[0].role, 'user');
   });

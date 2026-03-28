@@ -17,7 +17,7 @@ const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<st
  */
 export const appendContextMessages = function appendContextMessages(
   this: SidePanelUI & Record<string, unknown>,
-  responseMessages?: Array<Record<string, unknown>>,
+  responseMessages?: Message[],
   fallbackContent?: string,
   fallbackThinking?: string | null,
 ) {
@@ -33,7 +33,7 @@ export const appendContextMessages = function appendContextMessages(
     }
     return;
   }
-  const normalized = normalizeConversationHistory(responseMessages as unknown as Message[]);
+  const normalized = normalizeConversationHistory(responseMessages);
   this.contextHistory.push(...normalized);
   clampContextHistory(this.contextHistory);
 };
@@ -51,7 +51,7 @@ export const handleContextCompaction = function handleContextCompaction(
     source?: string;
     contextUsage?: { percent?: number };
     beforeContextUsage?: { percent?: number };
-    contextMessages?: Array<Record<string, unknown>>;
+    contextMessages?: Message[];
     newSessionId?: string;
     startFreshSession?: boolean;
     summary?: string;
@@ -75,13 +75,13 @@ export const handleContextCompaction = function handleContextCompaction(
     preservedCount > 0 ? `${preservedCount} preserved` : null,
     beforePercent !== null && percent !== null ? `${beforePercent}% → ${percent}%` : null,
     beforePercent === null && percent !== null ? `${percent}% after compaction` : null,
-  ].filter(Boolean as unknown as (x: string | null) => x is string);
+  ].filter((value): value is string => Boolean(value));
 
   if (parts.length > 0) {
     this.updateStatus(`Context compacted: ${parts.join(', ')}`, 'success');
   }
 
-  const normalized = normalizeConversationHistory(message.contextMessages as unknown as Message[]);
+  const normalized = normalizeConversationHistory(message.contextMessages);
   this.contextHistory = normalized;
   clampContextHistory(this.contextHistory);
   this.sessionId = message.newSessionId || this.sessionId;

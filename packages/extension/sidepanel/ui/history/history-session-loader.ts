@@ -1,5 +1,4 @@
 import { createMessage, normalizeConversationHistory } from '../../../ai/messages/schema.js';
-import type { Message } from '../../../ai/messages/schema.js';
 import { clampContextHistory, clearReportImages, clearToolCallViews } from '../core/panel-session-memory.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -26,8 +25,8 @@ sidePanelProto.loadSession = function loadSession(session: any) {
 
   const transcript = normalizeTranscript(session.transcript);
   const contextTranscriptRaw = normalizeTranscript(session.contextTranscript);
-  const normalizedContextTranscript = normalizeConversationHistory(contextTranscriptRaw as unknown as Message[]);
-  const normalizedTranscript = normalizeConversationHistory(transcript as unknown as Message[]);
+  const normalizedContextTranscript = normalizeConversationHistory(contextTranscriptRaw);
+  const normalizedTranscript = normalizeConversationHistory(transcript);
   let turns = normalizeTranscript(session.turns);
   if (turns.length > 0 && transcript.length > 0) {
     const userQueue = normalizedTranscript.filter((msg) => msg.role === 'user');

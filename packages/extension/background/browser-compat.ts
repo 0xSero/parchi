@@ -44,6 +44,8 @@ type RuntimeChromeCompat = {
   webRequest?: typeof chrome.webRequest;
 };
 
+const runtimeChromeCompat = chrome as typeof chrome & RuntimeChromeCompat;
+
 const kimiWebRequestHeaderListener = (
   details: chrome.webRequest.WebRequestHeadersDetails,
 ): chrome.webRequest.BlockingResponse => {
@@ -73,7 +75,7 @@ const kimiWebRequestHeaderListener = (
 
 const getBrowserSidebarAction = (): BrowserSidebarActionApi | null => {
   // sidebarAction is Firefox-specific — it lives on `browser`, not `chrome`
-  const runtimeChrome = chrome as unknown as Record<string, unknown>;
+  const runtimeChrome = chrome as Record<string, unknown>;
   const runtimeBrowser = asRecord((globalThis as Record<string, unknown>).browser);
   return (
     (runtimeChrome.sidebarAction as BrowserSidebarActionApi | undefined) ||
@@ -83,7 +85,7 @@ const getBrowserSidebarAction = (): BrowserSidebarActionApi | null => {
 };
 
 export const getRuntimeFeatureFlags = (): RuntimeFeatureFlags => {
-  const runtimeChrome = chrome as unknown as RuntimeChromeCompat;
+  const runtimeChrome = runtimeChromeCompat;
   const isFirefox = typeof (globalThis as Record<string, unknown>).browser !== 'undefined';
   const dnr = runtimeChrome?.declarativeNetRequest;
   const sidePanelApi = runtimeChrome?.sidePanel;
@@ -104,7 +106,7 @@ export const getRuntimeFeatureFlags = (): RuntimeFeatureFlags => {
 
 export const setupActionClickOpensPanel = () => {
   const features = getRuntimeFeatureFlags();
-  const runtimeChrome = chrome as unknown as RuntimeChromeCompat;
+  const runtimeChrome = runtimeChromeCompat;
   if (features.sidePanelBehavior) {
     try {
       const maybePromise = runtimeChrome.sidePanel?.setPanelBehavior?.({ openPanelOnActionClick: true });
@@ -135,7 +137,7 @@ export const setupActionClickOpensPanel = () => {
 export const setupKimiUserAgentHeaderSupport = async (): Promise<KimiHeaderSetupResult> => {
   const features = getRuntimeFeatureFlags();
   if (features.kimiHeaderViaDnr) {
-    const dnr = (chrome as unknown as RuntimeChromeCompat).declarativeNetRequest;
+    const dnr = runtimeChromeCompat.declarativeNetRequest;
     try {
       const maybePromise = dnr?.updateDynamicRules?.({
         removeRuleIds: [KIMI_DNR_RULE_ID],

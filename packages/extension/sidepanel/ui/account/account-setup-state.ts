@@ -13,7 +13,7 @@ import {
 import { ACCOUNT_MODE_BYOK, ACCOUNT_MODE_KEY, ACCOUNT_MODE_PAID, hasConfiguredByokProvider } from './account-mode.js';
 
 sidePanelProto.getSetupFlowState = async function getSetupFlowState() {
-  const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS as unknown as string[]);
+  const stored = await chrome.storage.local.get(ACCOUNT_SETUP_STORAGE_KEYS);
   const mode = String(stored[ACCOUNT_MODE_KEY] || '').toLowerCase();
   const hasChoice = mode === ACCOUNT_MODE_BYOK || mode === ACCOUNT_MODE_PAID;
   const hasConfiguredProvider = hasConfiguredByokProvider(stored);
