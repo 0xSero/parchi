@@ -1,7 +1,7 @@
 {
   "milestone": "css-cleanup",
-  "round": 1,
-  "status": "fail",
+  "round": 2,
+  "status": "pass",
   "validatorsRun": {
     "test": {
       "passed": true,
@@ -21,49 +21,22 @@
   },
   "reviewsSummary": {
     "total": 3,
-    "passed": 2,
-    "failed": 1,
-    "failedFeatures": [
-      "remove-unused-css-selectors"
-    ]
+    "passed": 3,
+    "failed": 0,
+    "failedFeatures": []
   },
-  "blockingIssues": [
-    {
-      "featureId": "remove-unused-css-selectors",
-      "severity": "blocking",
-      "description": "VAL-CSS-002 remains unmet because `.message-header` is still defined in `packages/extension/sidepanel/styles/chat.css` and still emitted by active sidepanel render paths, so the contract's claim that it is an unused selector is incorrect."
-    }
-  ],
-  "appliedUpdates": [
-    {
-      "target": "library",
-      "description": "Documented that `.message-header` is still active and that CSS cleanup work must audit both styles and class emitters before marking selectors as dead.",
-      "sourceFeature": "remove-unused-css-selectors"
-    }
-  ],
-  "suggestedGuidanceUpdates": [
-    {
-      "target": "AGENTS.md",
-      "suggestion": "Add guidance for CSS cleanup work to verify both stylesheet definitions and source-side class emitters before a selector is labeled unused in mission plans or validation contracts.",
-      "evidence": "The `remove-unused-css-selectors` feature and validation contract listed `.message-header` as dead CSS, but review found active emitters in multiple sidepanel UI renderers and a live stylesheet definition, producing a false-positive blocking failure.",
-      "isSystemic": true
-    },
-    {
-      "target": "skill",
-      "suggestion": "Update worker bootstrap/init guidance to invoke `.factory/init.sh` through `bash .factory/init.sh` when the script is not executable.",
-      "evidence": "The `consolidate-duplicate-keyframes` review observed `.factory/init.sh` has non-executable permissions in this repo, and the worker only succeeded after switching to `bash .factory/init.sh`.",
-      "isSystemic": false
-    }
-  ],
+  "blockingIssues": [],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [],
   "rejectedObservations": [
     {
-      "observation": "The parent task used the alias `remove-unused-animations` while mission artifacts use `remove-unused-css-animations`.",
-      "reason": "ambiguous naming mismatch for this run only; not strong enough to document as durable repo guidance."
+      "observation": "Worker startup should be changed to always run `.factory/init.sh` via `bash` because the script is not executable.",
+      "reason": "already-documented in mission AGENTS guidance for this repo, so no new orchestrator action is needed from this scrutiny rerun."
     },
     {
-      "observation": "The status module still imports `balance-popover` helper code whose DOM ids no longer exist in templates.",
-      "reason": "useful cleanup lead but not yet validated enough for shared guidance during this scrutiny pass."
+      "observation": "The status UI still imports `balance-popover.js` even though the related `.balance-popover*` CSS was removed and no matching markup was found.",
+      "reason": "out-of-scope cleanup lead for later investigation; this scrutiny pass validated CSS contract compliance but did not establish enough evidence to recommend shared guidance changes."
     }
   ],
-  "previousRound": null
+  "previousRound": ".factory/validation/css-cleanup/scrutiny/synthesis.round1.json"
 }
