@@ -1,3 +1,4 @@
+import { createTheme } from '../../../packages/extension/sidepanel/ui/settings/theme-catalog/theme-factory.js';
 import { createStore } from '../../../packages/extension/state/core/store.js';
 import {
   normalizeStoredSessions,
@@ -50,5 +51,23 @@ export function runStatePersistenceSuite(runner: TestRunner) {
   runner.test('trimChatSessions keeps the most recent entries within the cap', () => {
     const entries = Array.from({ length: 4 }, (_, index) => ({ id: `session-${index}` })) as any;
     runner.assertEqual(trimChatSessions(entries, 2), [{ id: 'session-0' }, { id: 'session-1' }]);
+  });
+
+  runner.test('createTheme fills shared defaults while preserving overrides', () => {
+    const theme = createTheme({
+      id: 'spec-theme',
+      name: 'Spec Theme',
+      vars: {
+        '--background': '#010203',
+        '--accent': '#abcdef',
+        '--accent-light': '#cdefab',
+        '--accent-dark': '#89abcd',
+      },
+    });
+
+    runner.assertEqual(theme.preview, { bg: '#010203', accent: '#abcdef', card: '#131315' });
+    runner.assertEqual(theme.vars['--background'], '#010203');
+    runner.assertEqual(theme.vars['--accent-rgb'], '171 205 239');
+    runner.assertEqual(theme.vars['--success'], '#4ade80');
   });
 }
