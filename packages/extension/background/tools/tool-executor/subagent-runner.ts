@@ -1,16 +1,15 @@
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta, SubagentResult } from '../../service-types.js';
-import {
-  type NestedToolExecutor,
-  type ToolExecutionArgs,
-  type ToolExecutionOptions,
-  type ToolExecutionSettings,
-  formatToolExecutorError,
-} from './shared.js';
+import type {
+  NestedToolExecutor,
+  SubagentLoopContext,
+  ToolExecutionArgs,
+  ToolExecutionOptions,
+  ToolExecutionSettings,
+} from '../subagent/types-shared.js';
+import { formatToolExecutorError } from './shared.js';
 
-export type { NestedToolExecutor, ToolExecutionArgs, ToolExecutionOptions };
-import type { SubagentLoopContext } from '../subagent/types.js';
-export type { SubagentLoopContext };
+export type { NestedToolExecutor, SubagentLoopContext, ToolExecutionArgs, ToolExecutionOptions };
 import { runSubagentAI } from '../subagent/ai-client.js';
 import {
   buildFailureResult,

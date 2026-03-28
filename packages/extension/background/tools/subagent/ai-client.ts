@@ -10,7 +10,6 @@ import {
 import { injectOAuthTokens, isVisionModelProfile } from '../../model-profiles.js';
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta } from '../../service-types.js';
-import type { NestedToolExecutor, ToolExecutionArgs, ToolExecutionOptions } from '../tool-executor/subagent-runner.js';
 import {
   SUBAGENT_COMPLETE_TOOL,
   attachQueuedInstructions,
@@ -19,10 +18,13 @@ import {
   safeAwait,
 } from './loop-utils.js';
 import { createStreamContext, handleReasoningChunk, processTextStream } from './stream-handler.js';
-import type { SubagentLoopContext } from './types.js';
-
-// Local type alias to avoid unused import issues
-export type ToolExecutionSettings = Record<string, unknown>;
+import type {
+  NestedToolExecutor,
+  SubagentLoopContext,
+  ToolExecutionArgs,
+  ToolExecutionOptions,
+  ToolExecutionSettings,
+} from './types-shared.js';
 
 const profileUsesCodexOAuth = (profile: Record<string, unknown> | null | undefined) =>
   isCodexOAuthProvider(String(profile?.provider || ''));
