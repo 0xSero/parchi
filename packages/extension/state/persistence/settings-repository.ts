@@ -1,17 +1,14 @@
-import { PARCHI_STORAGE_KEYS } from '@parchi/shared';
+import { PARCHI_STORAGE_KEYS, asRecord } from '@parchi/shared';
 import { migrateSettingsToProviderRegistry } from '../../ai/providers/registry.js';
 
 export type SettingsSnapshot = Record<string, any>;
 
 const SETTINGS_KEYS = [...PARCHI_STORAGE_KEYS] as string[];
 
-const asRecord = (value: unknown): Record<string, any> => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
-  return value as Record<string, any>;
-};
+const asRecordOrEmpty = (value: unknown): Record<string, unknown> => asRecord(value) ?? {};
 
 export function pickSettingsSnapshot(input: unknown): SettingsSnapshot {
-  const source = asRecord(input);
+  const source = asRecordOrEmpty(input);
   const snapshot: SettingsSnapshot = {};
   for (const key of SETTINGS_KEYS) {
     if (source[key] !== undefined) snapshot[key] = source[key];

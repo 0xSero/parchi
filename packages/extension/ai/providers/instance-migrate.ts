@@ -1,11 +1,18 @@
 // Provider settings migration utilities
+import { asRecord } from '@parchi/shared';
 import { buildProviderFromProfile } from './instance-normalize.js';
 import { ensureProviderModel, getProviderRegistry } from './instance-registry.js';
 
 type SettingsLike = Record<string, any>;
 
-const asRecord = (value: unknown): Record<string, any> =>
-  value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, any>) : {};
+const asRecordOrEmpty = (value: unknown): Record<string, unknown> => asRecord(value) ?? {};
+const asStringRecord = (value: unknown): Record<string, string> => {
+  const record = asRecord(value);
+  if (!record) return {};
+  return Object.fromEntries(
+    Object.entries(record).flatMap(([key, entry]) => (typeof entry === 'string' ? [[key, entry]] : [])),
+  );
+};
 
 const asString = (value: unknown) => String(value || '').trim();
 
@@ -27,7 +34,7 @@ export const materializeProfileWithProvider = (
     providerLabel: provider.name,
     apiKey: provider.authType === 'api-key' ? asString(provider.apiKey) : '',
     customEndpoint: asString(provider.customEndpoint),
-    extraHeaders: asRecord(provider.extraHeaders),
+    extraHeaders: asStringRecord(provider.extraHeaders),
     model: modelId || asString(profile.model),
   };
 };
@@ -35,11 +42,11 @@ export const materializeProfileWithProvider = (
 export const migrateSettingsToProviderRegistry = (settings: SettingsLike): SettingsLike => {
   const next: SettingsLike = { ...settings };
   const providers = getProviderRegistry(next);
-  const configs = asRecord(next.configs);
+  const configs = asRecordOrEmpty(next.configs);
   const migratedConfigs: Record<string, any> = {};
 
   for (const [name, rawProfile] of Object.entries(configs)) {
-    const profile = asRecord(rawProfile);
+    const profile = asRecordOrEmpty(rawProfile);
     if (!profile.providerId && profile.provider) {
       const instance = buildProviderFromProfile(name, profile, providers);
       providers[instance.id] = ensureProviderModel(instance, asString(profile.model));
@@ -63,7 +70,7 @@ export const migrateSettingsToProviderRegistry = (settings: SettingsLike): Setti
       model: asString(next.model),
       apiKey: asString(next.apiKey),
       customEndpoint: asString(next.customEndpoint),
-      extraHeaders: asRecord(next.extraHeaders),
+      extraHeaders: asStringRecord(next.extraHeaders),
       systemPrompt: asString(next.systemPrompt),
     };
     if (migratedConfigs.default.provider) {
@@ -82,13 +89,13 @@ export const migrateSettingsToProviderRegistry = (settings: SettingsLike): Setti
   const activeProfile = materializeProfileWithProvider(
     next,
     activeConfigName,
-    asRecord(migratedConfigs[activeConfigName]),
+    asRecordOrEmpty(migratedConfigs[activeConfigName]),
   );
   next.provider = asString(activeProfile.provider);
   next.apiKey = asString(activeProfile.apiKey);
   next.model = asString(activeProfile.modelId || activeProfile.model);
   next.customEndpoint = asString(activeProfile.customEndpoint);
-  next.extraHeaders = asRecord(activeProfile.extraHeaders);
+  next.extraHeaders = asStringRecord(activeProfile.extraHeaders);
   next.activeConfig = activeConfigName;
 
   return next;

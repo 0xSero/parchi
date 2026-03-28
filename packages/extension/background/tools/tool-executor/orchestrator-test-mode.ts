@@ -1,3 +1,4 @@
+import { asRecord } from '@parchi/shared';
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta, SessionState } from '../../service-types.js';
 import { recordSubagentStart } from '../orchestrator/subagent-tracking.js';
@@ -11,9 +12,6 @@ type SyntheticSubagentSpec = {
   script?: Array<{ tool: string; args?: Record<string, unknown>; waitMs?: number }>;
   verifyTextIncludes?: string[];
 };
-
-const asRecord = (value: unknown): Record<string, unknown> | null =>
-  value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, unknown>) : null;
 
 export const getSyntheticSubagentSpecs = (value: unknown) => asRecord(value);
 

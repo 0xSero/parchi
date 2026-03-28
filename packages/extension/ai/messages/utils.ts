@@ -1,9 +1,5 @@
+import { asRecord } from '@parchi/shared';
 import type { Message, MessageContent } from './schema.js';
-
-const asRecord = (value: unknown): Record<string, unknown> | null => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  return value as Record<string, unknown>;
-};
 
 export type ExtractThinkingResult = {
   content: string;

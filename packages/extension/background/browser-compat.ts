@@ -1,3 +1,5 @@
+import { asRecord } from '@parchi/shared';
+
 export type RuntimeBrowser = 'chrome' | 'firefox';
 
 export type RuntimeFeatureFlags = {
@@ -40,11 +42,6 @@ type RuntimeChromeCompat = {
   sidePanel?: BrowserSidePanelBehaviorApi;
   declarativeNetRequest?: BrowserDnrApi;
   webRequest?: typeof chrome.webRequest;
-};
-
-const asRecord = (value: unknown): Record<string, unknown> | null => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  return value as Record<string, unknown>;
 };
 
 const kimiWebRequestHeaderListener = (

@@ -1,3 +1,4 @@
+import { asRecord } from '@parchi/shared';
 import {
   classifyAuthError,
   classifyContextLengthError,
@@ -43,11 +44,6 @@ export type ClassifiedError = {
 };
 
 export type ErrorClassificationContext = ManagedSignalInput;
-
-const asRecord = (value: unknown): Record<string, unknown> | null => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
-  return value as Record<string, unknown>;
-};
 
 export function classifyApiError(error: unknown, context: ErrorClassificationContext = {}): ClassifiedError {
   const errorRecord = asRecord(error);

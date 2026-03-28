@@ -1,13 +1,18 @@
 // Provider instance normalization utilities
-import type { ProviderInstance } from '@parchi/shared';
+import { type ProviderInstance, asRecord } from '@parchi/shared';
 import { OAUTH_PROVIDERS } from '../../oauth/providers.js';
 import type { OAuthProviderKey } from '../../oauth/types.js';
 import { getProviderDefinition } from './definitions.js';
 import { buildProviderInstanceId } from './instance-id.js';
 import { mergeProviderModels } from './instance-models.js';
 
-const asRecord = (value: unknown): Record<string, any> =>
-  value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, any>) : {};
+const asStringRecord = (value: unknown): Record<string, string> => {
+  const record = asRecord(value);
+  if (!record) return {};
+  return Object.fromEntries(
+    Object.entries(record).flatMap(([key, entry]) => (typeof entry === 'string' ? [[key, entry]] : [])),
+  );
+};
 
 const asString = (value: unknown) => String(value || '').trim();
 
@@ -19,7 +24,9 @@ export const isProviderRegistry = (value: unknown): value is Record<string, Prov
 };
 
 export const normalizeProviderInstance = (value: unknown): ProviderInstance | null => {
-  const provider = asRecord(value) as ProviderInstance;
+  const providerRecord = asRecord(value);
+  if (!providerRecord) return null;
+  const provider = providerRecord as unknown as ProviderInstance;
   const id = asString(provider.id);
   // Support both new 'provider' field and legacy 'providerType' for backward compatibility
   const providerType = normalizeProviderType(
@@ -35,7 +42,6 @@ export const normalizeProviderInstance = (value: unknown): ProviderInstance | nu
         ? provider.authType
         : 'api-key';
   const apiKey = asString(provider.apiKey);
-  const providerRecord = provider as unknown as Record<string, unknown>;
   const fallbackModelId = asString(providerRecord.modelId || providerRecord.model);
   const models = mergeProviderModels(providerType, provider.models, fallbackModelId ? [fallbackModelId] : []);
 
@@ -47,7 +53,7 @@ export const normalizeProviderInstance = (value: unknown): ProviderInstance | nu
     authType,
     apiKey: authType === 'api-key' ? apiKey : '',
     customEndpoint: asString(provider.customEndpoint),
-    extraHeaders: asRecord(provider.extraHeaders),
+    extraHeaders: asStringRecord(provider.extraHeaders),
     oauthProviderKey:
       authType === 'oauth'
         ? ((asString(provider.oauthProviderKey) || providerType.replace(/-oauth$/, '')) as OAuthProviderKey)
@@ -105,7 +111,7 @@ export const buildProviderFromProfile = (
     authType,
     apiKey: authType === 'api-key' ? apiKey : '',
     customEndpoint,
-    extraHeaders: asRecord(profile.extraHeaders),
+    extraHeaders: asStringRecord(profile.extraHeaders),
     oauthProviderKey,
     oauthEmail: prior?.oauthEmail,
     oauthError: prior?.oauthError,
