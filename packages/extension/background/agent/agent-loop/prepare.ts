@@ -148,7 +148,7 @@ function emitHistoryPrepared(
   runMeta: PreparedAgentLoopRun['runMeta'],
   sessionState: PreparedAgentLoopRun['sessionState'],
   preparedHistory: ReturnType<typeof prepareConversationHistory>,
-) {
+): void {
   ctx.emitTokenTrace(runMeta, sessionState, {
     action: 'history_prepared',
     reason: 'history_sanitized',

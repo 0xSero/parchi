@@ -128,7 +128,7 @@ export async function runAgentModelPass(
     maxOutputTokens: usesCodexOAuth ? undefined : (orchestratorProfile.maxTokens ?? 4096),
     stopWhen: stepCountIs(48),
     providerOptions: Object.keys(providerOptions).length > 0 ? providerOptions : undefined,
-    onChunk: ({ chunk }) => {
+    onChunk: ({ chunk }): void => {
       markFirstChunk();
       const chunkRecord = chunk as StreamChunkRecord;
       const chunkType = typeof chunkRecord.type === 'string' ? String(chunkRecord.type) : '';

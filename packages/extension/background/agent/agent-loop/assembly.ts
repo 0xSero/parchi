@@ -74,7 +74,7 @@ export function assemblePreparedAgentLoop(params: {
     enforceSameFamilyOAuthFallback: oauthProviderKey === 'copilot' && requestedModelFamily.length > 0,
     openRouterLikeProvider,
     toolSet: modelConfig.toolSet,
-    switchActiveModel(nextModelId: string) {
+    switchActiveModel(nextModelId: string): boolean {
       const trimmed = String(nextModelId || '').trim();
       if (!trimmed) return false;
       if (trimmed === this.activeModelId) return true;
@@ -84,7 +84,7 @@ export function assemblePreparedAgentLoop(params: {
       diagnostics.benchmarkModel = trimmed;
       return true;
     },
-    async persistRecoveredModelSelection(nextModelId: string) {
+    async persistRecoveredModelSelection(nextModelId: string): Promise<void> {
       if (!this.openRouterLikeProvider) return;
       const trimmed = String(nextModelId || '').trim();
       if (!trimmed) return;
@@ -106,7 +106,7 @@ export function assemblePreparedAgentLoop(params: {
         console.warn('[assembly] Failed to patch settings after model rename:', _patchErr);
       }
     },
-    captureErrorClassificationContext() {
+    captureErrorClassificationContext(): AgentLoopDiagnostics['latestErrorContext'] {
       diagnostics.latestErrorContext = {
         route: this.runtimeProfileResolution.route,
         provider: String(this.orchestratorProfile?.provider || ''),
