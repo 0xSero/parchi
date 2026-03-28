@@ -430,7 +430,9 @@ async function run() {
     }
     try {
       fs.rmSync(userDataDir, { recursive: true, force: true });
-    } catch {}
+    } catch (err) {
+      console.warn(`Failed to clean up temp dir ${userDataDir}:`, err);
+    }
   }
 }
 
