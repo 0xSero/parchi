@@ -4,7 +4,6 @@ import type { SessionState } from './service-types.js';
 import { defaultTokenVisibility } from './session-tokens.js';
 
 export const MAX_SESSIONS = 24;
-export const MAX_FAILURE_TRACKER_ENTRIES = 250;
 
 function ensureSessionCollections(existing: SessionState) {
   if (!Array.isArray(existing.reportImages)) existing.reportImages = [];

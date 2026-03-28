@@ -1,0 +1,1 @@
+export const MAX_FAILURE_TRACKER_ENTRIES = 250;
