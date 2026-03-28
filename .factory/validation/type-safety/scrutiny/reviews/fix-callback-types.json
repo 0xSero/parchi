@@ -1,21 +1,33 @@
 {
   "featureId": "fix-callback-types",
-  "reviewedAt": "2026-03-28T10:52:50.316864+00:00",
+  "reviewedAt": "2026-03-28T11:00:00Z",
   "commitId": "f455a83ac9128423b50eb4f77b4067ca56e0fe8a",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
-  "status": "pass",
+  "status": "fail",
   "codeReview": {
-    "summary": "Commit f455a83 fulfills the feature by replacing implicit-any callback parameters in the reviewed forEach/map/filter sites with concrete types or locally-derived aliases across the touched background, sidepanel, and test files, without introducing observable logic changes.",
-    "issues": []
+    "summary": "The feature commit adds explicit callback parameter types across the targeted files and generally satisfies VAL-TYPE-006, but it does not fully complete the intended callback typing sweep because at least one callback in the touched scope still uses an implicit parameter type.",
+    "issues": [
+      {
+        "file": "packages/extension/sidepanel/ui/settings/panel-provider-cards.ts",
+        "line": 144,
+        "severity": "blocking",
+        "description": "The callback typing sweep is incomplete: `(def.models || []).map((m) => ({ ... }))` still leaves `m` implicitly typed in a feature-targeted file. This falls short of the feature description ('Fix 20+ implicit any callbacks in forEach/map/filter') and VAL-TYPE-006's requirement that the reviewed array callbacks be explicitly typed."
+      }
+    ]
   },
   "sharedStateObservations": [
     {
       "area": "skills",
-      "observation": "The refactor-worker skill does not explain how to handle verification-only assignments when the feature commit is already present, even though this session was primarily an audit of pre-landed work.",
-      "evidence": "Mission handoff /Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/handoffs/2026-03-28T10-28-17-882Z__fix-callback-types__92824890-11ea-410c-8c1c-ea14ac51a0e0.json records skillFeedback.followedProcedure=false because the worker audited existing commit f455a83 instead of performing TDD/refactoring steps, while .factory/skills/refactor-worker/SKILL.md only describes active refactor flow."
+      "observation": "The `refactor-worker` skill does not describe how to handle verification-only sessions when the assigned feature is already implemented on the branch, so the worker had to mark `followedProcedure` false despite doing the right thing by auditing the landed commit and validators.",
+      "evidence": "/Users/sero/projects/browser-ai/.factory/skills/refactor-worker/SKILL.md assumes the worker will refactor code and write tests first, while handoff `2026-03-28T10-28-17-882Z__fix-callback-types__92824890-11ea-410c-8c1c-ea14ac51a0e0.json` records deviations because commit `f455a83ac9128423b50eb4f77b4067ca56e0fe8a` was already present and the worker correctly switched to audit/verification work."
+    },
+    {
+      "area": "skills",
+      "observation": "Mission guidance and the skill disagree about repo-standards validation in debt-heavy repos: the mission AGENTS file already documents unrelated oversized-file failures, but the skill still frames full repo-standards as mandatory unless workers infer a scoped fallback on their own.",
+      "evidence": "Mission AGENTS.md says `npm run check:repo-standards` fails on unrelated oversized files, while `.factory/skills/refactor-worker/SKILL.md` step 8 still lists the global check as part of the standard completion path. The callback-types handoff records that `npm run check:repo-standards` failed only for unrelated baseline debt."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "Reviewed the fix-callback-types feature in commit f455a83, including the worker transcript skeleton, handoff, architecture/mission context, and diff. The implementation satisfies the requested callback typing scope and I found no blocking or non-blocking code issues; one skill-documentation gap is worth triaging."
+  "summary": "Reviewed worker session `92824890-11ea-410c-8c1c-ea14ac51a0e0`, its handoff, transcript skeleton, and commit `f455a83ac9128423b50eb4f77b4067ca56e0fe8a`. The change set mostly replaces callback `any` parameters with concrete types, but the feature should fail review because `packages/extension/sidepanel/ui/settings/panel-provider-cards.ts` still contains an untyped `map` callback in the targeted scope, so the callback-typing sweep is incomplete."
 }

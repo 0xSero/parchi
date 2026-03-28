@@ -1,21 +1,21 @@
 {
   "featureId": "fix-record-string-any",
-  "reviewedAt": "2026-03-28T10:53:26.146869+00:00",
+  "reviewedAt": "2026-03-28T11:00:54.240496+00:00",
   "commitId": "f38d8faf3e375a07335346ce984ad83d0e3bbf8d",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "pass",
   "codeReview": {
-    "summary": "The final implementation resolves the last `Record<string, any>` usage by replacing the untyped orchestrator test-harness result shape with explicit result types and updating the integration tests to narrow success and optional fields before dereferencing them. The diff stays within scope, removes the targeted pattern from the reviewed TS/JS sources, and preserves the orchestrator scenarios covered by the existing tests.",
+    "summary": "Commit `f38d8fa` finishes the feature by removing the last `Record<string, any>` in the orchestrator integration harness, introducing explicit typed builtin-result helpers, and updating the companion tests to narrow success-state access before reading optional result fields. The reviewed TS/JS tree now has no `Record<string, any>` matches, and the implementation stays within the feature scope without changing orchestrator runtime behavior.",
     "issues": []
   },
   "sharedStateObservations": [
     {
       "area": "skills",
-      "observation": "The `refactor-worker` skill requires full-repo `npm run lint` and `npm run check:repo-standards`, but this mission has unrelated pre-existing failures in those commands. The successful worker had to fall back to targeted Biome checks on touched files and record the deviation manually. The skill should document that fallback path for debt-heavy repos.",
-      "evidence": ".factory/skills/refactor-worker/SKILL.md step 8 requires global lint and repo-standards checks, while handoff `2026-03-28T02-05-57-626Z__fix-record-string-any__609c56d7-1c42-499f-b132-81e0c91bef66.json` records `followedProcedure: false` specifically because unrelated repo-wide lint/repo-standards failures blocked those steps. Mission AGENTS.md already hints that unrelated oversized files can fail repo-standards."
+      "observation": "The `refactor-worker` skill still presents full-repo `npm run lint` and `npm run check:repo-standards` as the default final step, but this mission already documents unrelated repo-wide standards debt. Workers for this feature repeatedly had to explain a scoped-validation fallback in handoffs, so the skill guidance is lagging the repo reality.",
+      "evidence": "`.factory/skills/refactor-worker/SKILL.md` step 8 requires global lint and repo-standards checks. Mission `AGENTS.md` notes pre-existing unrelated `check:repo-standards` failures. The successful handoff `2026-03-28T02-05-57-626Z__fix-record-string-any__609c56d7-1c42-499f-b132-81e0c91bef66.json` marks `followedProcedure: false` solely because unrelated repo-wide failures blocked those global commands and the worker instead recorded targeted Biome validation on the changed files."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "Reviewed worker session `609c56d7-1c42-499f-b132-81e0c91bef66`, its handoff, transcript skeleton, and commit `f38d8faf3e375a07335346ce984ad83d0e3bbf8d`. The fix adequately addresses the earlier blocker around unknown-safe access in orchestrator tests, leaves no reviewed `Record<string, any>` matches, and I found no blocking or non-blocking code issues in the final implementation."
+  "summary": "Reviewed feature `fix-record-string-any` via mission metadata, worker transcript skeleton, handoff, commit `f38d8fa`, and the resulting repository files. I found no blocking or non-blocking code issues: the final implementation satisfies VAL-TYPE-001 and VAL-TYPE-007 for this feature scope, and the only notable follow-up is a shared-state/skill-guidance gap around scoped validation when repo-wide standards debt is pre-existing."
 }
