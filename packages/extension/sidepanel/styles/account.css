@@ -307,7 +307,7 @@
   background: var(--card);
   border: 1px solid var(--ink-1);
   border-radius: var(--radius-sm);
-  transition: all 150ms ease;
+  transition: var(--transition-fast);
 }
 
 .oauth-provider-card:hover,

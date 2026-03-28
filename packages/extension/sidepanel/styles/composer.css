@@ -403,7 +403,7 @@
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   background: var(--accent);
   color: #fff;
   font-size: 9px;
@@ -511,7 +511,7 @@
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: var(--transition-fade-slide-fast);
 }
 
 .model-selector:hover .model-selector-chevron {
@@ -527,7 +527,7 @@
   background: rgb(18 20 24 / 0.98);
   border: 1px solid var(--ink-2);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgb(0 0 0 / 0.5), 0 0 0 1px rgba(255, 255, 255, 0.03);
+  box-shadow: var(--shadow-float-lg), 0 0 0 1px rgba(255, 255, 255, 0.03);
   z-index: 200;
   overflow: hidden;
   animation: modelDropdownSlideUp 0.15s var(--ease-out-expo);
@@ -648,7 +648,7 @@
 
 .setup-access-btn {
   height: 28px;
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   border: 1px solid rgb(var(--accent-rgb) / 0.45);
   background: rgb(var(--accent-rgb) / 0.14);
   color: var(--foreground);

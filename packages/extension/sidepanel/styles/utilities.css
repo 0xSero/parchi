@@ -88,7 +88,7 @@
   border-radius: 8px;
   color: var(--accent);
   cursor: pointer;
-  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: var(--transition-spring-fast);
   box-shadow: 0 0 8px rgb(var(--accent-rgb) / 0.06);
 }
 
@@ -214,7 +214,7 @@ textarea:disabled {
   z-index: 200;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.03);
   letter-spacing: 0.01em;
-  transition: opacity 0.15s ease, transform 0.15s ease;
+  transition: var(--transition-fade-slide-fast);
   transition-delay: 0s;
 }
 
@@ -239,7 +239,7 @@ textarea:disabled {
   pointer-events: none;
   opacity: 0;
   z-index: 201;
-  transition: opacity 0.15s ease;
+  transition: var(--transition-fade-fast);
   transition-delay: 0s;
 }
 

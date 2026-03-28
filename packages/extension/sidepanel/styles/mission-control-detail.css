@@ -218,7 +218,7 @@
   font-size: 12px;
   padding: 7px 10px;
   outline: none;
-  transition: border-color 150ms ease;
+  transition: var(--transition-border-fast);
 }
 
 .mc-message-input::placeholder {
@@ -240,7 +240,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 150ms ease;
+  transition: var(--transition-fast);
   flex-shrink: 0;
 }
 

@@ -52,7 +52,7 @@ body.sidebar-open .fab-group {
   border: 1px solid var(--ink-2);
   border-radius: 10px;
   background: rgb(18 20 24 / 0.98);
-  box-shadow: 0 12px 30px rgb(0 0 0 / 0.45);
+  box-shadow: var(--shadow-float-popover);
   z-index: 75;
 }
 
@@ -69,7 +69,7 @@ body.sidebar-open .fab-group {
   text-align: left;
   font-size: 12px;
   cursor: pointer;
-  transition: all var(--duration-fast) ease;
+  transition: var(--transition-fast);
 }
 
 .quick-actions-item:hover {
@@ -110,7 +110,7 @@ body.sidebar-open .fab-group {
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  transition: all var(--duration-fast) ease;
+  transition: var(--transition-fast);
 }
 
 .quick-actions-size-btn {
@@ -149,8 +149,8 @@ body.sidebar-open .fab-group {
   overflow: hidden;
   cursor: pointer;
   opacity: 0.82;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3);
-  transition: all 220ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: var(--shadow-fab);
+  transition: var(--transition-spring-normal);
 }
 
 .context-inspector-fab:hover {
@@ -158,7 +158,7 @@ body.sidebar-open .fab-group {
   opacity: 1;
   border-color: var(--ink-3);
   color: var(--foreground);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 24px rgba(0, 0, 0, 0.32);
+  box-shadow: var(--shadow-fab-hover);
 }
 
 .context-inspector-fab:active {
@@ -232,7 +232,7 @@ body.sidebar-open .fab-group {
   border-radius: 12px;
   background: rgb(18 20 24 / 0.96);
   backdrop-filter: blur(8px);
-  box-shadow: 0 16px 40px rgb(0 0 0 / 0.45);
+  box-shadow: var(--shadow-float-dialog);
   z-index: 70;
 }
 

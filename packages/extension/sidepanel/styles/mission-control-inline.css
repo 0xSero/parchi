@@ -10,7 +10,7 @@
   border-radius: 0 6px 6px 0;
   background: rgba(255, 255, 255, 0.015);
   cursor: pointer;
-  transition: background 150ms ease, border-color 150ms ease;
+  transition: var(--transition-bg-border-fast);
 }
 
 .subagent-thread:hover {

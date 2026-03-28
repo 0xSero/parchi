@@ -48,7 +48,7 @@
 .ui-fab {
   width: 34px;
   height: 34px;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   border: none;
   background: var(--ui-fab-bg, var(--card));
   color: var(--ui-fab-color, var(--foreground));
@@ -57,21 +57,15 @@
   justify-content: center;
   cursor: pointer;
   opacity: var(--ui-fab-opacity, 0.65);
-  box-shadow: var(--ui-fab-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3));
-  transition:
-    transform 220ms var(--ease-spring),
-    opacity 220ms var(--ease-spring),
-    background 220ms var(--ease-spring),
-    border-color 220ms var(--ease-spring),
-    box-shadow 220ms var(--ease-spring),
-    color 220ms var(--ease-spring);
+  box-shadow: var(--ui-fab-shadow, var(--shadow-fab));
+  transition: var(--transition-spring-normal);
 }
 
 .ui-fab:hover {
   transform: var(--ui-fab-hover-transform, scale(1.04));
   opacity: var(--ui-fab-hover-opacity, 1);
   background: var(--ui-fab-hover-bg, var(--ui-fab-bg, var(--card)));
-  box-shadow: var(--ui-fab-hover-shadow, inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 24px rgba(0, 0, 0, 0.32));
+  box-shadow: var(--ui-fab-hover-shadow, var(--shadow-fab-hover));
 }
 
 .ui-fab:active {
@@ -82,7 +76,7 @@
 .ui-fab svg {
   width: 16px;
   height: 16px;
-  transition: transform 200ms var(--ease-spring);
+  transition: transform var(--duration-spring-fast) var(--ease-spring);
 }
 
 /* Shared icon button primitive */
@@ -235,7 +229,7 @@
   border-radius: 6px;
   padding: 4px 10px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: var(--transition-fast);
   flex-shrink: 0;
 }
 

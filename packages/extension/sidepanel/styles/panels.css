@@ -71,7 +71,7 @@
   align-items: center;
   justify-content: center;
   border: none;
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
   background: transparent;
   color: var(--muted-dim);
   cursor: pointer;
@@ -202,7 +202,7 @@
   border-radius: 999px;
   color: var(--muted);
   cursor: pointer;
-  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: var(--transition-spring-fast);
 }
 
 .settings-tab-button:hover {
@@ -760,7 +760,7 @@
   border: 1px solid var(--ink-1);
   border-radius: 8px;
   cursor: pointer;
-  transition: all 150ms ease;
+  transition: var(--transition-fast);
   overflow: hidden;
 }
 
@@ -854,10 +854,10 @@
   font-size: 11px;
   background: var(--background);
   border: 1px solid var(--ink-1);
-  border-radius: 9999px;
+  border-radius: var(--radius-full);
   color: var(--muted);
   cursor: pointer;
-  transition: all 200ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: var(--transition-spring-fast);
 }
 
 .role-pill:hover {
