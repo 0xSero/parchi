@@ -147,7 +147,9 @@ async function collectSnapshot(
       let cssAnimations = 0;
       try {
         cssAnimations = document.getAnimations?.().length ?? 0;
-      } catch {}
+      } catch {
+        // document.getAnimations not supported in this browser
+      }
 
       return { round, label, ts: Date.now(), elapsed, memory: mem, dom, data, timers, cssAnimations };
     },

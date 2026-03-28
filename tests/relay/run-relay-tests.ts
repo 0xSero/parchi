@@ -102,7 +102,9 @@ const waitForPing = async (host: string, port: number, token: string) => {
     try {
       const res = await rpc({ host, port, token, method: 'relay.ping' });
       if (res.status === 200 && res.data?.result?.ok) return;
-    } catch {}
+    } catch {
+      // Retry — daemon may not be ready yet
+    }
     await sleep(60);
   }
   throw new Error('Daemon did not become ready');
@@ -294,7 +296,10 @@ const main = async () => {
   } finally {
     try {
       child.kill('SIGTERM');
-    } catch {}
+    } catch (err) {
+      // Process may have already exited
+      console.warn('Failed to kill relay daemon:', err);
+    }
   }
 
   log('\n=== Relay Test Summary ===', 'info');

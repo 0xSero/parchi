@@ -56,7 +56,9 @@ const waitForDaemon = async (host: string, port: number, token: string) => {
     try {
       const result = await rpc({ host, port, token, method: 'relay.ping' });
       if (result.status === 200 && result.data?.result?.ok) return;
-    } catch {}
+    } catch {
+      // Retry — daemon may not be ready yet
+    }
     await sleep(60);
   }
   throw new Error('relay daemon did not become ready');

@@ -1,6 +1,6 @@
 {
   "milestone": "critical-stability",
-  "round": 2,
+  "round": 4,
   "status": "fail",
   "validatorsRun": {
     "test": {
@@ -15,109 +15,40 @@
     },
     "lint": {
       "passed": true,
-      "command": "npm run lint -- --reporter=json",
+      "command": "npm run lint",
       "exitCode": 0
     }
   },
   "reviewsSummary": {
-    "total": 5,
-    "passed": 1,
-    "failed": 4,
-    "failedFeatures": [
-      "fix-dom-element-leaks",
-      "fix-runtime-listener-leaks",
-      "fix-empty-catch-blocks",
-      "fix-floating-promises"
-    ]
+    "total": 0,
+    "passed": 0,
+    "failed": 0,
+    "failedFeatures": []
   },
   "blockingIssues": [
     {
-      "featureId": "fix-dom-element-leaks",
+      "featureId": "fix-content-ts-destroy-wiring",
       "severity": "blocking",
-      "description": "ContentScriptHandler.destroy() still calls overlayController.clearActionOverlay() instead of the newly added destroyOverlay(), so #parchi-overlay-root and its <style> node remain attached when the content script is torn down. This does not satisfy VAL-CRIT-001's requirement that overlay DOM elements be properly removed when cleared."
+      "description": "No completed follow-up implementation artifact exists for the prior failure, so there was no new fix feature to review on this rerun. Repository inspection still shows packages/extension/content.ts removing the runtime listener but calling clearActionOverlay()/clearBadge() in destroy() instead of the stronger teardown methods, and ContentScriptHandler.destroy() is still never wired to pagehide/beforeunload, so the VAL-CRIT-001 and VAL-CRIT-003 remediation remains incomplete."
     },
     {
-      "featureId": "fix-dom-element-leaks",
+      "featureId": "fix-test-empty-catch-blocks",
       "severity": "blocking",
-      "description": "ContentScriptHandler.destroy() still calls subagentBadgeController.clearBadge() instead of destroyBadge(), so the badge bar/tag/style nodes remain in the page DOM after teardown. The fix adds a destroy method but never wires it into any lifecycle path, leaving the badge leak unresolved."
+      "description": "No completed follow-up implementation artifact exists for the prior failure, so there was no new fix feature to review on this rerun. Repository inspection still finds the targeted empty catch blocks in tests/e2e/run-orchestrator-runtime-e2e.ts, tests/relay/run-relay-tests.ts, tests/relay/run-electron-agent-tests.ts, and tests/perf/run-perf-profile.ts, so VAL-CRIT-004 remains unresolved."
     },
     {
-      "featureId": "fix-runtime-listener-leaks",
+      "featureId": "fix-remaining-empty-catch-handlers",
       "severity": "blocking",
-      "description": "ContentScriptHandler.destroy() removes the stored runtime listener, but there is no lifecycle hook or call site that ever invokes destroy(). The file still ends with `new ContentScriptHandler();` and contains no unload/pagehide cleanup path, so the listener reference is never actually removed, which does not fulfill VAL-CRIT-003's requirement that content-script runtime listeners be properly removed."
-    },
-    {
-      "featureId": "fix-empty-catch-blocks",
-      "severity": "blocking",
-      "description": "An empty `catch {}` remains when removing the temporary user data directory. The feature expectedBehavior says no empty catch blocks remain in the codebase, and the handoff also claims `grep -r 'catch\\s*{\\s*}' packages/ --include='*.ts'` found none. Repository review still finds empty catches in test code, so the implementation does not fully satisfy VAL-CRIT-004 as written."
-    },
-    {
-      "featureId": "fix-empty-catch-blocks",
-      "severity": "blocking",
-      "description": "An empty polling-loop `catch {}` remains around relay readiness checks, contradicting the feature requirement that all empty catch blocks be handled."
-    },
-    {
-      "featureId": "fix-empty-catch-blocks",
-      "severity": "blocking",
-      "description": "An empty cleanup `catch {}` remains around `child.kill('SIGTERM')`, so the repo still contains unhandled empty catches after this feature."
-    },
-    {
-      "featureId": "fix-empty-catch-blocks",
-      "severity": "blocking",
-      "description": "An empty relay readiness polling `catch {}` remains in test code, so the codebase-wide assertion is not met."
-    },
-    {
-      "featureId": "fix-empty-catch-blocks",
-      "severity": "blocking",
-      "description": "An empty `catch {}` remains around `document.getAnimations?.()` access in the perf harness. This leaves the repository with unresolved empty catches despite the feature claiming all were fixed."
-    },
-    {
-      "featureId": "fix-empty-catch-blocks",
-      "severity": "blocking",
-      "description": "An empty cleanup `catch {}` remains around removing the temp user data directory, so the repository still violates the no-empty-catch expectation."
-    },
-    {
-      "featureId": "fix-floating-promises",
-      "severity": "blocking",
-      "description": "`this.injectContentScript(changedTabId).catch(() => {})` still swallows rejection silently during tab updates. This is still a floating promise without meaningful error handling, so recording content-script reinjection failures remain invisible."
-    },
-    {
-      "featureId": "fix-floating-promises",
-      "severity": "blocking",
-      "description": "`this.stopRecording().catch(() => {})` on tab removal still suppresses async stop failures. That recreates the same silent-failure behavior the feature was meant to remove."
-    },
-    {
-      "featureId": "fix-floating-promises",
-      "severity": "blocking",
-      "description": "`chrome.runtime.sendMessage({ type: 'recording_discard' }).catch(() => {})` still drops rejected runtime-message promises without logging or fallback handling, so discard failures remain unobservable."
-    },
-    {
-      "featureId": "fix-floating-promises",
-      "severity": "blocking",
-      "description": "`pruneOldTraces().catch(() => {})` still uses an empty catch callback, leaving trace-pruning failures silent instead of handled."
+      "description": "No completed follow-up implementation artifact exists for the prior failure, so there was no new fix feature to review on this rerun. Repository inspection still finds empty .catch(() => {}) handlers in packages/extension/recording/recording-coordinator.ts and packages/extension/sidepanel/ui/chat/panel-recorder.ts, so VAL-CRIT-005 remains unresolved."
     }
   ],
   "appliedUpdates": [],
-  "suggestedGuidanceUpdates": [
+  "suggestedGuidanceUpdates": [],
+  "rejectedObservations": [
     {
-      "target": "cleanup-worker skill",
-      "suggestion": "Strengthen the memory-leak checklist to require proof that new cleanup helpers are reachable from real lifecycle hooks or call sites, not merely implemented.",
-      "evidence": "Skill: /Users/sero/projects/browser-ai/.factory/skills/cleanup-worker/SKILL.md section 'Fix Memory Leaks' step 4; implementation: /Users/sero/projects/browser-ai/packages/extension/content.ts:38-42 still calls clearActionOverlay()/clearBadge() only, while destroyOverlay()/destroyBadge() are defined in content-action-overlay.ts:158-164 and content-subagent-badge.ts:74-80 with no call sites.",
-      "isSystemic": true
-    },
-    {
-      "target": "cleanup-worker skill",
-      "suggestion": "For codebase-wide empty-catch work, require repo-wide verification including tests whenever the feature says the codebase or repository, rather than allowing package-scoped grep checks.",
-      "evidence": "cleanup-worker SKILL.md says `Find empty catches` with a repo-wide grep example and `Verification: No empty catch blocks remain`; handoff verification instead used `grep -r 'catch\\s*{\\s*}' packages/ --include='*.ts'`, and repo review still finds six matches under `tests/`.",
-      "isSystemic": true
-    },
-    {
-      "target": "cleanup-worker skill",
-      "suggestion": "Explicitly disallow empty `.catch(() => {})` handlers as acceptable floating-promise remediation and require meaningful logging or recovery behavior.",
-      "evidence": "/Users/sero/projects/browser-ai/.factory/skills/cleanup-worker/SKILL.md says to add proper handling; commit 4f14eb76a788149bf43a9a881e094a4b21f22493 still leaves empty `.catch(() => {})` handlers in `packages/extension/recording/recording-coordinator.ts:233,240`, `packages/extension/sidepanel/ui/chat/panel-recorder.ts:229`, and `packages/extension/sidepanel/ui/core/state-manager.ts:41`.",
-      "isSystemic": true
+      "observation": "Spawn scrutiny reviewers for prior blocking issues on this rerun",
+      "reason": "No completed fix features exist for the previously failed items, so there was no reviewable implementation artifact to send to scrutiny-feature-reviewer."
     }
   ],
-  "rejectedObservations": [],
-  "previousRound": ".factory/validation/critical-stability/scrutiny/synthesis.json"
+  "previousRound": "/Users/sero/projects/browser-ai/.factory/validation/critical-stability/scrutiny/synthesis.json"
 }
