@@ -51,15 +51,6 @@
   }
 }
 
-@keyframes slideOutRight {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(100%);
-  }
-}
-
 /* --------------------------------------------------------------------------
    Message Animations
    -------------------------------------------------------------------------- */
@@ -72,26 +63,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes thinkingPulse {
-  0%,
-  100% {
-    opacity: 0.4;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes cursorBlink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
   }
 }
 
@@ -142,13 +113,6 @@
    Interactive
    -------------------------------------------------------------------------- */
 
-@keyframes ripple {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-
 @keyframes shake {
   0%,
   100% {
@@ -192,16 +156,6 @@
   }
   50% {
     box-shadow: 0 0 40px rgb(var(--accent-rgb) / 0.5);
-  }
-}
-
-@keyframes borderGlow {
-  0%,
-  100% {
-    border-color: var(--accent);
-  }
-  50% {
-    border-color: var(--accent-light);
   }
 }
 
