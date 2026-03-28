@@ -1,0 +1,43 @@
+{
+  "featureId": "fix-content-ts-destroy-wiring",
+  "reviewedAt": "2026-03-28T00:06:59.298328Z",
+  "commitId": null,
+  "transcriptSkeletonReviewed": false,
+  "diffReviewed": false,
+  "status": "fail",
+  "codeReview": {
+    "summary": "No implementation artifacts were produced for this follow-up feature, and the repository still contains the exact blocking conditions from the earlier failed reviews: content.ts never calls destroyOverlay()/destroyBadge(), and ContentScriptHandler.destroy() is still never wired to pagehide/beforeunload or any other teardown path.",
+    "issues": [
+      {
+        "file": "packages/extension/content.ts",
+        "line": 40,
+        "severity": "blocking",
+        "description": "ContentScriptHandler.destroy() still calls overlayController.clearActionOverlay() instead of destroyOverlay(), so the overlay root/style nodes introduced by ActionOverlayController remain attached to the page DOM when teardown runs. This leaves VAL-CRIT-001 unresolved."
+      },
+      {
+        "file": "packages/extension/content.ts",
+        "line": 41,
+        "severity": "blocking",
+        "description": "ContentScriptHandler.destroy() still calls subagentBadgeController.clearBadge() instead of destroyBadge(), so the badge bar/tag/style nodes are hidden but not removed from the DOM. This leaves the badge-leak portion of VAL-CRIT-001 unresolved."
+      },
+      {
+        "file": "packages/extension/content.ts",
+        "line": 100,
+        "severity": "blocking",
+        "description": "The file still ends with new ContentScriptHandler() and contains no pagehide/beforeunload teardown wiring, so destroy() is unreachable in practice and the stored runtime listener is never removed. This means the follow-up feature did not resolve VAL-CRIT-003 either."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The cleanup-worker procedure already says memory-leak fixes must ensure cleanup is actually called, but this follow-up feature appears to have been queued without any completed worker run or handoff, and the repo still shows the same unreachable cleanup paths that caused the original two scrutiny failures.",
+      "evidence": "cleanup-worker skill: /Users/sero/projects/browser-ai/.factory/skills/cleanup-worker/SKILL.md section 'Fix Memory Leaks' step 4. Mission state: /Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/features.json still shows fix-content-ts-destroy-wiring with no workerSessionIds/currentWorkerSessionId/completedWorkerSessionId. Repo state: /Users/sero/projects/browser-ai/packages/extension/content.ts:38-42 and 100 still use clearActionOverlay()/clearBadge() and instantiate ContentScriptHandler without teardown hooks."
+    }
+  ],
+  "addressesFailureFrom": [
+    "fix-dom-element-leaks",
+    "fix-runtime-listener-leaks"
+  ],
+  "summary": "Review failed. There is no completed implementation artifact for fix-content-ts-destroy-wiring, and the current repository state still matches the prior blocking findings for fix-dom-element-leaks and fix-runtime-listener-leaks: destroyOverlay()/destroyBadge() are not wired in content.ts, and ContentScriptHandler.destroy() is not invoked from any content-script lifecycle event."
+}
