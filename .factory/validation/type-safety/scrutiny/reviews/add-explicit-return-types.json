@@ -1,34 +1,40 @@
 {
   "featureId": "add-explicit-return-types",
-  "reviewedAt": "2026-03-28T10:32:13.175168+00:00",
+  "reviewedAt": "2026-03-28T10:53:13.601060+00:00",
   "commitId": "32b7ec0896fb8a866db8a8b863cbd1f935c049df",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "fail",
   "codeReview": {
-    "summary": "The commit adds explicit return types in the targeted background service and agent-loop files, but it does not satisfy the feature contract to add explicit return types to 15+ missing functions. Multiple functions in the scoped files still lack explicit return annotations after the change.",
+    "summary": "The feature added several explicit return annotations in the targeted files, but it did not fully satisfy the stated scope because multiple targeted agent-loop/service functions still lacked explicit return types after the commit.",
     "issues": [
       {
-        "file": "packages/extension/background/service.ts",
-        "line": 58,
+        "file": "packages/extension/background/agent/agent-loop/assembly.ts",
+        "line": 77,
         "severity": "blocking",
-        "description": "The BackgroundService constructor still has no explicit return type. Constructors should be annotated as `constructor(): void` is invalid in TypeScript, so this file still contains a targeted function without an explicit return type, contradicting the feature's expected behavior."
+        "description": "`assemblePreparedAgentLoop` still contains three targeted object-literal methods without explicit return annotations (`switchActiveModel`, `persistRecoveredModelSelection`, and `captureErrorClassificationContext`). The feature description and expected behavior required the agent-loop/service functions in this scope to receive explicit return types."
       },
       {
-        "file": "packages/extension/background/agent/agent-loop/index.ts",
-        "line": 67,
+        "file": "packages/extension/background/agent/agent-loop/model-pass.ts",
+        "line": 131,
         "severity": "blocking",
-        "description": "Helper functions `createRunMeta` and `initializeSessionState` remain unannotated in the commit scope, so the feature did not complete the return-type sweep across the targeted agent-loop files."
+        "description": "The streaming callback passed to `streamText` (`onChunk`) still has no explicit return type in this feature commit, leaving another targeted agent-loop helper unannotated despite the explicit-return-type sweep requirement."
+      },
+      {
+        "file": "packages/extension/background/agent/agent-loop/prepare.ts",
+        "line": 146,
+        "severity": "blocking",
+        "description": "`emitHistoryPrepared` remains without an explicit `: void` return type in this commit even though `prepare.ts` is part of the targeted agent-loop scope described for the feature."
       }
     ]
   },
   "sharedStateObservations": [
     {
       "area": "skills",
-      "observation": "The worker marked `followedProcedure` false because the refactor-worker skill requires full-repo `npm run lint` and `npm run check:repo-standards`, but this mission has known unrelated repo-wide failures. The skill lacks an explicit fallback for scoped validation in debt-heavy repos.",
-      "evidence": ".factory/skills/refactor-worker/SKILL.md step 8 requires global lint and repo-standards; handoff skillFeedback for add-explicit-return-types records scoped lint plus `check-repo-standards --base=HEAD~1` instead."
+      "observation": "The refactor-worker skill requires running the final global `npm run lint` and `npm run check:repo-standards`, but the worker only ran scoped lint and a diff-based repo-standards check because of known repo-wide debt.",
+      "evidence": "handoffs/2026-03-28T10-01-01-287Z__add-explicit-return-types__c138c3f0-2b14-4d2c-974c-33ae6a9b6e6d.json -> skillFeedback.followedProcedure=false and verification commands show scoped lint plus `node scripts/check-repo-standards.mjs --base=HEAD~1`; .factory/skills/refactor-worker/SKILL.md step 8 still prescribes the global commands only."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "Fail: explicit return types were added to several targeted functions, but the scoped service/agent-loop files still contain unannotated functions, so the feature does not fully meet its contract."
+  "summary": "Review failed: commit 32b7ec0 added several return annotations, but it left multiple functions in the targeted agent-loop/service scope without explicit return types, so the feature did not fully meet its expected behavior."
 }
