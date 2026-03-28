@@ -58,8 +58,8 @@ export async function processContextCompaction(
 
   try {
     const settings = await readSettingsSnapshot();
-    const activeProfileName = settings.activeConfig || 'default';
-    const orchestratorProfileName = settings.orchestratorProfile || activeProfileName;
+    const activeProfileName = typeof settings.activeConfig === 'string' ? settings.activeConfig : 'default';
+    const orchestratorProfileName = typeof settings.orchestratorProfile === 'string' ? settings.orchestratorProfile : activeProfileName;
     const orchestratorEnabled = settings.useOrchestrator === true;
 
     const activeProfile = resolveProfile(settings, activeProfileName);
@@ -106,7 +106,10 @@ export async function processContextCompaction(
       return;
     }
 
-    const contextLimit = orchestratorProfile.contextLimit || settings.contextLimit || 200000;
+    const contextLimit =
+      (typeof orchestratorProfile.contextLimit === 'number' ? orchestratorProfile.contextLimit : undefined) ||
+      (typeof settings.contextLimit === 'number' ? settings.contextLimit : undefined) ||
+      200000;
     const result = await runContextCompaction(ctx, {
       runMeta,
       history,
