@@ -3,7 +3,12 @@ import { AsyncTestRunner, log } from '../integration/shared/runner.js';
 import {
   type OrchestratorServiceIntegrationArtifact,
   type OrchestratorServiceScenario,
-  callBuiltin,
+  callAwaitAgents,
+  callAwaitSubagent,
+  callDispatchOrchestratorTasks,
+  callGetOrchestratorPlan,
+  callListSubagents,
+  callSetOrchestratorPlan,
   createHarnessContext,
   createNestedSpawnStub,
   defaultRunMeta,
@@ -26,7 +31,7 @@ export async function runOrchestratorServiceIntegrationSuite(
   const crossSiteFixture = loadFixture('cross-site-write-plan.json');
 
   await runner.test('set_orchestrator_plan materializes a DAG with ready tasks', async () => {
-    const result = await callBuiltin(ctx, 'set_orchestrator_plan', crossSiteFixture);
+    const result = await callSetOrchestratorPlan(ctx, crossSiteFixture);
     runner.assertTrue(result.success === true, 'set_orchestrator_plan should succeed');
     runner.assertTrue(Array.isArray(result.readyTaskIds), 'readyTaskIds should be present');
     runner.assertTrue(result.readyTaskIds.includes('airtable_to_notion'), 'airtable_to_notion should be ready');
@@ -43,11 +48,11 @@ export async function runOrchestratorServiceIntegrationSuite(
   });
 
   await runner.test('dispatch_orchestrator_tasks fans ready tasks into subagent runs', async () => {
-    const result = await callBuiltin(ctx, 'dispatch_orchestrator_tasks', { maxTasks: 2 }, nestedSpawnStub);
+    const result = await callDispatchOrchestratorTasks(ctx, { maxTasks: 2 }, nestedSpawnStub);
     runner.assertTrue(result.success === true, 'dispatch should succeed');
     runner.assertEqual(result.dispatched.length, 2, 'two tasks should dispatch in wave one');
 
-    const listed = await callBuiltin(ctx, 'list_subagents', {});
+    const listed = await callListSubagents(ctx);
     runner.assertEqual(listed.running.length, 2, 'two subagents should be running');
     scenarios.push({
       id: 'dispatch-wave-one',
@@ -57,11 +62,12 @@ export async function runOrchestratorServiceIntegrationSuite(
   });
 
   await runner.test('await_subagent finalizes task outputs and unlocks downstream work', async () => {
-    const result = await callBuiltin(ctx, 'await_subagent', {});
+    const result = await callAwaitSubagent(ctx);
     runner.assertTrue(result.success === true, 'await_subagent should succeed');
+    if (!result.success) throw new Error(`await_subagent failed: ${result.error}`);
     runner.assertEqual(result.agents.length, 2, 'two subagents should complete in wave one');
-    runner.assertTrue(Boolean(result.whiteboard['sync.airtable_to_notion']), 'missing Airtable output');
-    runner.assertTrue(Boolean(result.whiteboard['sync.notion_to_airtable']), 'missing Notion output');
+    runner.assertTrue(Boolean(result.whiteboard?.['sync.airtable_to_notion']), 'missing Airtable output');
+    runner.assertTrue(Boolean(result.whiteboard?.['sync.notion_to_airtable']), 'missing Notion output');
 
     const plan = sessionState.orchestratorPlan;
     runner.assertEqual(getTask(plan, 'airtable_to_notion')?.status, 'completed');
@@ -78,13 +84,14 @@ export async function runOrchestratorServiceIntegrationSuite(
   });
 
   await runner.test('legacy await_agents alias still works and completes the final reconcile wave', async () => {
-    const dispatch = await callBuiltin(ctx, 'dispatch_orchestrator_tasks', { maxTasks: 2 }, nestedSpawnStub);
+    const dispatch = await callDispatchOrchestratorTasks(ctx, { maxTasks: 2 }, nestedSpawnStub);
     runner.assertEqual(dispatch.dispatched.length, 1, 'only reconcile should remain');
 
-    const awaitAlias = await callBuiltin(ctx, 'await_agents', {});
+    const awaitAlias = await callAwaitAgents(ctx);
     runner.assertTrue(awaitAlias.success === true, 'await_agents alias should succeed');
+    if (!awaitAlias.success) throw new Error(`await_agents failed: ${awaitAlias.error}`);
 
-    const planResult = await callBuiltin(ctx, 'get_orchestrator_plan', {});
+    const planResult = await callGetOrchestratorPlan(ctx);
     runner.assertEqual(planResult.taskCounts.completed, planResult.taskCounts.total, 'all tasks should complete');
     runner.assertEqual(getTask(planResult.plan, 'reconcile')?.status, 'completed');
     runner.assertTrue(Boolean(planResult.whiteboard['sync.conflicts']), 'missing reconcile output');
@@ -97,22 +104,23 @@ export async function runOrchestratorServiceIntegrationSuite(
 
   await runner.test('dispatch_orchestrator_tasks rejects invalid DAGs', async () => {
     const invalidCtx = createHarnessContext();
-    await callBuiltin(invalidCtx, 'set_orchestrator_plan', {
+    await callSetOrchestratorPlan(invalidCtx, {
       goal: 'Broken DAG',
       tasks: [{ id: 'broken', title: 'Broken task', dependencies: ['missing-task'] }],
     });
 
-    const result = await callBuiltin(invalidCtx, 'dispatch_orchestrator_tasks', {}, createNestedSpawnStub(invalidCtx));
+    const result = await callDispatchOrchestratorTasks(invalidCtx, {}, createNestedSpawnStub(invalidCtx));
     runner.assertFalse(result.success, 'dispatch should fail for invalid graph');
     runner.assertTrue(Array.isArray(result.validationIssues), 'validationIssues should be present');
+    const validationIssues = result.validationIssues ?? [];
     runner.assertTrue(
-      result.validationIssues.some((entry: string) => entry.includes('missing dependency')),
+      validationIssues.some((entry: string) => entry.includes('missing dependency')),
       'missing dependency issue expected',
     );
     scenarios.push({
       id: 'invalid-plan-rejected',
       passed: true,
-      details: { validationIssues: result.validationIssues },
+      details: { validationIssues },
     });
   });
 

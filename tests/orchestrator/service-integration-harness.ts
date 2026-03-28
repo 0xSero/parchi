@@ -1,5 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import type { OrchestratorPlan, WhiteboardEntry as OrchestratorWhiteboardEntry } from '@parchi/shared';
 import type { ServiceContext } from '../../packages/extension/background/service-context.js';
 import type {
   HistoricalSubagent,
@@ -23,6 +24,59 @@ export type OrchestratorServiceIntegrationArtifact = {
   scenarios: OrchestratorServiceScenario[];
 };
 
+type BuiltinBaseResult = { success: boolean; error?: string };
+type RunningSubagentSummary = HistoricalSubagent;
+type WhiteboardSnapshot = Record<string, OrchestratorWhiteboardEntry>;
+type OrchestratorPlanSummary = {
+  plan: OrchestratorPlan;
+  validationIssues: string[];
+  readyTaskIds: string[];
+  taskCounts: {
+    total: number;
+    pending: number;
+    ready: number;
+    running: number;
+    blocked: number;
+    completed: number;
+    failed: number;
+    cancelled: number;
+  };
+};
+
+type SetOrchestratorPlanResult = BuiltinBaseResult & OrchestratorPlanSummary;
+type DispatchOrchestratorTasksResult = BuiltinBaseResult & {
+  dispatched: Array<Record<string, unknown>>;
+  validationIssues?: string[];
+};
+type ListSubagentsResult = BuiltinBaseResult & {
+  running: RunningSubagentSummary[];
+  history: HistoricalSubagent[];
+};
+type AwaitSubagentExtras = {
+  planSummary?: OrchestratorPlanSummary;
+  whiteboard?: WhiteboardSnapshot;
+  taskValidationFailures?: string[];
+};
+type AwaitSubagentResult =
+  | ({ success: true; agents: SubagentResult[]; note?: string } & AwaitSubagentExtras)
+  | ({
+      success: false;
+      error: string;
+      pendingAgents?: Array<{ id: string; name: string; tabId: number }>;
+    } & AwaitSubagentExtras);
+type GetOrchestratorPlanResult = BuiltinBaseResult &
+  OrchestratorPlanSummary & {
+    whiteboard: WhiteboardSnapshot;
+    subagents: {
+      running: RunningSubagentSummary[];
+      history: HistoricalSubagent[];
+    };
+  };
+
+type StubBrowserTools = Pick<ServiceContext['browserTools'], 'resolveSessionWindowId'>;
+type StubRelay = Pick<ServiceContext['relay'], 'isConnected' | 'notify'>;
+type StubRecordingCoordinator = Record<string, never>;
+
 export type HarnessContext = ServiceContext & {
   runtimeEvents: Array<Record<string, unknown>>;
   sessionStates: Map<string, SessionState>;
@@ -40,19 +94,19 @@ export function createHarnessContext(): HarnessContext {
   const sessionStates = new Map<string, SessionState>();
   const runtimeEvents: Array<Record<string, unknown>> = [];
   const ctx: Record<string, unknown> = {
-    browserTools: {} as any,
+    browserTools: {} as StubBrowserTools,
     currentSettings: null,
     currentSessionId: null,
     currentPlan: null,
     subAgentCount: 0,
     subAgentProfileCursor: 0,
-    relay: { isConnected: () => false, notify: () => {} } as any,
+    relay: { isConnected: () => false, notify: () => {} } as StubRelay,
     relayActiveRunIds: new Set<string>(),
     activeRuns: new Map(),
     activeRunIdBySessionId: new Map(),
     cancelledRunIds: new Set<string>(),
     sidepanelLifecyclePorts: new Set(),
-    recordingCoordinator: {} as any,
+    recordingCoordinator: {} as StubRecordingCoordinator,
     subagentTabBadges: new Map(),
     kimiHeaderRuleOk: false,
     kimiHeaderMode: 'none' as const,
@@ -70,7 +124,7 @@ export function createHarnessContext(): HarnessContext {
       return getManagedSessionState(sessionStates, sessionId);
     },
     getBrowserTools() {
-      return { resolveSessionWindowId: async () => 1 } as any;
+      return { resolveSessionWindowId: async () => 1 } as StubBrowserTools;
     },
     releaseSessionResources() {},
     setSubagentTabBadge() {},
@@ -132,7 +186,49 @@ export async function callBuiltin(
     nestedToolExecutor,
   );
   if (!result.handled) throw new Error(`Builtin ${toolName} was not handled.`);
-  return result.result as BuiltinResult;
+  return result.result as Record<string, unknown>;
+}
+
+export async function callSetOrchestratorPlan(
+  ctx: HarnessContext,
+  args: Record<string, unknown>,
+): Promise<SetOrchestratorPlanResult> {
+  return (await callBuiltin(ctx, 'set_orchestrator_plan', args)) as SetOrchestratorPlanResult;
+}
+
+export async function callDispatchOrchestratorTasks(
+  ctx: HarnessContext,
+  args: Record<string, unknown>,
+  nestedToolExecutor: Parameters<typeof executeBuiltinTool>[4],
+): Promise<DispatchOrchestratorTasksResult> {
+  return (await callBuiltin(
+    ctx,
+    'dispatch_orchestrator_tasks',
+    args,
+    nestedToolExecutor,
+  )) as DispatchOrchestratorTasksResult;
+}
+
+export async function callListSubagents(ctx: HarnessContext): Promise<ListSubagentsResult> {
+  return (await callBuiltin(ctx, 'list_subagents', {})) as ListSubagentsResult;
+}
+
+export async function callAwaitSubagent(
+  ctx: HarnessContext,
+  args: Record<string, unknown> = {},
+): Promise<AwaitSubagentResult> {
+  return (await callBuiltin(ctx, 'await_subagent', args)) as AwaitSubagentResult;
+}
+
+export async function callAwaitAgents(
+  ctx: HarnessContext,
+  args: Record<string, unknown> = {},
+): Promise<AwaitSubagentResult> {
+  return (await callBuiltin(ctx, 'await_agents', args)) as AwaitSubagentResult;
+}
+
+export async function callGetOrchestratorPlan(ctx: HarnessContext): Promise<GetOrchestratorPlanResult> {
+  return (await callBuiltin(ctx, 'get_orchestrator_plan', {})) as GetOrchestratorPlanResult;
 }
 
 export function createNestedSpawnStub(ctx: HarnessContext) {
