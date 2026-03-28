@@ -1,0 +1,45 @@
+{
+  "featureId": "consolidate-truncate",
+  "reviewedAt": "2026-03-28T01:36:59Z",
+  "commitId": "938f99f58e378c6bce321a309e472acf2704345c",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The shared truncate helper was added and three UI call sites now import it, but the feature does not fully satisfy the consolidation contract because the commit also changed browser-read-tools semantics and left other duplicate truncation helpers in the extension unchanged.",
+    "issues": [
+      {
+        "file": "packages/extension/tools/browser-read-tools.ts",
+        "line": 89,
+        "severity": "blocking",
+        "description": "The local helper still duplicates truncation behavior instead of importing the shared utility, so the implementation does not achieve the promised 'single truncate implementation' / 'all 6 locations import from shared' outcome required by the feature description and VAL-CON-004."
+      },
+      {
+        "file": "packages/extension/tools/browser-read-tools.ts",
+        "line": 89,
+        "severity": "blocking",
+        "description": "The refactor changed behavior: untruncated results are now always copied via `slice(0, limit)` and the helper no longer returns the original string reference on short inputs. This is a runtime change in a read-only consolidation task, contrary to mission guidance to preserve behavior while refactoring."
+      },
+      {
+        "file": "packages/extension/sidepanel/ui/chat/chat-messaging.ts",
+        "line": 74,
+        "severity": "blocking",
+        "description": "A duplicate truncation implementation remains (`slice(0, 57) + '...'`) even though the feature claims all six truncate() duplicates were consolidated. Leaving this call site unchanged means the repository still contains additional ad hoc truncation logic after the feature completed."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill still frames repo-standards as a mandatory final validation gate, but this mission repeatedly hit pre-existing unrelated failures and workers documented them instead. The skill should explicitly describe how to handle diff-scoped or pre-existing repo-standards failures during focused cleanup work.",
+      "evidence": ".factory/skills/refactor-worker/SKILL.md final validation step vs handoff skillFeedback for consolidate-truncate (`followedProcedure: false` because `npm run check:repo-standards` failed on unrelated files)."
+    },
+    {
+      "area": "conventions",
+      "observation": "The mission guidance says consolidation should create shared utilities in `@parchi/shared`, but there is no explicit convention for when similar truncation helpers that return metadata objects must wrap the shared helper versus remaining local. This ambiguity likely contributed to `browser-read-tools.ts` keeping an inline truncation helper while the feature still claimed full consolidation.",
+      "evidence": "/Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/AGENTS.md says 'When consolidating, create shared utilities in @parchi/shared'; commit 938f99f leaves `packages/extension/tools/browser-read-tools.ts` with a local truncate wrapper and the handoff still states 'all 6 locations' were updated."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Review failed: commit 938f99f adds a shared truncate helper, but it does not complete the promised consolidation. `browser-read-tools.ts` still contains a local truncate implementation and the commit also changes that helper's behavior, while other duplicate truncation logic remains elsewhere in the extension."
+}
