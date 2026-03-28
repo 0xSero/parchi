@@ -22,7 +22,7 @@ export async function processUserMessage(
   sessionId: string,
   meta?: Partial<RunMeta> & { origin?: 'sidepanel' | 'relay' },
   recordedContext?: RecordedContext,
-) {
+): Promise<void> {
   const runMeta = createRunMeta(sessionId, meta);
   const origin = meta?.origin || 'sidepanel';
   if (origin === 'relay') ctx.relayActiveRunIds.add(runMeta.runId);

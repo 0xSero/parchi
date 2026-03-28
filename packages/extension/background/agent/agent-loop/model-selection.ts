@@ -7,7 +7,7 @@ export const OAUTH_PROVIDER_MAP: Record<string, OAuthProviderKey> = {
   'qwen-oauth': 'qwen',
 };
 
-export function inferModelFamily(modelId: string) {
+export function inferModelFamily(modelId: string): string {
   const lower = String(modelId || '')
     .trim()
     .toLowerCase();

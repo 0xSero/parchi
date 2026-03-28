@@ -166,7 +166,7 @@ export async function resolveAgentResponse(
   return { finalText, reasoningText, totalUsage, responseMessages, currentHistory: prepared.currentHistory };
 }
 
-function buildToolDigest(toolResults: Array<Record<string, unknown>>) {
+function buildToolDigest(toolResults: Array<Record<string, unknown>>): string {
   if (!toolResults.length) return '';
   const items = toolResults.slice(-10).map((result) => ({
     tool: result.toolName || 'tool',

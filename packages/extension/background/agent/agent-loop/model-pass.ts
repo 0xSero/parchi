@@ -51,10 +51,10 @@ export async function runAgentModelPass(
   let textDeltaCount = 0;
   let reasoningDeltaCount = 0;
   let textStreamError: string | null = null;
-  const markFirstChunk = () => {
+  const markFirstChunk = (): void => {
     if (diagnostics.firstChunkAt == null) diagnostics.firstChunkAt = Date.now();
   };
-  const markFirstTextToken = () => {
+  const markFirstTextToken = (): void => {
     if (diagnostics.firstTextTokenAt == null) diagnostics.firstTextTokenAt = Date.now();
   };
   const safeAwait = async <T>(promise: PromiseLike<T>, fallback: T): Promise<T> => {
@@ -66,23 +66,23 @@ export async function runAgentModelPass(
       return fallback;
     }
   };
-  const sendStreamStop = () => {
+  const sendStreamStop = (): void => {
     if (!prepared.streamEnabled || streamStopSent) return;
     ctx.sendRuntime(prepared.runMeta, { type: 'assistant_stream_stop' });
     streamStopSent = true;
   };
-  const sendTextDelta = (textPart: string) => {
+  const sendTextDelta = (textPart: string): void => {
     if (!textPart) return;
     markFirstTextToken();
     textDeltaCount += 1;
     ctx.sendRuntime(prepared.runMeta, { type: 'assistant_stream_delta', content: textPart, channel: 'text' });
   };
-  const sendReasoningDelta = (delta: string) => {
+  const sendReasoningDelta = (delta: string): void => {
     if (!delta) return;
     reasoningDeltaCount += 1;
     ctx.sendRuntime(prepared.runMeta, { type: 'assistant_stream_delta', content: delta, channel: 'reasoning' });
   };
-  const emitSyntheticStream = async (fullText: string) => {
+  const emitSyntheticStream = async (fullText: string): Promise<void> => {
     const text = String(fullText || '');
     if (!text) return;
     const chunkSize = Math.max(24, Math.ceil(text.length / 120));
@@ -144,7 +144,7 @@ export async function runAgentModelPass(
     },
   });
 
-  const resolveText = async () => {
+  const resolveText = async (): Promise<string> => {
     try {
       return await result.text;
     } catch (error) {

@@ -1,6 +1,6 @@
 import type { AgentLoopDiagnostics } from './shared.js';
 
-export function createLatencyMetricsBuilder(diagnostics: AgentLoopDiagnostics) {
+export function createLatencyMetricsBuilder(diagnostics: AgentLoopDiagnostics): () => Record<string, unknown> {
   return function buildLatencyMetrics(): Record<string, unknown> {
     const completedAt = Date.now();
     const metrics: Record<string, unknown> = {
@@ -18,7 +18,9 @@ export function createLatencyMetricsBuilder(diagnostics: AgentLoopDiagnostics) {
   };
 }
 
-export function createBenchmarkContextBuilder(diagnostics: AgentLoopDiagnostics) {
+export function createBenchmarkContextBuilder(
+  diagnostics: AgentLoopDiagnostics,
+): (success: boolean, errorCategory?: string) => Record<string, unknown> {
   return function buildBenchmarkContext(success: boolean, errorCategory?: string): Record<string, unknown> {
     const payload: Record<string, unknown> = { success };
     const provider = diagnostics.benchmarkProvider || diagnostics.latestErrorContext.provider;

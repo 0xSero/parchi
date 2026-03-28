@@ -21,7 +21,11 @@ export function buildModelConfig(
   const activeModelId = String(orchestratorProfile.model || settings.model || '').trim();
   const model = resolveLanguageModel(orchestratorProfile);
 
-  const executeTool = async (toolName: string, args: Record<string, unknown>, options: { toolCallId?: string }) => {
+  const executeTool = async (
+    toolName: string,
+    args: Record<string, unknown>,
+    options: { toolCallId?: string },
+  ): Promise<unknown> => {
     if (ctx.isRunCancelled(runMeta.runId)) {
       return { success: false, error: 'Run stopped.' };
     }

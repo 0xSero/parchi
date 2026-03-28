@@ -81,7 +81,7 @@ export class BackgroundService implements ServiceContext {
     this.init();
   }
 
-  private init() {
+  private init(): void {
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       void handleMessage(this, message, sender, sendResponse, this.applyRelayConfig).catch((error) => {
         console.error('Unhandled runtime message error:', error);
@@ -162,11 +162,11 @@ export class BackgroundService implements ServiceContext {
   }
 
   // ServiceContext implementation
-  sendRuntime(runMeta: RunMeta, payload: Record<string, unknown>) {
+  sendRuntime(runMeta: RunMeta, payload: Record<string, unknown>): void {
     sendRuntimeImpl(this, runMeta, payload);
   }
 
-  sendToSidePanel(message: unknown) {
+  sendToSidePanel(message: unknown): void {
     chrome.runtime.sendMessage(message).catch((err) => {
       console.log('Side panel not open:', err);
     });
@@ -180,19 +180,19 @@ export class BackgroundService implements ServiceContext {
     return getBrowserTools(this.browserToolsBySessionId, this.currentSettings, sessionId);
   }
 
-  releaseSessionResources(sessionId: string) {
+  releaseSessionResources(sessionId: string): void {
     this.sessionStateById.delete(sessionId);
     this.browserToolsBySessionId.delete(sessionId);
   }
 
-  setSubagentTabBadge(tabId: number, state: SubagentTabBadgeState) {
+  setSubagentTabBadge(tabId: number, state: SubagentTabBadgeState): void {
     this.subagentTabBadges.set(tabId, state);
     void sendSubagentTabBadge(tabId, state).catch((err) => {
       console.warn('[service] Failed to send subagent tab badge:', err);
     });
   }
 
-  syncSubagentTabBadge(tabId: number) {
+  syncSubagentTabBadge(tabId: number): void {
     const state = this.subagentTabBadges.get(tabId);
     if (state)
       void sendSubagentTabBadge(tabId, state).catch((err) => {
@@ -200,7 +200,7 @@ export class BackgroundService implements ServiceContext {
       });
   }
 
-  emitTokenTrace(runMeta: RunMeta, sessionState: SessionState, payload: TokenTracePayload) {
+  emitTokenTrace(runMeta: RunMeta, sessionState: SessionState, payload: TokenTracePayload): void {
     emitTokenTrace(this, runMeta, sessionState, payload);
   }
 
@@ -212,7 +212,7 @@ export class BackgroundService implements ServiceContext {
     return registerActiveRun(this, runMeta, origin);
   }
 
-  cleanupRun(runMeta: RunMeta, origin: 'sidepanel' | 'relay') {
+  cleanupRun(runMeta: RunMeta, origin: 'sidepanel' | 'relay'): void {
     cleanupRun(this, runMeta, origin);
   }
 
@@ -220,7 +220,7 @@ export class BackgroundService implements ServiceContext {
     return stopRunBySession(this, sessionId, note);
   }
 
-  stopAllSidepanelRuns(note = 'Stopped') {
+  stopAllSidepanelRuns(note = 'Stopped'): void {
     stopAllSidepanelRuns(this, note);
   }
 
@@ -232,7 +232,7 @@ export class BackgroundService implements ServiceContext {
     sessionId: string,
     meta?: Partial<RunMeta> & { origin?: 'sidepanel' | 'relay' },
     recordedContext?: any,
-  ) {
+  ): ReturnType<typeof processUserMessage> {
     return processUserMessage(this, userMessage, conversationHistory, selectedTabs, sessionId, meta, recordedContext);
   }
 
@@ -240,7 +240,7 @@ export class BackgroundService implements ServiceContext {
     conversationHistory: any[],
     sessionId: string,
     options?: { source?: string; force?: boolean },
-  ) {
+  ): ReturnType<typeof processContextCompaction> {
     return processContextCompaction(this, conversationHistory, sessionId, options);
   }
 
@@ -249,7 +249,7 @@ export class BackgroundService implements ServiceContext {
     args: Record<string, unknown>,
     options: { runMeta: RunMeta; settings: Record<string, unknown>; visionProfile?: Record<string, unknown> | null },
     toolCallId?: string,
-  ) {
+  ): ReturnType<typeof executeToolByName> {
     return executeToolByName(this, toolName, args, options, toolCallId);
   }
 
@@ -258,23 +258,26 @@ export class BackgroundService implements ServiceContext {
     includeOrchestrator?: boolean,
     teamProfiles?: Array<{ name: string }>,
     includeVisionTools?: boolean,
-  ) {
+  ): ReturnType<typeof getToolsForSession> {
     return getToolsForSession(this.browserTools, settings, includeOrchestrator, teamProfiles, includeVisionTools);
   }
 
-  async runApiSmokeTest(settings: Record<string, unknown>, prompt: string) {
+  async runApiSmokeTest(settings: Record<string, unknown>, prompt: string): ReturnType<typeof runApiSmokeTest> {
     return runApiSmokeTest(settings, prompt);
   }
 
-  async generateWorkflowPrompt(sessionContext: string, maxOutputTokens?: number) {
+  async generateWorkflowPrompt(
+    sessionContext: string,
+    maxOutputTokens?: number,
+  ): ReturnType<typeof generateWorkflowPrompt> {
     return generateWorkflowPrompt(sessionContext, maxOutputTokens);
   }
 
-  async handleRelayRpc(method: string, params: unknown) {
+  async handleRelayRpc(method: string, params: unknown): ReturnType<typeof handleRelayRpc> {
     return handleRelayRpc(this, method, params);
   }
 
-  scheduleRelayAutoPairCheck(delayMs = 1500) {
+  scheduleRelayAutoPairCheck(delayMs = 1500): void {
     scheduleRelayAutoPairCheck(this, delayMs);
   }
 }

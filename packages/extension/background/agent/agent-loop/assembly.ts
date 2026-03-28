@@ -119,7 +119,9 @@ export function assemblePreparedAgentLoop(params: {
   };
 }
 
-function buildModelFromProfile(profile: AgentProfile) {
+function buildModelFromProfile(
+  profile: AgentProfile,
+): ReturnType<typeof import('../../../ai/sdk/index.js').resolveLanguageModel> {
   const { resolveLanguageModel } = require('../../../ai/sdk/index.js');
   return resolveLanguageModel(profile);
 }

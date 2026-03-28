@@ -13,7 +13,7 @@ export async function runAgentModelPassWithFallback(
   let lastModelError: unknown = null;
   let refreshedProxyAuthOnce = false;
   const maxEmptyBodyRetriesPerModel = 2;
-  const loadOAuthFallbackCandidates = async (failedModelId: string) => {
+  const loadOAuthFallbackCandidates = async (failedModelId: string): Promise<number> => {
     if (!prepared.oauthProviderKey || prepared.oauthFallbackCandidatesLoaded) return 0;
     prepared.oauthFallbackCandidatesLoaded = true;
     try {
