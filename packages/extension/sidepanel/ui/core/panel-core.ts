@@ -20,7 +20,10 @@ import './history-manager.js';
 // 4. State management (init, connectLifecyclePort, requestRunStop, watchdog)
 import './state-manager.js';
 
-// 5. Message processing (handleRuntimeMessage and all message handlers)
+// 5. Event handling (setupEventListeners)
+import './event-handlers/index.js';
+
+// 6. Message processing (handleRuntimeMessage and all message handlers)
 import './message-processor.js';
 
 // 6. Context handling (handleContextCompaction, appendContextMessages)
