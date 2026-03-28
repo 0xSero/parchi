@@ -42,6 +42,8 @@ function log(msg: string, type: keyof typeof colors = 'info') {
   console.log(`${colors[type]}${msg}${colors.reset}`);
 }
 
+const getErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 // ── Config ──────────────────────────────────────────────────────────
 
 const repoRoot = path.resolve(process.cwd());
@@ -417,9 +419,9 @@ async function run() {
     log(`\nResults saved to: ${outFile}`, 'success');
 
     log('\n' + '═'.repeat(60), 'bold');
-  } catch (error: any) {
-    log(`\nFatal error: ${error.message}`, 'error');
-    if (error.stack) log(error.stack, 'dim');
+  } catch (error: unknown) {
+    log(`\nFatal error: ${getErrorMessage(error)}`, 'error');
+    if (error instanceof Error && error.stack) log(error.stack, 'dim');
     process.exitCode = 1;
   } finally {
     if (context) {
@@ -427,7 +429,7 @@ async function run() {
     }
     try {
       fs.rmSync(userDataDir, { recursive: true, force: true });
-    } catch (err) {
+    } catch (err: unknown) {
       console.warn(`Failed to clean up temp dir ${userDataDir}:`, err);
     }
   }

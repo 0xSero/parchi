@@ -33,6 +33,8 @@ function log(message: string, type: keyof typeof colors = 'info') {
   console.log(`${colors[type]}${message}${colors.reset}`);
 }
 
+const getErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 function assert(condition: unknown, message: string) {
   if (!condition) {
     throw new Error(message);
@@ -181,8 +183,8 @@ test('AI SDK v6 can be imported and used', async ({ worker }) => {
       // This checks if the background script can access the AI SDK
       // We'll verify the imports worked by checking global state
       return { success: true, message: 'SDK check would be done in background' };
-    } catch (error: any) {
-      return { success: false, error: error.message };
+    } catch (error: unknown) {
+      return { success: false, error: getErrorMessage(error) };
     }
   });
 
@@ -313,9 +315,9 @@ async function run() {
         await t.fn({ panel, context, worker });
         passed += 1;
         log(`✓ ${t.name}`, 'success');
-      } catch (error: any) {
-        log(`✗ ${t.name}: ${error.message}`, 'error');
-        if (error.stack) {
+      } catch (error: unknown) {
+        log(`✗ ${t.name}: ${getErrorMessage(error)}`, 'error');
+        if (error instanceof Error && error.stack) {
           log(error.stack, 'info');
         }
       }
@@ -329,9 +331,9 @@ async function run() {
       log(`✗ ${tests.length - passed} tests failed`, 'error');
       process.exitCode = 1;
     }
-  } catch (error: any) {
-    log(`✗ Test harness failed: ${error.message}`, 'error');
-    if (error.stack) {
+  } catch (error: unknown) {
+    log(`✗ Test harness failed: ${getErrorMessage(error)}`, 'error');
+    if (error instanceof Error && error.stack) {
       log(error.stack, 'info');
     }
     process.exitCode = 1;
@@ -341,8 +343,8 @@ async function run() {
     }
     try {
       fs.rmSync(userDataDir, { recursive: true, force: true });
-    } catch (error: any) {
-      log(`Warning: failed to remove temp profile: ${error.message}`, 'warning');
+    } catch (error: unknown) {
+      log(`Warning: failed to remove temp profile: ${getErrorMessage(error)}`, 'warning');
     }
   }
 }

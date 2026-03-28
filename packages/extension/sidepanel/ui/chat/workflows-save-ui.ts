@@ -111,8 +111,9 @@ sidePanelProto.showWorkflowSaveInput = function showWorkflowSaveInput(): void {
       } else {
         this.updateStatus('No session data to generate from', 'warning');
       }
-    } catch (err: any) {
-      this.updateStatus(`Generation failed: ${err?.message || err}`, 'error');
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : String(err ?? 'Unknown error');
+      this.updateStatus(`Generation failed: ${errorMessage}`, 'error');
     } finally {
       generateBtn.innerHTML = origText;
       generateBtn.classList.remove('loading');

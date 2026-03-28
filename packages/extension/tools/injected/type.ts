@@ -8,6 +8,7 @@ export type InjectedTypeResult =
 
 export const injectedType = async (selector: string, value: string, waitMs: number): Promise<InjectedTypeResult> => {
   const pollIntervalMs = 200;
+  const getErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
   const isVisible = (el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
@@ -20,8 +21,8 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
   const safeQuery = (css: string) => {
     try {
       return document.querySelector<HTMLElement>(css);
-    } catch (error: any) {
-      return { __error: `Invalid selector: ${error?.message || String(error)}` } as any;
+    } catch (error: unknown) {
+      return { __error: `Invalid selector: ${getErrorMessage(error)}` } as const;
     }
   };
 
@@ -55,10 +56,10 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
   while (performance.now() <= deadline) {
     if (selector) {
       const q = safeQuery(selector);
-      if ((q as any)?.__error) {
-        return { success: false, error: (q as any).__error };
+      if (q && typeof q === 'object' && '__error' in q) {
+        return { success: false, error: q.__error };
       }
-      el = resolveEditable(q as HTMLElement | null);
+      el = resolveEditable(q);
     }
 
     if (!el) {

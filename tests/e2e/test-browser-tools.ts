@@ -25,6 +25,8 @@ const colors = {
   reset: '\x1b[0m',
 } as const;
 
+const getErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
+
 function log(message: string, type: keyof typeof colors = 'info') {
   console.log(`${colors[type]}${message}${colors.reset}`);
 }
@@ -487,8 +489,8 @@ async function run() {
         await t.fn({ panel, testPage, context });
         passed += 1;
         log(`✓ ${t.name}`, 'success');
-      } catch (error: any) {
-        log(`✗ ${t.name}: ${error.message}`, 'error');
+      } catch (error: unknown) {
+        log(`✗ ${t.name}: ${getErrorMessage(error)}`, 'error');
       }
     }
 
@@ -500,8 +502,8 @@ async function run() {
       log(`✗ ${tests.length - passed} tests failed`, 'error');
       process.exitCode = 1;
     }
-  } catch (error: any) {
-    log(`✗ Test harness failed: ${error.message}`, 'error');
+  } catch (error: unknown) {
+    log(`✗ Test harness failed: ${getErrorMessage(error)}`, 'error');
     process.exitCode = 1;
   } finally {
     if (context) {

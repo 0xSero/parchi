@@ -1,14 +1,18 @@
 import { type RuntimeSendResponse, respondOk } from '../message-response.js';
 import type { ServiceContext } from '../service-context.js';
 
+const getErrorMessage = (error: unknown, fallback: string): string =>
+  error instanceof Error ? error.message : fallback;
+
 // Recording handlers
 export async function handleRecordingStart(ctx: ServiceContext, message: any, sendResponse: RuntimeSendResponse) {
   try {
     await ctx.recordingCoordinator.startRecording(message.tabId);
     respondOk(sendResponse);
-  } catch (err: any) {
-    ctx.sendToSidePanel({ type: 'recording_error', message: err.message || 'Recording failed' });
-    sendResponse({ success: false, error: err.message || 'Recording failed' });
+  } catch (err: unknown) {
+    const errorMessage = getErrorMessage(err, 'Recording failed');
+    ctx.sendToSidePanel({ type: 'recording_error', message: errorMessage });
+    sendResponse({ success: false, error: errorMessage });
   }
 }
 
@@ -25,8 +29,8 @@ export async function handleRecordingSelectImages(
   try {
     await ctx.recordingCoordinator.selectImages(message.selectedIds);
     respondOk(sendResponse);
-  } catch (err: any) {
-    sendResponse({ success: false, error: err.message || 'No active recording session' });
+  } catch (err: unknown) {
+    sendResponse({ success: false, error: getErrorMessage(err, 'No active recording session') });
   }
 }
 

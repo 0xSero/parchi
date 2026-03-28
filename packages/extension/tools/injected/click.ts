@@ -29,6 +29,7 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
   };
 
   const normalizeText = (value: string) => value.replace(/\s+/g, ' ').trim().toLowerCase();
+  const getErrorMessage = (error: unknown): string => (error instanceof Error ? error.message : String(error));
 
   const deepQuerySelectorAll = (css: string, maxNodes = 25000): HTMLElement[] => {
     const out: HTMLElement[] = [];
@@ -74,7 +75,7 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
       ? (() => {
           try {
             return Array.from(document.querySelectorAll<HTMLElement>(baseSelector));
-          } catch (error: any) {
+          } catch (error: unknown) {
             if (!allowDeepSearch) return [];
             return deepQuerySelectorAll(baseSelector);
           }
@@ -125,13 +126,13 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
         const node = res.singleNodeValue as HTMLElement | null;
         if (node && node instanceof HTMLElement) return { el: node, strategy: 'xpath', candidates: 1 };
         return { el: null, strategy: 'xpath', candidates: 0, error: 'Element not found.' };
-      } catch (error: any) {
+      } catch (error: unknown) {
         return {
           el: null,
           strategy: 'xpath',
           candidates: 0,
           error: 'Invalid selector.',
-          hint: `XPath failed: ${error?.message || String(error)}`,
+          hint: `XPath failed: ${getErrorMessage(error)}`,
         };
       }
     }
@@ -158,13 +159,13 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
       const visible = matches.filter(isVisible);
       const el = visible[0] || matches[0] || null;
       if (el) return { el, strategy: 'css', candidates: matches.length };
-    } catch (error: any) {
+    } catch (error: unknown) {
       return {
         el: null,
         strategy: 'css',
         candidates: 0,
         error: 'Invalid selector.',
-        hint: `querySelector failed: ${error?.message || String(error)}`,
+        hint: `querySelector failed: ${getErrorMessage(error)}`,
       };
     }
 

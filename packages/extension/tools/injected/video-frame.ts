@@ -22,6 +22,8 @@ export const injectedCaptureVideoFrame = (
   seekTimeoutMs: number,
 ): Promise<InjectedVideoFrameResult> => {
   return new Promise((res) => {
+    const getErrorMessage = (error: unknown, fallback: string): string =>
+      error instanceof Error ? error.message : fallback;
     const video = selector
       ? document.querySelector<HTMLVideoElement>(selector)
       : document.querySelector<HTMLVideoElement>('video');
@@ -72,8 +74,8 @@ export const injectedCaptureVideoFrame = (
         ctx.drawImage(video, 0, 0, width, height);
         const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
         res({ success: true, time: targetTime, timeFormatted: formatTime(targetTime), dataUrl });
-      } catch (e: any) {
-        res({ success: false, error: e?.message || 'Failed to capture frame.' });
+      } catch (e: unknown) {
+        res({ success: false, error: getErrorMessage(e, 'Failed to capture frame.') });
       }
     };
 
@@ -97,10 +99,10 @@ export const injectedCaptureVideoFrame = (
 
     try {
       video.currentTime = targetTime;
-    } catch (seekError: any) {
+    } catch (seekError: unknown) {
       video.removeEventListener('seeked', onSeeked);
       clearTimeout(timeout);
-      res({ success: false, error: `Seek failed: ${seekError?.message || 'Unknown error'}` });
+      res({ success: false, error: `Seek failed: ${getErrorMessage(seekError, 'Unknown error')}` });
     }
   });
 };
