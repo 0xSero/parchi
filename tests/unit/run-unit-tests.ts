@@ -55,7 +55,7 @@ import { runToolDefinitionsSuite } from './suites/tool-definitions.test.js';
 import { runToolSchemaConversionSuite } from './suites/tool-schema-conversion.test.js';
 import { runXmlToolParserSuite } from './suites/xml-tool-parser.test.js';
 
-export function runUnitTests() {
+export async function runUnitTests(): Promise<boolean> {
   log('╔════════════════════════════════════════╗', 'info');
   log('║       Unit Tests - Browser Tools       ║', 'info');
   log('╚════════════════════════════════════════╝', 'info');
@@ -108,12 +108,13 @@ export function runUnitTests() {
   runJsonRpcResponseSuite(runner);
   runJsonRpcMutualExclusivitySuite(runner);
 
+  await runner.waitForPendingTests();
   return runner.printSummary();
 }
 
 const isMain = process.argv[1] ? import.meta.url === pathToFileURL(process.argv[1]).href : false;
 
 if (isMain) {
-  const success = runUnitTests();
+  const success = await runUnitTests();
   process.exit(success ? 0 : 1);
 }

@@ -6,7 +6,7 @@ import { runIntegrationTests } from './integration/run-integration-tests.js';
 import { runUnitTests } from './unit/run-unit-tests.js';
 
 export async function runHeadlessTests() {
-  const unitOk = runUnitTests();
+  const unitOk = await runUnitTests();
   const integrationOk = await runIntegrationTests();
   return unitOk && integrationOk;
 }

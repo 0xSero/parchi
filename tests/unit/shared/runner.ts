@@ -6,7 +6,7 @@ export const colors = {
   reset: '\x1b[0m',
 } as const;
 
-export function log(message: string, type: keyof typeof colors = 'info') {
+export function log(message: string, type: keyof typeof colors = 'info'): void {
   console.log(`${colors[type]}${message}${colors.reset}`);
 }
 
@@ -14,21 +14,38 @@ export class TestRunner {
   passed: number;
   failed: number;
   errors: Array<{ test: string; error: string }>;
+  private readonly pendingTests: Promise<void>[];
 
   constructor() {
     this.passed = 0;
     this.failed = 0;
     this.errors = [];
+    this.pendingTests = [];
   }
 
-  test(description: string, fn: () => void) {
+  test(description: string, fn: () => void | Promise<void>) {
     try {
-      fn();
+      const result = fn();
+      if (result && typeof (result as PromiseLike<void>).then === 'function') {
+        const pending = Promise.resolve(result)
+          .then(() => {
+            this.passed++;
+            log(`✓ ${description}`, 'success');
+          })
+          .catch((error: unknown) => {
+            const err = error instanceof Error ? error : new Error(String(error));
+            this.failed++;
+            this.errors.push({ test: description, error: err.message });
+            log(`✗ ${description}: ${err.message}`, 'error');
+          });
+        this.pendingTests.push(pending);
+        return true;
+      }
       this.passed++;
       log(`✓ ${description}`, 'success');
       return true;
     } catch (error) {
-      const err = error as Error;
+      const err = error instanceof Error ? error : new Error(String(error));
       this.failed++;
       this.errors.push({ test: description, error: err.message });
       log(`✗ ${description}: ${err.message}`, 'error');
@@ -65,6 +82,32 @@ export class TestRunner {
       }
       // Expected error
     }
+  }
+
+  async assertRejects(
+    promise: Promise<unknown>,
+    expectedSubstring?: string,
+    message = 'Should have rejected with an error',
+  ): Promise<void> {
+    try {
+      await promise;
+      throw new Error(message);
+    } catch (error) {
+      const err = error instanceof Error ? error : new Error(String(error));
+      if (err.message === message) {
+        throw err;
+      }
+      if (expectedSubstring && !err.message.includes(expectedSubstring)) {
+        throw new Error(`${message}
+Missing: ${expectedSubstring}
+Actual: ${err.message}`);
+      }
+    }
+  }
+
+  async waitForPendingTests(): Promise<void> {
+    if (this.pendingTests.length === 0) return;
+    await Promise.all(this.pendingTests);
   }
 
   assertIncludes(haystack: string, needle: string, message = 'Expected string to include substring') {
