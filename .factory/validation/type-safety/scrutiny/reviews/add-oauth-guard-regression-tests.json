@@ -1,21 +1,26 @@
 {
   "featureId": "add-oauth-guard-regression-tests",
-  "reviewedAt": "2026-03-28T10:53:14.478047+00:00",
+  "reviewedAt": "2026-03-28T11:00:18.420178+00:00",
   "commitId": "212cafbffecd2364673f5a88314dfbbf6e15ceea",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "pass",
   "codeReview": {
-    "summary": "Commit 212cafb satisfies the feature by adding explicit regression tests for the OAuth redirectUri/deviceCodeUrl guards and by updating the lightweight unit-test runner so those promise-based guard failures are actually awaited and asserted.",
+    "summary": "The feature adds focused regression coverage for the OAuth null guards introduced in fix-non-null-assertions, and the tests exercise the intended early-failure paths for both auth-code PKCE and device-code flows before browser-tab or device-code side effects can start.",
     "issues": []
   },
   "sharedStateObservations": [
     {
       "area": "skills",
-      "observation": "The refactor-worker skill does not mention that small test-harness changes may be required when adding regression coverage for async behavior, even though this feature needed exactly that to test promise rejections in the OAuth flows.",
-      "evidence": "The worker transcript skeleton for session f2406cdf-9687-46d8-b481-03d67d8a1853 shows runner/test-entrypoint changes before adding the OAuth cases, and the handoff at /Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/handoffs/2026-03-28T10-50-03-609Z__add-oauth-guard-regression-tests__f2406cdf-9687-46d8-b481-03d67d8a1853.json records skillFeedback.followedProcedure=false with a suggested skill update for async regression coverage. Current .factory/skills/refactor-worker/SKILL.md only describes TDD/refactor flow, not test-harness adjustments."
+      "observation": "The refactor-worker skill does not explicitly allow small async test-harness updates that are necessary to add regression coverage for promise-based flows, even though this feature needed exactly that to test the OAuth guards directly.",
+      "evidence": ".factory/skills/refactor-worker/SKILL.md focuses on writing tests first but does not mention harness adjustments; worker transcript f2406cdf-9687-46d8-b481-03d67d8a1853 shows the runner was upgraded with async test support before adding the new regression assertions, and handoff.skillFeedback.suggestedChanges asks for that guidance update."
+    },
+    {
+      "area": "skills",
+      "observation": "The refactor-worker skill still treats global check:repo-standards as a required final step without clearly documenting the scoped fallback already needed throughout this mission when unrelated baseline violations block the global command.",
+      "evidence": ".factory/skills/refactor-worker/SKILL.md step 8 requires global `npm run check:repo-standards`; mission AGENTS.md documents pre-existing unrelated failures; this feature handoff records global repo-standards failing only on those known unrelated files and the worker treated it as informational."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "Reviewed handoff, transcript skeleton, commit 212cafb, and the touched OAuth/test files. The feature now explicitly covers both missing redirectUri and missing deviceCodeUrl guard paths, and the accompanying async runner changes are necessary and correctly wired, so I found no blocking or non-blocking implementation issues."
+  "summary": "Pass. Commit 212cafb adds the missing regression tests for the redirectUri and deviceCodeUrl guards, and the minimal async runner changes are directly justified because the existing unit harness could not await rejected OAuth flow promises. Coverage appears adequate for the targeted behavior, with no gaps found in the reviewed scope."
 }
