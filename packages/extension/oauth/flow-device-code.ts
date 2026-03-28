@@ -8,6 +8,14 @@ export interface DeviceCodeFlowCallbacks {
   onError?: (error: Error) => void;
 }
 
+function requireDeviceCodeUrl(config: OAuthProviderConfig): string {
+  const deviceCodeUrl = config.deviceCodeUrl?.trim();
+  if (!deviceCodeUrl) {
+    throw new Error(`OAuth provider ${config.key} requires a deviceCodeUrl for device code flow.`);
+  }
+  return deviceCodeUrl;
+}
+
 async function requestDeviceCode(config: OAuthProviderConfig): Promise<DeviceCodeResponse> {
   const params: Record<string, string> = {
     client_id: config.clientId,
@@ -23,7 +31,7 @@ async function requestDeviceCode(config: OAuthProviderConfig): Promise<DeviceCod
     params.code_challenge_method = 'S256';
   }
 
-  const response = await fetch(config.deviceCodeUrl!, {
+  const response = await fetch(requireDeviceCodeUrl(config), {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',

@@ -1,11 +1,20 @@
 import { generateCodeChallenge, generateCodeVerifier, generateState } from './pkce.js';
 import type { OAuthProviderConfig, OAuthTokenSet } from './types.js';
 
+function requireRedirectUri(config: OAuthProviderConfig): string {
+  const redirectUri = config.redirectUri?.trim();
+  if (!redirectUri) {
+    throw new Error(`OAuth provider ${config.key} requires a redirectUri for auth code flow.`);
+  }
+  return redirectUri;
+}
+
 function buildAuthorizeUrl(config: OAuthProviderConfig, state: string, codeChallenge: string): string {
+  const redirectUri = requireRedirectUri(config);
   const params = new URLSearchParams({
     client_id: config.clientId,
     response_type: 'code',
-    redirect_uri: config.redirectUri!,
+    redirect_uri: redirectUri,
     scope: config.scopes,
     state,
     code_challenge: codeChallenge,
@@ -53,12 +62,13 @@ async function exchangeCodeForTokens(
     });
   } else {
     // Codex/OpenAI uses form-encoded
+    const redirectUri = requireRedirectUri(config);
     headers['Content-Type'] = 'application/x-www-form-urlencoded';
     body = new URLSearchParams({
       grant_type: 'authorization_code',
       client_id: config.clientId,
       code,
-      redirect_uri: config.redirectUri!,
+      redirect_uri: redirectUri,
       code_verifier: codeVerifier,
     }).toString();
   }
@@ -119,7 +129,7 @@ export async function runAuthCodePkceFlow(config: OAuthProviderConfig, signal?: 
   const codeChallenge = await generateCodeChallenge(codeVerifier);
   const state = generateState();
   const authorizeUrl = buildAuthorizeUrl(config, state, codeChallenge);
-  const redirectPrefix = config.redirectUri!.split('?')[0];
+  const redirectPrefix = requireRedirectUri(config).split('?')[0];
 
   const code = await new Promise<string>((resolve, reject) => {
     let tabId: number | undefined;

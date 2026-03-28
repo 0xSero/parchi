@@ -22,6 +22,7 @@ import { runMessageSchemaSuite } from './suites/message-schema.test.js';
 import { runMessageUtilsSuite } from './suites/message-utils.test.js';
 import { runModelListingSuite } from './suites/model-listing.test.js';
 import { runModelMessageConvertSuite } from './suites/model-message-convert.test.js';
+import { runNonNullAssertionsSuite } from './suites/non-null-assertions.test.js';
 import { runOauthCandidatesSuite } from './suites/oauth-candidates.test.js';
 import { runOauthModelNormalizationSuite } from './suites/oauth-model-normalization.test.js';
 import { runOrchestratorNormalizationSuite } from './suites/orchestrator-normalization.test.js';
@@ -67,6 +68,7 @@ export function runUnitTests() {
   runInputValidationSuite(runner);
   runErrorHandlingSuite(runner);
   runApiErrorClassificationSuite(runner);
+  runNonNullAssertionsSuite(runner);
   runOauthModelNormalizationSuite(runner);
   runOauthCandidatesSuite(runner);
   runRuntimeProfileRoutingSuite(runner);

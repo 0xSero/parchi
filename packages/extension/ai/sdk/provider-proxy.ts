@@ -4,12 +4,20 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { normalizeOpenRouterModelId } from './model-normalize.js';
 import type { SDKModelSettings } from './provider-types.js';
 
+function requireProxyBaseUrl(settings: SDKModelSettings): string {
+  const proxyBaseUrl = settings.proxyBaseUrl?.trim();
+  if (!proxyBaseUrl) {
+    throw new Error('Proxy provider resolution requires proxyBaseUrl to be configured.');
+  }
+  return proxyBaseUrl.replace(/\/+$/, '');
+}
+
 export function resolveProxyProvider(
   settings: SDKModelSettings,
   modelId: string,
   extraHeaders: Record<string, string> | undefined,
 ) {
-  const normalizedBase = settings.proxyBaseUrl!.replace(/\/+$/, '');
+  const normalizedBase = requireProxyBaseUrl(settings);
   const provider = settings.provider || 'openai';
   const proxyProvider =
     settings.proxyProvider ||
