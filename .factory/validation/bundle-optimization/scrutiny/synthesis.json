@@ -1,75 +1,69 @@
 {
   "milestone": "bundle-optimization",
-  "round": 1,
-  "status": "fail",
+  "round": 2,
+  "status": "pass",
   "validatorsRun": {
-    "test": { "passed": true, "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run test:unit", "exitCode": 0 },
-    "typecheck": { "passed": true, "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run typecheck", "exitCode": 0 },
-    "lint": { "passed": true, "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run lint", "exitCode": 0 }
+    "test": {
+      "passed": true,
+      "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run test:unit",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run typecheck",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run lint",
+      "exitCode": 0
+    }
   },
   "reviewsSummary": {
     "total": 4,
-    "passed": 2,
-    "failed": 2,
-    "failedFeatures": ["consolidate-css-patterns", "remove-debug-code"]
+    "passed": 4,
+    "failed": 0,
+    "failedFeatures": []
   },
-  "blockingIssues": [
-    {
-      "featureId": "consolidate-css-patterns",
-      "severity": "blocking",
-      "description": "Repeated spring transition literals remain in packages/extension/sidepanel/styles/composer.css (for example lines 882, 1220, 1263, and 1287), so transition consolidation is incomplete within the targeted stylesheet."
-    },
-    {
-      "featureId": "consolidate-css-patterns",
-      "severity": "blocking",
-      "description": "Repeated pill/full radius literals and fast transition literals remain in packages/extension/sidepanel/styles/panels.css despite new shared tokens existing, so common-value consolidation is only partial."
-    },
-    {
-      "featureId": "remove-debug-code",
-      "severity": "blocking",
-      "description": "packages/extension/sidepanel/panel.ts now assigns window.sidePanelUI only inside __PERF_DEBUG__, which regresses existing E2E and screenshot automation that accesses that handle in normal builds."
-    }
-  ],
+  "blockingIssues": [],
   "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
       "target": "skills",
-      "suggestion": "Add a documented verification-only rerun path to refactor-worker so workers know how to handle already-landed commits without forcing staged-diff assumptions.",
-      "evidence": "The refactor-theme-catalog rerun was explicitly verification-only for already-landed commit 7c9cdb9, and its review noted the worker had to deviate from the current skill because no fresh edit/staged diff existed.",
-      "isSystemic": false
-    },
-    {
-      "target": "skills",
-      "suggestion": "Expand refactor-worker guidance for style-only deduplication tasks with quantitative savings targets, including when remaining repeated literals mean the task is still incomplete.",
-      "evidence": "The consolidate-css-patterns review found new shared tokens were introduced, but repeated transition and radius literals remained throughout the targeted CSS surface, so the worker stopped before the contract scope was satisfied.",
-      "isSystemic": false
-    },
-    {
-      "target": "skills",
-      "suggestion": "Warn workers that cleanup/bundle-optimization changes must preserve automation and test hooks even when those hooks look debug-related.",
-      "evidence": "The remove-debug-code review found that hiding window.sidePanelUI behind __PERF_DEBUG__ regressed tests/e2e/run-e2e.ts and scripts/capture-screenshots.ts, which depend on that global in normal builds.",
+      "suggestion": "The refactor-worker skill still frames baseline work around line-count checks and TDD, but this worker had to justify skipping both for a style-only token consolidation feature. The procedure would be clearer if it explicitly called out CSS-token substitutions as a manual-diff-review path up front instead of only later in the document.",
+      "evidence": ".factory/skills/refactor-worker/SKILL.md emphasizes `wc -l` and test-first steps, while the worker transcript/handoff for session 6f8b5778-f063-4ebb-8ecd-d6024fd30aaa records deviations for steps 2 and 4 because the task was limited to CSS literal replacement.",
       "isSystemic": true
     },
     {
       "target": "skills",
-      "suggestion": "Document that mission metadata may live in the external orchestrator-provided mission directory rather than only under repo-local .factory/missions paths.",
-      "evidence": "The split-theme-factory-file review observed that workers needed to read mission files from /Users/sero/.factory/missions/... during this mission because the repo-local mission path was absent.",
+      "suggestion": "The refactor-worker skill still assumes an edit-oriented workflow with staged diff review, but this feature was explicitly reassigned as a verification-only pass for an already-landed commit. The worker correctly deviated, which suggests the skill should document a verification-only path more explicitly.",
+      "evidence": "Mission feature description says commit `7c9cdb9` already landed and the rerun should be a contract-aligned verification pass; handoff /Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/handoffs/2026-03-28T11-35-25-618Z__refactor-theme-catalog__84c602a2-cef8-4079-a91a-e95900e6e946.json records followedProcedure=false because no new edits or staged diff existed.",
+      "isSystemic": true
+    },
+    {
+      "target": "AGENTS.md",
+      "suggestion": "The repository depends on a normal-build `window.sidePanelUI` global for automation and screenshot tooling, but that contract is not documented in the mission/shared-state guidance.",
+      "evidence": "`tests/e2e/run-e2e.ts` and `scripts/capture-screenshots.ts` access `window.sidePanelUI` directly, while mission `AGENTS.md` and `.factory/library/architecture.md` do not mention that the sidepanel bootstrap must keep this hook available outside perf-debug builds.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills",
+      "suggestion": "The refactor-worker skill should call out preservation of existing automation/browser globals more explicitly for cleanup work; this rerun corrected a prior regression where the hook was treated as debug-only.",
+      "evidence": "The previous scrutiny report at `.factory/validation/bundle-optimization/scrutiny/reviews/remove-debug-code.json` failed commit `e653cf1` for moving `window.sidePanelUI` under `__PERF_DEBUG__`. The current skill already says to preserve automation/test hooks, but the earlier regression plus this rerun suggest that warning should be more prominent for bundle-cleanup tasks.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills",
+      "suggestion": "The refactor-worker skill assumes mission metadata lives under a repo-local `.factory/missions/...` path, but this mission supplied its canonical metadata from an external mission directory. The worker handled it correctly, yet the skill should document that reviewers/workers must use the missionDir path provided by the orchestrator when the repo-local mirror is absent.",
+      "evidence": "The transcript and handoff for worker session `bb97595b-9b95-45d9-8ab6-54a438b480c8` read mission files from `/Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/...`, and `handoff.skillFeedback.suggestedChanges` explicitly calls out the missing repo-local mission path expectation.",
       "isSystemic": true
     }
   ],
   "rejectedObservations": [
     {
-      "observation": "Document the 300-line default for check:repo-standards.",
+      "observation": "The shared guidance still leaves an ambiguity between repo-standards size checks and the mission's stricter 200-line refactor target. Workers need an explicit reminder that `npm run check:repo-standards` is not sufficient evidence for the 200-line goal and must be paired with direct `wc -l` checks on all affected modules.",
       "reason": "already-documented in .factory/library/extension-core-notes.md"
-    },
-    {
-      "observation": "Add shared knowledge that window.sidePanelUI is used by automation.",
-      "reason": "recommendation not applied directly because library updates should stay additive and this scrutiny pass found blocking feature regressions rather than stable new knowledge to codify immediately"
-    },
-    {
-      "observation": "Add a reusable CSS bundle-size measurement procedure to library/services.",
-      "reason": "ambiguous; reviews identified the gap but did not provide a validated measurement workflow suitable for direct documentation in this pass"
     }
   ],
-  "previousRound": null
+  "previousRound": ".factory/validation/bundle-optimization/scrutiny/synthesis.json"
 }
