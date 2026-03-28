@@ -1,0 +1,91 @@
+{
+  "milestone": "type-safety",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": {
+      "passed": true,
+      "command": "npm run test:unit",
+      "exitCode": 0
+    },
+    "typecheck": {
+      "passed": true,
+      "command": "npm run typecheck",
+      "exitCode": 0
+    },
+    "lint": {
+      "passed": true,
+      "command": "npm run lint",
+      "exitCode": 0
+    }
+  },
+  "reviewsSummary": {
+    "total": 8,
+    "passed": 7,
+    "failed": 1,
+    "failedFeatures": [
+      "add-explicit-return-types"
+    ]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "add-explicit-return-types",
+      "severity": "blocking",
+      "description": "`assemblePreparedAgentLoop` still contains three targeted object-literal methods without explicit return annotations (`switchActiveModel`, `persistRecoveredModelSelection`, and `captureErrorClassificationContext`). The feature description and expected behavior required the agent-loop/service functions in this scope to receive explicit return types."
+    },
+    {
+      "featureId": "add-explicit-return-types",
+      "severity": "blocking",
+      "description": "The streaming callback passed to `streamText` (`onChunk`) still has no explicit return type in this feature commit, leaving another targeted agent-loop helper unannotated despite the explicit-return-type sweep requirement."
+    },
+    {
+      "featureId": "add-explicit-return-types",
+      "severity": "blocking",
+      "description": "`emitHistoryPrepared` remains without an explicit `: void` return type in this commit even though `prepare.ts` is part of the targeted agent-loop scope described for the feature."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "skill",
+      "suggestion": "Update refactor-worker guidance to explicitly allow and document scoped validation fallbacks (especially diff-scoped repo-standards checks) when known unrelated repo-wide repo-standards failures exist, and clarify how verification-only or async-regression coverage sessions should record such deviations.",
+      "evidence": "Every reviewed type-safety feature reported some refactor-worker guidance gap around global repo-standards assumptions, scoped validation fallbacks, or verification/test-harness edge cases.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "The `refactor-worker` skill requires full-repo `npm run lint` and `npm run check:repo-standards`, but this mission has unrelated pre-existing failures in those commands. The successful worker had to fall back to targeted Biome checks on touched files and record the deviation manually. The skill should document that fallback path for debt-heavy repos.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The refactor-worker skill requires running the final global `npm run lint` and `npm run check:repo-standards`, but the worker only ran scoped lint and a diff-based repo-standards check because of known repo-wide debt.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The `refactor-worker` skill treats repo-standards and file-size verification as unconditional final steps, but this mission has documented pre-existing oversized files and unrelated repo-standards failures. Workers therefore need to document exceptions even when their own changed files are compliant and feature-specific validation passes.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The `refactor-worker` skill treats `npm run check:repo-standards` as a hard final-validation requirement, but this mission has known unrelated baseline failures. That forces workers on otherwise-correct refactors to report `followedProcedure: false` even when they verified all feature-specific requirements and untouched files caused the only failure.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The refactor-worker skill's final validation guidance does not mention that a scoped `npm run check:repo-standards -- --base=...` rerun is an acceptable fallback when the unscoped check fails on unrelated pre-existing branch violations.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The refactor-worker skill does not explain how to handle verification-only assignments when the feature commit is already present, even though this session was primarily an audit of pre-landed work.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The refactor-worker skill still assumes global repo-standards must pass, but this mission documents unrelated standing failures. The worker had to fall back to scoped repo-standards validation again and mark the procedure as not fully followed.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    },
+    {
+      "observation": "The refactor-worker skill does not mention that small test-harness changes may be required when adding regression coverage for async behavior, even though this feature needed exactly that to test promise rejections in the OAuth flows.",
+      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+    }
+  ],
+  "previousRound": null
+}

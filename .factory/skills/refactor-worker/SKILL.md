@@ -43,6 +43,8 @@ Document any pre-existing test failures or issues.
 
 **IMPORTANT**: The unit test runner (`tests/unit/run-unit-tests.ts`) hard-codes suite registration and ignores CLI grep filters. To test specific functionality, add a focused test suite that tests exactly what you need.
 
+If `npm run check:repo-standards` fails on documented pre-existing unrelated debt, workers may run a scoped fallback such as `npm exec -- node scripts/check-repo-standards.mjs --base=HEAD` (or an equivalent diff-scoped check) and must record both the global failure and the scoped fallback result in the handoff.
+
 ### 3. Plan the Refactoring
 
 - Identify what can be extracted into separate modules
@@ -61,6 +63,8 @@ If tests exist:
 1. Run them to ensure they pass
 2. Update imports if needed during refactoring
 3. Keep tests passing throughout
+
+Small test-harness changes are acceptable before adding regression coverage when existing test infrastructure cannot exercise the required behavior (for example, async rejection assertions). Keep those harness changes minimal and directly tied to enabling the target regression tests.
 
 ### 5. Refactor Incrementally
 
@@ -102,6 +106,8 @@ npm run lint
 
 # Repo standards check (file size limits, etc.)
 npm run check:repo-standards
+# If that fails only because of documented unrelated repo-wide debt, run a scoped fallback
+npm exec -- node scripts/check-repo-standards.mjs --base=HEAD
 
 # Build check
 npm run build
@@ -118,7 +124,7 @@ Before marking the feature complete, verify:
 1. **NO version bumps in package.json or manifest files** - unless the feature is explicitly about release/versioning
 2. **ALL touched files are ≤ 200 lines** - this includes test files, config files, and source files
 3. **Only relevant files staged** - no accidental changes to unrelated files
-4. **All validation steps passed** - typecheck, lint, repo-standards, build
+4. **All validation steps passed** - typecheck, lint, repo-standards, build (or documented scoped repo-standards fallback when unrelated baseline debt is already tracked)
 
 **If version bumps are detected:**
 - Unstage them: `git reset HEAD package.json packages/extension/manifest*.json`
@@ -127,7 +133,7 @@ Before marking the feature complete, verify:
 **If any file exceeds 200 lines:**
 - Split it into smaller focused modules before committing
 
-**IMPORTANT**: Only set `followedProcedure: true` in the handoff if ALL validation steps were actually run and passed. Record the actual commands and their output in the handoff.
+**IMPORTANT**: Only set `followedProcedure: true` in the handoff if all required validation steps were run and passed. When global repo-standards fails solely due to documented unrelated baseline debt, you may still set `followedProcedure: true` if you also ran and recorded a scoped fallback that passed for the changed files. Record the actual commands and their output in the handoff.
 
 ### 9. Document Changes
 
