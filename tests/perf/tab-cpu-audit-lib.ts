@@ -1,6 +1,7 @@
 import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
+import { sleep } from '@parchi/shared';
 import { buildTabCpuAuditMarkdown } from './tab-cpu-audit-report.js';
 import type {
   AggregateRow,
@@ -16,7 +17,7 @@ const ALERT_RATIO = 0.6;
 
 const runCommand = (cmd: string, args: string[]) =>
   execFileSync(cmd, args, { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 const sum = <T>(rows: T[], getValue: (row: T) => number) => rows.reduce((acc, row) => acc + getValue(row), 0);
 const toFixedNumber = (value: number, digits = 2) => Number(value.toFixed(digits));
 const computeSlopePerMinute = (points: Array<{ ts: number; value: number }>) => {

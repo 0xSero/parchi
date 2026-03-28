@@ -17,8 +17,6 @@ const logPath = path.join(stateDir, 'relay-secure.log');
 const defaultHost = '127.0.0.1';
 const defaultPort = 17373;
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const parseArgs = (argv) => {
   const positional = [];
   const flags = {};
@@ -187,7 +185,7 @@ const cmdStart = async (flags) => {
   );
   child.unref();
   writeFileSecure(pidPath, `${child.pid}\n`);
-  await sleep(500);
+  await new Promise((resolve) => setTimeout(resolve, 500));
   const health = await healthCheck(config.host, config.port);
   if (!health.ok || health.data?.ok !== true) {
     clearPid();
@@ -215,7 +213,7 @@ const cmdRotate = async (flags) => {
   if (wasRunning) {
     process.kill(previousPid, 'SIGTERM');
     clearPid();
-    await sleep(300);
+    await new Promise((resolve) => setTimeout(resolve, 300));
   }
   const config = resolveConfig(flags, { rotate: true });
   console.log('Relay token rotated.');

@@ -7,7 +7,6 @@ export type InjectedTypeResult =
     };
 
 export const injectedType = async (selector: string, value: string, waitMs: number): Promise<InjectedTypeResult> => {
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const pollIntervalMs = 200;
 
   const isVisible = (el: HTMLElement) => {
@@ -81,7 +80,7 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
     }
 
     if (el) break;
-    await sleep(pollIntervalMs);
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
   }
 
   if (!el) {

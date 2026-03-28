@@ -15,8 +15,6 @@ const relayStatePath = path.join(stateDir, 'relay-secure.json');
 const pidPath = path.join(stateDir, 'electron-agent-secure.pid');
 const logPath = path.join(stateDir, 'electron-agent-secure.log');
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const parseArgs = (argv) => {
   const positional = [];
   const flags = {};
@@ -138,7 +136,7 @@ const waitForAgentConnection = async (relayConfig, timeoutMs = 5000) => {
         return true;
       }
     } catch {}
-    await sleep(120);
+    await new Promise((resolve) => setTimeout(resolve, 120));
   }
   return false;
 };
@@ -210,7 +208,7 @@ const cmdStart = async () => {
   child.unref();
   writeFileSecure(pidPath, `${child.pid}\n`);
 
-  await sleep(450);
+  await new Promise((resolve) => setTimeout(resolve, 450));
   if (!isPidRunning(child.pid)) {
     clearPid();
     throw new Error(`Electron agent process exited immediately. Check log: ${logPath}`);

@@ -1,4 +1,5 @@
 import { spawn } from 'node:child_process';
+import { sleep } from '@parchi/shared';
 
 export type LaunchElectronAppArgs = {
   app: string;
@@ -6,8 +7,6 @@ export type LaunchElectronAppArgs = {
   waitMs: number;
   extraArgs: string[];
 };
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 const launchMacApp = async ({ app, port, extraArgs }: LaunchElectronAppArgs) => {
   const child = spawn('open', ['-a', app, '--args', `--remote-debugging-port=${port}`, ...extraArgs], {

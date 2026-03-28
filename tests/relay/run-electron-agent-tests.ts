@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { sleep } from '@parchi/shared';
 
 import { spawn } from 'node:child_process';
 import crypto from 'node:crypto';
@@ -8,8 +9,6 @@ import os from 'node:os';
 import path from 'node:path';
 
 const ROOT = process.cwd();
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 const getFreePort = async () =>
   await new Promise<number>((resolve, reject) => {
     const server = net.createServer();

@@ -1,3 +1,4 @@
+import { sleep } from '@parchi/shared';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -92,8 +93,6 @@ export const sanitizeForMessaging = (value: unknown, depth = 0): unknown => {
 
   return String(value);
 };
-
-export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 export const isMissingReceiverError = (error: unknown) => {
   const message = error instanceof Error ? error.message : String(error ?? '');

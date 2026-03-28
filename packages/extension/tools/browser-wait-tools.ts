@@ -56,7 +56,6 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
       timeoutLimit: number,
       pollMs: number,
     ) => {
-      const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       const startedAt = Date.now();
       let attempts = 0;
 
@@ -114,7 +113,7 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
         attempts += 1;
         const outcome = await check();
         if (outcome.done) return outcome.result;
-        await sleep(pollMs);
+        await new Promise((resolve) => setTimeout(resolve, pollMs));
       }
 
       return {

@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { sleep } from '@parchi/shared';
 
 /**
  * Relay Service Integration Tests
@@ -65,8 +66,6 @@ const getFreePort = async () => {
     });
   });
 };
-
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 const rpc = async ({
   host,

@@ -12,4 +12,5 @@ export * from './relay-types.js';
 export * from './recording.js';
 export * from './utils/json.js';
 export * from './utils/html.js';
+export * from './utils/async.js';
 export * from './utils/type-guards.js';

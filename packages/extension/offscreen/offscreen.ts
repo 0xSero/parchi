@@ -1,9 +1,7 @@
+import { sleep } from '@parchi/shared';
+
 const PORT_NAME = 'relay-keepalive';
 const PING_MS = 25_000;
-
-function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 async function run() {
   // Offscreen documents can survive across SW restarts. We keep reconnecting so the SW

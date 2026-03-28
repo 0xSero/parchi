@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { sleep } from '@parchi/shared';
 /**
  * Performance Profiling Test
  *
@@ -163,10 +164,6 @@ async function getExtensionId(context: import('playwright').BrowserContext): Pro
     worker = await context.waitForEvent('serviceworker', { timeout: 30_000 });
   }
   return new URL(worker.url()).host;
-}
-
-function sleep(ms: number) {
-  return new Promise((r) => setTimeout(r, ms));
 }
 
 // ── Main ────────────────────────────────────────────────────────────

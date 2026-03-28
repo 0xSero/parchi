@@ -15,7 +15,6 @@ export type InjectedClickResult =
     };
 
 export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise<InjectedClickResult> => {
-  const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const pollIntervalMs = 200;
   const deepQueryMinIntervalMs = 700;
   let lastDeepQueryAt = 0;
@@ -250,7 +249,7 @@ export const injectedClick = async (spec: SelectorSpec, waitMs: number): Promise
       return { ...result, strategy: resolved.strategy, candidates: resolved.candidates };
     }
 
-    await sleep(pollIntervalMs);
+    await new Promise((resolve) => setTimeout(resolve, pollIntervalMs));
   }
 
   const resolved = resolveElement(spec, true);
