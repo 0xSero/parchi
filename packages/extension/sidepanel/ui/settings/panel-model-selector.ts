@@ -59,7 +59,9 @@ sidePanelProto.renderModelSelectorGrid = function renderModelSelectorGrid() {
         const g = this.elements.modelSelectorGrid as HTMLElement | null;
         if (g) this.renderModelSelectorGrid?.();
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.warn('[ModelSelector] Failed to sync OAuth profiles for model grid:', error);
+      });
   }
 
   grid.innerHTML = '';
@@ -204,6 +206,8 @@ sidePanelProto.toggleModelVisibility = function toggleModelVisibility(modelKey: 
   }
   this.populateModelSelect?.();
   void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
-    patchSettingsStoreSnapshot({ visibleModels: this.visibleModels }).catch(() => {}),
+    patchSettingsStoreSnapshot({ visibleModels: this.visibleModels }).catch((error) => {
+      console.warn('[ModelSelector] Failed to persist visible models:', error);
+    }),
   );
 };

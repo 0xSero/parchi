@@ -40,7 +40,9 @@ export function createRelayBridge(ctx: ServiceContext): RelayBridge {
         const payload: Record<string, unknown> = { relayConnected: Boolean(status.connected) };
         if (status.connected) payload.relayLastConnectedAt = Date.now();
         if (status.lastError !== undefined) payload.relayLastError = status.lastError;
-        chrome.storage.local.set(payload).catch(() => {});
+        void chrome.storage.local.set(payload).catch((error) => {
+          console.warn('[RelayHandler] Failed to persist relay status:', error);
+        });
       }, 500);
     },
   });

@@ -38,7 +38,9 @@ export const init = async function init(this: SidePanelUI & Record<string, unkno
     this.updateChatEmptyState?.();
     this.initMascotBubble?.();
     // Prune old traces (>7 days) in background — fire and forget
-    pruneOldTraces().catch(() => {});
+    void pruneOldTraces().catch((error) => {
+      console.warn('[StateManager] Failed to prune old traces:', error);
+    });
   } catch (error) {
     console.error('[Parchi] init() failed:', error);
     this.updateStatus('Initialization failed - check console', 'error');

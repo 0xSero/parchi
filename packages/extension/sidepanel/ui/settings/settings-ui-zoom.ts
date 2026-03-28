@@ -33,7 +33,9 @@ sidePanelProto.applyUiZoom = function applyUiZoom(value: number, { persist = tru
   });
   if (persist) {
     void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
-      patchSettingsStoreSnapshot({ uiZoom: clamped }).catch(() => {}),
+      patchSettingsStoreSnapshot({ uiZoom: clamped }).catch((error) => {
+        console.warn('[SettingsUiZoom] Failed to persist UI zoom:', error);
+      }),
     );
   }
 };
@@ -49,7 +51,9 @@ sidePanelProto.applyTypography = function applyTypography(preset: string, style:
   if (this.elements.fontStylePreset) this.elements.fontStylePreset.value = nextStyle;
   if (persist) {
     void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
-      patchSettingsStoreSnapshot({ fontPreset: nextPreset, fontStylePreset: nextStyle }).catch(() => {}),
+      patchSettingsStoreSnapshot({ fontPreset: nextPreset, fontStylePreset: nextStyle }).catch((error) => {
+        console.warn('[SettingsUiZoom] Failed to persist typography settings:', error);
+      }),
     );
   }
 };

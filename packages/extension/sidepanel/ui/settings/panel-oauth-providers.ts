@@ -243,7 +243,9 @@ sidePanelProto.showDeviceCodePrompt = function showDeviceCodePrompt(
   cancelBtn?.parentNode?.replaceChild(newCancel, cancelBtn);
 
   newCopy?.addEventListener('click', () => {
-    navigator.clipboard.writeText(response.user_code).catch(() => {});
+    void navigator.clipboard.writeText(response.user_code).catch((error) => {
+      console.warn('[OAuthProviders] Failed to copy device code:', error);
+    });
     newCopy.textContent = 'Copied';
     setTimeout(() => {
       newCopy.textContent = 'Copy Code';
@@ -251,7 +253,9 @@ sidePanelProto.showDeviceCodePrompt = function showDeviceCodePrompt(
   });
 
   newOpen?.addEventListener('click', () => {
-    chrome.tabs.create({ url: verificationUrl, active: true }).catch(() => {});
+    void chrome.tabs.create({ url: verificationUrl, active: true }).catch((error) => {
+      console.warn('[OAuthProviders] Failed to open verification tab:', error);
+    });
   });
 
   newCancel?.addEventListener('click', () => {

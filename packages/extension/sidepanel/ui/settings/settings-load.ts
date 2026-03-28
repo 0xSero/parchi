@@ -122,7 +122,9 @@ sidePanelProto.loadSettings = async function loadSettings() {
     this.elements.permissionScreenshots.checked = toolPermissions.screenshots !== false;
   if (this.elements.allowedDomains) this.elements.allowedDomains.value = settings.allowedDomains || '';
 
-  await syncOAuthProfiles(this).catch(() => {});
+  await syncOAuthProfiles(this).catch((error) => {
+    console.warn('[SettingsLoad] Failed to sync OAuth profiles:', error);
+  });
 
   this.refreshConfigDropdown();
   this.setActiveConfig(this.currentConfig, true);

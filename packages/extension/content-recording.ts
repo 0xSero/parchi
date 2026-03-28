@@ -45,7 +45,9 @@ declare global {
     try {
       const maybePromise = chrome.runtime.sendMessage(payload);
       if (maybePromise && typeof (maybePromise as Promise<unknown>).catch === 'function') {
-        (maybePromise as Promise<unknown>).catch(() => {});
+        void (maybePromise as Promise<unknown>).catch((error: unknown) => {
+          console.warn('[ContentRecording] Failed to send runtime message:', error);
+        });
       }
     } catch {
       // Extension context may be invalidated

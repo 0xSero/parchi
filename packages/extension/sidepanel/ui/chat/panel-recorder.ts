@@ -226,7 +226,9 @@ sidePanelProto.showRecordingReview = function showRecordingReview(
   const close = () => {
     modal.classList.add('hidden');
     this.cleanupRecordingUI();
-    chrome.runtime.sendMessage({ type: 'recording_discard' }).catch(() => {});
+    void chrome.runtime.sendMessage({ type: 'recording_discard' }).catch((error) => {
+      console.warn('[PanelRecorder] Failed to discard recording review:', error);
+    });
   };
 
   const doAttachOnly = () => {
@@ -238,9 +240,13 @@ sidePanelProto.showRecordingReview = function showRecordingReview(
     const ids = Array.from(this.reviewState.selectedScreenshotIds) as string[];
     if (ids.length === 0) {
       // Still send with empty selection — background creates context from events
-      chrome.runtime.sendMessage({ type: 'recording_select_images', selectedIds: [] }).catch(() => {});
+      void chrome.runtime.sendMessage({ type: 'recording_select_images', selectedIds: [] }).catch((error) => {
+        console.warn('[PanelRecorder] Failed to submit empty recording image selection:', error);
+      });
     } else {
-      chrome.runtime.sendMessage({ type: 'recording_select_images', selectedIds: ids }).catch(() => {});
+      void chrome.runtime.sendMessage({ type: 'recording_select_images', selectedIds: ids }).catch((error) => {
+        console.warn('[PanelRecorder] Failed to submit recording image selection:', error);
+      });
     }
   };
 
@@ -363,7 +369,9 @@ sidePanelProto.saveRecordingAsSkill = async function saveRecordingAsSkill() {
     if (modal) modal.classList.add('hidden');
 
     const ids = Array.from(selectedScreenshotIds) as string[];
-    chrome.runtime.sendMessage({ type: 'recording_select_images', selectedIds: ids }).catch(() => {});
+    void chrome.runtime.sendMessage({ type: 'recording_select_images', selectedIds: ids }).catch((error) => {
+      console.warn('[PanelRecorder] Failed to attach recording screenshots after saving skill:', error);
+    });
 
     this.updateStatus(`Skill "${skill.name}" saved`, 'success');
   } catch (err: unknown) {

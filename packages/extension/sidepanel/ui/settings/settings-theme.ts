@@ -46,6 +46,8 @@ sidePanelProto.setTheme = function setTheme(id: string) {
   applyTheme(id);
   this.renderThemeGrid();
   void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
-    patchSettingsStoreSnapshot({ theme: id }).catch(() => {}),
+    patchSettingsStoreSnapshot({ theme: id }).catch((error) => {
+      console.warn('[SettingsTheme] Failed to persist theme selection:', error);
+    }),
   );
 };

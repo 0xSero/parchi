@@ -230,14 +230,18 @@ export class RecordingCoordinator {
   private registerTabListeners(): void {
     this.tabUpdateListener = (changedTabId, changeInfo) => {
       if (changedTabId === this.state?.tabId && changeInfo.status === 'complete') {
-        this.injectContentScript(changedTabId).catch(() => {});
+        void this.injectContentScript(changedTabId).catch((error) => {
+          console.warn('[RecordingCoordinator] Failed to reinject content script after tab update:', error);
+        });
       }
     };
     chrome.tabs.onUpdated.addListener(this.tabUpdateListener);
 
     this.tabRemovedListener = (removedTabId) => {
       if (removedTabId === this.state?.tabId) {
-        this.stopRecording().catch(() => {});
+        void this.stopRecording().catch((error) => {
+          console.warn('[RecordingCoordinator] Failed to stop recording after tab removal:', error);
+        });
       }
     };
     chrome.tabs.onRemoved.addListener(this.tabRemovedListener);

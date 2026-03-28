@@ -129,7 +129,9 @@ export async function runAuthCodePkceFlow(config: OAuthProviderConfig, signal?: 
       chrome.tabs.onUpdated.removeListener(listener);
       chrome.tabs.onRemoved.removeListener(onRemoved);
       if (tabId !== undefined) {
-        chrome.tabs.remove(tabId).catch(() => {});
+        void chrome.tabs.remove(tabId).catch((error) => {
+          console.warn('[OAuthFlowAuthCode] Failed to close auth tab during cleanup:', error);
+        });
       }
     };
 
@@ -171,7 +173,11 @@ export async function runAuthCodePkceFlow(config: OAuthProviderConfig, signal?: 
       .create({ url: authorizeUrl, active: true })
       .then((tab) => {
         if (settled) {
-          if (tab.id) chrome.tabs.remove(tab.id).catch(() => {});
+          if (tab.id) {
+            void chrome.tabs.remove(tab.id).catch((error) => {
+              console.warn('[OAuthFlowAuthCode] Failed to close unused auth tab:', error);
+            });
+          }
           return;
         }
         tabId = tab.id;

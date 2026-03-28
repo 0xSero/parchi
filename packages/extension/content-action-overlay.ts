@@ -116,7 +116,9 @@ export class ActionOverlayController {
         },
       });
       if (maybePromise && typeof maybePromise.catch === 'function') {
-        maybePromise.catch(() => {});
+        void maybePromise.catch((error: unknown) => {
+          console.warn('[ContentActionOverlay] Failed to send perf event:', error);
+        });
       }
     } catch {
       // Ignore perf telemetry failures in content script context.

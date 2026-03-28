@@ -97,7 +97,9 @@ async function tryLoopbackHttpPair() {
         relayUrl: origin,
         relayToken: token,
       })
-      .catch(() => {});
+      .catch((error) => {
+        console.warn('[RelayConfig] Failed to persist loopback relay config:', error);
+      });
     return;
   }
 }
@@ -114,13 +116,15 @@ function tryNativeMessagingPair() {
       port.onMessage.addListener((msg: unknown) => {
         const payload = msg as { type?: unknown; url?: unknown; token?: unknown };
         if (payload?.type === 'auth_config' && typeof payload.url === 'string' && typeof payload.token === 'string') {
-          chrome.storage.local
+          void chrome.storage.local
             .set({
               relayEnabled: true,
               relayUrl: payload.url,
               relayToken: payload.token,
             })
-            .catch(() => {});
+            .catch((error) => {
+              console.warn('[RelayConfig] Failed to persist native relay config:', error);
+            });
         }
         port.disconnect();
       });
@@ -178,7 +182,9 @@ export function createApplyRelayConfig(ctx: ServiceContext) {
       if (enabled && (!url || !token)) {
         await chrome.storage.local
           .set({ relayConnected: false, relayLastError: 'Missing relay URL or token' })
-          .catch(() => {});
+          .catch((error) => {
+            console.warn('[RelayConfig] Failed to persist relay error state:', error);
+          });
       }
       if (enabled && url && token) {
         await ensureRelayKeepalive();
