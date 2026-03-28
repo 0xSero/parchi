@@ -1,7 +1,7 @@
 {
   "milestone": "type-safety",
-  "round": 2,
-  "status": "pass",
+  "round": 1,
+  "status": "fail",
   "validatorsRun": {
     "test": {
       "passed": true,
@@ -17,15 +17,31 @@
       "passed": true,
       "command": "npm run lint",
       "exitCode": 0
+    },
+    "repoStandards": {
+      "passed": false,
+      "command": "npm run check:repo-standards",
+      "exitCode": 1,
+      "note": "Failed only on documented unrelated oversized-file baseline debt listed in mission AGENTS.md."
     }
   },
   "reviewsSummary": {
-    "total": 1,
-    "passed": 1,
-    "failed": 0,
-    "failedFeatures": []
+    "total": 8,
+    "passed": 7,
+    "failed": 1,
+    "failedFeatures": [
+      "fix-callback-types"
+    ]
   },
-  "blockingIssues": [],
+  "blockingIssues": [
+    {
+      "featureId": "fix-callback-types",
+      "severity": "blocking",
+      "description": "The callback typing sweep is incomplete: `(def.models || []).map((m) => ({ ... }))` still leaves `m` implicitly typed in a feature-targeted file, so VAL-TYPE-006 is not fully satisfied.",
+      "file": "packages/extension/sidepanel/ui/settings/panel-provider-cards.ts",
+      "line": 144
+    }
+  ],
   "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
@@ -51,11 +67,16 @@
     {
       "observation": "Multiple differently worded reports about repo-standards fallback pressure in refactor-worker.",
       "reason": "duplicate"
-    },
-    {
-      "observation": "The worker transcript shows the parent session wandered into a separate non-blocking E2E helper fix before this feature's final rerun, which made the callback-types session history noisy and harder to audit even though the final handoff is correct.",
-      "reason": "ambiguous"
     }
   ],
-  "previousRound": "/Users/sero/projects/browser-ai/.factory/validation/type-safety/scrutiny/synthesis.round1.json"
+  "previousRound": null,
+  "nonBlockingIssues": [
+    {
+      "featureId": "fix-catch-any-patterns",
+      "severity": "non_blocking",
+      "description": "tests/e2e/test-model-communication.ts references outer-scope `getErrorMessage` from inside `worker.evaluate(...)`, so that catch path would raise `ReferenceError` if exercised.",
+      "file": "tests/e2e/test-model-communication.ts",
+      "line": 187
+    }
+  ]
 }
