@@ -41,6 +41,8 @@ npm run typecheck
 
 Document any pre-existing test failures or issues.
 
+If `.factory/init.sh` is not executable in the current checkout, invoke it via `bash .factory/init.sh` (or `sh .factory/init.sh`) rather than executing the path directly.
+
 **IMPORTANT**: The unit test runner (`tests/unit/run-unit-tests.ts`) hard-codes suite registration and ignores CLI grep filters. To test specific functionality, add a focused test suite that tests exactly what you need.
 
 If `npm run check:repo-standards` fails on documented pre-existing unrelated debt, workers may run a scoped fallback such as `npm exec -- node scripts/check-repo-standards.mjs --base=HEAD` (or an equivalent diff-scoped check) and must record both the global failure and the scoped fallback result in the handoff.
