@@ -1,0 +1,26 @@
+{
+  "featureId": "fix-circular-dependency",
+  "reviewedAt": "2026-03-28T01:37:11.996251Z",
+  "commitId": "912b258399a69c14755dce32cdada8d89330995d",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "pass",
+  "codeReview": {
+    "summary": "The refactor cleanly extracts the shared subagent runner type surface into `subagent/types-shared.ts`, removes the direct `ai-client.ts` type import from `subagent-runner.ts`, and preserves existing import sites through compatibility re-exports. The resulting import graph no longer contains the documented `subagent-runner \u2194 ai-client` cycle, matching the feature description and expected behavior for VAL-CON-006 and VAL-CON-007.",
+    "issues": []
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The `refactor-worker` skill currently requires `npm run check:repo-standards` as written, but this feature could only validate repo standards with a diff-scoped fallback because unrelated pre-existing oversized files cause the default command to fail. The skill should document the `--base=<ref>` fallback for isolated refactors.",
+      "evidence": "Handoff skillFeedback marks `followedProcedure: false` and records the deviation to `npm run check:repo-standards -- --base=HEAD~1`; `.factory/skills/refactor-worker/SKILL.md` step 8 does not mention this fallback."
+    },
+    {
+      "area": "knowledge",
+      "observation": "The repository library already notes that `check:repo-standards` defaults to a 300-line limit and does not prove the mission's 200-line constraint, but the mission AGENTS guidance still lists the command without clarifying the diff-scoped fallback when unrelated violations block a feature-local refactor.",
+      "evidence": "`.factory/library/extension-core-notes.md` documents the 300-line default, while mission `AGENTS.md` says to run `npm run check:repo-standards` before completion without mentioning the fallback used by this worker."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Pass: the shared type extraction breaks the `subagent-runner`/`ai-client` cycle without changing the public type surface, and I found no blocking or non-blocking code defects in the reviewed implementation."
+}
