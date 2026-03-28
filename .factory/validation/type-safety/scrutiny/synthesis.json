@@ -17,6 +17,12 @@
       "passed": true,
       "command": "npm run lint",
       "exitCode": 0
+    },
+    "repoStandards": {
+      "passed": false,
+      "command": "npm run check:repo-standards",
+      "exitCode": 1,
+      "note": "Failed only on documented unrelated oversized-file baseline debt listed in mission AGENTS.md."
     }
   },
   "reviewsSummary": {
@@ -24,68 +30,53 @@
     "passed": 7,
     "failed": 1,
     "failedFeatures": [
-      "add-explicit-return-types"
+      "fix-callback-types"
     ]
   },
   "blockingIssues": [
     {
-      "featureId": "add-explicit-return-types",
+      "featureId": "fix-callback-types",
       "severity": "blocking",
-      "description": "`assemblePreparedAgentLoop` still contains three targeted object-literal methods without explicit return annotations (`switchActiveModel`, `persistRecoveredModelSelection`, and `captureErrorClassificationContext`). The feature description and expected behavior required the agent-loop/service functions in this scope to receive explicit return types."
-    },
-    {
-      "featureId": "add-explicit-return-types",
-      "severity": "blocking",
-      "description": "The streaming callback passed to `streamText` (`onChunk`) still has no explicit return type in this feature commit, leaving another targeted agent-loop helper unannotated despite the explicit-return-type sweep requirement."
-    },
-    {
-      "featureId": "add-explicit-return-types",
-      "severity": "blocking",
-      "description": "`emitHistoryPrepared` remains without an explicit `: void` return type in this commit even though `prepare.ts` is part of the targeted agent-loop scope described for the feature."
+      "description": "The callback typing sweep is incomplete: `(def.models || []).map((m) => ({ ... }))` still leaves `m` implicitly typed in a feature-targeted file, so VAL-TYPE-006 is not fully satisfied.",
+      "file": "packages/extension/sidepanel/ui/settings/panel-provider-cards.ts",
+      "line": 144
     }
   ],
   "appliedUpdates": [],
   "suggestedGuidanceUpdates": [
     {
-      "target": "skill",
-      "suggestion": "Update refactor-worker guidance to explicitly allow and document scoped validation fallbacks (especially diff-scoped repo-standards checks) when known unrelated repo-wide repo-standards failures exist, and clarify how verification-only or async-regression coverage sessions should record such deviations.",
-      "evidence": "Every reviewed type-safety feature reported some refactor-worker guidance gap around global repo-standards assumptions, scoped validation fallbacks, or verification/test-harness edge cases.",
+      "target": "skill:.factory/skills/refactor-worker/SKILL.md",
+      "suggestion": "Document an explicit scoped-validation fallback for `npm run check:repo-standards` (and related global guardrails) when mission guidance already documents unrelated baseline failures outside the worker diff.",
+      "evidence": "This was reported across multiple type-safety reviews (fix-record-string-any, add-explicit-return-types + finish-agent-loop-return-types, fix-catch-any-patterns, fix-unsafe-casts, fix-callback-types, add-oauth-guard-regression-tests).",
       "isSystemic": true
+    },
+    {
+      "target": "skill:.factory/skills/refactor-worker/SKILL.md",
+      "suggestion": "Add guidance for verification-only sessions where the assigned feature is already landed on the branch, so workers can switch to audit/validation mode without marking normal process deviations.",
+      "evidence": "The fix-callback-types review recorded this gap after the worker found the commit already present and correctly audited the landed state instead of re-implementing it.",
+      "isSystemic": false
+    },
+    {
+      "target": "skill:.factory/skills/refactor-worker/SKILL.md",
+      "suggestion": "Clarify that small async test-harness updates are acceptable when they are required to add regression coverage for promise-based flows.",
+      "evidence": "The add-oauth-guard-regression-tests review found the feature needed a minimal async runner improvement before it could assert rejected OAuth flow promises directly.",
+      "isSystemic": false
     }
   ],
   "rejectedObservations": [
     {
-      "observation": "The `refactor-worker` skill requires full-repo `npm run lint` and `npm run check:repo-standards`, but this mission has unrelated pre-existing failures in those commands. The successful worker had to fall back to targeted Biome checks on touched files and record the deviation manually. The skill should document that fallback path for debt-heavy repos.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The refactor-worker skill requires running the final global `npm run lint` and `npm run check:repo-standards`, but the worker only ran scoped lint and a diff-based repo-standards check because of known repo-wide debt.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The `refactor-worker` skill treats repo-standards and file-size verification as unconditional final steps, but this mission has documented pre-existing oversized files and unrelated repo-standards failures. Workers therefore need to document exceptions even when their own changed files are compliant and feature-specific validation passes.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The `refactor-worker` skill treats `npm run check:repo-standards` as a hard final-validation requirement, but this mission has known unrelated baseline failures. That forces workers on otherwise-correct refactors to report `followedProcedure: false` even when they verified all feature-specific requirements and untouched files caused the only failure.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The refactor-worker skill's final validation guidance does not mention that a scoped `npm run check:repo-standards -- --base=...` rerun is an acceptable fallback when the unscoped check fails on unrelated pre-existing branch violations.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The refactor-worker skill does not explain how to handle verification-only assignments when the feature commit is already present, even though this session was primarily an audit of pre-landed work.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The refactor-worker skill still assumes global repo-standards must pass, but this mission documents unrelated standing failures. The worker had to fall back to scoped repo-standards validation again and mark the procedure as not fully followed.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
-    },
-    {
-      "observation": "The refactor-worker skill does not mention that small test-harness changes may be required when adding regression coverage for async behavior, even though this feature needed exactly that to test promise rejections in the OAuth flows.",
-      "reason": "duplicate systemic skill-guidance observation captured once in suggestedGuidanceUpdates"
+      "observation": "Multiple differently worded reports about repo-standards fallback pressure in refactor-worker.",
+      "reason": "duplicate"
     }
   ],
-  "previousRound": null
+  "previousRound": null,
+  "nonBlockingIssues": [
+    {
+      "featureId": "fix-catch-any-patterns",
+      "severity": "non_blocking",
+      "description": "tests/e2e/test-model-communication.ts references outer-scope `getErrorMessage` from inside `worker.evaluate(...)`, so that catch path would raise `ReferenceError` if exercised.",
+      "file": "tests/e2e/test-model-communication.ts",
+      "line": 187
+    }
+  ]
 }
