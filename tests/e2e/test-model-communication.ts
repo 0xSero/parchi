@@ -184,7 +184,20 @@ test('AI SDK v6 can be imported and used', async ({ worker }) => {
       // We'll verify the imports worked by checking global state
       return { success: true, message: 'SDK check would be done in background' };
     } catch (error: unknown) {
-      return { success: false, error: getErrorMessage(error) };
+      const fallbackMessage = (() => {
+        if (error instanceof Error && typeof error.message === 'string' && error.message.length > 0) {
+          return error.message;
+        }
+        if (typeof error === 'string' && error.length > 0) {
+          return error;
+        }
+        try {
+          return JSON.stringify(error);
+        } catch {
+          return String(error);
+        }
+      })();
+      return { success: false, error: fallbackMessage };
     }
   });
 
