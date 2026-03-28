@@ -37,8 +37,8 @@ class ContentScriptHandler {
 
   destroy() {
     chrome.runtime.onMessage.removeListener(this.messageListener);
-    this.overlayController.clearActionOverlay();
-    this.subagentBadgeController.clearBadge();
+    this.overlayController.destroyOverlay();
+    this.subagentBadgeController.destroyBadge();
     unhighlightAll(this.highlightedElements);
   }
 
@@ -97,4 +97,7 @@ class ContentScriptHandler {
   }
 }
 
-new ContentScriptHandler();
+const handler = new ContentScriptHandler();
+
+window.addEventListener('pagehide', () => handler.destroy(), { once: true });
+window.addEventListener('beforeunload', () => handler.destroy(), { once: true });
