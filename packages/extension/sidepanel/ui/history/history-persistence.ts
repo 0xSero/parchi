@@ -1,3 +1,4 @@
+import type { ChatSessionEntry } from '../../../state/persistence/session-history-repository.js';
 import {
   clearSessionHistoryStore,
   deleteSessionHistoryEntry,
@@ -5,6 +6,8 @@ import {
 } from '../../../state/stores/session-history-store.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
+
+type HistoryTurn = SidePanelUI['historyTurnMap'] extends Map<string, infer T> ? T : never;
 
 sidePanelProto.persistHistory = async function persistHistory() {
   // Default to saving history unless explicitly disabled
@@ -16,10 +19,10 @@ sidePanelProto.persistHistory = async function persistHistory() {
 
   const now = Date.now();
   const turns = Array.from(this.historyTurnMap.values())
-    .filter((turn: any) => turn && typeof turn === 'object')
-    .sort((a: any, b: any) => Number(a.startedAt || 0) - Number(b.startedAt || 0));
+    .filter((turn: HistoryTurn | undefined): turn is HistoryTurn => Boolean(turn && typeof turn === 'object'))
+    .sort((a: HistoryTurn, b: HistoryTurn) => Number(a.startedAt || 0) - Number(b.startedAt || 0));
 
-  const entry = {
+  const entry: ChatSessionEntry = {
     id: this.sessionId,
     startedAt: this.sessionStartedAt,
     updatedAt: now,

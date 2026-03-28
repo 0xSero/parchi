@@ -1,4 +1,7 @@
+import type { SidePanelUI } from '../core/panel-ui.js';
 import { MAX_REPORT_IMAGES, MAX_REPORT_IMAGE_BYTES, dataUrlToBlobUrl, sidePanelProto } from './panel-tools-shared.js';
+
+type ReportImageEntry = SidePanelUI['reportImages'] extends Map<string, infer T> ? T : never;
 
 const removeReportImage = (self: any, id: string) => {
   const evicted = self.reportImages.get(id);
@@ -79,7 +82,7 @@ sidePanelProto.updateReportImageSelection = function updateReportImageSelection(
       .filter((value: string) => value.length > 0),
   );
   this.selectedReportImageIds = nextSelected;
-  this.reportImages.forEach((image: any, id: string) => {
+  this.reportImages.forEach((image: ReportImageEntry, id: string) => {
     image.selected = nextSelected.has(id);
   });
 

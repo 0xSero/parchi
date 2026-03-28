@@ -1,3 +1,4 @@
+import type { Message } from '../../../ai/messages/schema.js';
 import { dedupeThinking, extractThinking } from '../../../ai/messages/utils.js';
 import { clearReportImages, clearToolCallViews } from '../core/panel-session-memory.js';
 import { SidePanelUI } from '../core/panel-ui.js';
@@ -10,7 +11,7 @@ sidePanelProto.renderConversationHistory = function renderConversationHistory() 
   this.lastChatTurn = null;
   this.resetActivityPanel();
 
-  this.displayHistory.forEach((msg: any) => {
+  this.displayHistory.forEach((msg: Message) => {
     if (msg.role === 'system' || msg.meta?.kind === 'summary') {
       this.displaySummaryMessage(msg);
       return;

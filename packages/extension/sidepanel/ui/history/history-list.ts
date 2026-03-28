@@ -1,3 +1,4 @@
+import type { ChatSessionEntry } from '../../../state/persistence/session-history-repository.js';
 import { getSessionHistoryEntries, hydrateSessionHistoryStore } from '../../../state/stores/session-history-store.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -46,7 +47,7 @@ sidePanelProto.loadHistoryList = async function loadHistoryList() {
       return;
     }
 
-    sessions.forEach((session: any) => {
+    sessions.forEach((session: ChatSessionEntry) => {
       const item = document.createElement('div');
       item.className = 'history-item';
       item.dataset.title = (session.title || '').toLowerCase();

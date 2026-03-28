@@ -2,6 +2,8 @@ import type { Message } from '../../../packages/extension/ai/messages/schema.js'
 import { toModelMessages } from '../../../packages/extension/ai/models/convert.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
+type AssistantToolCallPart = { type?: string; toolCallId?: string };
+
 export function runModelMessageConvertSuite(runner: TestRunner) {
   log('\n=== Testing Model Message Conversion ===', 'info');
 
@@ -91,8 +93,8 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     const assistant = messages.find((msg) => msg.role === 'assistant') as any;
     const assistantContent = Array.isArray(assistant?.content) ? assistant.content : [];
     const toolCallIds = assistantContent
-      .filter((part: any) => part?.type === 'tool-call')
-      .map((part: any) => String(part.toolCallId || ''));
+      .filter((part: AssistantToolCallPart) => part?.type === 'tool-call')
+      .map((part: AssistantToolCallPart) => String(part.toolCallId || ''));
 
     runner.assertFalse(
       toolCallIds.includes('present:1'),
@@ -126,7 +128,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
 
     runner.assertEqual(messages.filter((msg) => msg.role === 'tool').length, 0);
     runner.assertEqual(
-      assistantContent.filter((part: any) => part?.type === 'tool-call').length,
+      assistantContent.filter((part: AssistantToolCallPart) => part?.type === 'tool-call').length,
       0,
       'Tool calls should be removed when tool results are no longer adjacent',
     );

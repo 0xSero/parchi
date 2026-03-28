@@ -1,3 +1,4 @@
+import type { ProviderModelEntry } from '@parchi/shared';
 import { buildProviderInstanceId, ensureProviderModel, mergeProviderModels } from '../../../ai/providers/registry.js';
 import { OAUTH_PROVIDERS, fetchProviderModels, getAllProviderStates } from '../../../oauth/manager.js';
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
@@ -28,7 +29,7 @@ function providerSyncSignature(
     oauthEmail: String(provider?.oauthEmail || ''),
     oauthError: String(provider?.oauthError || ''),
     models: Array.isArray(provider?.models)
-      ? provider.models.map((model: any) => ({
+      ? provider.models.map((model: ProviderModelEntry) => ({
           id: String(model?.id || ''),
           label: String(model?.label || ''),
           contextWindow: Number(model?.contextWindow || 0),
@@ -210,7 +211,7 @@ export function getOAuthModelsForProvider(providerKey: string): Array<{ id: stri
   const baseKey = providerKey.replace(/-oauth$/, '');
   const config = (OAUTH_PROVIDERS as any)[baseKey];
   if (!config) return [];
-  return config.models.map((m: any) => ({ id: m.id, label: m.label }));
+  return config.models.map((m) => ({ id: m.id, label: m.label }));
 }
 
 export function getOAuthProfileNameForProvider(key: string): string {

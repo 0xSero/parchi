@@ -1,4 +1,4 @@
-import type { ProviderInstance } from '@parchi/shared';
+import type { ProviderInstance, ProviderModelEntry } from '@parchi/shared';
 import {
   PROVIDER_REGISTRY,
   buildProviderInstanceId,
@@ -149,7 +149,7 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
   }));
   const existingModels = existing?.models || [];
   const seen = new Set(defModels.map((m) => m.id));
-  const seedModels = [...defModels, ...existingModels.filter((m: any) => !seen.has(m.id))];
+  const seedModels = [...defModels, ...existingModels.filter((m: ProviderModelEntry) => !seen.has(m.id))];
   const provider: ProviderInstance = ensureProviderModel(
     {
       id: providerId,

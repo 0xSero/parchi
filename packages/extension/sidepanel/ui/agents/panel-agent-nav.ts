@@ -1,4 +1,5 @@
 import { SidePanelUI } from '../core/panel-ui.js';
+import type { SubagentEntry } from '../types/panel-types.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -66,13 +67,13 @@ sidePanelProto.renderAgentNav = function renderAgentNav() {
     return;
   }
   const active = this.activeAgent || MAIN_AGENT_ID;
-  const running = Array.from(this.subagents.values()).filter((a: any) => a.status === 'running').length;
+  const running = Array.from(this.subagents.values()).filter((a: SubagentEntry) => a.status === 'running').length;
   const total = this.subagents.size;
   const meta = running > 0 ? `${running} active` : `${total}`;
   const orchActive = active === MAIN_AGENT_ID ? ' active' : '';
   const orchTab = `<button type="button" class="agent-tab agent-tab--orch${orchActive}" data-agent-id="${MAIN_AGENT_ID}"><span class="agent-tab-dot"></span><span class="agent-tab-label">Orchestrator</span><span class="agent-tab-meta">${meta}</span></button>`;
   const children = Array.from(this.subagents.entries())
-    .map(([id, agent]: [string, any]) => {
+    .map(([id, agent]: [string, SubagentEntry]) => {
       const ac = active === id ? ' active' : '';
       return `<div class="agent-tab ${agent.status}${ac}" data-agent-id="${escape(this, id)}">
         <span class="agent-tab-dot"></span>

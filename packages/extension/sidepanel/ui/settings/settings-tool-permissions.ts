@@ -1,6 +1,7 @@
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
+type StoredSkill = { id?: string; name?: string; description?: string; sitePattern?: string; steps?: unknown[] };
 
 sidePanelProto.collectToolPermissions = function collectToolPermissions() {
   const fallback = this.toolPermissions || {
@@ -48,7 +49,7 @@ sidePanelProto.renderSkillsList = async function renderSkillsList() {
 
   try {
     const data = await chrome.storage.local.get('skills');
-    const skills = Array.isArray(data.skills) ? data.skills : [];
+    const skills = Array.isArray(data.skills) ? (data.skills as StoredSkill[]) : [];
 
     if (skills.length === 0) {
       list.innerHTML = '<div class="skills-empty">No skills saved yet. Record a workflow to create one.</div>';
@@ -99,7 +100,7 @@ sidePanelProto.renderSkillsList = async function renderSkillsList() {
 
       const deleteBtn = card.querySelector('.skill-delete-btn');
       deleteBtn?.addEventListener('click', async () => {
-        const updated = skills.filter((s: any) => s.id !== skill.id);
+        const updated = skills.filter((s: StoredSkill) => s.id !== skill.id);
         await chrome.storage.local.set({ skills: updated });
         this.renderSkillsList?.();
         this.updateStatus?.('Skill deleted', 'success');

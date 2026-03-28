@@ -3,6 +3,8 @@ import { clampContextHistory, clearReportImages, clearToolCallViews } from '../c
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
+type HistoryTurn = SidePanelUI['historyTurnMap'] extends Map<string, infer T> ? T : never;
+
 const normalizeTranscript = (value: any): any[] => {
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') return Object.values(value).filter(Boolean);
@@ -34,7 +36,7 @@ sidePanelProto.loadSession = function loadSession(session: any) {
     const takeUser = () => userQueue.shift();
     const takeAssistant = () => assistantQueue.shift();
 
-    turns = turns.map((turn: any) => {
+    turns = turns.map((turn: HistoryTurn) => {
       const updated = { ...turn };
       if (!updated.userMessage) {
         const userMessage = takeUser();
@@ -73,7 +75,7 @@ sidePanelProto.loadSession = function loadSession(session: any) {
       clearReportImages(this.reportImages, this.reportImageOrder, this.selectedReportImageIds);
       this.resetActivityPanel();
 
-      turns.forEach((turn: any) => {
+      turns.forEach((turn: HistoryTurn) => {
         const userText = String(turn.userMessage || '').trim();
         if (userText) {
           this.displayUserMessage(userText);

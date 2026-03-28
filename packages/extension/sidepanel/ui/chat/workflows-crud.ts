@@ -2,6 +2,9 @@ import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
 type Workflow = { id: string; name: string; prompt: string; createdAt: number };
+type WorkflowExample = { tool: string; args: Record<string, unknown>; result: string };
+type WorkflowNegativeExample = { tool: string; args: Record<string, unknown>; error: string; count: number };
+type StoredSkillStep = { tool: string; args: Record<string, unknown> };
 
 sidePanelProto.loadWorkflows = async function loadWorkflows(): Promise<void> {
   try {
@@ -15,8 +18,8 @@ sidePanelProto.loadWorkflows = async function loadWorkflows(): Promise<void> {
 sidePanelProto.saveWorkflow = async function saveWorkflow(
   name: string,
   prompt: string,
-  positiveExamples?: Array<{ tool: string; args: any; result: string }>,
-  negativeExamples?: Array<{ tool: string; args: any; error: string; count: number }>,
+  positiveExamples?: WorkflowExample[],
+  negativeExamples?: WorkflowNegativeExample[],
 ): Promise<void> {
   const workflow: Workflow = {
     id: crypto.randomUUID(),
@@ -44,7 +47,7 @@ sidePanelProto.saveWorkflow = async function saveWorkflow(
     name: name.trim(),
     description: prompt.slice(0, 200),
     sitePattern: hostname ? `${hostname}*` : '',
-    steps: posExamples.slice(0, 20).map((ex: any) => ({ tool: ex.tool, args: ex.args })),
+    steps: posExamples.slice(0, 20).map((ex: WorkflowExample): StoredSkillStep => ({ tool: ex.tool, args: ex.args })),
     prompt,
     positiveExamples: posExamples.slice(0, 10),
     negativeExamples: negExamples.slice(0, 10),

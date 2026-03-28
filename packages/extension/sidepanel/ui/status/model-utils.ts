@@ -66,21 +66,23 @@ export const decodeModelSelectValue = (value: string): { providerId: string; mod
   };
 };
 
-export const extractModelIds = (payload: any): string[] => {
+export const extractModelIds = (payload: unknown): string[] => {
   if (!payload) return [];
-  const source = Array.isArray(payload?.data)
-    ? payload.data
-    : Array.isArray(payload?.models)
-      ? payload.models
+  const payloadRecord = payload && typeof payload === 'object' ? (payload as Record<string, unknown>) : null;
+  const source = Array.isArray(payloadRecord?.data)
+    ? payloadRecord.data
+    : Array.isArray(payloadRecord?.models)
+      ? payloadRecord.models
       : Array.isArray(payload)
         ? payload
         : [];
 
   const ids = source
-    .map((entry: any) => {
+    .map((entry: unknown) => {
       if (typeof entry === 'string') return entry;
-      if (entry && typeof entry.id === 'string') return entry.id;
-      if (entry && typeof entry.name === 'string') return entry.name;
+      if (!entry || typeof entry !== 'object') return '';
+      if ('id' in entry && typeof entry.id === 'string') return entry.id;
+      if ('name' in entry && typeof entry.name === 'string') return entry.name;
       return '';
     })
     .map((id: string) => id.trim())

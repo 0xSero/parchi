@@ -2,6 +2,8 @@ import { getActiveTab } from '../../../utils/active-tab.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
+type SelectedTab = ReturnType<SidePanelUI['buildSelectedTab']>;
+
 sidePanelProto.addActiveTabToSelection = async function addActiveTabToSelection() {
   const activeTab = await getActiveTab();
   if (!activeTab || typeof activeTab.id !== 'number') return;
@@ -86,7 +88,7 @@ sidePanelProto.formatTabLabel = function formatTabLabel(url?: string) {
 };
 
 sidePanelProto.getSelectedTabsContext = function getSelectedTabsContext(
-  tabs?: Array<any>,
+  tabs?: SelectedTab[],
   source: 'selected' | 'active' = 'selected',
 ) {
   const tabList = tabs ?? Array.from(this.selectedTabs.values());
@@ -94,7 +96,7 @@ sidePanelProto.getSelectedTabsContext = function getSelectedTabsContext(
 
   const label = source === 'active' ? 'active tab' : 'selected tabs';
   let context = `\n\n[Context from ${label}:]\n`;
-  tabList.forEach((tab: any) => {
+  tabList.forEach((tab: SelectedTab) => {
     const tabTitle = tab.title || 'Untitled';
     const groupLabel = tab.groupTitle ? `${tab.groupTitle} · ` : '';
     const urlLabel = tab.url || '';

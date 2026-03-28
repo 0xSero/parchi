@@ -1,5 +1,6 @@
 import { applyReportImageSelection, getReportImageSummary } from '../../report-images.js';
 import type { ServiceContext } from '../../service-context.js';
+import type { SessionAttachment } from '../../service-types.js';
 import { buildPlanFromArgs } from '../xml-tool-parser.js';
 import { handleOrchestratorBuiltin } from './orchestrator.js';
 import type { NestedToolExecutor, ToolExecutionArgs, ToolExecutionOptions } from './shared.js';
@@ -165,7 +166,7 @@ export async function executeBuiltinTool(
       handled: true,
       result: {
         success: true,
-        attachments: attachments.map((a: any) => ({
+        attachments: attachments.map((a: SessionAttachment) => ({
           name: a.name,
           size: a.size,
           mimeType: a.mimeType,
@@ -182,14 +183,14 @@ export async function executeBuiltinTool(
       return { handled: true, result: { success: false, error: 'filename is required.' } };
     }
     const attachments = sessionState.attachments || [];
-    const attachment = attachments.find((a: any) => a.name === filename);
+    const attachment = attachments.find((a: SessionAttachment) => a.name === filename);
     if (!attachment) {
       return {
         handled: true,
         result: {
           success: false,
           error: `Attachment "${filename}" not found.`,
-          available: attachments.map((a: any) => a.name),
+          available: attachments.map((a: SessionAttachment) => a.name),
         },
       };
     }

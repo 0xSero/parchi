@@ -1,6 +1,16 @@
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
+type HistoryTurn = SidePanelUI['historyTurnMap'] extends Map<string, infer T> ? T : never;
+type WorkflowExample = { tool: string; args: Record<string, unknown>; result: string };
+type WorkflowNegativeExample = { tool: string; args: Record<string, unknown>; error: string; count: number };
+type ToolExecutionEvent = {
+  type: 'tool_execution_start' | 'tool_execution_result';
+  tool?: string;
+  args?: Record<string, unknown>;
+  result?: Record<string, unknown>;
+};
+
 // Rough chars-per-token ratio (conservative; real tokenizers vary).
 const CHARS_PER_TOKEN = 3.5;
 const MAX_CONTEXT_TOKENS = 100_000;
@@ -28,12 +38,12 @@ sidePanelProto.buildSessionContext = function buildSessionContext(): string {
   // --- 2. Turn-level detail (tool events, plans) ----------------------
   if (this.historyTurnMap?.size) {
     sections.push('\n=== DETAILED TURN LOG ===');
-    this.historyTurnMap.forEach((turn: any, turnId: string) => {
+    this.historyTurnMap.forEach((turn: HistoryTurn, turnId: string) => {
       sections.push(`\n--- Turn ${turnId} ---`);
       if (turn.userMessage) sections.push(`[User]: ${turn.userMessage}`);
 
       if (turn.plan?.steps?.length) {
-        const planLines = turn.plan.steps.map((s: any) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
+        const planLines = turn.plan.steps.map((s) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
         sections.push(`[Plan]:\n${planLines.join('\n')}`);
       }
 
@@ -64,7 +74,7 @@ sidePanelProto.buildSessionContext = function buildSessionContext(): string {
 
   // --- 3. Current plan ------------------------------------------------
   if (this.currentPlan?.steps?.length) {
-    const planLines = this.currentPlan.steps.map((s: any) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
+    const planLines = this.currentPlan.steps.map((s) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
     sections.push(`\n=== CURRENT PLAN ===\n${planLines.join('\n')}`);
   }
 
@@ -104,32 +114,38 @@ sidePanelProto.buildSessionContext = function buildSessionContext(): string {
 sidePanelProto.generateWorkflowFromSession = async function generateWorkflowFromSession(): Promise<{
   name: string;
   prompt: string;
-  positiveExamples: Array<{ tool: string; args: any; result: string }>;
-  negativeExamples: Array<{ tool: string; args: any; error: string; count: number }>;
+  positiveExamples: WorkflowExample[];
+  negativeExamples: WorkflowNegativeExample[];
 } | null> {
   const context = this.buildSessionContext();
   if (!context.trim()) return null;
 
-  const positiveExamples: Array<{ tool: string; args: any; result: string }> = [];
-  const negativeExamples: Array<{ tool: string; args: any; error: string; count: number }> = [];
+  const positiveExamples: WorkflowExample[] = [];
+  const negativeExamples: WorkflowNegativeExample[] = [];
   const failureCounts = new Map<string, number>();
 
   if (this.historyTurnMap?.size) {
-    this.historyTurnMap.forEach((turn: any) => {
+    this.historyTurnMap.forEach((turn: HistoryTurn) => {
       if (!turn.toolEvents?.length) return;
-      for (const ev of turn.toolEvents) {
+      for (const ev of turn.toolEvents as ToolExecutionEvent[]) {
         if (ev.type !== 'tool_execution_result') continue;
-        const key = `${ev.tool}:${ev.args?.selector || ev.args?.url || ''}`;
+        const toolName = ev.tool || '';
+        const key = `${toolName}:${ev.args?.selector || ev.args?.url || ''}`;
         if (ev.result?.success === false || ev.result?.error) {
           const count = (failureCounts.get(key) || 0) + 1;
           failureCounts.set(key, count);
           if (count <= 1) {
             // Only first failure of each type
-            negativeExamples.push({ tool: ev.tool, args: ev.args || {}, error: String(ev.result?.error || ''), count });
+            negativeExamples.push({
+              tool: toolName,
+              args: ev.args || {},
+              error: String(ev.result?.error || ''),
+              count,
+            });
           }
         } else {
           positiveExamples.push({
-            tool: ev.tool,
+            tool: toolName,
             args: ev.args || {},
             result: JSON.stringify(ev.result || {}).slice(0, 200),
           });
@@ -150,7 +166,7 @@ sidePanelProto.generateWorkflowFromSession = async function generateWorkflowFrom
   }
 
   // Derive a suggested name from the first user message
-  const firstUser = (this.displayHistory || []).find((m: any) => m.role === 'user');
+  const firstUser = (this.displayHistory || []).find((m) => m.role === 'user');
   const firstText = firstUser
     ? (this.extractTextContent?.(firstUser.content) || '').toLowerCase().replace(/[^a-z0-9\s]/g, '')
     : '';

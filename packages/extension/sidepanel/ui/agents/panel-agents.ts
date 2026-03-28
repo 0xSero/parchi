@@ -1,5 +1,6 @@
 import { getSubagentColorStyle } from '../../../subagent-colors.js';
 import { SidePanelUI } from '../core/panel-ui.js';
+import type { SubagentEntry } from '../types/panel-types.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -139,7 +140,7 @@ sidePanelProto.mcRenderAgentList = function mcRenderAgentList() {
     return;
   }
   let html = '';
-  this.subagents.forEach((agent: any, id: string) => {
+  this.subagents.forEach((agent: SubagentEntry, id: string) => {
     const elapsed = this.mcFormatElapsed(agent);
     const isSelected = this.mcSelectedAgentId === id;
     const statusLabel = agent.status === 'running' ? 'Running' : agent.status === 'completed' ? 'Done' : 'Failed';
