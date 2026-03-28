@@ -1,0 +1,33 @@
+{
+  "featureId": "remove-debug-code",
+  "reviewedAt": "2026-03-28T11:58:14Z",
+  "commitId": "e653cf1d220de3b13d8cb1a0d30f16a155291fdb",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The feature removes several production debug logs and successfully drops the sidepanel perf-monitor code from the shipped dist bundle via a build-time-only __PERF_DEBUG__ gate. However, it no longer exposes window.sidePanelUI in normal sidepanel sessions, which breaks existing E2E/debug automation that assumes that handle remains available outside perf-debug builds.",
+    "issues": [
+      {
+        "file": "packages/extension/sidepanel/panel.ts",
+        "line": 22,
+        "severity": "blocking",
+        "description": "`window.sidePanelUI` is now assigned only inside the `if (__PERF_DEBUG__)` block. Existing scripts/tests still access `window.sidePanelUI` unconditionally (for example `tests/e2e/run-e2e.ts:82`, `:153`, `:210`, and `scripts/capture-screenshots.ts:66`), so production/non-perf builds lose that UI handle and those flows regress. The debug cleanup should remove perf logging without changing the availability of the established sidepanel UI hook."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "knowledge",
+      "observation": "The repo relies on a global `window.sidePanelUI` hook for E2E and screenshot automation outside perf-debug mode, but that convention is not documented in mission/shared-state guidance.",
+      "evidence": "`tests/e2e/run-e2e.ts` and `scripts/capture-screenshots.ts` access `window.sidePanelUI` directly, while `.factory/library/architecture.md` and mission `AGENTS.md` do not mention this requirement."
+    },
+    {
+      "area": "skills",
+      "observation": "The refactor-worker skill does not explicitly warn that bundle-cleanup changes must preserve existing test/debug hooks that are consumed by automation, even when those hooks look debug-related.",
+      "evidence": "The transcript shows the worker identified `window.sidePanelUI` only after deciding to move the assignment behind `__PERF_DEBUG__`, and the skill text focuses on validators/file size rather than preserving automation hooks."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Fail: the bundle optimization itself is valid, but the change regresses existing sidepanel automation/debug flows by hiding `window.sidePanelUI` in non-perf builds. No other blocking issues found in the reviewed diff."
+}
