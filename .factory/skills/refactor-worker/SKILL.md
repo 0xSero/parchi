@@ -51,6 +51,11 @@ If `npm run check:repo-standards` fails on documented pre-existing unrelated deb
 - Determine the new file structure
 - Plan the interfaces between modules
 - Consider: Will this break any imports in other files?
+- Preserve any existing automation/test hooks (for example browser globals used by scripts or E2E harnesses) unless the feature explicitly migrates those consumers too
+
+### Verification-only reruns
+
+If the orchestrator explicitly reassigns a feature as a verification-only pass because the relevant commit is already landed, validate the current tree against the feature contract instead of rewriting the code. In those cases, confirm the working tree stays clean, capture the evidence you used, and only make new edits if verification finds a real gap.
 
 ### 4. Write Tests First (TDD)
 
@@ -67,6 +72,9 @@ If tests exist:
 Small test-harness changes are acceptable before adding regression coverage when existing test infrastructure cannot exercise the required behavior (for example, async rejection assertions). Keep those harness changes minimal and directly tied to enabling the target regression tests.
 
 ### 5. Refactor Incrementally
+
+Style-only or bundle-size refactors may validate via manual code review, size comparisons, built artifact inspection, and the standard automated suites when selector-level tests do not exist. When the feature includes a quantitative size goal, measure against the baseline named in the feature/contract and report the before/after numbers explicitly.
+
 
 Make small, focused changes:
 1. Extract one module at a time
