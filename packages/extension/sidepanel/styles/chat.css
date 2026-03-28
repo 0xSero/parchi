@@ -32,10 +32,6 @@ body.sidebar-open .fab-group {
   transform: rotate(90deg) scale(1.15);
 }
 
-.fab-legacy-actions {
-  display: none;
-}
-
 .fab-quick-actions {
   position: relative;
 }

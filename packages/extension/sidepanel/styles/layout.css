@@ -433,40 +433,6 @@ body[data-right-panel="settings"] {
   position: relative;
 }
 
-.mascot-antenna {
-  position: absolute;
-  top: -2px;
-  left: 50%;
-  width: 8px;
-  height: 8px;
-  transform: translateX(-50%);
-  pointer-events: none;
-}
-
-.mascot-antenna::before {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: 2px;
-  width: 2px;
-  height: 7px;
-  transform: translateX(-50%);
-  background: rgb(255 255 255 / 0.82);
-  border-radius: 999px;
-}
-
-.mascot-antenna::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 50%;
-  width: 6px;
-  height: 6px;
-  transform: translateX(-50%);
-  border-radius: 50%;
-  background: rgb(255 255 255 / 0.85);
-}
-
 .mascot-blob-body {
   position: absolute;
   inset: 2px 1px 0;
@@ -519,19 +485,6 @@ body[data-right-panel="settings"] {
   border-radius: 50%;
 }
 
-.mascot-cheeks {
-  position: absolute;
-  top: 53%;
-  left: 50%;
-  width: 5px;
-  height: 3px;
-  transform: translateX(-50%);
-  border-radius: 999px;
-  background: rgb(255 178 209 / 0.25);
-  box-shadow: -8px 0 0 rgb(255 178 209 / 0.18), 8px 0 0 rgb(255 178 209 / 0.18);
-  opacity: 0.7;
-}
-
 .mascot-corner.awake .mascot-blob-body {
   box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1);
 }
@@ -554,10 +507,6 @@ body[data-right-panel="settings"] {
 
 .mascot-corner.sleeping .mascot-eye::after {
   display: none;
-}
-
-.mascot-corner.sleeping .mascot-cheeks {
-  opacity: 0.72;
 }
 
 .mascot-corner.looking-up .mascot-eyes {
