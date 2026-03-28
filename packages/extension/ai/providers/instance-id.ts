@@ -1,4 +1,5 @@
 // Provider instance ID generation utilities
+import { asString } from '@parchi/shared';
 
 const slugify = (value: string) =>
   value
@@ -9,8 +10,6 @@ const slugify = (value: string) =>
 
 const hashBasis = (provider: string, authType: string, endpoint: string, key: string, name: string) =>
   `${provider}|${authType}|${endpoint}|${key}|${name}`.toLowerCase();
-
-const asString = (value: unknown) => String(value || '').trim();
 
 export const buildProviderInstanceId = (input: {
   provider: string;

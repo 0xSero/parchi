@@ -1,11 +1,9 @@
 // Provider instance registry operations
-import type { ProviderInstance, ProviderModelEntry } from '@parchi/shared';
+import { type ProviderInstance, type ProviderModelEntry, asString } from '@parchi/shared';
 import { normalizeProviderModels } from './instance-models.js';
 import { isProviderRegistry, normalizeProviderInstance } from './instance-normalize.js';
 
 type SettingsLike = Record<string, any>;
-
-const asString = (value: unknown) => String(value || '').trim();
 
 export const getProviderRegistry = (settings: SettingsLike): Record<string, ProviderInstance> => {
   const providers = isProviderRegistry(settings.providers) ? settings.providers : {};

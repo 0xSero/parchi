@@ -1,5 +1,5 @@
 // Provider settings migration utilities
-import { asRecord } from '@parchi/shared';
+import { asRecord, asString } from '@parchi/shared';
 import { buildProviderFromProfile } from './instance-normalize.js';
 import { ensureProviderModel, getProviderRegistry } from './instance-registry.js';
 
@@ -13,8 +13,6 @@ const asStringRecord = (value: unknown): Record<string, string> => {
     Object.entries(record).flatMap(([key, entry]) => (typeof entry === 'string' ? [[key, entry]] : [])),
   );
 };
-
-const asString = (value: unknown) => String(value || '').trim();
 
 export const materializeProfileWithProvider = (
   settings: SettingsLike,

@@ -1,10 +1,8 @@
 // Provider model normalization and merging utilities
-import type { ProviderModelEntry } from '@parchi/shared';
+import { type ProviderModelEntry, asString } from '@parchi/shared';
 import { OAUTH_PROVIDERS } from '../../oauth/providers.js';
 import type { OAuthProviderKey } from '../../oauth/types.js';
 import { getProviderDefinition } from './definitions.js';
-
-const asString = (value: unknown) => String(value || '').trim();
 
 export const normalizeProviderModels = (models: unknown, fallbackModelId = ''): ProviderModelEntry[] => {
   const out: ProviderModelEntry[] = [];

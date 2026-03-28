@@ -1,5 +1,5 @@
 // Provider instance normalization utilities
-import { type ProviderInstance, asRecord } from '@parchi/shared';
+import { type ProviderInstance, asRecord, asString } from '@parchi/shared';
 import { OAUTH_PROVIDERS } from '../../oauth/providers.js';
 import type { OAuthProviderKey } from '../../oauth/types.js';
 import { getProviderDefinition } from './definitions.js';
@@ -13,8 +13,6 @@ const asStringRecord = (value: unknown): Record<string, string> => {
     Object.entries(record).flatMap(([key, entry]) => (typeof entry === 'string' ? [[key, entry]] : [])),
   );
 };
-
-const asString = (value: unknown) => String(value || '').trim();
 
 export const normalizeProviderType = (value: unknown) => asString(value).toLowerCase();
 
