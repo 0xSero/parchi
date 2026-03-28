@@ -86,13 +86,11 @@ export async function getContentTool(ctx: BrowserToolsDelegate, args: BrowserToo
       const base = sel ? document.querySelector<HTMLElement>(sel) : document.body;
       if (!base) return { success: false, error: 'Target not found.' };
       const normalizedType = ['text', 'html', 'title', 'url', 'links'].includes(t) ? t : 'text';
-      const truncate = (value: string) => {
-        const length = value.length;
-        if (length <= limit) {
-          return { content: value, truncated: false, contentLength: length };
-        }
-        return { content: value.slice(0, limit), truncated: true, contentLength: length };
-      };
+      const truncate = (value: string) => ({
+        content: value.slice(0, limit),
+        truncated: value.length > limit,
+        contentLength: value.length,
+      });
       if (normalizedType === 'html') {
         const result = truncate(base.innerHTML);
         return { success: true, ...result };

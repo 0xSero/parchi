@@ -1,14 +1,17 @@
-import { escapeAttribute, escapeHtml, escapeHtmlBasic } from '@parchi/shared';
-import { safeJsonStringify as safeJsonStringifyFn } from '@parchi/shared';
+import {
+  escapeAttribute,
+  escapeHtml,
+  escapeHtmlBasic,
+  safeJsonStringify as safeJsonStringifyFn,
+  truncate,
+} from '@parchi/shared';
 import { SidePanelUI } from './panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
 sidePanelProto.safeJsonStringify = (value: unknown) => safeJsonStringifyFn(value);
 
 sidePanelProto.truncateText = function truncateText(text: string, limit = 1200) {
-  if (!text) return '';
-  if (text.length <= limit) return text;
-  return `${text.slice(0, limit)}...`;
+  return truncate(text, limit);
 };
 
 sidePanelProto.escapeHtmlBasic = (text: string) => escapeHtmlBasic(text);

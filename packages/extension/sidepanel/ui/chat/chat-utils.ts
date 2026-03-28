@@ -1,4 +1,4 @@
-import { sleep } from '@parchi/shared';
+import { sleep, truncate } from '@parchi/shared';
 import { SidePanelUI } from '../core/panel-ui.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -25,12 +25,6 @@ export const formatTracePercent = (value: unknown) => {
 };
 
 export const MAX_DISPLAY_HISTORY = 400;
-
-export const truncate = (value: string, max = 12000) => {
-  const text = String(value || '');
-  if (text.length <= max) return text;
-  return `${text.slice(0, max)}…`;
-};
 
 // Chrome runtime messaging can fail on large payloads or non-cloneable values.
 // Keep history compact and remove heavy fields (e.g. screenshots/dataUrls) before sending to background.

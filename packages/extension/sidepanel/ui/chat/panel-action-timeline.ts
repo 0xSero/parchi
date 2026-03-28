@@ -1,4 +1,4 @@
-import type { RecordingEvent } from '@parchi/shared';
+import { type RecordingEvent, truncate } from '@parchi/shared';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -8,8 +8,6 @@ const formatOffset = (ms: number): string => {
   const sec = totalSec % 60;
   return `+${min}:${String(sec).padStart(2, '0')}`;
 };
-
-const truncate = (text: string, max: number): string => (text.length > max ? text.slice(0, max) + '\u2026' : text);
 
 const escapeHtml = (text: string): string => {
   const div = document.createElement('div');
