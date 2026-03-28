@@ -1,26 +1,26 @@
 {
   "featureId": "split-theme-factory-file",
-  "reviewedAt": "2026-03-28T11:58:26.462912Z",
+  "reviewedAt": "2026-03-28T12:02:00Z",
   "commitId": "439c1dbaa80e85618ad795551b67d5db6371b940",
   "transcriptSkeletonReviewed": true,
   "diffReviewed": true,
   "status": "pass",
   "codeReview": {
-    "summary": "The refactor cleanly splits theme factory responsibilities into focused helper modules while preserving the existing API surface and behavior. The extracted defaults, types, and color conversion logic match the pre-refactor implementation, downstream imports still resolve through the compatibility exports, and all affected modules are under the 200-line mission target.",
+    "summary": "Commit 439c1dba fulfills the feature contract. It reduces `theme-factory.ts` from a 226-line mixed-responsibility module to a 66-line entry point, moves defaults, color conversion, and type declarations into focused helpers that all stay under the 200-line mission target, and preserves the existing `createTheme`, `createHighContrastTheme`, `hexToRgbTriplet`, and type exports used by the theme catalog and high-contrast helper. The extracted logic is byte-for-byte equivalent in behavior to the pre-split implementation, so the reviewed change preserves the already-verified theme behavior and does not introduce new bundle-expanding logic in scope.",
     "issues": []
   },
   "sharedStateObservations": [
     {
       "area": "knowledge",
-      "observation": "The shared library notes that `check:repo-standards` uses a 300-line default, but the refactor-worker skill still frames a passing repo-standards run as the main size-limit validation. Workers still need a separate `wc -l` check to prove compliance with the mission's 200-line refactor target.",
-      "evidence": ".factory/library/extension-core-notes.md:3 documents the 300-line default, while .factory/skills/refactor-worker/SKILL.md:93-107 lists `npm run check:repo-standards` as the file-size validation step; this worker correctly added `wc -l` in the transcript/handoff to cover the gap."
+      "observation": "The shared guidance still leaves an ambiguity between repo-standards size checks and the mission's stricter 200-line refactor target. Workers need an explicit reminder that `npm run check:repo-standards` is not sufficient evidence for the 200-line goal and must be paired with direct `wc -l` checks on all affected modules.",
+      "evidence": "The feature contract requires `wc -l` confirmation for split modules, and this review confirmed the worker had to record separate counts for `theme-factory.ts` (66 lines), `theme-factory-defaults.ts` (117), `theme-factory-color.ts` (18), and `theme-factory-types.ts` (43). The existing review file and handoff note that repo-standards passed only for changed files, while `.factory/library/extension-core-notes.md` documents a different default size threshold."
     },
     {
       "area": "skills",
-      "observation": "The worker reported a real-path mismatch for mission metadata: the skill suggestion notes that `features.json` was not under `{repo}/.factory/missions/...` and instead had to be read from the external mission directory path provided by the orchestrator. That path expectation is not captured in the current skill guidance.",
-      "evidence": "Handoff skillFeedback.suggestedChanges notes the repo-local mission path was absent in this session, and the transcript shows the worker reading `/Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/features.json` instead of a repo-local mission copy."
+      "observation": "The refactor-worker skill assumes mission metadata lives under a repo-local `.factory/missions/...` path, but this mission supplied its canonical metadata from an external mission directory. The worker handled it correctly, yet the skill should document that reviewers/workers must use the missionDir path provided by the orchestrator when the repo-local mirror is absent.",
+      "evidence": "The transcript and handoff for worker session `bb97595b-9b95-45d9-8ab6-54a438b480c8` read mission files from `/Users/sero/.factory/missions/2de43d43-4917-4fd5-8d4a-9155693b51d8/...`, and `handoff.skillFeedback.suggestedChanges` explicitly calls out the missing repo-local mission path expectation."
     }
   ],
   "addressesFailureFrom": null,
-  "summary": "Pass. The feature fulfills the contract by splitting `theme-factory.ts` into smaller focused modules without changing the exported API or theme creation behavior. No blocking issues found; notable observations are a shared-state gap around 200-line validation guidance and the need to document that mission metadata may live outside the repo-local `.factory/missions` tree."
+  "summary": "Pass. The split keeps the theme factory API and behavior intact, meets the under-200-line module target for all extracted files, and surfaces two non-blocking shared-state guidance gaps around size-limit validation and external mission metadata paths."
 }
