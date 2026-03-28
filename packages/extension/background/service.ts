@@ -167,8 +167,8 @@ export class BackgroundService implements ServiceContext {
   }
 
   sendToSidePanel(message: unknown): void {
-    chrome.runtime.sendMessage(message).catch((err) => {
-      console.log('Side panel not open:', err);
+    void chrome.runtime.sendMessage(message).catch(() => {
+      // Side panel may be closed; ignore delivery failures.
     });
   }
 

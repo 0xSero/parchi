@@ -65,12 +65,6 @@ export async function captureEvent(
   const events = await getStoredEvents();
   events.push(event);
   await storeEvents(events);
-
-  // Also log to console in dev builds
-  if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.log('[Telemetry]', event);
-  }
 }
 
 export const captureException = (

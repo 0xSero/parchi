@@ -130,8 +130,7 @@ function tryNativeMessagingPair() {
       });
 
       port.onDisconnect.addListener(() => {
-        const err = chrome.runtime.lastError;
-        if (err) console.debug('[native-messaging] Not available:', err.message);
+        void chrome.runtime.lastError;
       });
 
       port.postMessage({ type: 'hello' });

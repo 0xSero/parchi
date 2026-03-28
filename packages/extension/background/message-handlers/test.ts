@@ -10,7 +10,6 @@ export function handleConfigureSessionTabsTest(ctx: ServiceContext, message: any
     .getBrowserTools(sessionId)
     .configureSessionTabs(tabs, { title: 'Test Session', color: 'blue' })
     .then(() => {
-      console.log('[test] session tabs configured successfully');
       respondOk(sendResponse);
     })
     .catch((err) => {

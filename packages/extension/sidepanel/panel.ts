@@ -18,10 +18,10 @@ const init = async () => {
     console.warn('[panel] Session history hydration failed:', err);
   });
   const ui = new SidePanelUI();
-  const debugWindow = window as Window & { sidePanelUI?: SidePanelUI; __PERF_DEBUG__?: boolean };
-  debugWindow.sidePanelUI = ui;
 
-  if (__PERF_DEBUG__ || debugWindow.__PERF_DEBUG__) {
+  if (__PERF_DEBUG__) {
+    const debugWindow = window as Window & { sidePanelUI?: SidePanelUI };
+    debugWindow.sidePanelUI = ui;
     const { perfMonitor } = await import('../utils/perf-monitor.js');
     perfMonitor.start();
   }
