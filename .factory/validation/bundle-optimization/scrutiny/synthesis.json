@@ -1,0 +1,75 @@
+{
+  "milestone": "bundle-optimization",
+  "round": 1,
+  "status": "fail",
+  "validatorsRun": {
+    "test": { "passed": true, "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run test:unit", "exitCode": 0 },
+    "typecheck": { "passed": true, "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run typecheck", "exitCode": 0 },
+    "lint": { "passed": true, "command": "npm --prefix \"/Users/sero/projects/browser-ai\" run lint", "exitCode": 0 }
+  },
+  "reviewsSummary": {
+    "total": 4,
+    "passed": 2,
+    "failed": 2,
+    "failedFeatures": ["consolidate-css-patterns", "remove-debug-code"]
+  },
+  "blockingIssues": [
+    {
+      "featureId": "consolidate-css-patterns",
+      "severity": "blocking",
+      "description": "Repeated spring transition literals remain in packages/extension/sidepanel/styles/composer.css (for example lines 882, 1220, 1263, and 1287), so transition consolidation is incomplete within the targeted stylesheet."
+    },
+    {
+      "featureId": "consolidate-css-patterns",
+      "severity": "blocking",
+      "description": "Repeated pill/full radius literals and fast transition literals remain in packages/extension/sidepanel/styles/panels.css despite new shared tokens existing, so common-value consolidation is only partial."
+    },
+    {
+      "featureId": "remove-debug-code",
+      "severity": "blocking",
+      "description": "packages/extension/sidepanel/panel.ts now assigns window.sidePanelUI only inside __PERF_DEBUG__, which regresses existing E2E and screenshot automation that accesses that handle in normal builds."
+    }
+  ],
+  "appliedUpdates": [],
+  "suggestedGuidanceUpdates": [
+    {
+      "target": "skills",
+      "suggestion": "Add a documented verification-only rerun path to refactor-worker so workers know how to handle already-landed commits without forcing staged-diff assumptions.",
+      "evidence": "The refactor-theme-catalog rerun was explicitly verification-only for already-landed commit 7c9cdb9, and its review noted the worker had to deviate from the current skill because no fresh edit/staged diff existed.",
+      "isSystemic": false
+    },
+    {
+      "target": "skills",
+      "suggestion": "Expand refactor-worker guidance for style-only deduplication tasks with quantitative savings targets, including when remaining repeated literals mean the task is still incomplete.",
+      "evidence": "The consolidate-css-patterns review found new shared tokens were introduced, but repeated transition and radius literals remained throughout the targeted CSS surface, so the worker stopped before the contract scope was satisfied.",
+      "isSystemic": false
+    },
+    {
+      "target": "skills",
+      "suggestion": "Warn workers that cleanup/bundle-optimization changes must preserve automation and test hooks even when those hooks look debug-related.",
+      "evidence": "The remove-debug-code review found that hiding window.sidePanelUI behind __PERF_DEBUG__ regressed tests/e2e/run-e2e.ts and scripts/capture-screenshots.ts, which depend on that global in normal builds.",
+      "isSystemic": true
+    },
+    {
+      "target": "skills",
+      "suggestion": "Document that mission metadata may live in the external orchestrator-provided mission directory rather than only under repo-local .factory/missions paths.",
+      "evidence": "The split-theme-factory-file review observed that workers needed to read mission files from /Users/sero/.factory/missions/... during this mission because the repo-local mission path was absent.",
+      "isSystemic": true
+    }
+  ],
+  "rejectedObservations": [
+    {
+      "observation": "Document the 300-line default for check:repo-standards.",
+      "reason": "already-documented in .factory/library/extension-core-notes.md"
+    },
+    {
+      "observation": "Add shared knowledge that window.sidePanelUI is used by automation.",
+      "reason": "recommendation not applied directly because library updates should stay additive and this scrutiny pass found blocking feature regressions rather than stable new knowledge to codify immediately"
+    },
+    {
+      "observation": "Add a reusable CSS bundle-size measurement procedure to library/services.",
+      "reason": "ambiguous; reviews identified the gap but did not provide a validated measurement workflow suitable for direct documentation in this pass"
+    }
+  ],
+  "previousRound": null
+}
