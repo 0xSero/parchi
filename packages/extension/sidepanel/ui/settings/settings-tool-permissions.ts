@@ -33,7 +33,7 @@ sidePanelProto.updateScreenshotToggleState = function updateScreenshotToggleStat
   const provider = activeProfile.provider;
   const hasVision = (provider && provider !== 'custom') || visionProfile;
   const controls: Array<any> = [];
-  controls.forEach((ctrl) => {
+  controls.forEach((ctrl: { disabled?: boolean; parentElement?: Element | null } | null | undefined) => {
     if (!ctrl) return;
     ctrl.disabled = !wantsScreens;
     ctrl.parentElement?.classList.toggle('disabled', !wantsScreens);

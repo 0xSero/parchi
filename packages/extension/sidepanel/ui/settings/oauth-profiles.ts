@@ -121,7 +121,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
     for (const modelId of discoveredModels) {
       const normalizedModelId = normalizeOAuthModelIdForProvider(config.key, modelId);
       if (!normalizedModelId) continue;
-      const knownModel = config.models.find((model) => model.id === normalizedModelId);
+      const knownModel = config.models.find((model: ProviderModelEntry) => model.id === normalizedModelId);
       nextProvider = ensureProviderModel(nextProvider, {
         id: normalizedModelId,
         label: knownModel?.label,
@@ -148,7 +148,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
         temperature: 0.7,
         maxTokens: 4096,
         contextLimit:
-          config.models.find((model) => model.id === defaultModel)?.contextWindow ||
+          config.models.find((model: ProviderModelEntry) => model.id === defaultModel)?.contextWindow ||
           config.models[0]?.contextWindow ||
           200000,
         timeout: 30000,
@@ -175,7 +175,9 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
         // have a user-customized value — otherwise OAuth sync overwrites user edits
         // on every sidepanel open.
         if (!existing.contextLimit) {
-          const matchedContextWindow = config.models.find((model) => model.id === nextModel)?.contextWindow;
+          const matchedContextWindow = config.models.find(
+            (model: ProviderModelEntry) => model.id === nextModel,
+          )?.contextWindow;
           if (matchedContextWindow) {
             existing.contextLimit = matchedContextWindow;
           }
@@ -211,7 +213,7 @@ export function getOAuthModelsForProvider(providerKey: string): Array<{ id: stri
   const baseKey = providerKey.replace(/-oauth$/, '');
   const config = (OAUTH_PROVIDERS as any)[baseKey];
   if (!config) return [];
-  return config.models.map((m) => ({ id: m.id, label: m.label }));
+  return config.models.map((m: ProviderModelEntry) => ({ id: m.id, label: m.label }));
 }
 
 export function getOAuthProfileNameForProvider(key: string): string {

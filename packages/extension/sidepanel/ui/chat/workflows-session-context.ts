@@ -10,6 +10,7 @@ type ToolExecutionEvent = {
   args?: Record<string, unknown>;
   result?: Record<string, unknown>;
 };
+type PlanStep = NonNullable<SidePanelUI['currentPlan']>['steps'][number];
 
 // Rough chars-per-token ratio (conservative; real tokenizers vary).
 const CHARS_PER_TOKEN = 3.5;
@@ -43,7 +44,7 @@ sidePanelProto.buildSessionContext = function buildSessionContext(): string {
       if (turn.userMessage) sections.push(`[User]: ${turn.userMessage}`);
 
       if (turn.plan?.steps?.length) {
-        const planLines = turn.plan.steps.map((s) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
+        const planLines = turn.plan.steps.map((s: PlanStep) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
         sections.push(`[Plan]:\n${planLines.join('\n')}`);
       }
 
@@ -74,7 +75,9 @@ sidePanelProto.buildSessionContext = function buildSessionContext(): string {
 
   // --- 3. Current plan ------------------------------------------------
   if (this.currentPlan?.steps?.length) {
-    const planLines = this.currentPlan.steps.map((s) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`);
+    const planLines = this.currentPlan.steps.map(
+      (s: PlanStep) => `  ${s.status === 'done' ? '[x]' : '[ ]'} ${s.title}`,
+    );
     sections.push(`\n=== CURRENT PLAN ===\n${planLines.join('\n')}`);
   }
 
@@ -166,7 +169,7 @@ sidePanelProto.generateWorkflowFromSession = async function generateWorkflowFrom
   }
 
   // Derive a suggested name from the first user message
-  const firstUser = (this.displayHistory || []).find((m) => m.role === 'user');
+  const firstUser = (this.displayHistory || []).find((m: { role?: string; content?: unknown }) => m.role === 'user');
   const firstText = firstUser
     ? (this.extractTextContent?.(firstUser.content) || '').toLowerCase().replace(/[^a-z0-9\s]/g, '')
     : '';

@@ -3,6 +3,7 @@ import { toModelMessages } from '../../../packages/extension/ai/models/convert.j
 import { type TestRunner, log } from '../shared/runner.js';
 
 type AssistantToolCallPart = { type?: string; toolCallId?: string };
+type ModelMessage = ReturnType<typeof toModelMessages>[number];
 
 export function runModelMessageConvertSuite(runner: TestRunner) {
   log('\n=== Testing Model Message Conversion ===', 'info');
@@ -37,7 +38,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     ];
 
     const messages = toModelMessages(history);
-    const toolMessages = messages.filter((msg) => msg.role === 'tool');
+    const toolMessages = messages.filter((msg: ModelMessage) => msg.role === 'tool');
 
     runner.assertEqual(toolMessages.length, 2, 'Expected one model tool message per tool call');
     runner.assertTrue(
@@ -67,7 +68,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     ];
 
     const messages = toModelMessages(history);
-    const toolMessages = messages.filter((msg) => msg.role === 'tool');
+    const toolMessages = messages.filter((msg: ModelMessage) => msg.role === 'tool');
     runner.assertEqual(toolMessages.length, 0, 'Unknown tool_call_id entries should be dropped');
   });
 
@@ -90,7 +91,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     ];
 
     const messages = toModelMessages(history);
-    const assistant = messages.find((msg) => msg.role === 'assistant') as any;
+    const assistant = messages.find((msg: ModelMessage) => msg.role === 'assistant') as any;
     const assistantContent = Array.isArray(assistant?.content) ? assistant.content : [];
     const toolCallIds = assistantContent
       .filter((part: AssistantToolCallPart) => part?.type === 'tool-call')
@@ -123,10 +124,10 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     ];
 
     const messages = toModelMessages(history);
-    const assistant = messages.find((msg) => msg.role === 'assistant') as any;
+    const assistant = messages.find((msg: ModelMessage) => msg.role === 'assistant') as any;
     const assistantContent = Array.isArray(assistant?.content) ? assistant.content : [];
 
-    runner.assertEqual(messages.filter((msg) => msg.role === 'tool').length, 0);
+    runner.assertEqual(messages.filter((msg: ModelMessage) => msg.role === 'tool').length, 0);
     runner.assertEqual(
       assistantContent.filter((part: AssistantToolCallPart) => part?.type === 'tool-call').length,
       0,
@@ -169,7 +170,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     runner.assertTrue(Array.isArray(messages[1]?.content), 'User content should be structured array');
     runner.assertEqual(messages[2]?.content, JSON.stringify({ structured: true }));
 
-    const toolMessage = messages.find((message) => message.role === 'tool') as any;
+    const toolMessage = messages.find((message: ModelMessage) => message.role === 'tool') as any;
     runner.assertEqual(toolMessage.content?.[0]?.toolCallId, 'tool-1');
     runner.assertEqual(toolMessage.content?.[0]?.output?.type, 'json');
   });

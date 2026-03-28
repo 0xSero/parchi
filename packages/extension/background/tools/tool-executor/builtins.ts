@@ -103,7 +103,10 @@ export async function executeBuiltinTool(
           success: false,
           error: `Invalid step_index: ${stepIndex}. Valid range is 0-${maxIndex}.`,
           hint: `Plan has ${sessionState.currentPlan.steps.length} steps (indices 0 to ${maxIndex}).`,
-          currentPlan: sessionState.currentPlan.steps.map((step, index) => `${index}: ${step.title} [${step.status}]`),
+          currentPlan: sessionState.currentPlan.steps.map(
+            (step: (typeof sessionState.currentPlan.steps)[number], index: number) =>
+              `${index}: ${step.title} [${step.status}]`,
+          ),
         },
       };
     }
@@ -196,7 +199,7 @@ export async function executeBuiltinTool(
     }
     const textTypes = ['text/', 'application/json', 'application/xml', 'application/yaml'];
     const isText =
-      textTypes.some((t) => (attachment.mimeType || '').startsWith(t)) ||
+      textTypes.some((t: string) => (attachment.mimeType || '').startsWith(t)) ||
       /\.(txt|csv|json|md|xml|yaml|yml|log|html|css|js|ts|py|rb|sh)$/i.test(filename);
 
     return {
@@ -227,7 +230,9 @@ export async function executeBuiltinTool(
 
   if (toolName === 'select_report_images') {
     const rawIds = Array.isArray(args.imageIds) ? args.imageIds : Array.isArray(args.ids) ? args.ids : [];
-    const imageIds = rawIds.map((value) => String(value || '').trim()).filter(Boolean);
+    const imageIds = rawIds
+      .map((value: unknown) => String(value || '').trim())
+      .filter((value: string) => Boolean(value));
     const requestedMode = typeof args.mode === 'string' ? args.mode.toLowerCase() : '';
     const mode: 'replace' | 'add' | 'remove' | 'clear' =
       requestedMode === 'add' || requestedMode === 'remove' || requestedMode === 'clear' ? requestedMode : 'replace';

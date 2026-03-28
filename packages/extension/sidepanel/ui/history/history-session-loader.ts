@@ -1,9 +1,11 @@
 import { createMessage, normalizeConversationHistory } from '../../../ai/messages/schema.js';
+import type { Message } from '../../../ai/messages/schema.js';
 import { clampContextHistory, clearReportImages, clearToolCallViews } from '../core/panel-session-memory.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
 type HistoryTurn = SidePanelUI['historyTurnMap'] extends Map<string, infer T> ? T : never;
+type HistoryToolEvent = HistoryTurn extends { toolEvents?: Array<infer T> } ? T : never;
 
 const normalizeTranscript = (value: any): any[] => {
   if (Array.isArray(value)) return value;
@@ -31,8 +33,8 @@ sidePanelProto.loadSession = function loadSession(session: any) {
   const normalizedTranscript = normalizeConversationHistory(transcript);
   let turns = normalizeTranscript(session.turns);
   if (turns.length > 0 && transcript.length > 0) {
-    const userQueue = normalizedTranscript.filter((msg) => msg.role === 'user');
-    const assistantQueue = normalizedTranscript.filter((msg) => msg.role === 'assistant');
+    const userQueue = normalizedTranscript.filter((msg: Message) => msg.role === 'user');
+    const assistantQueue = normalizedTranscript.filter((msg: Message) => msg.role === 'assistant');
     const takeUser = () => userQueue.shift();
     const takeAssistant = () => assistantQueue.shift();
 
@@ -90,7 +92,7 @@ sidePanelProto.loadSession = function loadSession(session: any) {
         }
 
         const toolEvents = Array.isArray(turn.toolEvents) ? turn.toolEvents : [];
-        toolEvents.forEach((evt) => {
+        toolEvents.forEach((evt: HistoryToolEvent) => {
           if (evt && typeof evt === 'object' && evt.type === 'tool_execution_start') {
             this.handleRuntimeMessage({
               schemaVersion: 2,

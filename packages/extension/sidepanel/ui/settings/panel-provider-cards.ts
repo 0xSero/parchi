@@ -1,4 +1,5 @@
 import type { ProviderInstance, ProviderModelEntry } from '@parchi/shared';
+import type { ProviderDefinition } from '../../../ai/providers/registry.js';
 import {
   PROVIDER_REGISTRY,
   buildProviderInstanceId,
@@ -15,7 +16,8 @@ const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unk
 
 import { getProviderSvg } from './panel-model-selector.js';
 
-const apiProviderPresets = () => getApiKeyProviders().filter((provider) => provider.key !== 'parchi');
+const apiProviderPresets = () =>
+  getApiKeyProviders().filter((provider: ProviderDefinition) => provider.key !== 'parchi');
 
 const providerSummary = (provider: ProviderInstance) => {
   if (provider.authType === 'managed') return 'Managed';
@@ -29,9 +31,9 @@ sidePanelProto.renderApiProviderGrid = function renderApiProviderGrid() {
   grid.innerHTML = '';
 
   const providers = listProviderInstances({ providers: this.providers }).filter(
-    (provider) => provider.authType === 'api-key',
+    (provider: ProviderInstance) => provider.authType === 'api-key',
   );
-  const configuredTypes = new Set(providers.map((provider) => provider.provider));
+  const configuredTypes = new Set(providers.map((provider: ProviderInstance) => provider.provider));
 
   for (const provider of providers) {
     const row = document.createElement('div');
@@ -141,14 +143,14 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
   // Always merge definition models with any existing models so the model grid
   // shows every available model, even if the provider was previously saved with
   // only a subset.
-  const defModels = (def.models || []).map((m) => ({
+  const defModels = (def.models || []).map((m: ProviderModelEntry) => ({
     id: m.id,
     label: m.label,
     contextWindow: m.contextWindow,
     supportsVision: m.supportsVision,
   }));
   const existingModels = existing?.models || [];
-  const seen = new Set(defModels.map((m) => m.id));
+  const seen = new Set(defModels.map((m: ProviderModelEntry) => m.id));
   const seedModels = [...defModels, ...existingModels.filter((m: ProviderModelEntry) => !seen.has(m.id))];
   const provider: ProviderInstance = ensureProviderModel(
     {
@@ -258,7 +260,7 @@ sidePanelProto.populateProviderDropdown = function populateProviderDropdown() {
     select.appendChild(option);
   }
 
-  if (currentValue && Array.from(select.options).some((option) => option.value === currentValue)) {
+  if (currentValue && Array.from(select.options).some((option: HTMLOptionElement) => option.value === currentValue)) {
     select.value = currentValue;
   }
 };

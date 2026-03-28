@@ -12,8 +12,8 @@ export const normalizeHeaders = (value: unknown): Record<string, string> => {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
   return Object.fromEntries(
     Object.entries(value as Record<string, unknown>)
-      .filter(([key]) => key.length > 0)
-      .map(([key, headerValue]) => [key, headerValue == null ? '' : String(headerValue)]),
+      .filter(([key]: [string, unknown]) => key.length > 0)
+      .map(([key, headerValue]: [string, unknown]) => [key, headerValue == null ? '' : String(headerValue)]),
   );
 };
 

@@ -37,7 +37,7 @@ sidePanelProto.syncAgentTranscriptVisibility = function syncAgentTranscriptVisib
   const container = this.elements.chatMessages as HTMLElement | null;
   const hasChatChildren = container ? container.children.length > 0 : false;
   if (container) {
-    Array.from(container.children).forEach((child) => {
+    Array.from(container.children).forEach((child: Element) => {
       const el = child as HTMLElement;
       const owner = el.dataset.agentView || MAIN_AGENT_ID;
       el.classList.toggle('hidden', owner !== activeAgent);
@@ -84,10 +84,10 @@ sidePanelProto.renderAgentNav = function renderAgentNav() {
     .join('');
   nav.innerHTML = `${orchTab}${children}`;
   nav.classList.remove('hidden');
-  nav.querySelectorAll('.agent-tab').forEach((el) => {
+  nav.querySelectorAll('.agent-tab').forEach((el: Element) => {
     el.addEventListener('click', () => this.switchAgent((el as HTMLElement).dataset.agentId || MAIN_AGENT_ID));
   });
-  nav.querySelectorAll('[data-close-agent]').forEach((el) => {
+  nav.querySelectorAll('[data-close-agent]').forEach((el: Element) => {
     el.addEventListener('click', (event) => {
       event.preventDefault();
       event.stopPropagation();

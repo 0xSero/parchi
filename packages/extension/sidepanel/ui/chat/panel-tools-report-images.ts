@@ -87,7 +87,7 @@ sidePanelProto.updateReportImageSelection = function updateReportImageSelection(
   });
 
   const checkboxes = document.querySelectorAll<HTMLInputElement>('.report-image-toggle[data-report-image-id]');
-  checkboxes.forEach((checkbox) => {
+  checkboxes.forEach((checkbox: HTMLInputElement) => {
     const imageId = checkbox.dataset.reportImageId || '';
     const isSelected = nextSelected.has(imageId);
     checkbox.checked = isSelected;
