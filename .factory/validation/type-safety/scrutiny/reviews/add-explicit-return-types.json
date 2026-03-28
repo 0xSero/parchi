@@ -1,0 +1,34 @@
+{
+  "featureId": "add-explicit-return-types",
+  "reviewedAt": "2026-03-28T10:32:13.175168+00:00",
+  "commitId": "32b7ec0896fb8a866db8a8b863cbd1f935c049df",
+  "transcriptSkeletonReviewed": true,
+  "diffReviewed": true,
+  "status": "fail",
+  "codeReview": {
+    "summary": "The commit adds explicit return types in the targeted background service and agent-loop files, but it does not satisfy the feature contract to add explicit return types to 15+ missing functions. Multiple functions in the scoped files still lack explicit return annotations after the change.",
+    "issues": [
+      {
+        "file": "packages/extension/background/service.ts",
+        "line": 58,
+        "severity": "blocking",
+        "description": "The BackgroundService constructor still has no explicit return type. Constructors should be annotated as `constructor(): void` is invalid in TypeScript, so this file still contains a targeted function without an explicit return type, contradicting the feature's expected behavior."
+      },
+      {
+        "file": "packages/extension/background/agent/agent-loop/index.ts",
+        "line": 67,
+        "severity": "blocking",
+        "description": "Helper functions `createRunMeta` and `initializeSessionState` remain unannotated in the commit scope, so the feature did not complete the return-type sweep across the targeted agent-loop files."
+      }
+    ]
+  },
+  "sharedStateObservations": [
+    {
+      "area": "skills",
+      "observation": "The worker marked `followedProcedure` false because the refactor-worker skill requires full-repo `npm run lint` and `npm run check:repo-standards`, but this mission has known unrelated repo-wide failures. The skill lacks an explicit fallback for scoped validation in debt-heavy repos.",
+      "evidence": ".factory/skills/refactor-worker/SKILL.md step 8 requires global lint and repo-standards; handoff skillFeedback for add-explicit-return-types records scoped lint plus `check-repo-standards --base=HEAD~1` instead."
+    }
+  ],
+  "addressesFailureFrom": null,
+  "summary": "Fail: explicit return types were added to several targeted functions, but the scoped service/agent-loop files still contain unannotated functions, so the feature does not fully meet its contract."
+}
