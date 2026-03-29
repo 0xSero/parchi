@@ -1,45 +1,51 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
-/* Parchi — Modern Void Design System (Dark) */
+/* Parchi — Refined Void Design System (Dark) */
 
 :root {
-  /* Deep void base — cool, neutral, precise */
-  --background: #0a0a0c;
-  --foreground: #e4e4e7;
-  --muted: #92929a;
-  --muted-dim: #63636b;
-  --border: #222225;
-  --card: #111113;
-  --card-hover: #18181b;
-  --card-inset: #111114;
+  /* Deep void base — elevated contrast, cleaner palette */
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --muted: #a1a1aa;
+  --muted-dim: #71717a;
+  --border: #27272a;
+  --card: #131316;
+  --card-hover: #1c1c1f;
+  --card-inset: #0e0e10;
 
-  /* Accent — softer indigo */
-  --accent: #7c8af0;
-  --accent-rgb: 124 138 240;
-  --accent-light: #9ba6f5;
-  --accent-dark: #5c63d9;
+  /* Accent — vibrant indigo */
+  --accent: #818cf8;
+  --accent-rgb: 129 140 248;
+  --accent-light: #a5b4fc;
+  --accent-dark: #6366f1;
 
-  /* Status — slightly softer */
-  --success: #3ec970;
-  --success-rgb: 62 201 112;
-  --warning: #f0b429;
-  --warning-rgb: 240 180 41;
-  --error: #ef6b6b;
-  --error-rgb: 239 107 107;
+  /* Status — clean and distinct */
+  --success: #22c55e;
+  --success-rgb: 34 197 94;
+  --warning: #f59e0b;
+  --warning-rgb: 245 158 11;
+  --error: #ef4444;
+  --error-rgb: 239 68 68;
 
-  /* Ink system — subtler transparency */
-  --ink-1: rgba(255, 255, 255, 0.04);
-  --ink-2: rgba(255, 255, 255, 0.065);
-  --ink-3: rgba(255, 255, 255, 0.11);
+  /* Simplified ink system — single transparency layer */
+  --ink-1: rgba(255, 255, 255, 0.03);
+  --ink-2: rgba(255, 255, 255, 0.06);
+  --ink-3: rgba(255, 255, 255, 0.1);
 
-  /* Sidebar overlay width is responsive and varies by active right panel (see layout.css). */
-  --sidebar-width: clamp(280px, 60vw, 560px);
-  --topbar-height: 44px;
-  --radius: 0.5rem;
-  --radius-sm: 0.375rem;
+  /* Layout — generous spacing following Sitegeist principles */
+  --sidebar-width: clamp(320px, 60vw, 480px);
+  --topbar-height: 48px;
+  --radius: 0.75rem;
+  --radius-sm: 0.5rem;
   --radius-pill: 999px;
   --radius-full: 9999px;
   --content-max: 860px;
+
+  /* Spacing scale — airy, breathable layouts */
+  --section-gap: 48px;
+  --card-gap: 20px;
+  --element-gap: 12px;
+  --compact-gap: 8px;
 
   --font-sans-default: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
   --font-sans-geist: "Geist", "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
@@ -82,12 +88,12 @@
   --transition-border-fast: border-color var(--duration-fast) ease;
   --transition-bg-border-fast: background var(--duration-fast) ease, border-color var(--duration-fast) ease;
 
-  --shadow-float-sm: 0 4px 16px rgba(0, 0, 0, 0.35);
-  --shadow-float-lg: 0 12px 40px rgba(0, 0, 0, 0.45);
-  --shadow-float-popover: 0 12px 30px rgb(0 0 0 / 0.45);
-  --shadow-float-dialog: 0 16px 40px rgb(0 0 0 / 0.45);
-  --shadow-fab: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-fab-hover: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 6px 24px rgba(0, 0, 0, 0.32);
+  --shadow-float-sm: 0 4px 20px rgba(0, 0, 0, 0.4);
+  --shadow-float-lg: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-float-popover: 0 16px 40px rgba(0, 0, 0, 0.5);
+  --shadow-float-dialog: 0 20px 50px rgba(0, 0, 0, 0.5);
+  --shadow-fab: 0 2px 8px rgba(0, 0, 0, 0.25);
+  --shadow-fab-hover: 0 4px 16px rgba(0, 0, 0, 0.35);
 }
 
 *,
@@ -139,16 +145,20 @@ button {
 }
 
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--border);
+  background: var(--ink-2);
   border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: var(--muted-dim);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }

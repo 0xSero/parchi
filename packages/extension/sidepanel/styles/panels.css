@@ -110,15 +110,16 @@
   }
 }
 
-/* Settings */
+/* Settings — Clean single-border cards */
 .settings-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--card-gap);
   min-height: 0;
   flex: 1;
   overflow-y: auto;
   overflow-x: clip;
+  padding: 4px;
 }
 
 .panel-header-with-actions {
@@ -176,11 +177,11 @@
 .settings-tabs {
   display: flex;
   gap: 4px;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
   padding: 4px;
-  background: var(--background);
-  border: 1px solid var(--ink-1);
-  border-radius: var(--radius-sm);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
 }
 
 .settings-tabs-redesign {
@@ -193,30 +194,36 @@
 }
 
 .settings-tab-button {
-  padding: 6px 14px;
+  padding: 8px 16px;
   font-size: 12px;
-  font-weight: 550;
+  font-weight: 500;
   letter-spacing: 0.01em;
   background: transparent;
   border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 150ms ease;
+}
+
+.settings-tab-button:hover {
+  color: var(--foreground);
+  background: var(--ink-1);
+}
+
+.settings-tab-button.active {
+  background: var(--background);
+  border-color: var(--border);
+  color: var(--foreground);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
   border-radius: var(--radius-pill);
   color: var(--muted);
   cursor: pointer;
   transition: var(--transition-spring-fast);
 }
 
-.settings-tab-button:hover {
-  color: var(--foreground);
-  background: rgba(255, 255, 255, 0.04);
-  border-color: rgba(255, 255, 255, 0.05);
-}
 
-.settings-tab-button.active {
-  background: transparent;
-  border-color: rgb(var(--accent-rgb) / 0.45);
-  color: var(--accent-light);
-  box-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.08);
-}
 
 .settings-intro-copy {
   max-width: 280px;
@@ -414,11 +421,6 @@
   gap: 8px;
 }
 
-.settings-tab-button:active {
-  transform: scale(0.95);
-  transition-duration: 80ms;
-}
-
 /* Settings tab panes */
 .settings-tab-pane {
   display: none;
@@ -558,18 +560,18 @@
   overflow-wrap: anywhere;
 }
 
-/* Settings Sections */
+/* Settings Sections — Clean cards with single border */
 .settings-section {
-  background: var(--background);
-  border: 1px solid var(--ink-1);
-  border-radius: var(--radius-sm);
-  margin-bottom: 6px;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 12px;
+  transition: border-color 150ms ease;
   overflow: hidden;
 }
 
 .settings-section:hover {
-  border-color: var(--ink-2);
+  border-color: var(--ink-3);
 }
 
 .settings-section > summary {
@@ -620,10 +622,10 @@
 }
 
 .settings-body {
-  padding: 14px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--element-gap);
 }
 
 /* Form Elements */
@@ -755,18 +757,20 @@
 }
 
 .agent-card {
-  padding: 11px 12px;
+  padding: 14px 16px;
   background: var(--card);
-  border: 1px solid var(--ink-1);
-  border-radius: 8px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
   cursor: pointer;
-  transition: var(--transition-fast);
+  transition: all 150ms ease;
   overflow: hidden;
 }
 
 .agent-card:hover {
   background: var(--card-hover);
-  border-color: var(--ink-2);
+  border-color: var(--ink-3);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .agent-card.editing {
@@ -1605,13 +1609,13 @@ input[type="range"]::-webkit-slider-thumb {
 .history-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
+  gap: 12px;
+  padding: 14px 16px;
   background: var(--card);
-  border: 1px solid var(--ink-1);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   cursor: pointer;
-  transition: all var(--duration-fast) var(--ease-out-expo);
+  transition: all 150ms ease;
 }
 
 .history-item:hover {

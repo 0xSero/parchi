@@ -3,7 +3,7 @@
    ============================================================================ */
 
 /* ============================================================================
-   Topbar — Persistent Navigation Strip
+   Topbar — Clean persistent navigation
    ============================================================================ */
 
 .topbar {
@@ -11,9 +11,9 @@
   align-items: center;
   justify-content: space-between;
   height: var(--topbar-height);
-  padding: 0 12px;
+  padding: 0 16px;
   background: var(--background);
-  border-bottom: 1px solid var(--ink-1);
+  border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   z-index: 10;
 }
@@ -199,7 +199,7 @@ body[data-right-panel="settings"] {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px;
+  padding: 16px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -246,12 +246,12 @@ body[data-right-panel="settings"] {
 /* History Drawer — floating overlay from top-right */
 .history-drawer {
   position: fixed;
-  top: 12px;
-  right: 12px;
-  width: 80%;
-  max-height: 65vh;
+  top: 16px;
+  right: 16px;
+  width: 75%;
+  max-height: 60vh;
   background: var(--card);
-  border: 1px solid var(--ink-2);
+  border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow-float-lg);
   z-index: 90;
