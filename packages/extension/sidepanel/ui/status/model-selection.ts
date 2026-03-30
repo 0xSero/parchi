@@ -3,6 +3,7 @@
 import { listProviderInstances, materializeProfileWithProvider } from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { decodeModelSelectValue, encodeModelSelectValue } from './model-utils.js';
+import { getEffectiveVisibleModelKeys } from './model-visibility.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
@@ -45,7 +46,7 @@ function getModelEntries(self: any): ModelEntry[] {
   const providers = listProviderInstances({ providers: self.providers }).filter(
     (provider: any) => provider.isConnected && Array.isArray(provider.models) && provider.models.length > 0,
   );
-  const visibleModels: string[] = self.visibleModels || [];
+  const visibleModels = getEffectiveVisibleModelKeys(providers, self.visibleModels || []);
 
   const entries: ModelEntry[] = [];
   for (const provider of providers) {

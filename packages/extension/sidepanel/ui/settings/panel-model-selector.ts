@@ -5,6 +5,7 @@ import {
   materializeProfileWithProvider,
 } from '../../../ai/providers/registry.js';
 import { SidePanelUI } from '../core/panel-ui.js';
+import { getEffectiveVisibleModelKeys } from '../status/model-visibility.js';
 import { syncOAuthProfiles } from './oauth-profiles.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
@@ -79,7 +80,7 @@ sidePanelProto.renderModelSelectorGrid = function renderModelSelectorGrid() {
   const activeConfig = this.configs?.[this.currentConfig] || {};
   const activeModelId = activeConfig.modelId || activeConfig.model || '';
   const activeProviderId = activeConfig.providerId || '';
-  const visibleModels: string[] = this.visibleModels || [];
+  const visibleModels = getEffectiveVisibleModelKeys(providers, this.visibleModels || []);
 
   // Header
   const header = document.createElement('div');
@@ -196,14 +197,20 @@ sidePanelProto.selectModelFromGrid = function selectModelFromGrid(providerId: st
 };
 
 sidePanelProto.toggleModelVisibility = function toggleModelVisibility(modelKey: string, visible: boolean) {
-  if (!Array.isArray(this.visibleModels)) this.visibleModels = [];
+  const providers = listProviderInstances({ providers: this.providers }).filter(
+    (p) => p.isConnected && p.models.length > 0,
+  );
+  const explicitVisibleModels =
+    Array.isArray(this.visibleModels) && this.visibleModels.length > 0
+      ? this.visibleModels
+      : getEffectiveVisibleModelKeys(providers, []);
+  const nextVisibleModels = new Set(explicitVisibleModels);
   if (visible) {
-    if (!this.visibleModels.includes(modelKey)) {
-      this.visibleModels = [...this.visibleModels, modelKey];
-    }
+    nextVisibleModels.add(modelKey);
   } else {
-    this.visibleModels = this.visibleModels.filter((k: string) => k !== modelKey);
+    nextVisibleModels.delete(modelKey);
   }
+  this.visibleModels = Array.from(nextVisibleModels);
   this.populateModelSelect?.();
   void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
     patchSettingsStoreSnapshot({ visibleModels: this.visibleModels }).catch((error) => {

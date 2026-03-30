@@ -22,6 +22,7 @@ import { runMessageSchemaSuite } from './suites/message-schema.test.js';
 import { runMessageUtilsSuite } from './suites/message-utils.test.js';
 import { runModelListingSuite } from './suites/model-listing.test.js';
 import { runModelMessageConvertSuite } from './suites/model-message-convert.test.js';
+import { runModelVisibilitySuite } from './suites/model-visibility.test.js';
 import { runNonNullAssertionsSuite } from './suites/non-null-assertions.test.js';
 import { runOauthCandidatesSuite } from './suites/oauth-candidates.test.js';
 import { runOauthModelNormalizationSuite } from './suites/oauth-model-normalization.test.js';
@@ -80,6 +81,7 @@ export async function runUnitTests(): Promise<boolean> {
   runThinkingExtractionSuite(runner);
   runMessageUtilsSuite(runner);
   runModelListingSuite(runner);
+  runModelVisibilitySuite(runner);
   runReportImagesSuite(runner);
   runRecordingSummarySuite(runner);
   runPanelSessionMemorySuite(runner);
