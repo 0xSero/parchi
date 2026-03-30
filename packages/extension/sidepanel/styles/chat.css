@@ -916,20 +916,17 @@ body.sidebar-open .context-inspector-popover {
    ============================================================================ */
 
 .table-wrapper {
-  margin: 16px 0;
-  overflow-x: hidden;
-  border-radius: 0;
+  margin: 12px 0;
+  overflow-x: auto;
   border: 1px solid var(--border);
-  box-shadow: none;
+  border-radius: 6px;
 }
 
 .markdown-table {
   width: 100%;
-  table-layout: fixed;
-  border-collapse: separate;
-  border-spacing: 0;
+  table-layout: auto;
+  border-collapse: collapse;
   font-size: 12px;
-  background: var(--card);
 }
 
 .markdown-table thead {
@@ -937,7 +934,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .markdown-table th {
-  padding: 10px 12px;
+  padding: 8px 12px;
   text-align: left;
   font-weight: 600;
   color: var(--muted-dim);
@@ -951,7 +948,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .markdown-table td {
-  padding: 10px 12px;
+  padding: 8px 12px;
   color: var(--muted);
   border-bottom: 1px solid var(--ink-1);
   line-height: 1.5;
@@ -960,17 +957,19 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .markdown-table tbody th {
-  padding: 10px 16px;
+  padding: 8px 12px;
   text-align: left;
   font-weight: 500;
-  color: var(--foreground);
-  border-bottom: 1px solid var(--border);
-  background: rgba(255, 255, 255, 0.02);
+  font-size: 12px;
+  text-transform: none;
+  color: var(--muted);
+  border-bottom: 1px solid var(--ink-1);
+  background: transparent;
 }
 
 .markdown-table tbody tr:hover td,
 .markdown-table tbody tr:hover th {
-  background: var(--card);
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .markdown-table tbody tr:last-child td,
@@ -1426,15 +1425,36 @@ body.sidebar-open .context-inspector-popover {
 
 .step-block {
   position: relative;
-  padding: 4px 0;
+  padding: 6px 0 6px 20px;
   margin: 0;
   background: transparent;
   border: none;
   overflow: visible;
+  border-left: 1px solid var(--ink-2);
+  margin-left: 4px;
 }
 
 .step-block::before {
-  display: none;
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 10px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1.5px solid var(--muted-dim);
+  z-index: 1;
+}
+
+.step-block.current::before {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: 0 0 6px rgb(var(--accent-rgb) / 0.3);
+}
+
+.step-block:last-child {
+  border-left-color: transparent;
 }
 
 .step-header {
@@ -1474,10 +1494,6 @@ body.sidebar-open .context-inspector-popover {
 .step-block:hover .step-title,
 .step-block.current .step-title {
   color: var(--foreground);
-}
-
-.step-block.current::before {
-  display: none;
 }
 
 .step-chevron {
@@ -1535,8 +1551,8 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .stream-event-text {
-  font-size: 15px;
-  line-height: 1.65;
+  font-size: 14px;
+  line-height: 1.7;
 }
 
 /* Inline Thinking Block */
