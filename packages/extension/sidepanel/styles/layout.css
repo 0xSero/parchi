@@ -12,7 +12,7 @@
   justify-content: space-between;
   height: var(--topbar-height);
   padding: 0 16px;
-  background: var(--background);
+  background: var(--card, var(--background));
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
   z-index: 10;
@@ -192,6 +192,20 @@ body[data-right-panel="settings"] {
   min-width: 0;
   position: relative;
   order: 1;
+}
+
+/* Top accent gradient line */
+.main-content::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--accent) 50%, transparent);
+  opacity: 0.3;
+  z-index: 11;
+  pointer-events: none;
 }
 
 /* Sidebar header */

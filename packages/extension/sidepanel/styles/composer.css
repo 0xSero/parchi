@@ -51,7 +51,7 @@
 }
 
 .composer-wrapper {
-  padding: 16px 16px 12px;
+  padding: 12px;
   background: var(--background);
   border-top: none;
   flex-shrink: 0;
@@ -60,15 +60,15 @@
 .composer {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border-radius: 10px;
   overflow: hidden;
   transition: border-color 150ms ease, box-shadow 150ms ease;
   position: relative;
 }
 
 .composer:focus-within {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgb(var(--accent-rgb) / 0.1);
+  border-color: rgb(var(--accent-rgb) / 0.5);
+  box-shadow: 0 0 0 1px rgb(var(--accent-rgb) / 0.1);
 }
 
 /* Gloss sheen overlay — disabled for subtle look */
@@ -325,13 +325,13 @@
 .model-selector {
   display: inline-flex;
   align-items: center;
-  height: 32px;
+  height: 28px;
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: var(--radius);
-  font-size: 12px;
+  border-radius: 6px;
+  font-size: 11px;
   font-family: var(--font-sans);
-  color: var(--foreground);
+  color: var(--muted);
   cursor: pointer;
   transition: all 150ms ease;
   max-width: 340px;
@@ -342,8 +342,8 @@
 }
 
 .model-selector:hover {
-  border-color: var(--accent);
-  background: var(--card-hover);
+  border-color: var(--ink-3);
+  color: var(--foreground);
 }
 
 /* Parchi managed glow */
@@ -858,19 +858,19 @@
 
 /* Send button — precision circle */
 .send-btn {
-  width: 32px;
-  height: 32px;
-  min-width: 32px;
-  min-height: 32px;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  min-height: 28px;
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--foreground);
+  background: var(--accent);
   border: none;
-  border-radius: 50%;
+  border-radius: 6px;
   color: var(--background);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 8px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  box-shadow: none;
   position: relative;
   overflow: hidden;
   z-index: 4;
@@ -882,9 +882,9 @@
 }
 
 .send-btn:hover {
-  background: var(--foreground);
+  background: var(--accent-light, var(--accent));
   color: var(--background);
-  box-shadow: 0 0 0 2px rgb(var(--accent-rgb) / 0.5), 0 0 16px rgb(var(--accent-rgb) / 0.2);
+  transform: scale(1.05);
 }
 
 .send-btn:hover::before {
@@ -900,7 +900,7 @@
   background: rgba(255, 255, 255, 0.05);
   color: var(--muted-dim);
   cursor: not-allowed;
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: none;
 }
 
 /* ============================================================================
