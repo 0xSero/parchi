@@ -7,6 +7,7 @@ import { autoResizeTextArea } from '../dom-utils.js';
 import { SidePanelUI } from '../panel-ui.js';
 
 const sidePanelProto = (SidePanelUI as any).prototype as SidePanelUI & Record<string, unknown>;
+const COMPOSER_TEXTAREA_MIN_HEIGHT = 38;
 
 const extractFilesFromClipboardEvent = (event: ClipboardEvent): File[] => {
   const clipboardData = event.clipboardData;
@@ -91,7 +92,7 @@ export const setupComposerListeners = function setupComposerListeners(this: Side
   // Auto-expand textarea height as user types
   const userInput = this.elements.userInput;
   userInput?.addEventListener('input', () => {
-    autoResizeTextArea(userInput, 280);
+    autoResizeTextArea(userInput, 280, COMPOSER_TEXTAREA_MIN_HEIGHT);
     this.handleWorkflowInput();
   });
   this.elements.systemPrompt?.addEventListener('input', () => {
@@ -100,7 +101,7 @@ export const setupComposerListeners = function setupComposerListeners(this: Side
   this.elements.profileEditorPrompt?.addEventListener('input', () => {
     autoResizeTextArea(this.elements.profileEditorPrompt, 500);
   });
-  autoResizeTextArea(userInput, 280);
+  autoResizeTextArea(userInput, 280, COMPOSER_TEXTAREA_MIN_HEIGHT);
   autoResizeTextArea(this.elements.systemPrompt, 500, 500);
   autoResizeTextArea(this.elements.profileEditorPrompt, 500);
 
@@ -165,7 +166,7 @@ function handleSendButtonClick(this: SidePanelUI & Record<string, unknown>) {
     // Queue the message — it will send after the current turn completes
     this.queuedMessage = this.elements.userInput.value.trim();
     this.elements.userInput.value = '';
-    this.elements.userInput.style.height = '';
+    autoResizeTextArea(this.elements.userInput, 280, COMPOSER_TEXTAREA_MIN_HEIGHT);
     this.updateStatus('Message queued', 'active');
     showQueuedMessageBanner.call(this, this.queuedMessage || '');
   } else if (isRunning) {

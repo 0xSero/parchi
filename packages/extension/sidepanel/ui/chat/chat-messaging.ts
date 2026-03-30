@@ -1,11 +1,13 @@
 import { createMessage } from '../../../ai/messages/schema.js';
 import { getActiveTab } from '../../../utils/active-tab.js';
+import { autoResizeTextArea } from '../core/dom-utils.js';
 import { clampContextHistory } from '../core/panel-session-memory.js';
 import { SidePanelUI } from '../core/panel-ui.js';
 import { MAX_DISPLAY_HISTORY, sanitizeForMessaging, sendRuntimeMessageWithRetry } from './chat-utils.js';
 import { appendTrace } from './trace-store.js';
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
+const COMPOSER_TEXTAREA_MIN_HEIGHT = 38;
 
 sidePanelProto.requestManualContextCompaction = async function requestManualContextCompaction() {
   if (this.elements.composer?.classList.contains('running')) {
@@ -66,7 +68,7 @@ sidePanelProto.sendMessage = async function sendMessage() {
   });
 
   this.elements.userInput.value = '';
-  this.elements.userInput.style.height = '';
+  autoResizeTextArea(this.elements.userInput, 280, COMPOSER_TEXTAREA_MIN_HEIGHT);
   if (!this.firstUserMessage) {
     this.firstUserMessage = userMessage;
     const titleEl = this.elements.topbarSessionTitle as HTMLElement | null;

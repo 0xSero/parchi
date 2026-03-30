@@ -178,8 +178,11 @@
 }
 
 .composer textarea {
+  display: block;
+  box-sizing: border-box;
   width: 100%;
-  min-height: 24px;
+  height: 38px;
+  min-height: 38px;
   max-height: 120px;
   padding: 8px 12px;
   background: transparent;
@@ -187,9 +190,10 @@
   color: var(--foreground);
   font-family: inherit;
   font-size: 14px;
-  line-height: 1.5;
+  line-height: 1.4;
   resize: none;
   outline: none;
+  overflow-y: hidden;
 }
 
 .composer textarea::placeholder {

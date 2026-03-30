@@ -1435,7 +1435,7 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .step-block::before {
-  content: '';
+  content: "";
   position: absolute;
   left: -4px;
   top: 10px;

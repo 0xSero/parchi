@@ -33,7 +33,10 @@ export const autoResizeTextArea = (textarea: HTMLTextAreaElement | null, maxHeig
   const resolvedMaxHeight = resolveTextAreaMaxHeight(textarea, maxHeight);
   const resolvedMinHeight = Math.min(Math.max(0, minHeight), resolvedMaxHeight);
   textarea.style.height = 'auto';
-  const nextHeight = Math.min(textarea.scrollHeight, resolvedMaxHeight);
+  const nextHeight =
+    textarea.value.trim().length === 0 && resolvedMinHeight > 0
+      ? resolvedMinHeight
+      : Math.min(textarea.scrollHeight, resolvedMaxHeight);
   const clampedHeight = Math.max(nextHeight, resolvedMinHeight);
   textarea.style.height = `${clampedHeight}px`;
   textarea.style.overflowY =
