@@ -579,10 +579,19 @@ body.sidebar-open .context-inspector-popover {
   min-height: 0;
 }
 
+/* Flex spacer: pushes messages to bottom when content is short,
+   collapses when content overflows */
+.chat-messages::before {
+  content: "";
+  flex: 1;
+  min-height: 0;
+}
+
 .chat-messages::after {
   content: "";
   display: block;
   height: 1px;
+  flex-shrink: 0;
 }
 
 .chat-messages svg {
