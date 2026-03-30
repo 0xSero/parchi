@@ -51,7 +51,7 @@
 }
 
 .composer-wrapper {
-  padding: 12px;
+  padding: 8px 12px 12px;
   background: var(--background);
   border-top: none;
   flex-shrink: 0;
@@ -60,7 +60,7 @@
 .composer {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 10px;
+  border-radius: 8px;
   overflow: hidden;
   transition: border-color 150ms ease, box-shadow 150ms ease;
   position: relative;
@@ -179,9 +179,9 @@
 
 .composer textarea {
   width: 100%;
-  min-height: 44px;
+  min-height: 36px;
   max-height: 120px;
-  padding: 12px 16px;
+  padding: 10px 12px;
   background: transparent;
   border: none;
   color: var(--foreground);
@@ -200,7 +200,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
+  padding: 6px 10px;
   border-top: 1px solid var(--ink-1);
 }
 
