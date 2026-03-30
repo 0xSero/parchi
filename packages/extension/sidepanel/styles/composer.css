@@ -55,6 +55,8 @@
   background: var(--background);
   border-top: none;
   flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .composer {

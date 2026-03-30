@@ -15,6 +15,11 @@ export function renderStreamedContainer(
 ): void {
   const { content, thinking, messageMeta, showThinking, buildReportImagesHtml } = options;
 
+  // Disable smooth scroll during finalization to prevent scroll-thrashing
+  // from ResizeObserver + rapid DOM mutations competing with smooth animations.
+  const chatMessages = self.elements.chatMessages as HTMLElement | null;
+  if (chatMessages) chatMessages.style.scrollBehavior = 'auto';
+
   addMessageHeader(streamedContainer);
   addMessageMeta(streamedContainer, messageMeta);
 
@@ -27,6 +32,9 @@ export function renderStreamedContainer(
   if (thinking && showThinking && streamEventsEl) {
     renderStreamedThinking(self, streamedContainer, streamEventsEl, thinking);
   }
+
+  // Restore smooth scroll after DOM is settled
+  if (chatMessages) chatMessages.style.scrollBehavior = '';
 
   self.scrollToBottom();
   self.updateStatus('Ready', 'success');

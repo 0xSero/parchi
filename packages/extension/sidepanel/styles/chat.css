@@ -10,6 +10,19 @@
   position: relative;
   scroll-behavior: smooth;
   background: var(--background);
+  isolation: isolate;
+}
+
+/* Noise texture — lives inside chat-area so it shares the same compositing
+   context as the scroll container, preventing a visible seam. */
+.chat-area::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg width='256' height='256' viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.03;
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* FAB Group — Below topbar, right side */
@@ -426,6 +439,7 @@ body.sidebar-open .context-inspector-popover {
   text-align: center;
   padding: 24px;
   overflow: hidden;
+  z-index: 1;
 }
 
 .chat-empty-gravity-well {
@@ -573,11 +587,17 @@ body.sidebar-open .context-inspector-popover {
   padding: 16px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
   gap: 4px;
   scroll-behavior: smooth;
   min-width: 0;
   min-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+/* Push content to bottom when short, allow full scroll when overflowing */
+.chat-messages > :first-child {
+  margin-top: auto;
 }
 
 .chat-messages::after {
@@ -1412,10 +1432,10 @@ body.sidebar-open .context-inspector-popover {
 .stream-events {
   position: relative;
   padding-left: 0;
-  margin: 4px 0;
+  margin: 8px 0;
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
 }
 
 .stream-events:empty {
@@ -1428,7 +1448,7 @@ body.sidebar-open .context-inspector-popover {
 
 .step-block {
   position: relative;
-  padding: 6px 0 6px 20px;
+  padding: 8px 0 8px 20px;
   margin: 0;
   background: transparent;
   border: none;
@@ -1519,10 +1539,10 @@ body.sidebar-open .context-inspector-popover {
 }
 
 .step-content {
-  padding: 8px 0 4px 0;
+  padding: 10px 0 6px 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
 .step-tools {
@@ -1556,6 +1576,14 @@ body.sidebar-open .context-inspector-popover {
 .stream-event-text {
   font-size: 14px;
   line-height: 1.7;
+}
+
+/* Breathing room between text content and tool-call groups */
+.stream-event-text + .tool-group-toggle,
+.stream-event-text + .tool-row,
+.tool-group-toggle + .stream-event-text,
+.tool-row + .stream-event-text {
+  margin-top: 8px;
 }
 
 /* Inline Thinking Block */
