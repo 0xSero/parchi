@@ -603,7 +603,8 @@ body.sidebar-open .context-inspector-popover {
   display: flex;
   flex-direction: column;
   gap: 0;
-  margin-bottom: 8px;
+  margin: 0 auto 8px;
+  width: min(var(--content-max), 100%);
   min-width: 0;
 }
 
