@@ -179,9 +179,9 @@
 
 .composer textarea {
   width: 100%;
-  min-height: 36px;
+  min-height: 24px;
   max-height: 120px;
-  padding: 10px 12px;
+  padding: 8px 12px;
   background: transparent;
   border: none;
   color: var(--foreground);
