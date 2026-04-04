@@ -15,15 +15,8 @@
 # Extension tools (browser automation)
 /packages/extension/tools/ @0xSero
 
-# CLI and relay service
-/packages/cli/ @0xSero
-/packages/relay-service/ @0xSero
-
 # Shared types and schemas
 /packages/shared/ @0xSero
-
-# Website/marketing
-/packages/website/ @0xSero
 
 # Build scripts and CI
 /scripts/ @0xSero

@@ -26,8 +26,4 @@ if [ -z "${CWS_EXTENSION_ID:-}" ]; then
 fi
 
 cd "$repo_root"
-if [ "${PUBLISH_ON_PUSH_TARGET:-chrome}" = "all" ]; then
-  npm run publish:all
-else
-  npm run publish:chrome
-fi
+npm run publish

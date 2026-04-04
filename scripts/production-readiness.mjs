@@ -37,7 +37,6 @@ const readCommand = (command) => {
 const durationMs = (startMs) => Date.now() - startMs;
 
 const steps = [
-  { id: 'version-sync', command: 'npm run verify:version-sync', required: true },
   { id: 'lint', command: 'npm run lint', required: true },
   { id: 'typecheck', command: 'npm run typecheck', required: true },
   { id: 'repo-standards', command: 'npm run check:repo-standards', required: true },

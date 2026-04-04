@@ -23,5 +23,5 @@ if [ -z "${CWS_EXTENSION_ID:-}" ]; then
   exit 0
 fi
 
-npm run publish:chrome >/tmp/parchi-publish-on-push.log 2>&1 || true
+npm run publish >/tmp/parchi-publish-on-push.log 2>&1 || true
 exit 0

@@ -43,11 +43,7 @@ export function stopAllSidepanelRuns(ctx: ServiceContext, note = 'Stopped') {
   }
 }
 
-export function registerActiveRun(
-  ctx: ServiceContext,
-  runMeta: RunMeta,
-  origin: 'sidepanel',
-): AbortController {
+export function registerActiveRun(ctx: ServiceContext, runMeta: RunMeta, origin: 'sidepanel'): AbortController {
   stopRunBySession(ctx, runMeta.sessionId, 'Superseded by a new message');
   const controller = new AbortController();
   ctx.activeRuns.set(runMeta.runId, { runMeta, origin, controller });
