@@ -2,15 +2,15 @@
 
 ## Files
 
-- `complex-relay-benchmark.html` — benchmark app entry page
-- `complex-relay-benchmark.css` — styles
-- `complex-relay-benchmark.js` — deterministic task logic + export
+- `complex-task-benchmark.html` — benchmark app entry page
+- `complex-task-benchmark.css` — styles
+- `complex-task-benchmark.js` — deterministic task logic + export
 - `frame-challenge.html` — iframe sub-challenge
 - `task-manifest.json` — canonical task + scoring definition
 
 ## Run locally
 
-1. Open `tests/benchmarks/complex-relay-benchmark.html` in browser.
+1. Open `tests/benchmarks/complex-task-benchmark.html` in browser.
 2. Set:
    - Run label (e.g., `claude-chrome-r1`)
    - Model name

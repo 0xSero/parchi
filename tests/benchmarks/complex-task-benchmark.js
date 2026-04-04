@@ -73,7 +73,7 @@ $('startRun').addEventListener('click', () => {
   updateSummary();
 });
 $('requestOtp').addEventListener('click', () => {
-  const ok = $('username').value.trim() === 'ops_lead' && $('password').value === 'S3cur3#Relay';
+  const ok = $('username').value.trim() === 'ops_lead' && $('password').value === 'S3cur3#Parchi';
   if (!ok) return status('authStatus', 'Credentials rejected.');
   state.otp = String(100000 + (((Date.now() / 1000) | 0) % 899999));
   $('otpInbox').innerHTML =
@@ -196,8 +196,8 @@ class SecureToggle extends HTMLElement {
 }
 customElements.define('secure-toggle', SecureToggle);
 $('secureToggle').addEventListener('secure-apply', (e) => {
-  const ok = e.detail.mode === 'strict' && e.detail.key === 'relay-9001';
-  status('shadowStatus', ok ? 'Secure mode applied.' : 'Need strict mode + relay-9001.', ok);
+  const ok = e.detail.mode === 'strict' && e.detail.key === 'agent-9001';
+  status('shadowStatus', ok ? 'Secure mode applied.' : 'Need strict mode + agent-9001.', ok);
   markTask('t6', ok, e.detail.mode);
 });
 window.addEventListener('message', (evt) => {
@@ -234,7 +234,7 @@ addChunk();
 $('validateEditor').addEventListener('click', () => {
   const html = $('editor').innerHTML.toLowerCase();
   const ok =
-    html.includes('<h2>relay readiness</h2>') &&
+    html.includes('<h2>agent readiness</h2>') &&
     (html.match(/<li>/g) || []).length >= 3 &&
     html.includes('latency p95 &lt; 2500ms') &&
     html.includes('href="https://docs.example.com/runbook"') &&

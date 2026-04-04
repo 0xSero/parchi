@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Parchi Complex Model Benchmark</title>
-    <link rel="stylesheet" href="./complex-relay-benchmark.css" />
+    <link rel="stylesheet" href="./complex-task-benchmark.css" />
   </head>
   <body>
     <header class="topbar">
@@ -41,7 +41,7 @@
     <main>
       <section class="card" id="authCard">
         <h3>T1 — Auth + OTP</h3>
-        <p>Use username <code>ops_lead</code>, password <code>S3cur3#Relay</code>, then request and verify OTP from inbox.</p>
+        <p>Use username <code>ops_lead</code>, password <code>S3cur3#Parchi</code>, then request and verify OTP from inbox.</p>
         <input id="username" placeholder="Username" />
         <input id="password" type="password" placeholder="Password" />
         <button id="requestOtp">Request OTP</button>
@@ -117,7 +117,7 @@
 
       <section class="card locked" id="richTextCard">
         <h3>T9 — Rich Text</h3>
-        <p>Must include heading "Relay Readiness", 3 list bullets, and link text "runbook" to docs.example.com/runbook.</p>
+        <p>Must include heading "Agent Readiness", 3 list bullets, and link text "runbook" to docs.example.com/runbook.</p>
         <div id="editor" contenteditable="true" class="editor"></div>
         <button id="validateEditor">Validate Rich Text</button>
         <div id="editorStatus" class="status"></div>
@@ -148,6 +148,6 @@
       <button id="modalClose">Close</button>
     </dialog>
 
-    <script src="./complex-relay-benchmark.js" type="module"></script>
+    <script src="./complex-task-benchmark.js" type="module"></script>
   </body>
 </html>

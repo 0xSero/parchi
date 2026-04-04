@@ -6,7 +6,7 @@ Start here.
 
 - [`agent-pipeline.md`](./agent-pipeline.md) — runtime flow, ownership, and debugging order.
 - [`repo-structure.md`](./repo-structure.md) — directory grammar, reusable-pattern rules, and cleanup standard.
-- [`tab-process-performance-playbook.md`](./tab-process-performance-playbook.md) — Firefox/Chrome memory and CPU triage.
+- [`tab-process-performance-playbook.md`](./tab-process-performance-playbook.md) — browser process memory/CPU triage.
 - [`reports/05-devex-ux-assessment-2026-03-12.md`](./reports/05-devex-ux-assessment-2026-03-12.md) — current developer-experience and user-experience assessment.
 
 ## Repo map
@@ -15,8 +15,6 @@ Start here.
 | --- | --- |
 | Extension | `packages/extension/` |
 | Shared contracts | `packages/shared/src/` |
-| CLI | `packages/cli/` |
-| Electron agent | `packages/electron-agent/` |
 | Backend | `packages/backend/` |
 
 ## Validation

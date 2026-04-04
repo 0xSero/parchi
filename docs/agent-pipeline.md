@@ -24,7 +24,7 @@ flowchart LR
 | Message bridge | `background/message-router.ts`, `background/service.ts` | route sidepanel requests into runtime services |
 | Agent loop | `background/agent/agent-loop/`, `background/agent/compaction/` | prepare history, run model pass, normalize responses, compact context |
 | Tools | `background/tools/tool-catalog.ts`, `background/tools/tool-executor/`, `background/tools/orchestrator/`, `background/tools/subagent/`, `packages/extension/tools/` | expose and execute browser tools |
-| Shared contract | `packages/shared/src/runtime-message-*.ts` | define runtime event shapes across UI/background/relay |
+| Shared contract | `packages/shared/src/runtime-message-*.ts` | define runtime event shapes across UI/background |
 
 ## State that matters
 
@@ -46,9 +46,6 @@ These structures are the first places to inspect for leaks or drift:
 4. **Context/compaction issue** → `panel-context.ts`, `panel-session-memory.ts`, `background/agent/compaction/`
 5. **Perf issue** → run `npm run perf:tabs` and use [`tab-process-performance-playbook.md`](./tab-process-performance-playbook.md)
 
-## Adjacent surfaces
+## Scope boundary
 
-- Relay: `packages/extension/relay/`, `packages/cli/`
-- Electron agent: `packages/electron-agent/`
-
-They reuse the same shared contracts and sit beside the extension runtime, not above it.
+This repository now targets the Chrome extension runtime and its backend/shared contracts.

@@ -1,6 +1,6 @@
 {
   "benchmark": "parchi-complex-web-interaction-v1",
-  "entrypoint": "tests/benchmarks/complex-relay-benchmark.html",
+  "entrypoint": "tests/benchmarks/complex-task-benchmark.html",
   "description": "Deterministic complex browser workflow benchmark for comparing agent models.",
   "scoring": {
     "totalPoints": 100,
@@ -31,7 +31,7 @@
       "goal": "Authenticate and verify OTP from in-page inbox.",
       "requiredSteps": [
         "username=ops_lead",
-        "password=S3cur3#Relay",
+        "password=S3cur3#Parchi",
         "request OTP",
         "read latest ticket from inbox",
         "submit OTP"
@@ -96,7 +96,7 @@
       "requiredSteps": [
         "interact inside shadow root",
         "mode=strict",
-        "key=relay-9001",
+        "key=agent-9001",
         "apply"
       ],
       "passSignal": "tasks.t6=true"
@@ -128,7 +128,7 @@
       "title": "Rich text composition",
       "goal": "Author exact structure in contenteditable block.",
       "requiredSteps": [
-        "include <h2>Relay Readiness</h2>",
+        "include <h2>Agent Readiness</h2>",
         "include >=3 list bullets",
         "include bullet containing Latency p95 < 2500ms",
         "link text runbook => https://docs.example.com/runbook",
