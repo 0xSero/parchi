@@ -27,30 +27,14 @@ export const setupRuntimeListeners = function setupRuntimeListeners(this: SidePa
   };
   chrome.runtime.onMessage.addListener(onMessageListener);
 
-  // Keep relay connection status fresh while Settings is open.
-  const onStorageChangedListener = (changes: Record<string, { newValue?: unknown }>, areaName: string) => {
-    if (areaName !== 'local') return;
-    if (!changes.relayConnected && !changes.relayLastError) return;
-    const next: Record<string, unknown> = {};
-    if (changes.relayConnected) next.relayConnected = changes.relayConnected.newValue;
-    if (changes.relayLastError) next.relayLastError = changes.relayLastError.newValue;
-    this.updateRelayStatusFromSettings?.(next);
-  };
-  chrome.storage.onChanged.addListener(onStorageChangedListener);
-
   // Store references for cleanup
   this._runtimeMessageListener = onMessageListener;
-  this._storageChangedListener = onStorageChangedListener;
 };
 
 export const cleanupRuntimeListeners = function cleanupRuntimeListeners(this: SidePanelUI & Record<string, unknown>) {
   if (this._runtimeMessageListener) {
     chrome.runtime.onMessage.removeListener(this._runtimeMessageListener);
     this._runtimeMessageListener = null;
-  }
-  if (this._storageChangedListener) {
-    chrome.storage.onChanged.removeListener(this._storageChangedListener);
-    this._storageChangedListener = null;
   }
 };
 

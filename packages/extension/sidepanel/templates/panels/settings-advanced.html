@@ -144,39 +144,6 @@
         </div>
     </details>
 
-    <details class="collapsible">
-        <summary>Relay</summary>
-        <div class="collapsible-body">
-            <label class="switch-row" for="relayEnabled">
-                <span class="switch-copy">
-                    <span class="switch-title">Enable Relay</span>
-                    <span class="switch-subtitle">Use the external relay service for tool execution.</span>
-                </span>
-                <input type="checkbox" id="relayEnabled" class="switch-input" />
-                <span class="switch-track"></span>
-            </label>
-            <div class="form-group" style="margin-top: 8px;">
-                <label for="relayUrl">Relay URL</label>
-                <input type="text" id="relayUrl" placeholder="http://127.0.0.1:17373" />
-            </div>
-            <div class="form-group">
-                <label for="relayToken">Relay Token</label>
-                <input type="password" id="relayToken" placeholder="PARCHI_RELAY_TOKEN" />
-            </div>
-            <div class="form-group">
-                <label>Connection</label>
-                <div class="relay-status-row">
-                    <span id="relayConnectedBadge" class="status-pill">Disconnected</span>
-                    <span id="relayLastErrorText" class="relay-last-error"></span>
-                </div>
-            </div>
-            <div class="form-row">
-                <button id="saveRelayBtn" class="btn btn-primary" style="flex:1">Apply</button>
-                <button id="copyRelayEnvBtn" class="btn btn-secondary" style="flex:1">Copy Env Vars</button>
-            </div>
-        </div>
-    </details>
-
     <details class="collapsible" open>
         <summary>Danger Zone</summary>
         <div class="collapsible-body">

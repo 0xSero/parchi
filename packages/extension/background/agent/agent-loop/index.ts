@@ -20,12 +20,11 @@ export async function processUserMessage(
   conversationHistory: Message[],
   selectedTabs: chrome.tabs.Tab[],
   sessionId: string,
-  meta?: Partial<RunMeta> & { origin?: 'sidepanel' | 'relay' },
+  meta?: Partial<RunMeta> & { origin?: 'sidepanel' },
   recordedContext?: RecordedContext,
 ): Promise<void> {
   const runMeta = createRunMeta(sessionId, meta);
-  const origin = meta?.origin || 'sidepanel';
-  if (origin === 'relay') ctx.relayActiveRunIds.add(runMeta.runId);
+  const origin: 'sidepanel' = meta?.origin || 'sidepanel';
   const controller = ctx.registerActiveRun(runMeta, origin);
   const abortSignal = controller.signal;
   const sessionState = ctx.getSessionState(sessionId);
@@ -70,7 +69,6 @@ export async function processUserMessage(
     handleAgentError(ctx, runMeta, error, diagnostics, buildLatencyMetrics, buildBenchmarkContext, abortSignal);
   } finally {
     ctx.cleanupRun(runMeta, origin);
-    if (origin === 'relay') ctx.relayActiveRunIds.delete(runMeta.runId);
   }
 }
 

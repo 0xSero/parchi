@@ -189,15 +189,6 @@ export const getSidePanelElements = (): SidePanelElements => ({
   accountRefreshBtn: byId<HTMLButtonElement>('accountRefreshBtn'),
   accountSignOutBtn: byId<HTMLButtonElement>('accountSignOutBtn'),
   paidModeProviderGrid: byId<HTMLElement>('paidModeProviderGrid'),
-  // Relay
-  relayEnabled: byId<HTMLInputElement>('relayEnabled'),
-  relayUrl: byId<HTMLInputElement>('relayUrl'),
-  relayToken: byId<HTMLInputElement>('relayToken'),
-  saveRelayBtn: byId<HTMLButtonElement>('saveRelayBtn'),
-  copyRelayEnvBtn: byId<HTMLButtonElement>('copyRelayEnvBtn'),
-  relayConnectedBadge: byId<HTMLElement>('relayConnectedBadge'),
-  relayLastErrorText: byId<HTMLElement>('relayLastErrorText'),
-
   ...getSettingsFormElements(),
 
   // Profile management

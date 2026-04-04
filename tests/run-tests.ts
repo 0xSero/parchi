@@ -50,9 +50,6 @@ async function main() {
   // Run unit tests
   allPassed = (await runCommand('node dist/tests/unit/run-unit-tests.js', 'Unit Tests')) && allPassed;
 
-  // Run relay integration tests
-  allPassed = (await runCommand('node dist/tests/relay/run-relay-tests.js', 'Relay Service Tests')) && allPassed;
-
   // Summary
   log('\n' + '═'.repeat(40), 'info');
   if (allPassed) {

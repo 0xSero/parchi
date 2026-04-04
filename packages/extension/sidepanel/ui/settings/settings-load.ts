@@ -106,13 +106,6 @@ sidePanelProto.loadSettings = async function loadSettings() {
   }
   this.timelineCollapsed = settings.timelineCollapsed !== undefined ? settings.timelineCollapsed !== false : true;
 
-  if (this.elements.relayEnabled) this.elements.relayEnabled.checked = settings.relayEnabled === true;
-  if (this.elements.relayUrl)
-    this.elements.relayUrl.value = typeof settings.relayUrl === 'string' ? settings.relayUrl : 'http://127.0.0.1:17373';
-  if (this.elements.relayToken)
-    this.elements.relayToken.value = typeof settings.relayToken === 'string' ? settings.relayToken : '';
-  this.updateRelayStatusFromSettings?.(settings);
-
   const defaultPermissions = {
     read: true,
     interact: true,
@@ -150,18 +143,4 @@ sidePanelProto.loadSettings = async function loadSettings() {
   this.renderTeamProfileList?.();
   await this.refreshAccountPanel?.({ silent: true });
   this.syncAccountAvatar?.();
-};
-
-sidePanelProto.updateRelayStatusFromSettings = function updateRelayStatusFromSettings(
-  settings: Record<string, unknown> = {},
-) {
-  const connected = settings.relayConnected === true;
-  if (this.elements.relayConnectedBadge) {
-    this.elements.relayConnectedBadge.textContent = connected ? 'Connected' : 'Disconnected';
-    this.elements.relayConnectedBadge.classList.toggle('connected', connected);
-  }
-  if (this.elements.relayLastErrorText) {
-    const raw = settings.relayLastError;
-    this.elements.relayLastErrorText.textContent = raw ? String(raw) : '';
-  }
 };

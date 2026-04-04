@@ -25,13 +25,6 @@ export function stopRun(ctx: ServiceContext, runId: string, note = 'Stopped') {
   } catch (_abortErr) {
     // Controller may already be aborted; ignore.
   }
-
-  if (active.origin === 'relay') {
-    ctx.relayActiveRunIds.delete(runId);
-    if (ctx.relay.isConnected()) {
-      ctx.relay.notify('run.done', { runId, status: 'stopped', note });
-    }
-  }
 }
 
 export function stopRunBySession(ctx: ServiceContext, sessionId: string, note = 'Stopped') {
@@ -53,7 +46,7 @@ export function stopAllSidepanelRuns(ctx: ServiceContext, note = 'Stopped') {
 export function registerActiveRun(
   ctx: ServiceContext,
   runMeta: RunMeta,
-  origin: 'sidepanel' | 'relay',
+  origin: 'sidepanel',
 ): AbortController {
   stopRunBySession(ctx, runMeta.sessionId, 'Superseded by a new message');
   const controller = new AbortController();
@@ -62,7 +55,7 @@ export function registerActiveRun(
   return controller;
 }
 
-export function cleanupRun(ctx: ServiceContext, runMeta: RunMeta, origin: 'sidepanel' | 'relay') {
+export function cleanupRun(ctx: ServiceContext, runMeta: RunMeta, origin: 'sidepanel') {
   const active = ctx.activeRuns.get(runMeta.runId);
   if (active && active.origin === origin) {
     ctx.activeRuns.delete(runMeta.runId);
@@ -85,14 +78,4 @@ export function sendRuntime(ctx: ServiceContext, runMeta: RunMeta, payload: Reco
     ...payload,
   };
   ctx.sendToSidePanel(message);
-
-  if (ctx.relayActiveRunIds.has(runMeta.runId) && ctx.relay.isConnected()) {
-    ctx.relay.notify('run.event', { runId: runMeta.runId, event: message });
-    const type = typeof payload.type === 'string' ? payload.type : '';
-    if (type === 'assistant_final') {
-      ctx.relay.notify('run.done', { runId: runMeta.runId, status: 'completed', final: message });
-    } else if (type === 'run_error') {
-      ctx.relay.notify('run.done', { runId: runMeta.runId, status: 'failed', error: message });
-    }
-  }
 }

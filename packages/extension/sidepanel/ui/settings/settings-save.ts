@@ -30,8 +30,6 @@ sidePanelProto.persistAllSettings = async function persistAllSettings({ silent =
       this.currentConfig,
       this.configs[this.currentConfig] || {},
     );
-    const rawRelayUrl = (this.elements.relayUrl?.value || '').trim();
-    const normalizedRelayUrl = rawRelayUrl && !rawRelayUrl.includes('://') ? `http://${rawRelayUrl}` : rawRelayUrl;
     const payload: Record<string, unknown> = {
       providers: this.providers || {},
       providerId: activeProfile.providerId ?? '',
@@ -67,9 +65,6 @@ sidePanelProto.persistAllSettings = async function persistAllSettings({ silent =
       fontPreset: this.fontPreset || 'default',
       fontStylePreset: this.fontStylePreset || 'normal',
       theme: this.currentTheme || DEFAULT_THEME_ID,
-      relayEnabled: this.elements.relayEnabled?.checked === true,
-      relayUrl: normalizedRelayUrl,
-      relayToken: this.elements.relayToken?.value || '',
       activeConfig: this.currentConfig,
       configs: this.configs,
       controllers: [],

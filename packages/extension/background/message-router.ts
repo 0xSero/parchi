@@ -1,4 +1,4 @@
-import { handleCompactContext, handleRelayReconfigure, handleUserMessage } from './message-handlers/core.js';
+import { handleCompactContext, handleUserMessage } from './message-handlers/core.js';
 import {
   handleRecordingDiscard,
   handleRecordingEvent,
@@ -27,7 +27,6 @@ const HANDLERS: Record<
   string,
   (ctx: ServiceContext, message: any, sendResponse: (response?: any) => void, ...args: any[]) => void | Promise<void>
 > = {
-  relay_reconfigure: handleRelayReconfigure,
   user_message: handleUserMessage,
   compact_context: handleCompactContext,
   get_telemetry: handleGetTelemetry,
@@ -55,7 +54,6 @@ export async function handleMessage(
   message: any,
   sender: chrome.runtime.MessageSender,
   sendResponse: (response?: any) => void,
-  applyRelayConfig: () => Promise<void>,
 ) {
   const response = createResponseController(sendResponse);
   try {
@@ -67,10 +65,7 @@ export async function handleMessage(
       return;
     }
 
-    // Relay reconfigure needs special handling for applyRelayConfig
-    if (message.type === 'relay_reconfigure') {
-      await handleRelayReconfigure(ctx, message, response.respond, applyRelayConfig);
-    } else if (message.type === 'content_perf_event' || message.type === 'content_script_ready') {
+    if (message.type === 'content_perf_event' || message.type === 'content_script_ready') {
       // These handlers need the sender
       await handler(ctx, message, response.respond, sender);
     } else {

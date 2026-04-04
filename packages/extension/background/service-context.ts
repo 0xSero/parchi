@@ -1,13 +1,12 @@
 import type { RunPlan } from '@parchi/shared';
 import type { RecordingCoordinator } from '../recording/recording-coordinator.js';
-import type { RelayBridge } from '../relay/relay-bridge.js';
 import type { BrowserTools } from '../tools/browser-tools.js';
 import type { RunMeta, SessionState, SessionTokenVisibility } from './service-types.js';
 import type { SubagentTabBadgeState } from './subagent-tab-badges.js';
 
 export type ActiveRun = {
   runMeta: RunMeta;
-  origin: 'sidepanel' | 'relay';
+  origin: 'sidepanel';
   controller: AbortController;
 };
 
@@ -28,8 +27,6 @@ export type ServiceContext = {
   currentPlan: RunPlan | null;
   subAgentCount: number;
   subAgentProfileCursor: number;
-  relay: RelayBridge;
-  relayActiveRunIds: Set<string>;
   activeRuns: Map<string, ActiveRun>;
   activeRunIdBySessionId: Map<string, string>;
   cancelledRunIds: Set<string>;
@@ -41,10 +38,6 @@ export type ServiceContext = {
   kimiHeaderRuleOk: boolean;
   kimiHeaderMode: 'dnr' | 'webRequest' | 'none';
 
-  // Relay internal timers (used by relay-handler)
-  _relayStatusTimer: ReturnType<typeof setTimeout> | undefined;
-  _relayAutoPairTimer: ReturnType<typeof setTimeout> | undefined;
-
   // Shared methods
   sendRuntime(runMeta: RunMeta, payload: Record<string, unknown>): void;
   sendToSidePanel(message: unknown): void;
@@ -55,8 +48,8 @@ export type ServiceContext = {
   syncSubagentTabBadge(tabId: number): void;
   emitTokenTrace(runMeta: RunMeta, sessionState: SessionState, payload: TokenTracePayload): void;
   isRunCancelled(runId: string): boolean;
-  registerActiveRun(runMeta: RunMeta, origin: 'sidepanel' | 'relay'): AbortController;
-  cleanupRun(runMeta: RunMeta, origin: 'sidepanel' | 'relay'): void;
+  registerActiveRun(runMeta: RunMeta, origin: 'sidepanel'): AbortController;
+  cleanupRun(runMeta: RunMeta, origin: 'sidepanel'): void;
   stopRunBySession(sessionId: string, note?: string): boolean;
   stopAllSidepanelRuns(note?: string): void;
 
@@ -66,7 +59,7 @@ export type ServiceContext = {
     conversationHistory: any[],
     selectedTabs: chrome.tabs.Tab[],
     sessionId: string,
-    meta?: Partial<RunMeta> & { origin?: 'sidepanel' | 'relay' },
+    meta?: Partial<RunMeta> & { origin?: 'sidepanel' },
     recordedContext?: any,
   ): Promise<void>;
 

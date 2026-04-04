@@ -74,7 +74,6 @@ type GetOrchestratorPlanResult = BuiltinBaseResult &
   };
 
 type StubBrowserTools = Pick<ServiceContext['browserTools'], 'resolveSessionWindowId'>;
-type StubRelay = Pick<ServiceContext['relay'], 'isConnected' | 'notify'>;
 type StubRecordingCoordinator = Record<string, never>;
 
 export type HarnessContext = ServiceContext & {
@@ -100,8 +99,6 @@ export function createHarnessContext(): HarnessContext {
     currentPlan: null,
     subAgentCount: 0,
     subAgentProfileCursor: 0,
-    relay: { isConnected: () => false, notify: () => {} } as StubRelay,
-    relayActiveRunIds: new Set<string>(),
     activeRuns: new Map(),
     activeRunIdBySessionId: new Map(),
     cancelledRunIds: new Set<string>(),
@@ -110,8 +107,6 @@ export function createHarnessContext(): HarnessContext {
     subagentTabBadges: new Map(),
     kimiHeaderRuleOk: false,
     kimiHeaderMode: 'none' as const,
-    _relayStatusTimer: undefined,
-    _relayAutoPairTimer: undefined,
     runtimeEvents,
     sessionStates,
     sendRuntime(_runMeta: RunMeta, payload: Record<string, unknown>) {

@@ -141,52 +141,6 @@ export const setupSettingsListeners = function setupSettingsListeners(this: Side
       console.warn('[settings] Failed to save settings:', err);
     });
   });
-  this.elements.saveRelayBtn?.addEventListener('click', async () => {
-    await this.persistAllSettings({ silent: false });
-    // Ensure the MV3 service worker wakes up and immediately applies the new config.
-    try {
-      await chrome.runtime.sendMessage({ type: 'relay_reconfigure' });
-    } catch (_msgErr) {
-      // Service worker may not be active; ignore.
-    }
-  });
-
-  this.elements.copyRelayEnvBtn?.addEventListener('click', async () => {
-    const rawUrl = String(this.elements.relayUrl?.value || '').trim();
-    const token = String(this.elements.relayToken?.value || '').trim();
-    if (!rawUrl) {
-      this.updateStatus('Enter a relay URL first', 'warning');
-      return;
-    }
-    if (!token) {
-      this.updateStatus('Enter a relay token first', 'warning');
-      return;
-    }
-
-    let host = '127.0.0.1';
-    let port = '17373';
-    try {
-      const url = new URL(rawUrl);
-      host = url.hostname || host;
-      port = url.port || port;
-    } catch {
-      const cleaned = rawUrl.replace(/^https?:\/\//, '');
-      const [h, p] = cleaned.split(':');
-      if (h) host = h;
-      if (p) port = p;
-    }
-
-    const text = `export PARCHI_RELAY_TOKEN="${token}"
-export PARCHI_RELAY_HOST="${host}"
-export PARCHI_RELAY_PORT="${port}"`;
-
-    try {
-      await navigator.clipboard.writeText(text);
-      this.updateStatus('Relay env vars copied', 'success');
-    } catch {
-      this.updateStatus('Unable to copy relay env vars', 'error');
-    }
-  });
 
   // Cancel settings
   this.elements.cancelSettingsBtn?.addEventListener('click', () => {
