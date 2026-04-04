@@ -1,8 +1,5 @@
 name: Release
 # Required GitHub Secrets (configure in repo Settings > Secrets):
-#   - AMO_JWT_ISSUER: Firefox Add-ons API key
-#   - AMO_JWT_SECRET: Firefox Add-ons API secret
-#   - AMO_CHANNEL: "listed" or "unlisted"
 #   - GITHUB_TOKEN: Personal access token with write access
 #   - CWS_EXTENSION_ID: Chrome Extension ID
 #   - CWS_SERVICE_ACCOUNT_KEY: Chrome service account JSON key (paste JSON contents)
@@ -33,33 +30,16 @@ jobs:
         run: echo "VERSION=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
       
       - run: npm run build
-      - run: npm run build:firefox
-      
-      - name: Publish to Firefox Add-ons
-        env:
-          AMO_JWT_ISSUER: ${{ secrets.AMO_JWT_ISSUER }}
-          AMO_JWT_SECRET: ${{ secrets.AMO_JWT_SECRET }}
-          AMO_CHANNEL: ${{ secrets.AMO_CHANNEL }}
-        run: |
-          if [ -z "$AMO_JWT_ISSUER" ] || [ -z "$AMO_JWT_SECRET" ]; then
-            echo "AMO credentials are required for Firefox publish"
-            exit 1
-          fi
-          npm run publish:firefox
       
       - name: Package Chrome Extension
         run: |
           cd dist && zip -r ../parchi-chrome-${{ steps.get_version.outputs.VERSION }}.zip . && cd ..
-      - name: Package Firefox Extension
-        run: |
-          cd dist-firefox && zip -r ../parchi-firefox-${{ steps.get_version.outputs.VERSION }}.xpi . && cd ..
       
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
             parchi-chrome-*.zip
-            parchi-firefox-*.xpi
           generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -85,4 +65,4 @@ jobs:
             echo "Set service-account secrets or OAuth secrets for Chrome publish"
             exit 1
           fi
-          npm run publish:chrome
+          npm run publish

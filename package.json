@@ -10,17 +10,9 @@
   "scripts": {
     "browser:agent": "agent-browser",
     "build": "node scripts/build.mjs",
-    "build:firefox": "BROWSER=firefox node scripts/build.mjs",
-    "build:firefox:xpi": "npm run build:firefox && node scripts/build-firefox-xpi.mjs",
     "backend:dev": "npm run dev -w @parchi/backend",
     "backend:deploy": "npm run deploy -w @parchi/backend",
     "backend:codegen": "npm run codegen -w @parchi/backend",
-    "relay:daemon": "node dist-relay/relay-daemon.js",
-    "relay": "node dist-relay/relay.js",
-    "relay:secure": "node scripts/relay-secure.mjs",
-    "parchi": "node dist-cli/parchi.js",
-    "electron:agent": "node dist-electron-agent/electron-agent.js",
-    "electron:secure": "node scripts/electron-agent-secure.mjs",
     "validate": "node scripts/build.mjs && node dist/tests/validate-extension.js",
     "test": "node scripts/build.mjs && node dist/tests/run-tests.js",
     "test:unit": "node scripts/build.mjs && node dist/tests/unit/run-unit-tests.js",
@@ -30,15 +22,11 @@
     "test:orchestrator": "node scripts/build.mjs && node dist/tests/orchestrator/run-fixture-executor.js",
     "test:e2e": "node scripts/build.mjs && node dist/tests/e2e/run-e2e.js",
     "test:e2e:orchestrator": "node scripts/build.mjs && node dist/tests/e2e/run-orchestrator-runtime-e2e.js",
-    "test:relay": "node scripts/build.mjs && node dist/tests/relay/run-relay-tests.js && node dist/tests/relay/run-electron-agent-tests.js",
-    "bench:relay": "node scripts/build.mjs && node dist/tests/relay/run-relay-benchmark.js",
     "perf:tabs": "node scripts/build.mjs && node dist/tests/perf/run-tab-cpu-audit.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:repo-standards": "node scripts/check-repo-standards.mjs",
     "check:tech-debt": "node scripts/check-tech-debt.mjs",
     "clean": "node scripts/clean.mjs",
-    "verify:version-sync": "node scripts/verify-version-sync.mjs",
-    "verify:version-sync:fix": "node scripts/verify-version-sync.mjs --fix",
     "audit:production": "node scripts/production-readiness.mjs",
     "ready:production": "npm run clean && npm run audit:production",
     "lint": "biome check . --diagnostic-level=error",
@@ -48,14 +36,8 @@
     "knip": "knip",
     "knip:fix": "knip --fix",
     "version:bump": "node scripts/bump-version.mjs",
-    "version:sync": "node scripts/bump-version.mjs --sync",
-    "release": "node scripts/bump-version.mjs && npm run build && npm run build:firefox:xpi && cd dist && zip -r ../parchi-$(node -p \"require('../package.json').version\")-chrome.zip . -x '*.map' 'tests/*'",
-    "release:all": "node scripts/bump-version.mjs && npm run build && npm run build:firefox:xpi && npm run publish:all",
-    "release:firefox": "node scripts/bump-version.mjs && npm run build:firefox:xpi && npm run publish:firefox",
-    "release:dry": "node scripts/bump-version.mjs && npm run build && npm run build:firefox:xpi && npm run publish:dry",
-    "publish:all": "node scripts/publish.mjs",
-    "publish:chrome": "node scripts/publish.mjs --chrome",
-    "publish:firefox": "node scripts/publish.mjs --firefox",
+    "release": "node scripts/bump-version.mjs && npm run build && cd dist && zip -r ../parchi-$(node -p \"require('../package.json').version\")-chrome.zip . -x '*.map' 'tests/*'",
+    "publish": "node scripts/publish.mjs",
     "publish:dry": "node scripts/publish.mjs --dry-run",
     "dev": "echo 'Run npm run build, then load the dist/ folder in Chrome://extensions'",
     "prepare": "husky"
@@ -70,11 +52,6 @@
   ],
   "author": "",
   "license": "MIT",
-  "bin": {
-    "parchi": "dist-cli/parchi.js",
-    "parchi-relay": "dist-relay/relay.js",
-    "parchi-electron-agent": "dist-electron-agent/electron-agent.js"
-  },
   "dependencies": {
     "@ai-sdk/anthropic": "3.0.17",
     "@ai-sdk/openai": "3.0.13",
@@ -83,8 +60,7 @@
     "@convex-dev/auth": "0.0.90",
     "ai": "6.0.42",
     "convex": "1.31.7",
-    "stripe": "18.5.0",
-    "ws": "8.18.3"
+    "stripe": "18.5.0"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [
@@ -98,7 +74,6 @@
     "@biomejs/biome": "1.9.4",
     "@types/chrome": "0.0.268",
     "@types/node": "22.10.5",
-    "@types/ws": "8.18.1",
     "agent-browser": "^0.11.1",
     "c8": "^11.0.0",
     "esbuild": "0.27.2",
@@ -107,7 +82,6 @@
     "lint-staged": "^16.3.0",
     "marked": "17.0.1",
     "playwright": "1.57.0",
-    "typescript": "5.6.3",
-    "web-ext": "8.10.0"
+    "typescript": "5.6.3"
   }
 }

@@ -12,15 +12,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const SOURCE_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.css', '.html']);
-const IGNORE_SEGMENTS = [
-  'dist/',
-  'dist-firefox/',
-  'dist-relay/',
-  'dist-cli/',
-  'dist-electron-agent/',
-  'node_modules/',
-  'test-output/',
-];
+const IGNORE_SEGMENTS = ['dist/', 'node_modules/', 'test-output/'];
 const IGNORE_PATTERNS = [/^packages\/backend\/convex\/_generated\//, /^docs\//];
 
 // Pattern: TODO or FIXME or HACK followed optionally by (owner/repo#123) or (#123)

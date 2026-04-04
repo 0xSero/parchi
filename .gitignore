@@ -1,18 +1,11 @@
-# Node modules (if added later)
+# Node modules
 node_modules/
 
 # Build artifacts
 dist/
-dist-firefox/
-dist-relay/
-dist-cli/
-dist-electron-agent/
 build/
 server/dist/
 *.map
-*.xpi
-
-
 
 .env.publish
 # OS files
@@ -26,10 +19,6 @@ Thumbs.db
 *.swo
 *~
 
-
-temp_pi_agent_core
-temp_pi_ai
-
 # Logs
 *.log
 logs/
@@ -38,11 +27,9 @@ logs/
 *.zip
 *.crx
 *.pem
-*.xpi
 
 # Release packages in repo root
 /parchi-*.zip
-/parchi-*.xpi
 /dist.crx
 
 # Environment files
@@ -60,7 +47,6 @@ tmp/
 temp/
 *.tmp
 test-output/
-
 
 # Vendored tarballs
 *.tgz

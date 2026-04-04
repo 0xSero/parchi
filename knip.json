@@ -13,26 +13,13 @@
       "entry": ["convex/*.ts"],
       "project": ["convex/**/*.ts"]
     },
-    "packages/cli": {
-      "entry": ["src/main.ts"],
-      "project": ["src/**/*.ts"]
-    },
-    "packages/relay-service": {
-      "entry": ["src/relay-daemon.ts", "src/cli.ts"],
-      "project": ["src/**/*.ts"]
-    },
     "packages/shared": {
       "entry": ["src/index.ts"],
       "project": ["src/**/*.ts"]
-    },
-    "packages/website": {
-      "entry": ["public/**/*.js"],
-      "project": ["public/**/*"]
     }
   },
   "ignore": [
     "**/dist/**",
-    "**/dist-*/**",
     "**/node_modules/**",
     "**/*.d.ts",
     "**/convex/_generated/**",
@@ -41,7 +28,6 @@
   ],
   "ignoreDependencies": [
     "@types/chrome",
-    "@types/node",
-    "@types/ws"
+    "@types/node"
   ]
 }

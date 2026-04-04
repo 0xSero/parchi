@@ -202,7 +202,7 @@ bump_version() {
   new_version=$(node -p "require('./package.json').version" 2>/dev/null)
   log_info "Version bumped to $new_version"
   # Stage the version changes
-  git add package.json packages/extension/manifest.json packages/extension/manifest.firefox.json 2>/dev/null || true
+  git add package.json packages/extension/manifest.json 2>/dev/null || true
   return 0
 }
 

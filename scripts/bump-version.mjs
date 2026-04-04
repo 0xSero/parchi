@@ -14,11 +14,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, '..');
 
-const FILES = [
-  path.join(root, 'package.json'),
-  path.join(root, 'packages', 'extension', 'manifest.json'),
-  path.join(root, 'packages', 'extension', 'manifest.firefox.json'),
-];
+const FILES = [path.join(root, 'package.json'), path.join(root, 'packages', 'extension', 'manifest.json')];
 
 const syncOnly = process.argv.includes('--sync');
 

@@ -8,7 +8,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 const isDryRun = process.argv.includes('--dry-run');
 
-const CLEAN_DIRS = ['dist', 'dist-firefox', 'dist-relay', 'dist-cli', 'dist-electron-agent', 'tmp', 'test-output'];
+const CLEAN_DIRS = ['dist', 'tmp', 'test-output'];
 const CLEAN_FILE_PATTERNS = [/^parchi-.*\.(zip|xpi)$/i, /^dist\.crx$/i];
 
 const removePath = (relativePath) => {

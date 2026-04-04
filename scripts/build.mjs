@@ -8,20 +8,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const rootDir = path.resolve(__dirname, '..');
 
-const args = process.argv.slice(2);
-const browserArg = args.find((arg) => arg.startsWith('--browser='));
-const targetBrowser = (
-  (browserArg ? browserArg.split('=')[1] : process.env.BROWSER || process.env.TARGET || 'chrome') || 'chrome'
-).toLowerCase();
-const isFirefox = targetBrowser === 'firefox';
-const manifestName = isFirefox ? 'manifest.firefox.json' : 'manifest.json';
-const distName = isFirefox ? 'dist-firefox' : 'dist';
-const distDir = path.join(rootDir, distName);
-const relayDistDir = path.join(rootDir, 'dist-relay');
-const cliDistDir = path.join(rootDir, 'dist-cli');
-const electronAgentDistDir = path.join(rootDir, 'dist-electron-agent');
+const distDir = path.join(rootDir, 'dist');
 const extensionRoot = path.join(rootDir, 'packages', 'extension');
-// Alias workspace packages so esbuild inlines them instead of treating as external
 const workspaceAlias = {
   '@parchi/shared': path.join(rootDir, 'packages', 'shared', 'src', 'index.ts'),
 };
@@ -99,8 +87,6 @@ const copyDirFiltered = (src, dest, filter) => {
 
 const run = async () => {
   cleanDir(distDir);
-  cleanDir(cliDistDir);
-  cleanDir(electronAgentDistDir);
 
   try {
     execSync('tsc -p tsconfig.json --noEmit', { stdio: 'inherit', cwd: rootDir });
@@ -151,9 +137,6 @@ const run = async () => {
       path.join(rootDir, 'tests', 'e2e', 'test-browser-tools.ts'),
       path.join(rootDir, 'tests', 'orchestrator', 'run-fixture-executor.ts'),
       path.join(rootDir, 'tests', 'api', 'run-api-tests.ts'),
-      path.join(rootDir, 'tests', 'relay', 'run-relay-tests.ts'),
-      path.join(rootDir, 'tests', 'relay', 'run-electron-agent-tests.ts'),
-      path.join(rootDir, 'tests', 'relay', 'run-relay-benchmark.ts'),
       path.join(rootDir, 'tests', 'perf', 'run-perf-profile.ts'),
       path.join(rootDir, 'tests', 'perf', 'run-tab-cpu-audit.ts'),
     ],
@@ -171,99 +154,8 @@ const run = async () => {
     external: ['chromium-bidi/lib/cjs/bidiMapper/BidiMapper', 'chromium-bidi/lib/cjs/cdp/CdpConnection'],
   });
 
-  // Build parchi CLI (single file, Node.js)
-  // This now includes both the daemon and relay functionality (merged from relay-service)
-  await esbuild.build({
-    entryPoints: {
-      parchi: path.join(rootDir, 'packages', 'cli', 'src', 'main.ts'),
-    },
-    outdir: cliDistDir,
-    bundle: true,
-    format: 'esm',
-    platform: 'node',
-    target: 'es2022',
-    sourcemap: true,
-    logLevel: 'info',
-    define: buildDefines,
-    alias: workspaceAlias,
-    packages: 'external',
-    banner: {
-      js: '#!/usr/bin/env node',
-    },
-  });
-
-  // Build Electron relay agent (Node.js)
-  await esbuild.build({
-    entryPoints: {
-      'electron-agent': path.join(rootDir, 'packages', 'electron-agent', 'src', 'main.ts'),
-    },
-    outdir: electronAgentDistDir,
-    bundle: true,
-    format: 'esm',
-    platform: 'node',
-    target: 'es2022',
-    sourcemap: true,
-    logLevel: 'info',
-    define: buildDefines,
-    alias: workspaceAlias,
-    packages: 'external',
-    banner: {
-      js: '#!/usr/bin/env node',
-    },
-  });
-
-  // Create backward-compatible relay wrappers in dist-relay
-  // These delegate to the unified CLI binary
-  cleanDir(relayDistDir);
-  const cliPath = path.join(cliDistDir, 'parchi.js');
-
-  // relay-daemon.js wrapper - delegates to parchi daemon
-  fs.writeFileSync(
-    path.join(relayDistDir, 'relay-daemon.js'),
-    `#!/usr/bin/env node
-// Backward-compatible wrapper - relay-service merged into CLI
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const cliPath = path.join(__dirname, '..', 'dist-cli', 'parchi.js');
-// Pass through original arguments directly to daemon
-const child = spawn(process.execPath, [cliPath, 'daemon', ...process.argv.slice(2)], {
-  stdio: 'inherit',
-});
-child.on('exit', (code) => process.exit(code ?? 0));
-`,
-  );
-
-  // relay.js wrapper - delegates to parchi relay
-  fs.writeFileSync(
-    path.join(relayDistDir, 'relay.js'),
-    `#!/usr/bin/env node
-// Backward-compatible wrapper - relay-service merged into CLI
-import { spawn } from 'child_process';
-import { fileURLToPath } from 'url';
-import path from 'path';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const cliPath = path.join(__dirname, '..', 'dist-cli', 'parchi.js');
-const args = ['relay', ...process.argv.slice(2)];
-const child = spawn(process.execPath, [cliPath, ...args], {
-  stdio: 'inherit',
-});
-child.on('exit', (code) => process.exit(code ?? 0));
-`,
-  );
-
-  const manifestPath = path.join(extensionRoot, manifestName);
-  const fallbackManifestPath = path.join(extensionRoot, 'manifest.json');
-  const manifestSourcePath = fs.existsSync(manifestPath) ? manifestPath : fallbackManifestPath;
   const manifestDest = path.join(distDir, 'manifest.json');
-  const manifestData = JSON.parse(fs.readFileSync(manifestSourcePath, 'utf8'));
+  const manifestData = JSON.parse(fs.readFileSync(path.join(extensionRoot, 'manifest.json'), 'utf8'));
   ensureDir(path.dirname(manifestDest));
   fs.writeFileSync(manifestDest, JSON.stringify(manifestData, null, 2));
   copyFile(path.join(extensionRoot, 'sidepanel', 'panel.html'), path.join(distDir, 'sidepanel', 'panel.html'));

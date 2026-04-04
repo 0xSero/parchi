@@ -22,5 +22,5 @@
     "tests/**/*.ts",
     "types/**/*.d.ts"
   ],
-  "exclude": ["server/**", "dist/**", "dist-firefox/**", "dist-relay/**", "node_modules/**"]
+  "exclude": ["server/**", "dist/**", "node_modules/**"]
 }

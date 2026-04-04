@@ -9,7 +9,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const rootDir = path.resolve(__dirname, '..');
 
 const args = new Set(process.argv.slice(2));
-const includeXpi = args.has('--with-xpi');
 const quickMode = args.has('--quick');
 
 const now = new Date();
@@ -50,8 +49,6 @@ const steps = [
         { id: 'e2e-tests', command: 'npm run test:e2e', required: true },
       ]),
   { id: 'build-chrome', command: 'npm run build', required: true },
-  { id: 'build-firefox', command: 'npm run build:firefox', required: true },
-  ...(includeXpi ? [{ id: 'build-firefox-xpi', command: 'npm run build:firefox:xpi', required: true }] : []),
 ];
 
 const writeLog = (step, output, startedAt, endedAt) => {
@@ -113,7 +110,6 @@ const renderMarkdown = (summary) => {
     `- Commit: ${summary.git.commit || 'unknown'}`,
     `- Dirty: ${summary.git.dirty ? 'yes' : 'no'}`,
     `- Quick Mode: ${summary.options.quickMode ? 'yes' : 'no'}`,
-    `- Include XPI: ${summary.options.includeXpi ? 'yes' : 'no'}`,
     `- Required Gates Passed: ${summary.requiredPass ? 'yes' : 'no'}`,
     '',
     '| Step | Status | Required | Duration (ms) | Log |',
@@ -154,7 +150,6 @@ const run = () => {
     generatedAt: now.toISOString(),
     options: {
       quickMode,
-      includeXpi,
     },
     git: {
       branch: readCommand('git rev-parse --abbrev-ref HEAD'),
