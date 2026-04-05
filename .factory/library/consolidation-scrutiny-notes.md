@@ -1,4 +1,0 @@
-# Consolidation scrutiny notes
-
-- `npm run lint` can print `The number of diagnostics exceeds the number allowed by Biome` even when the command exits `0`; use `biome check --reporter=json` (or inspect the exit code) to distinguish a true lint failure from the default text reporter's summary behavior.
-- Consolidation milestone scrutiny found two blocking follow-up areas: `consolidate-asstring` left local `asString` helpers in `packages/backend/convex/stripe-utils.ts`, `packages/electron-agent/src/main.ts`, and `packages/electron-agent/src/logic/type-guards.ts`; `consolidate-truncate` left local/ad hoc truncation logic in `packages/extension/tools/browser-read-tools.ts` and `packages/extension/sidepanel/ui/chat/chat-messaging.ts`, and the `browser-read-tools` helper changed behavior during refactor.
