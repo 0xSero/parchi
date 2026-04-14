@@ -64,6 +64,8 @@ export interface ProviderInstance extends Omit<Partial<ProviderInstanceBase>, 'p
   updatedAt: number;
   /** Source of this provider instance */
   source?: 'migration' | 'manual' | 'oauth-sync' | 'factory';
+  /** SDK type for custom providers (openai-compatible, anthropic, etc.) */
+  sdkType?: string;
 }
 
 /**

@@ -39,6 +39,7 @@ export function extractModelEntries(payload: unknown): ModelEntry[] {
         display_name?: unknown;
         context_length?: unknown;
         contextWindow?: unknown;
+        owned_by?: unknown;
       };
       const id = typeof e.id === 'string' ? e.id.trim() : typeof e.slug === 'string' ? e.slug.trim() : '';
       if (!id) continue;
@@ -51,6 +52,7 @@ export function extractModelEntries(payload: unknown): ModelEntry[] {
             : typeof e.contextWindow === 'number'
               ? e.contextWindow
               : undefined,
+        owned_by: typeof e.owned_by === 'string' ? e.owned_by : undefined,
       });
     }
   }

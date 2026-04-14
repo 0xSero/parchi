@@ -81,7 +81,7 @@ export class SidePanelUI {
   };
   auxAgentProfiles: string[];
   currentView: 'chat' | 'history';
-  currentSettingsTab: 'providers' | 'model' | 'generation' | 'advanced';
+  currentSettingsTab: 'providers' | 'model' | 'generation' | 'display' | 'advanced';
   profileEditorTarget: string;
   subagents: Map<string, SubagentEntry>;
   activeAgent: string;

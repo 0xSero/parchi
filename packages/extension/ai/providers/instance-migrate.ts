@@ -29,6 +29,7 @@ export const materializeProfileWithProvider = (
     customEndpoint: asString(provider.customEndpoint),
     extraHeaders: asRecord(provider.extraHeaders),
     model: modelId || asString(profile.model),
+    sdkType: provider.sdkType || undefined,
   };
 };
 
