@@ -1,5 +1,6 @@
 import type { ProviderInstance } from '@parchi/shared';
 import { PROVIDER_REGISTRY, fetchModelsForProvider, getApiKeyProviders } from '../../../ai/providers/registry.js';
+import type { ProviderDefinition } from '../../../ai/providers/types.js';
 import { mergeProviderModels } from '../../../state/provider-models.js';
 import {
   buildProviderInstanceId,
@@ -162,6 +163,7 @@ sidePanelProto.saveProviderEditorConfig = function saveProviderEditorConfig() {
       createdAt: Number(existing?.createdAt || Date.now()),
       updatedAt: Date.now(),
       source: existing?.source || 'manual',
+      sdkType: existing?.sdkType,
     },
     def.models?.[0]?.id || '',
   );
@@ -256,4 +258,141 @@ sidePanelProto.populateProviderDropdown = function populateProviderDropdown() {
 sidePanelProto.initProviderCardListeners = function initProviderCardListeners() {
   this.elements.providerEditorSaveBtn?.addEventListener('click', () => this.saveProviderEditorConfig());
   this.elements.providerEditorCancelBtn?.addEventListener('click', () => this.closeProviderEditor());
+
+  // Custom provider form listeners
+  this.elements.addCustomProviderBtn?.addEventListener('click', () => this.openCustomProviderForm());
+  this.elements.customProviderFormCloseBtn?.addEventListener('click', () => this.closeCustomProviderForm());
+  this.elements.customProviderSaveBtn?.addEventListener('click', () => this.saveCustomProvider());
+  this.elements.customProviderCancelBtn?.addEventListener('click', () => this.closeCustomProviderForm());
+};
+
+sidePanelProto.openCustomProviderForm = function openCustomProviderForm() {
+  const form = this.elements.customProviderForm as HTMLElement | null;
+  if (!form) return;
+  form.classList.remove('hidden');
+  // Clear form fields
+  if (this.elements.customProviderName) this.elements.customProviderName.value = '';
+  if (this.elements.customProviderSdkType) this.elements.customProviderSdkType.value = 'openai-compatible';
+  if (this.elements.customProviderEndpoint) this.elements.customProviderEndpoint.value = '';
+  if (this.elements.customProviderApiKey) this.elements.customProviderApiKey.value = '';
+  if (this.elements.customProviderModels) this.elements.customProviderModels.value = '';
+  this.elements.customProviderName?.focus();
+};
+
+sidePanelProto.closeCustomProviderForm = function closeCustomProviderForm() {
+  this.elements.customProviderForm?.classList.add('hidden');
+};
+
+sidePanelProto.saveCustomProvider = async function saveCustomProvider() {
+  const name = this.elements.customProviderName?.value?.trim();
+  const sdkType = this.elements.customProviderSdkType?.value || 'openai-compatible';
+  const endpoint = this.elements.customProviderEndpoint?.value?.trim();
+  const apiKey = this.elements.customProviderApiKey?.value?.trim();
+  const modelsRaw = this.elements.customProviderModels?.value?.trim() || '';
+
+  if (!name) {
+    this.updateStatus('Provider name is required', 'warning');
+    return;
+  }
+  if (!endpoint) {
+    this.updateStatus('Base URL is required', 'warning');
+    return;
+  }
+  if (!apiKey) {
+    this.updateStatus('API key is required', 'warning');
+    return;
+  }
+
+  // Parse manually entered models
+  const manualModelIds = modelsRaw
+    .split(',')
+    .map((m: string) => m.trim())
+    .filter(Boolean);
+  let models = manualModelIds.map((id: string) => ({ id, label: id }));
+
+  // Try to fetch models from the endpoint
+  const isAnthropic = sdkType === 'anthropic';
+  const tempDef: ProviderDefinition = {
+    key: 'custom',
+    name,
+    type: 'api-key',
+    sdkType: isAnthropic ? 'anthropic' : 'openai-compatible',
+    defaultBaseUrl: endpoint,
+    authHeaderStyle: isAnthropic ? 'x-api-key' : 'bearer',
+    supportsModelListing: true,
+    modelsEndpoint: isAnthropic ? '/v1/models' : '/models',
+  };
+
+  this.updateStatus(`Fetching models from ${endpoint}...`, 'active');
+
+  try {
+    let fetched = await fetchModelsForProvider(tempDef, { type: 'api-key', apiKey, customEndpoint: endpoint });
+
+    // Filter models based on SDK type if endpoint returns mixed providers
+    if (fetched.length > 0 && isAnthropic) {
+      // Check if owned_by field is present in responses
+      const hasOwnedBy = fetched.some((m: any) => typeof m.owned_by === 'string');
+      if (hasOwnedBy) {
+        // Use owned_by field for accurate filtering
+        const anthropicModels = fetched.filter((m: any) => m.owned_by === 'anthropic');
+        if (anthropicModels.length > 0) {
+          fetched = anthropicModels;
+        }
+      }
+      // If no owned_by field, keep all models - user selected Anthropic SDK intentionally
+    }
+
+    if (fetched.length > 0) {
+      // Merge fetched models with any manually entered ones
+      const fetchedIds = new Set(fetched.map((m) => m.id));
+      const manualOnly = models.filter((m) => !fetchedIds.has(m.id));
+      models = [...fetched, ...manualOnly];
+    }
+  } catch (err) {
+    console.warn('[custom-provider] Failed to fetch models:', err);
+  }
+
+  if (models.length === 0) {
+    this.updateStatus('No models found. Enter at least one model ID manually.', 'warning');
+    return;
+  }
+
+  const providerId = buildProviderInstanceId({
+    provider: 'custom',
+    authType: 'api-key',
+    customEndpoint: endpoint,
+    apiKey,
+    name,
+  });
+
+  const provider: ProviderInstance = ensureProviderModel(
+    {
+      id: providerId,
+      name,
+      provider: 'custom',
+      authType: 'api-key',
+      apiKey,
+      customEndpoint: endpoint,
+      extraHeaders: {},
+      isConnected: true,
+      models,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      source: 'manual',
+      sdkType,
+    },
+    models[0]?.id || '',
+  );
+
+  this.providers = {
+    ...(this.providers || {}),
+    [provider.id]: provider,
+  };
+
+  this.closeCustomProviderForm();
+  this.populateProviderDropdown?.();
+  this.renderApiProviderGrid();
+  this.renderModelSelectorGrid?.();
+  void this.persistAllSettings();
+  this.updateStatus(`${name} added with ${models.length} model${models.length === 1 ? '' : 's'}`, 'success');
 };

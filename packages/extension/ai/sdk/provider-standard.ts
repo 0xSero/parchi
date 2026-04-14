@@ -58,6 +58,15 @@ export function resolveCustomProvider(
     throw new Error('Custom provider requires a customEndpoint to be configured');
   }
 
+  // Use Anthropic SDK for anthropic-compatible custom providers
+  if (settings.sdkType === 'anthropic') {
+    return createAnthropic({
+      apiKey,
+      baseURL: toAnthropicBaseUrl(rawBase),
+      headers: buildAnthropicCompatibleHeaders('custom', apiKey, extraHeaders),
+    })(modelId);
+  }
+
   return createOpenAICompatible({
     name: 'custom',
     apiKey,

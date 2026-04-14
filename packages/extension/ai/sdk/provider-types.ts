@@ -12,4 +12,6 @@ export type SDKModelSettings = {
   oauthAccessToken?: string;
   oauthApiBaseUrl?: string;
   oauthApiHeaders?: Record<string, string>;
+  /** SDK type for custom providers */
+  sdkType?: 'anthropic' | 'openai' | 'openai-compatible';
 };

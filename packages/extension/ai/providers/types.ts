@@ -33,4 +33,5 @@ export interface ModelEntry {
   label?: string;
   contextWindow?: number;
   supportsVision?: boolean;
+  owned_by?: string;
 }
