@@ -2,10 +2,10 @@ import { isJsonRpcResponse } from '@parchi/shared';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runJsonRpcResponseSuite(runner: TestRunner) {
+export async function runJsonRpcResponseSuite(runner: TestRunner) {
   log('\n=== Testing isJsonRpcResponse ===', 'info');
 
-  runner.test('isJsonRpcResponse accepts valid JSON-RPC responses', () => {
+  await runner.test('isJsonRpcResponse accepts valid JSON-RPC responses', () => {
     const validResponses = [
       { jsonrpc: '2.0' as const, id: 'resp-1', result: { data: 'value' } },
       { jsonrpc: '2.0' as const, id: 456, result: 'simple string result' },
@@ -25,7 +25,7 @@ export function runJsonRpcResponseSuite(runner: TestRunner) {
     });
   });
 
-  runner.test('isJsonRpcResponse rejects non-objects', () => {
+  await runner.test('isJsonRpcResponse rejects non-objects', () => {
     runner.assertFalse(isJsonRpcResponse(null), 'Should reject null');
     runner.assertFalse(isJsonRpcResponse(undefined), 'Should reject undefined');
     runner.assertFalse(isJsonRpcResponse('response'), 'Should reject string');
@@ -33,7 +33,7 @@ export function runJsonRpcResponseSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcResponse([]), 'Should reject array');
   });
 
-  runner.test('isJsonRpcResponse rejects missing or wrong jsonrpc version', () => {
+  await runner.test('isJsonRpcResponse rejects missing or wrong jsonrpc version', () => {
     runner.assertFalse(isJsonRpcResponse({ id: '1', result: 'ok' }), 'Should reject missing jsonrpc');
     runner.assertFalse(
       isJsonRpcResponse({ jsonrpc: '1.0', id: '1', result: 'ok' }),
@@ -42,7 +42,7 @@ export function runJsonRpcResponseSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcResponse({ jsonrpc: 2.0, id: '1', result: 'ok' }), 'Should reject non-string jsonrpc');
   });
 
-  runner.test('isJsonRpcResponse rejects missing or invalid id', () => {
+  await runner.test('isJsonRpcResponse rejects missing or invalid id', () => {
     runner.assertFalse(isJsonRpcResponse({ jsonrpc: '2.0', result: 'ok' }), 'Should reject missing id');
     runner.assertFalse(
       isJsonRpcResponse({ jsonrpc: '2.0', error: { code: -1, message: 'err' } }),
@@ -58,18 +58,18 @@ export function runJsonRpcResponseSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcResponse({ jsonrpc: '2.0', id: true, result: 'ok' }), 'Should reject boolean id');
   });
 
-  runner.test('isJsonRpcResponse rejects missing both result and error', () => {
+  await runner.test('isJsonRpcResponse rejects missing both result and error', () => {
     runner.assertFalse(isJsonRpcResponse({ jsonrpc: '2.0', id: '1' }), 'Should reject missing result/error');
   });
 
-  runner.test('isJsonRpcResponse accepts response with both result and error', () => {
+  await runner.test('isJsonRpcResponse accepts response with both result and error', () => {
     runner.assertTrue(
       isJsonRpcResponse({ jsonrpc: '2.0', id: '1', result: 'ok', error: { code: -1, message: 'err' } }),
       'Should accept response with both result and error (treated as response)',
     );
   });
 
-  runner.test('isJsonRpcResponse accepts various error structures', () => {
+  await runner.test('isJsonRpcResponse accepts various error structures', () => {
     runner.assertTrue(
       isJsonRpcResponse({ jsonrpc: '2.0', id: '1', error: null }),
       'Should accept response with null error (has error key)',
@@ -84,7 +84,7 @@ export function runJsonRpcResponseSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('isJsonRpcResponse handles edge cases', () => {
+  await runner.test('isJsonRpcResponse handles edge cases', () => {
     runner.assertFalse(isJsonRpcResponse({}), 'Should reject empty object');
 
     runner.assertTrue(

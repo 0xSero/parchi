@@ -2,10 +2,10 @@ import { DEFAULT_PROFILE, type ProfileConfig, extractConnectionConfig } from '@p
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runExtractConnectionConfigSuite(runner: TestRunner) {
+export async function runExtractConnectionConfigSuite(runner: TestRunner) {
   log('\n=== Testing extractConnectionConfig ===', 'info');
 
-  runner.test('extractConnectionConfig extracts connection fields from profile', () => {
+  await runner.test('extractConnectionConfig extracts connection fields from profile', () => {
     const profile: ProfileConfig = {
       ...DEFAULT_PROFILE,
       provider: 'openai',
@@ -24,7 +24,7 @@ export function runExtractConnectionConfigSuite(runner: TestRunner) {
     runner.assertEqual(connection.extraHeaders['X-Custom'], 'header');
   });
 
-  runner.test('extractConnectionConfig excludes non-connection fields', () => {
+  await runner.test('extractConnectionConfig excludes non-connection fields', () => {
     const profile: ProfileConfig = {
       ...DEFAULT_PROFILE,
       provider: 'anthropic',
@@ -41,7 +41,7 @@ export function runExtractConnectionConfigSuite(runner: TestRunner) {
     runner.assertTrue(!('maxTokens' in connection));
   });
 
-  runner.test('extractConnectionConfig handles extraHeaders undefined', () => {
+  await runner.test('extractConnectionConfig handles extraHeaders undefined', () => {
     const profile: ProfileConfig = {
       ...DEFAULT_PROFILE,
       provider: 'test',

@@ -176,3 +176,78 @@ export async function fetchOpenAICompatibleModels(token: string, baseUrl: string
 export function getStaticOAuthModelIds(config: OAuthProviderConfig): string[] {
   return config.models.map((m) => m.id);
 }
+
+export interface OAuthModelEntry {
+  id: string;
+  label?: string;
+  contextWindow?: number;
+  supportsVision?: boolean;
+}
+
+/**
+ * Rich version for OpenAI-compatible: returns id + context if the endpoint provides it.
+ * Falls back to IDs only if no metadata.
+ */
+export async function fetchOpenAICompatibleModelEntries(token: string, baseUrl: string): Promise<OAuthModelEntry[]> {
+  const base = baseUrl.replace(/\/+$/, '');
+  const urls = base.endsWith('/v1') ? [`${base}/models`] : [`${base}/models`, `${base}/v1/models`];
+  for (const url of urls) {
+    try {
+      const response = await fetchWithTimeout(url, {
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: 'application/json',
+        },
+      });
+      if (!response.ok) continue;
+      const data = await response.json();
+      const entries = extractModelEntriesRich(data);
+      if (entries.length > 0) return entries;
+    } catch {}
+  }
+  return [];
+}
+
+export function extractModelEntriesRich(payload: unknown): OAuthModelEntry[] {
+  if (!payload) return [];
+  const p = payload as { data?: unknown; models?: unknown };
+  const source = Array.isArray(p.data)
+    ? p.data
+    : Array.isArray(p.models)
+      ? p.models
+      : Array.isArray(payload)
+        ? payload
+        : [];
+  const out: OAuthModelEntry[] = [];
+  for (const entry of source) {
+    if (typeof entry === 'string') {
+      const id = entry.trim();
+      if (id) out.push({ id });
+      continue;
+    }
+    if (entry && typeof entry === 'object') {
+      const e = entry as any;
+      const id = (typeof e.id === 'string' ? e.id : typeof e.slug === 'string' ? e.slug : '').trim();
+      if (!id) continue;
+      const ctx =
+        typeof e.context_length === 'number'
+          ? e.context_length
+          : typeof e.contextWindow === 'number'
+            ? e.contextWindow
+            : typeof e.context === 'number'
+              ? e.context
+              : undefined;
+      out.push({
+        id,
+        label: typeof e.display_name === 'string' ? e.display_name : typeof e.name === 'string' ? e.name : id,
+        contextWindow: ctx,
+        supportsVision:
+          e.supports_vision === true ||
+          e.vision === true ||
+          (typeof e.capabilities === 'object' && e.capabilities?.vision === true),
+      });
+    }
+  }
+  return out;
+}

@@ -47,7 +47,8 @@ export function isLikelyTextGenerationModelId(providerKey: string, modelId: stri
   if (provider === 'qwen') return lower.includes('qwen');
   if (provider === 'codex') return /^gpt|^o\d|codex/i.test(lower);
   if (provider === 'copilot') return /(claude|gpt|gemini|o\d|qwen|deepseek|llama|mistral|grok)/i.test(lower);
-  return true;
+  if (provider === 'xai') return /grok/i.test(lower);
+  return true; // permissive for unknown providers or unlisted models (tests and future)
 }
 
 export function prioritizeOAuthModelCandidates(
@@ -66,8 +67,8 @@ export function prioritizeOAuthModelCandidates(
 
   const preferred = [
     ...knownAvailable,
-    ...knownLikelyText,
     ...(discoveredLikelyText.length > 0 ? discoveredLikelyText : discovered),
+    ...knownLikelyText,
   ];
 
   return dedupeModelIds(preferred);

@@ -1,10 +1,10 @@
 import { RUNTIME_MESSAGE_SCHEMA_VERSION, isRuntimeMessage } from '@parchi/shared';
 import { type TestRunner, log } from '../../shared/runner.js';
 
-export function runRuntimeMessagesImagesSuite(runner: TestRunner) {
+export async function runRuntimeMessagesImagesSuite(runner: TestRunner) {
   log('\n=== Testing Runtime Message Images ===', 'info');
 
-  runner.test('report_image_captured message serializes and deserializes correctly', () => {
+  await runner.test('report_image_captured message serializes and deserializes correctly', () => {
     const message = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       type: 'report_image_captured' as const,
@@ -45,7 +45,7 @@ export function runRuntimeMessagesImagesSuite(runner: TestRunner) {
     runner.assertEqual(parsed.selectedImageIds.length, 1, 'Selected image IDs should be preserved');
   });
 
-  runner.test('report_images_selection message serializes and deserializes correctly', () => {
+  await runner.test('report_images_selection message serializes and deserializes correctly', () => {
     const message = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       type: 'report_images_selection' as const,

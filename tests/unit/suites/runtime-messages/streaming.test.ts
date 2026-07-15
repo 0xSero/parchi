@@ -1,10 +1,10 @@
 import { RUNTIME_MESSAGE_SCHEMA_VERSION, isRuntimeMessage } from '@parchi/shared';
 import { type TestRunner, log } from '../../shared/runner.js';
 
-export function runRuntimeMessagesStreamingSuite(runner: TestRunner) {
+export async function runRuntimeMessagesStreamingSuite(runner: TestRunner) {
   log('\n=== Testing Runtime Message Streaming ===', 'info');
 
-  runner.test('assistant_response message serializes and deserializes correctly', () => {
+  await runner.test('assistant_response message serializes and deserializes correctly', () => {
     const message = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       type: 'assistant_response' as const,
@@ -25,7 +25,7 @@ export function runRuntimeMessagesStreamingSuite(runner: TestRunner) {
     runner.assertEqual(parsed.model, message.model, 'Model should be preserved');
   });
 
-  runner.test('assistant_response message handles minimal variant', () => {
+  await runner.test('assistant_response message handles minimal variant', () => {
     const message = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       type: 'assistant_response' as const,

@@ -4,21 +4,24 @@ import type { ToolDefinition } from '@parchi/shared';
 export const READ_TOOLS = [
   {
     name: 'waitFor',
-    description: 'Wait for a selector or page JavaScript condition to become true.',
+    description:
+      'Wait for a selector, text, or JavaScript condition to become true. Prefer selector or text over script on CSP-strict sites (social networks, banking, Google apps) — script conditions may return "csp_blocked" on those hosts. At least one of selector, text, or script is required.',
     input_schema: {
       type: 'object',
       properties: {
         selector: {
           type: 'string',
-          description: 'Optional selector to wait for.',
+          description: 'Selector to wait for. CSP-safe — preferred over script on strict-CSP pages.',
         },
         text: {
           type: 'string',
-          description: 'Optional text that must appear in the matched element or page scope.',
+          description:
+            'Text that must appear in the matched element or page scope. CSP-safe — preferred over script on strict-CSP pages.',
         },
         script: {
           type: 'string',
-          description: 'Optional JavaScript expression or function body that must evaluate truthy.',
+          description:
+            'JavaScript expression or function body that must evaluate truthy. May fail with "csp_blocked" on strict-CSP pages — use selector or text instead if that happens.',
         },
         args: {
           type: 'array',
@@ -39,7 +42,8 @@ export const READ_TOOLS = [
   },
   {
     name: 'evaluate',
-    description: 'Execute JavaScript in the page context and return a JSON-serializable result.',
+    description:
+      'Execute JavaScript in the page context and return a JSON-serializable result. May fail with "csp_blocked" on strict-CSP sites (social networks, banking, Google apps) — if that happens, use getContent, waitFor(selector|text), findHtml, or screenshot instead. Do NOT retry evaluate after a csp_blocked error on the same page.',
     input_schema: {
       type: 'object',
       properties: {
@@ -60,19 +64,22 @@ export const READ_TOOLS = [
   },
   {
     name: 'getContent',
-    description: 'Extract page content.',
+    description:
+      'Extract page content. Result is truncated to maxChars (default 8000) with a `truncated` flag — raise maxChars if you need the full content. CSP-safe — does not use string eval. Auto-retries once on "frame_detached" (transient frame removal during SPA navigation); if it still fails, wait briefly then retry.',
     input_schema: {
       type: 'object',
       properties: {
         type: { type: 'string', description: 'text, html, title, url, or links.' },
         selector: { type: 'string', description: 'Optional selector to scope.' },
+        maxChars: { type: 'number', description: 'Maximum characters to return before truncating. Defaults to 8000.' },
         tabId: { type: 'number', description: 'Optional tab id.' },
       },
     },
   },
   {
     name: 'findHtml',
-    description: 'Check if HTML snippet exists in page DOM.',
+    description:
+      'Check if HTML snippet exists in page DOM. CSP-safe — use this for markup verification on strict-CSP pages where evaluate would fail.',
     input_schema: {
       type: 'object',
       properties: {

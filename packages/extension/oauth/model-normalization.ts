@@ -5,6 +5,7 @@ const OAUTH_PROVIDER_MODEL_PREFIX_ALIASES: Record<OAuthProviderKey, string[]> = 
   codex: ['codex', 'openai'],
   copilot: ['copilot', 'github-copilot', 'githubcopilot', 'github'],
   qwen: ['qwen'],
+  xai: ['grok', 'xai', 'x.ai'],
 };
 
 const normalizeProviderSpecificOAuthModelId = (providerKey: string, modelId: string): string => {

@@ -2,10 +2,10 @@ import { type ProviderConnectionConfig, isProviderConnectionConfig } from '@parc
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runConnectionGuardSuite(runner: TestRunner) {
+export async function runConnectionGuardSuite(runner: TestRunner) {
   log('\n=== Testing isProviderConnectionConfig ===', 'info');
 
-  runner.test('isProviderConnectionConfig accepts valid connection config', () => {
+  await runner.test('isProviderConnectionConfig accepts valid connection config', () => {
     const valid: ProviderConnectionConfig = {
       provider: 'openai',
       model: 'gpt-4o',
@@ -17,7 +17,7 @@ export function runConnectionGuardSuite(runner: TestRunner) {
     runner.assertTrue(isProviderConnectionConfig(valid));
   });
 
-  runner.test('isProviderConnectionConfig rejects non-object values', () => {
+  await runner.test('isProviderConnectionConfig rejects non-object values', () => {
     runner.assertFalse(isProviderConnectionConfig(null));
     runner.assertFalse(isProviderConnectionConfig(undefined));
     runner.assertFalse(isProviderConnectionConfig('string'));
@@ -25,13 +25,13 @@ export function runConnectionGuardSuite(runner: TestRunner) {
     runner.assertFalse(isProviderConnectionConfig(true));
   });
 
-  runner.test('isProviderConnectionConfig rejects objects with wrong types', () => {
+  await runner.test('isProviderConnectionConfig rejects objects with wrong types', () => {
     runner.assertFalse(isProviderConnectionConfig({ provider: 123 }));
     runner.assertFalse(isProviderConnectionConfig({ model: null }));
     runner.assertFalse(isProviderConnectionConfig({ apiKey: true }));
   });
 
-  runner.test('isProviderConnectionConfig accepts config with missing extraHeaders', () => {
+  await runner.test('isProviderConnectionConfig accepts config with missing extraHeaders', () => {
     const withoutHeaders = {
       provider: 'openai',
       model: 'gpt-4o',

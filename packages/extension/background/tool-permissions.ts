@@ -18,7 +18,7 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   pressKey: 'interact',
   scroll: 'interact',
   waitFor: 'read',
-  evaluate: 'read',
+  evaluate: 'interact',
   watchNetwork: 'read',
   getNetworkLog: 'read',
   getContent: 'read',
@@ -30,7 +30,6 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   closeTab: 'tabs',
   switchTab: 'tabs',
   groupTabs: 'tabs',
-  focusTab: 'tabs',
   describeSessionTabs: 'tabs',
 };
 

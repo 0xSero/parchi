@@ -1,5 +1,5 @@
 import { type BrowserToolArgs, type BrowserToolsDelegate, missingSessionTabError } from './browser-tool-shared.js';
-import { injectedCaptureVideoFrame } from './injected/video-frame.js';
+import { injectedCaptureVideoFrames } from './injected/video-frame.js';
 import { injectedVideoCheck } from './injected/video.js';
 
 const JPEG_QUALITY_MAP: Record<string, number> = {
@@ -103,43 +103,28 @@ export async function watchVideoTool(ctx: BrowserToolsDelegate, args: BrowserToo
     return videoCheck || { success: false, error: 'Failed to check video.' };
   }
 
-  const frames: Array<{ time: number; timeFormatted: string; dataUrl: string }> = [];
   const startTime = Math.max(0, videoCheck.video.currentTime);
   const endTime = Math.min(videoCheck.video.duration || startTime + durationSeconds, startTime + durationSeconds);
 
-  for (
-    let currentTime = startTime;
-    currentTime <= endTime && frames.length < maxFrames;
-    currentTime += effectiveInterval
-  ) {
-    const frameResult = await ctx.runInTab(tabId, injectedCaptureVideoFrame, [selector, currentTime, 2000] as const);
+  const captureResult = await ctx.runInTab(tabId, injectedCaptureVideoFrames, [
+    selector,
+    startTime,
+    endTime,
+    effectiveInterval,
+    maxFrames,
+    2000,
+    150,
+  ] as const);
 
-    if (frameResult && typeof frameResult === 'object' && 'success' in frameResult && frameResult.success === true) {
-      frames.push({
-        time: frameResult.time,
-        timeFormatted: frameResult.timeFormatted,
-        dataUrl: frameResult.dataUrl,
-      });
-    } else if (
-      frameResult &&
-      typeof frameResult === 'object' &&
-      'success' in frameResult &&
-      frameResult.success === false &&
-      'error' in frameResult
-    ) {
-      console.warn(`Frame capture at ${currentTime}s failed:`, frameResult.error);
-    }
-
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  }
-
-  if (frames.length === 0) {
+  if (!captureResult?.success) {
     return {
       success: false,
-      error: 'Failed to capture any frames from the video.',
+      error: captureResult?.error || 'Failed to capture any frames from the video.',
       hint: 'The video may be protected (DRM), cross-origin, or not loaded properly.',
     };
   }
+
+  const frames = captureResult.frames;
 
   return {
     success: true,

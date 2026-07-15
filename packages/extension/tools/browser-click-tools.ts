@@ -7,6 +7,7 @@ import {
   resolveWaitTimeoutMs,
 } from './browser-tool-shared.js';
 import { injectedClick } from './injected/click.js';
+import { dispatchSyntheticClick, resolveSelectorSpecElement } from './injected/shared.js';
 import { parseSelectorSpec } from './selector-spec.js';
 
 export async function clickTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs) {
@@ -30,9 +31,19 @@ export async function clickTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs
 
   const spec = parseSelectorSpec(rawSelector);
 
-  let result = await ctx.runInTab(tabId, injectedClick, [spec, timeoutMs] as const);
+  let result = await ctx.runInTab(tabId, injectedClick, [
+    spec,
+    timeoutMs,
+    dispatchSyntheticClick,
+    resolveSelectorSpecElement,
+  ] as const);
   if (isToolFailure(result) && result.error === 'Element not found.') {
-    result = await ctx.runInAllFrames(tabId, injectedClick, [spec, timeoutMs] as const);
+    result = await ctx.runInAllFrames(tabId, injectedClick, [
+      spec,
+      timeoutMs,
+      dispatchSyntheticClick,
+      resolveSelectorSpecElement,
+    ] as const);
   }
 
   if (timeout.wasClamped && result && typeof result === 'object') {
@@ -67,14 +78,10 @@ export async function clickAtTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
   });
 
   const clickAtScript = (cx: number, cy: number, btn: string, dblClick: boolean) => {
+    // Inline dispatchSyntheticClick logic to avoid new Function reconstruction on CSP-strict pages
     const buttonCode = btn === 'right' ? 2 : btn === 'middle' ? 1 : 0;
-    const el = document.elementFromPoint(cx, cy) as HTMLElement | null;
 
-    const tag = el ? el.tagName.toLowerCase() : null;
-    const id = el?.id || null;
-    const text = el?.textContent?.trim().slice(0, 80) || null;
-
-    const firePointer = (type: string, target: EventTarget) => {
+    const firePointer = (type: string, target: Element) => {
       try {
         target.dispatchEvent(
           new PointerEvent(type, {
@@ -92,7 +99,7 @@ export async function clickAtTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
       } catch {}
     };
 
-    const fireMouse = (type: string, target: EventTarget) => {
+    const fireMouse = (type: string, target: Element) => {
       target.dispatchEvent(
         new MouseEvent(type, {
           bubbles: true,
@@ -105,37 +112,53 @@ export async function clickAtTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
       );
     };
 
-    const target: EventTarget = el || document.documentElement;
-
-    if (el && typeof el.focus === 'function') {
-      el.focus();
-    }
-
-    firePointer('pointerover', target);
-    fireMouse('mouseover', target);
-    firePointer('pointerdown', target);
-    fireMouse('mousedown', target);
-    firePointer('pointerup', target);
-    fireMouse('mouseup', target);
-    fireMouse('click', target);
-
-    if (dblClick) {
+    const syntheticClick = (target: Element) => {
+      firePointer('pointerover', target);
+      fireMouse('mouseover', target);
       firePointer('pointerdown', target);
       fireMouse('mousedown', target);
       firePointer('pointerup', target);
       fireMouse('mouseup', target);
       fireMouse('click', target);
-      fireMouse('dblclick', target);
+
+      if (dblClick) {
+        firePointer('pointerdown', target);
+        fireMouse('mousedown', target);
+        firePointer('pointerup', target);
+        fireMouse('mouseup', target);
+        fireMouse('click', target);
+        fireMouse('dblclick', target);
+      }
+
+      if (btn === 'right') {
+        fireMouse('contextmenu', target);
+      }
+
+      if (buttonCode === 0 && typeof (target as Element & { click?: () => void }).click === 'function') {
+        (target as Element & { click: () => void }).click();
+      }
+    };
+
+    if (cx < 0 || cy < 0 || cx > window.innerWidth || cy > window.innerHeight) {
+      return {
+        success: false,
+        error: `Coordinates (${cx}, ${cy}) are outside the visible viewport (${window.innerWidth}x${window.innerHeight}). Coordinates must be CSS/viewport pixels, not device pixels.`,
+      };
     }
 
-    if (btn === 'right') {
-      fireMouse('contextmenu', target);
+    const el = document.elementFromPoint(cx, cy) as HTMLElement | null;
+
+    const tag = el ? el.tagName.toLowerCase() : null;
+    const id = el?.id || null;
+    const text = el?.textContent?.trim().slice(0, 80) || null;
+
+    const target: Element = el || document.documentElement;
+
+    if (el && typeof el.focus === 'function') {
+      el.focus();
     }
 
-    const clickableElement = el as (HTMLElement & { click?: () => void }) | null;
-    if (clickableElement && typeof clickableElement.click === 'function' && btn === 'left') {
-      clickableElement.click();
-    }
+    syntheticClick(target);
 
     return {
       success: true,

@@ -1,10 +1,10 @@
 import { classifyApiError } from '../../../packages/extension/ai/errors/classifier.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runApiErrorClassificationSuite(runner: TestRunner) {
+export async function runApiErrorClassificationSuite(runner: TestRunner) {
   log('\n=== Testing API Error Classification ===', 'info');
 
-  runner.test('404 route errors are not mislabeled as model errors', () => {
+  await runner.test('404 route errors are not mislabeled as model errors', () => {
     const classified = classifyApiError({
       statusCode: 404,
       message: 'Not Found',
@@ -13,7 +13,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     runner.assertEqual(classified.category, 'server');
   });
 
-  runner.test('Model missing responses classify as model errors', () => {
+  await runner.test('Model missing responses classify as model errors', () => {
     const classified = classifyApiError({
       statusCode: 404,
       message: 'Not Found',
@@ -22,7 +22,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     runner.assertEqual(classified.category, 'model');
   });
 
-  runner.test('402 entitlement responses classify as managed-access issues', () => {
+  await runner.test('402 entitlement responses classify as managed-access issues', () => {
     const classified = classifyApiError({
       statusCode: 402,
       message: 'Payment Required',
@@ -37,7 +37,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Managed proxy auth errors avoid BYOK-only guidance', () => {
+  await runner.test('Managed proxy auth errors avoid BYOK-only guidance', () => {
     const classified = classifyApiError({
       statusCode: 401,
       message: 'Unauthorized',
@@ -56,7 +56,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Paid/parchi auth errors avoid BYOK guidance even without ai-proxy text', () => {
+  await runner.test('Paid/parchi auth errors avoid BYOK guidance even without ai-proxy text', () => {
     const classified = classifyApiError(
       {
         statusCode: 401,
@@ -83,7 +83,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Managed proxy invalid key points to backend OPENROUTER_API_KEY fix', () => {
+  await runner.test('Managed proxy invalid key points to backend OPENROUTER_API_KEY fix', () => {
     const classified = classifyApiError(
       {
         statusCode: 401,
@@ -106,7 +106,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     runner.assertTrue(String(classified.action || '').includes('OPENROUTER_API_KEY'));
   });
 
-  runner.test('Managed proxy JWT parse failures classify as auth instead of server', () => {
+  await runner.test('Managed proxy JWT parse failures classify as auth instead of server', () => {
     const classified = classifyApiError(
       {
         statusCode: 500,
@@ -129,7 +129,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Missing managed server key points to backend env setup', () => {
+  await runner.test('Missing managed server key points to backend env setup', () => {
     const classified = classifyApiError(
       {
         statusCode: 500,
@@ -150,7 +150,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     runner.assertTrue(String(classified.action || '').includes('OPENROUTER_API_KEY'));
   });
 
-  runner.test('OAuth auth failures recommend reconnecting OAuth (not BYOK)', () => {
+  await runner.test('OAuth auth failures recommend reconnecting OAuth (not BYOK)', () => {
     const classified = classifyApiError(
       {
         statusCode: 401,
@@ -181,7 +181,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('OAuth model failures suggest raw model IDs (no provider prefix)', () => {
+  await runner.test('OAuth model failures suggest raw model IDs (no provider prefix)', () => {
     const classified = classifyApiError(
       {
         statusCode: 400,
@@ -203,7 +203,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('OAuth permission scope failures do not get mislabeled as expired OAuth', () => {
+  await runner.test('OAuth permission scope failures do not get mislabeled as expired OAuth', () => {
     const classified = classifyApiError(
       {
         statusCode: 403,
@@ -230,7 +230,7 @@ export function runApiErrorClassificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('OAuth quota failures classify as rate limit (not auth)', () => {
+  await runner.test('OAuth quota failures classify as rate limit (not auth)', () => {
     const classified = classifyApiError(
       {
         statusCode: 403,

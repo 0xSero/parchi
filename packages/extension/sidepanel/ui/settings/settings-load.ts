@@ -130,4 +130,3 @@ sidePanelProto.loadSettings = async function loadSettings() {
   await this.refreshAccountPanel?.({ silent: true });
   this.syncAccountAvatar?.();
 };
-

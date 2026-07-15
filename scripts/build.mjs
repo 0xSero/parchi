@@ -105,10 +105,7 @@ const run = async () => {
 
   // Build background and sidepanel as ESM (they support modules)
   await esbuild.build({
-    entryPoints: [
-      path.join(extensionRoot, 'background.ts'),
-      path.join(extensionRoot, 'sidepanel', 'panel.ts'),
-    ],
+    entryPoints: [path.join(extensionRoot, 'background.ts'), path.join(extensionRoot, 'sidepanel', 'panel.ts')],
     outdir: distDir,
     outbase: extensionRoot,
     bundle: true,

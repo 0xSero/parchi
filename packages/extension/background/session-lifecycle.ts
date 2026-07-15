@@ -58,6 +58,12 @@ export function cleanupRun(ctx: ServiceContext, runMeta: RunMeta, origin: 'sidep
     ctx.activeRunIdBySessionId.delete(runMeta.sessionId);
   }
   ctx.cancelledRunIds.delete(runMeta.runId);
+
+  // Detach any chrome.debugger sessions this run may have attached (watchNetwork), so the
+  // "this extension is debugging this browser" banner doesn't linger past task completion.
+  if (ctx.hasBrowserTools(runMeta.sessionId)) {
+    void ctx.getBrowserTools(runMeta.sessionId).detachDebugSessions();
+  }
 }
 
 export function sendRuntime(ctx: ServiceContext, runMeta: RunMeta, payload: Record<string, unknown>) {

@@ -18,19 +18,10 @@ export const TAB_TOOLS = [
   },
   {
     name: 'switchTab',
-    description: 'Activate a tab by id.',
+    description: 'Activate a tab by id, bringing its tab and window to the front.',
     input_schema: {
       type: 'object',
       properties: { tabId: { type: 'number', description: 'Tab id to activate.' } },
-      required: ['tabId'],
-    },
-  },
-  {
-    name: 'focusTab',
-    description: 'Focus a tab by id.',
-    input_schema: {
-      type: 'object',
-      properties: { tabId: { type: 'number', description: 'Tab id to focus.' } },
       required: ['tabId'],
     },
   },

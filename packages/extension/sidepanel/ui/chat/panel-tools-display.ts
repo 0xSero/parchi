@@ -228,7 +228,8 @@ sidePanelProto.updateToolResult = function updateToolResult(entry: any, result: 
       if (prev) prev.remove();
       const chip = document.createElement('div');
       chip.className = 'selected-element-chip';
-      const label = typeof selector === 'string' && selector.length > 50 ? selector.slice(0, 47) + '...' : String(selector);
+      const label =
+        typeof selector === 'string' && selector.length > 50 ? selector.slice(0, 47) + '...' : String(selector);
       chip.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 15l6 6M4 4l6 6"/><rect x="2" y="2" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg><span>Selected: ${this.escapeHtml(label)}</span>`;
       entry.element.insertAdjacentElement('afterend', chip);
     }

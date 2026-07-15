@@ -1,10 +1,10 @@
 import { RUNTIME_MESSAGE_SCHEMA_VERSION, isRuntimeMessage } from '@parchi/shared';
 import { type TestRunner, log } from '../../shared/runner.js';
 
-export function runRuntimeMessagesValidationSuite(runner: TestRunner) {
+export async function runRuntimeMessagesValidationSuite(runner: TestRunner) {
   log('\n=== Testing Runtime Message Validation ===', 'info');
 
-  runner.test('Runtime messages reject invalid schema versions or types', () => {
+  await runner.test('Runtime messages reject invalid schema versions or types', () => {
     runner.assertFalse(isRuntimeMessage(null), 'Should reject non-objects');
     const badVersion = {
       type: 'assistant_final',

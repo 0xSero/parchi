@@ -1,3 +1,4 @@
+import { resolveModelCapabilities } from './model-capabilities.js';
 import type { ModelEntry } from './types.js';
 
 const MODEL_FETCH_TIMEOUT = 8000;
@@ -12,7 +13,7 @@ export async function fetchWithTimeout(url: string, init: RequestInit): Promise<
   }
 }
 
-export function extractModelEntries(payload: unknown): ModelEntry[] {
+export function extractModelEntries(payload: unknown, providerKey?: string): ModelEntry[] {
   if (!payload) return [];
   const p = payload as { data?: unknown; models?: unknown };
   const source = Array.isArray(p.data)
@@ -23,11 +24,17 @@ export function extractModelEntries(payload: unknown): ModelEntry[] {
         ? payload
         : [];
 
+  const withVision = (base: ModelEntry): ModelEntry => {
+    if (!providerKey) return base;
+    const { supportsVision } = resolveModelCapabilities(providerKey, base.id);
+    return supportsVision ? { ...base, supportsVision: true } : base;
+  };
+
   const out: ModelEntry[] = [];
   for (const entry of source) {
     if (typeof entry === 'string') {
       const id = entry.trim();
-      if (id) out.push({ id });
+      if (id) out.push(withVision({ id }));
       continue;
     }
 
@@ -42,16 +49,18 @@ export function extractModelEntries(payload: unknown): ModelEntry[] {
       };
       const id = typeof e.id === 'string' ? e.id.trim() : typeof e.slug === 'string' ? e.slug.trim() : '';
       if (!id) continue;
-      out.push({
-        id,
-        label: typeof e.display_name === 'string' ? e.display_name : typeof e.name === 'string' ? e.name : id,
-        contextWindow:
-          typeof e.context_length === 'number'
-            ? e.context_length
-            : typeof e.contextWindow === 'number'
-              ? e.contextWindow
-              : undefined,
-      });
+      out.push(
+        withVision({
+          id,
+          label: typeof e.display_name === 'string' ? e.display_name : typeof e.name === 'string' ? e.name : id,
+          contextWindow:
+            typeof e.context_length === 'number'
+              ? e.context_length
+              : typeof e.contextWindow === 'number'
+                ? e.contextWindow
+                : undefined,
+        }),
+      );
     }
   }
   return out;

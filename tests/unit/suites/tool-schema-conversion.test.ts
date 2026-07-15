@@ -1,9 +1,9 @@
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runToolSchemaConversionSuite(runner: TestRunner) {
+export async function runToolSchemaConversionSuite(runner: TestRunner) {
   log('\n=== Testing Tool Schema Conversion ===', 'info');
 
-  runner.test('Convert to OpenAI format', () => {
+  await runner.test('Convert to OpenAI format', () => {
     const tool = {
       name: 'test_tool',
       description: 'Test description',
@@ -29,7 +29,7 @@ export function runToolSchemaConversionSuite(runner: TestRunner) {
     runner.assertEqual(openaiFormat.function.name, 'test_tool');
   });
 
-  runner.test('Convert to Anthropic format', () => {
+  await runner.test('Convert to Anthropic format', () => {
     const tool = {
       name: 'test_tool',
       description: 'Test description',

@@ -1,10 +1,10 @@
 import { extractModelEntries } from '../../../packages/extension/ai/providers/model-listing.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runModelListingSuite(runner: TestRunner) {
+export async function runModelListingSuite(runner: TestRunner) {
   log('\n=== Testing Model Listing ===', 'info');
 
-  runner.test('extractModelEntries normalizes string and object payloads', () => {
+  await runner.test('extractModelEntries normalizes string and object payloads', () => {
     const entries = extractModelEntries({
       data: [
         'gpt-4.1',
@@ -21,7 +21,7 @@ export function runModelListingSuite(runner: TestRunner) {
     ]);
   });
 
-  runner.test('extractModelEntries falls back to models array or raw array', () => {
+  await runner.test('extractModelEntries falls back to models array or raw array', () => {
     runner.assertEqual(extractModelEntries({ models: ['kimi-k2'] }), [{ id: 'kimi-k2' }]);
     runner.assertEqual(extractModelEntries(['qwen-max']), [{ id: 'qwen-max' }]);
     runner.assertEqual(extractModelEntries(null), []);

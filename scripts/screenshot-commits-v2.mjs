@@ -1,23 +1,25 @@
-import fs from "fs";
-import path from "path";
-import { chromium } from "playwright";
-import { fileURLToPath } from "url";
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { chromium } from 'playwright';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, "..");
-const tmpDir = "/tmp/parchi-screenshots";
-const outHtml = path.join(root, "commit-ui-review.html");
+const root = path.resolve(__dirname, '..');
+const tmpDir = '/tmp/parchi-screenshots';
+const outHtml = path.join(root, 'commit-ui-review.html');
 
 // Get commit list in order (oldest first)
-const dirs = fs.readdirSync(tmpDir).filter(d => {
-  return fs.existsSync(path.join(tmpDir, d, "commit-info.json"));
+const dirs = fs.readdirSync(tmpDir).filter((d) => {
+  return fs.existsSync(path.join(tmpDir, d, 'commit-info.json'));
 });
 
 // Load info and sort by date
-const commits = dirs.map(d => {
-  const info = JSON.parse(fs.readFileSync(path.join(tmpDir, d, "commit-info.json"), "utf-8"));
-  return { dir: d, ...info };
-}).sort((a, b) => new Date(a.date) - new Date(b.date));
+const commits = dirs
+  .map((d) => {
+    const info = JSON.parse(fs.readFileSync(path.join(tmpDir, d, 'commit-info.json'), 'utf-8'));
+    return { dir: d, ...info };
+  })
+  .sort((a, b) => new Date(a.date) - new Date(b.date));
 
 console.log(`Assembling ${commits.length} commits...\n`);
 
@@ -30,23 +32,25 @@ for (const c of commits) {
 
   // Read all CSS files and inline them
   const cssFiles = [
-    path.join(dir, "panel.css"),
-    ...fs.readdirSync(path.join(dir, "styles")).map(f => path.join(dir, "styles", f)),
+    path.join(dir, 'panel.css'),
+    ...fs.readdirSync(path.join(dir, 'styles')).map((f) => path.join(dir, 'styles', f)),
   ];
-  const allCss = cssFiles.map(f => {
-    let css = fs.readFileSync(f, "utf-8");
-    // Convert relative imports/urls to absolute file paths for the preview
-    css = css.replace(/@import\s+url\(["']\.\/styles\/([^"']+)["']\);?/g, "");
-    css = css.replace(/url\(["']\.\.\/([^"']+)["']\)/g, (_, p) => `url("file://${path.resolve(dir, "..", p)}")`);
-    return css;
-  }).join("\n");
+  const allCss = cssFiles
+    .map((f) => {
+      let css = fs.readFileSync(f, 'utf-8');
+      // Convert relative imports/urls to absolute file paths for the preview
+      css = css.replace(/@import\s+url\(["']\.\/styles\/([^"']+)["']\);?/g, '');
+      css = css.replace(/url\(["']\.\.\/([^"']+)["']\)/g, (_, p) => `url("file://${path.resolve(dir, '..', p)}")`);
+      return css;
+    })
+    .join('\n');
 
   // Read the template HTML fragments
-  const sidebarShell = fs.readFileSync(path.join(dir, "templates", "sidebar-shell.html"), "utf-8");
-  const mainContent = fs.readFileSync(path.join(dir, "templates", "main.html"), "utf-8");
+  const sidebarShell = fs.readFileSync(path.join(dir, 'templates', 'sidebar-shell.html'), 'utf-8');
+  const mainContent = fs.readFileSync(path.join(dir, 'templates', 'main.html'), 'utf-8');
 
   // Read the base panel.html to get the structure
-  const panelHtml = fs.readFileSync(path.join(dir, "panel.html"), "utf-8");
+  const panelHtml = fs.readFileSync(path.join(dir, 'panel.html'), 'utf-8');
 
   // Compose a full static page
   const fullHtml = `<!DOCTYPE html>
@@ -69,14 +73,14 @@ ${mainContent}
 </body>
 </html>`;
 
-  const assembledPath = path.join(dir, "assembled.html");
+  const assembledPath = path.join(dir, 'assembled.html');
   fs.writeFileSync(assembledPath, fullHtml);
   assembled.push({ ...c, assembledPath });
   console.log(`  Assembled ${c.dir} ${c.msg.slice(0, 50)}`);
 }
 
 // Screenshot with Playwright
-console.log("\nTaking screenshots...\n");
+console.log('\nTaking screenshots...\n');
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 420, height: 700 }, deviceScaleFactor: 2 });
@@ -86,9 +90,9 @@ const screenshots = [];
 for (const c of assembled) {
   const page = await ctx.newPage();
   try {
-    await page.goto(`file://${c.assembledPath}`, { waitUntil: "networkidle", timeout: 15000 });
+    await page.goto(`file://${c.assembledPath}`, { waitUntil: 'networkidle', timeout: 15000 });
     await page.waitForTimeout(2000); // Wait for Google Fonts to load
-    const screenshotPath = path.join(tmpDir, c.dir, "screenshot.png");
+    const screenshotPath = path.join(tmpDir, c.dir, 'screenshot.png');
     await page.screenshot({ path: screenshotPath, fullPage: false });
     screenshots.push({ ...c, screenshotPath });
     console.log(`  Captured ${c.dir} ${c.msg.slice(0, 50)}`);
@@ -102,11 +106,12 @@ for (const c of assembled) {
 await browser.close();
 
 // Generate review HTML
-console.log("\nGenerating review HTML...");
+console.log('\nGenerating review HTML...');
 
-const cards = screenshots.map((s) => {
-  const imgData = fs.readFileSync(s.screenshotPath).toString("base64");
-  return `<div class="commit-card">
+const cards = screenshots
+  .map((s) => {
+    const imgData = fs.readFileSync(s.screenshotPath).toString('base64');
+    return `<div class="commit-card">
   <div class="commit-header">
     <code>${s.dir}</code>
     <span class="commit-msg">${escapeHtml(s.msg)}</span>
@@ -114,7 +119,8 @@ const cards = screenshots.map((s) => {
   </div>
   <img src="data:image/png;base64,${imgData}" />
 </div>`;
-}).join("\n");
+  })
+  .join('\n');
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -149,5 +155,5 @@ fs.writeFileSync(outHtml, html);
 console.log(`\nDone! file://${outHtml}`);
 
 function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

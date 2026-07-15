@@ -2,10 +2,10 @@ import { type ProviderInstance, extractConnectionFromProvider } from '@parchi/sh
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runExtractFromProviderSuite(runner: TestRunner) {
+export async function runExtractFromProviderSuite(runner: TestRunner) {
   log('\n=== Testing extractConnectionFromProvider ===', 'info');
 
-  runner.test('extractConnectionFromProvider extracts config from provider instance', () => {
+  await runner.test('extractConnectionFromProvider extracts config from provider instance', () => {
     const provider: ProviderInstance = {
       id: 'test-provider',
       name: 'Test Provider',
@@ -30,7 +30,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     runner.assertEqual(connection.extraHeaders?.['X-Auth'], 'token');
   });
 
-  runner.test('extractConnectionFromProvider uses provider field directly', () => {
+  await runner.test('extractConnectionFromProvider uses provider field directly', () => {
     const provider: ProviderInstance = {
       id: 'anthropic-provider',
       name: 'Anthropic',
@@ -46,7 +46,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     runner.assertEqual(connection.provider, 'anthropic');
   });
 
-  runner.test('extractConnectionFromProvider uses explicit modelId over provider model', () => {
+  await runner.test('extractConnectionFromProvider uses explicit modelId over provider model', () => {
     const provider: ProviderInstance = {
       id: 'test-provider',
       name: 'Test',
@@ -63,7 +63,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     runner.assertEqual(connection.model, 'gpt-3.5-turbo');
   });
 
-  runner.test('extractConnectionFromProvider handles missing optional fields', () => {
+  await runner.test('extractConnectionFromProvider handles missing optional fields', () => {
     const provider: ProviderInstance = {
       id: 'minimal-provider',
       name: 'Minimal',
@@ -84,7 +84,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     runner.assertEqual(Object.keys(connection.extraHeaders || {}).length, 0);
   });
 
-  runner.test('extractConnectionFromProvider handles OAuth provider', () => {
+  await runner.test('extractConnectionFromProvider handles OAuth provider', () => {
     const provider: ProviderInstance = {
       id: 'oauth-provider',
       name: 'OAuth Provider',
@@ -105,7 +105,7 @@ export function runExtractFromProviderSuite(runner: TestRunner) {
     runner.assertEqual(connection.model, 'claude-sonnet-4');
   });
 
-  runner.test('extractConnectionFromProvider handles full provider with all fields', () => {
+  await runner.test('extractConnectionFromProvider handles full provider with all fields', () => {
     const provider: ProviderInstance = {
       id: 'full-provider',
       name: 'Full Provider',

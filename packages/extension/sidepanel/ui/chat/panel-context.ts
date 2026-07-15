@@ -273,9 +273,13 @@ sidePanelProto.updateContextUsage = function updateContextUsage(actualTokens: nu
 
 sidePanelProto.getConfiguredContextLimit = function getConfiguredContextLimit() {
   const active = this.configs[this.currentConfig] || {};
-  const configured = Number(active.contextLimit) || Number.parseInt(this.elements.contextLimit?.value) || 200000;
-  return configured;
+  return computeConfiguredContextLimit(active, this.elements.contextLimit?.value);
 };
+
+export function computeConfiguredContextLimit(active: any, elementsContextValue?: string | number): number {
+  const configured = Number(active?.contextLimit) || Number.parseInt(String(elementsContextValue || '')) || 200000;
+  return configured;
+}
 
 sidePanelProto.estimateBaseContextTokens = function estimateBaseContextTokens() {
   const active = this.configs[this.currentConfig] || {};

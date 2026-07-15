@@ -2,10 +2,10 @@ import { isJsonRpcNotification, isJsonRpcRequest, isJsonRpcResponse } from '@par
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runJsonRpcMutualExclusivitySuite(runner: TestRunner) {
+export async function runJsonRpcMutualExclusivitySuite(runner: TestRunner) {
   log('\n=== Testing JSON-RPC Type Guard Mutual Exclusivity ===', 'info');
 
-  runner.test('Type guards are mutually exclusive where expected', () => {
+  await runner.test('Type guards are mutually exclusive where expected', () => {
     const request = { jsonrpc: '2.0' as const, id: '1', method: 'test' };
     runner.assertTrue(isJsonRpcRequest(request), 'Valid request');
     runner.assertFalse(isJsonRpcNotification(request), 'Request with id is not a notification');

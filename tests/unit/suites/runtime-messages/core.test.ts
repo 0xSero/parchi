@@ -2,10 +2,10 @@ import { RUNTIME_MESSAGE_SCHEMA_VERSION, isRuntimeMessage } from '@parchi/shared
 import type { RunPlan, RuntimeMessage } from '@parchi/shared';
 import { type TestRunner, log } from '../../shared/runner.js';
 
-export function runRuntimeMessagesCoreSuite(runner: TestRunner) {
+export async function runRuntimeMessagesCoreSuite(runner: TestRunner) {
   log('\n=== Testing Runtime Message Core ===', 'info');
 
-  runner.test('Runtime messages are discriminated and serializable', () => {
+  await runner.test('Runtime messages are discriminated and serializable', () => {
     const base = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       runId: 'run-test',

@@ -39,17 +39,17 @@ function createSessionState(): SessionState {
   };
 }
 
-export function runReportImagesSuite(runner: TestRunner) {
+export async function runReportImagesSuite(runner: TestRunner) {
   log('\n=== Testing Report Images ===', 'info');
 
-  runner.test('estimateDataUrlBytes handles padding and empty input', () => {
+  await runner.test('estimateDataUrlBytes handles padding and empty input', () => {
     runner.assertEqual(estimateDataUrlBytes('data:image/png;base64,AAAA'), 3);
     runner.assertEqual(estimateDataUrlBytes('data:image/png;base64,AAA='), 2);
     runner.assertEqual(estimateDataUrlBytes('AAAA'), 3);
     runner.assertEqual(estimateDataUrlBytes(''), 0);
   });
 
-  runner.test('captureReportImage stores metadata and selection state can be mutated', () => {
+  await runner.test('captureReportImage stores metadata and selection state can be mutated', () => {
     const sessionState = createSessionState();
     const image = captureReportImage(
       sessionState,
@@ -76,7 +76,7 @@ export function runReportImagesSuite(runner: TestRunner) {
     runner.assertFalse(summary[0]?.selected, 'clear should deselect all images');
   });
 
-  runner.test('captureReportImage rejects missing or oversized payloads', () => {
+  await runner.test('captureReportImage rejects missing or oversized payloads', () => {
     const sessionState = createSessionState();
     const oversized = `data:image/png;base64,${'A'.repeat(6_000_000)}`;
 
@@ -85,7 +85,7 @@ export function runReportImagesSuite(runner: TestRunner) {
     runner.assertEqual(sessionState.reportImages.length, 0);
   });
 
-  runner.test('trimReportImages evicts unselected items before selected ones', () => {
+  await runner.test('trimReportImages evicts unselected items before selected ones', () => {
     const sessionState = createSessionState();
     sessionState.reportImages = Array.from({ length: 51 }, (_, index) => ({
       id: `img-${index}`,
@@ -111,7 +111,7 @@ export function runReportImagesSuite(runner: TestRunner) {
     runner.assertEqual(getReportImageSummary(sessionState).length, 50);
   });
 
-  runner.test(
+  await runner.test(
     'applyReportImageSelection ignores unknown ids and trimReportImages falls back to index zero when all are selected',
     () => {
       const sessionState = createSessionState();

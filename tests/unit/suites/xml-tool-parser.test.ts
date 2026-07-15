@@ -13,10 +13,10 @@ import {
 } from '../../../packages/extension/background/xml-tool-parser.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runXmlToolParserSuite(runner: TestRunner) {
+export async function runXmlToolParserSuite(runner: TestRunner) {
   log('\n=== Testing XML Tool Parser ===', 'info');
 
-  runner.test('extractXmlToolCalls parses block, inline, and fallback argkey syntax', () => {
+  await runner.test('extractXmlToolCalls parses block, inline, and fallback argkey syntax', () => {
     const block =
       '<tool_call><tool_name>navigate</tool_name><argkey>url</argkey><argvalue>https://example.com</argvalue></tool_call>';
     const inline = 'click<argkey>selector</argkey><argvalue>#submit</argvalue></tool_call>';
@@ -30,7 +30,7 @@ export function runXmlToolParserSuite(runner: TestRunner) {
     runner.assertEqual(extractXmlToolCallsFromTools(block), calls.slice(0, 1));
   });
 
-  runner.test('extractXmlToolName and extractXmlArgs handle named args and coercion', () => {
+  await runner.test('extractXmlToolName and extractXmlArgs handle named args and coercion', () => {
     const block =
       '<tool_call><function>set_plan</function><arg name="steps">["One","Two"]</arg><arg name="retry">true</arg></tool_call>';
 
@@ -44,7 +44,7 @@ export function runXmlToolParserSuite(runner: TestRunner) {
     runner.assertEqual(coerceXmlArgValue(''), '');
   });
 
-  runner.test('stripXmlToolCalls removes tool markup and parsePlanSteps normalizes lines', () => {
+  await runner.test('stripXmlToolCalls removes tool markup and parsePlanSteps normalizes lines', () => {
     const cleaned = stripXmlToolCalls(
       'Before <tool_call><name>click</name><argkey>selector</argkey><argvalue>#x</argvalue></tool_call> After',
     );
@@ -54,7 +54,7 @@ export function runXmlToolParserSuite(runner: TestRunner) {
     runner.assertEqual(stripXmlToolCalls('plain text'), 'plain text');
   });
 
-  runner.test('buildPlanFromArgs prefers explicit steps and preserves existing createdAt', () => {
+  await runner.test('buildPlanFromArgs prefers explicit steps and preserves existing createdAt', () => {
     const existing = buildPlanFromArgs({ steps: [{ title: 'Existing', status: 'done' }] });
     const plan = buildPlanFromArgs(
       {

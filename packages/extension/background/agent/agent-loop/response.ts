@@ -27,8 +27,9 @@ export async function resolveAgentResponse(
   while (true) {
     if (prepared.abortSignal.aborted) return null;
     const passResult = await runAgentModelPassWithFallback(prepared, diagnostics);
-    const xmlToolCalls = extractXmlToolCalls(passResult.text);
     toolResults = passResult.toolResults || [];
+    const hasNativeToolResults = toolResults.length > 0;
+    const xmlToolCalls = hasNativeToolResults ? [] : extractXmlToolCalls(passResult.text);
 
     if (xmlToolCalls.length > 0 && toolResults.length === 0 && recoveryAttempt < maxRecoveryAttempts) {
       prepared.ctx.sendRuntime(prepared.runMeta, {
@@ -86,7 +87,7 @@ export async function resolveAgentResponse(
       continue;
     }
 
-    const cleanedText = stripXmlToolCalls(passResult.text);
+    const cleanedText = hasNativeToolResults ? passResult.text : stripXmlToolCalls(passResult.text);
     const parsedFinal = extractThinking(cleanedText, passResult.reasoningText || null);
     reasoningText = parsedFinal.thinking || passResult.reasoningText || null;
     totalUsage = passResult.totalUsage || totalUsage;

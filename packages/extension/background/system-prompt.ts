@@ -1,5 +1,55 @@
 import type { SessionState } from './service-types.js';
 
+/**
+ * Detect whether the current URL belongs to a known CSP-strict host where
+ * evaluate() / waitFor(script) are likely to fail with csp_blocked.
+ * Returns a model-facing hint section, or '' when the host is not high-risk.
+ */
+function detectCspStrictHost(url: string): string {
+  if (!url) return '';
+  let host: string;
+  try {
+    host = new URL(url).hostname.toLowerCase();
+  } catch {
+    return '';
+  }
+
+  // Known strict-CSP host patterns (non-exhaustive — generalized, not site-specific).
+  const strictHostPatterns = [
+    'facebook.com',
+    'messenger.com',
+    'instagram.com',
+    'linkedin.com',
+    'x.com',
+    'twitter.com',
+    'whatsapp.com',
+    'google.com',
+    'googleusercontent.com',
+    'bankofamerica.com',
+    'chase.com',
+    'wellsfargo.com',
+    'citibank.com',
+    'paypal.com',
+    'stripe.com',
+    'salesforce.com',
+    'force.com',
+    'docusign.com',
+    'adobe.com',
+  ];
+
+  const isStrict = strictHostPatterns.some((pattern) => host === pattern || host.endsWith(`.${pattern}`));
+  if (!isStrict) return '';
+
+  return `<csp_host_risk>
+⚠️ This host (${host}) is known to enforce a strict Content Security Policy.
+• AVOID evaluate() and waitFor(script) — they will likely return "csp_blocked".
+• Prefer waitFor(selector) or waitFor(text) for wait conditions.
+• Prefer getContent / findHtml / screenshot for reading page state.
+• Prefer click(selector) or clickAt(x,y) for interaction — these use non-script paths.
+• If a tool returns "csp_blocked", switch strategy immediately (see <csp_strict_hosts> in the system prompt). Do NOT retry the same script-based approach.
+</csp_host_risk>`;
+}
+
 export function enhanceSystemPrompt(
   basePrompt: string,
   context: {
@@ -158,12 +208,14 @@ After marking step ${currentIndex} done, proceed to step ${currentIndex + 1}.
           .join('\n')}\n</available_skills>`
       : '';
 
+  const cspHostHint = detectCspStrictHost(context.currentUrl);
+
   return `${basePrompt}
  ${stateSection}${thinkingSection}
 ${toolCatalogSection}
 ${visionToolSection}
 ${orchestratorToolSection}
-${skillSection ? `\n${skillSection}` : ''}
+${skillSection ? `\n${skillSection}` : ''}${cspHostHint ? `\n${cspHostHint}` : ''}
 
  <browser_context>
 URL: ${context.currentUrl}
@@ -194,6 +246,7 @@ When you need to perform the same action on multiple similar elements (e.g. clic
 • Then call getContent to verify all actions succeeded.
 • If some elements are below the fold, scroll first, then batch again.
 • This is faster, cheaper, and produces cleaner output.
+• ⚠️ If evaluate returns "csp_blocked", do NOT retry it — the page CSP blocks script eval. Fall back to individual click() calls for each element (click uses a non-script path), or use clickAt with screenshot coordinates.
 </batch_actions>
 
 <output_artifacts>
@@ -211,10 +264,13 @@ Before your next tool call, verify:
 □ If step complete, call update_plan before next step
 
 When a tool fails:
-• Read the error message carefully
+• Read the error code and hint — structured codes (csp_blocked, frame_detached, element_not_found, invalid_args) tell you the failure class and recovery action.
+• For "csp_blocked": switch to non-script tools (getContent, waitFor selector/text, screenshot, findHtml, click, clickAt). Do NOT retry evaluate or waitFor(script).
+• For "frame_detached": the tool auto-retries once; if it still fails, wait briefly then retry.
+• For "element_not_found": try a broader selector, scroll to reveal it, or use text-based selection.
+• For "invalid_args": check the hint for which parameter is missing or invalid.
 • Try alternative approaches (different selector, wait longer, scroll first, etc.)
 • You can retry the same tool with different parameters
-• If an element is not found, try a broader selector or use text-based selection
 • Never give up - keep trying until you succeed or exhaust options
 </checkpoint>`;
 }

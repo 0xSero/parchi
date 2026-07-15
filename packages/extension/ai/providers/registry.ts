@@ -9,6 +9,8 @@ export {
 } from './definitions.js';
 export { fetchModelsForProvider } from './fetch.js';
 export { resolveProviderSdk } from './resolve.js';
+export { resolveModelCapabilities } from './model-capabilities.js';
+export type { ModelCapabilities } from './model-capabilities.js';
 
 // Provider instance management
 export { buildProviderInstanceId } from './instance-id.js';

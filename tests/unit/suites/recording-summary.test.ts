@@ -6,10 +6,10 @@ import {
 } from '../../../packages/extension/recording/recording-summary.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runRecordingSummarySuite(runner: TestRunner) {
+export async function runRecordingSummarySuite(runner: TestRunner) {
   log('\n=== Testing Recording Summary ===', 'info');
 
-  runner.test('deduplicateRecordingEvents merges scrolls clicks inputs and DOM mutations', () => {
+  await runner.test('deduplicateRecordingEvents merges scrolls clicks inputs and DOM mutations', () => {
     const events: RecordingEvent[] = [
       { type: 'scroll', timestamp: 0, url: 'https://example.com', scrollY: 100, direction: 'down' },
       { type: 'scroll', timestamp: 1000, url: 'https://example.com', scrollY: 400, direction: 'down' },
@@ -42,7 +42,7 @@ export function runRecordingSummarySuite(runner: TestRunner) {
     runner.assertEqual(deduped[3]?.summary, '+3 nodes, -1 nodes, 1 attr changes');
   });
 
-  runner.test('deduplicateRecordingEvents caps to max events using event priority', () => {
+  await runner.test('deduplicateRecordingEvents caps to max events using event priority', () => {
     const events: RecordingEvent[] = [
       { type: 'navigation', timestamp: 0, url: 'https://example.com', toUrl: 'https://example.com/a' },
       ...Array.from({ length: 105 }, (_, index) => ({
@@ -62,7 +62,7 @@ export function runRecordingSummarySuite(runner: TestRunner) {
     );
   });
 
-  runner.test('buildRecordingUrlTimeline tracks navigation targets and initial URL', () => {
+  await runner.test('buildRecordingUrlTimeline tracks navigation targets and initial URL', () => {
     const timeline = buildRecordingUrlTimeline([
       { type: 'click', timestamp: 1, url: 'https://example.com/start' },
       { type: 'navigation', timestamp: 2, url: 'https://example.com/start', toUrl: 'https://example.com/next' },
@@ -77,7 +77,7 @@ export function runRecordingSummarySuite(runner: TestRunner) {
     ]);
   });
 
-  runner.test('generateRecordingSummary produces readable event summary', () => {
+  await runner.test('generateRecordingSummary produces readable event summary', () => {
     const events: RecordingEvent[] = [
       { type: 'click', timestamp: 1, url: 'https://example.com', selector: '#buy', textContent: 'Buy now' },
       { type: 'input', timestamp: 2, url: 'https://example.com', placeholder: 'Email' },
@@ -98,7 +98,7 @@ export function runRecordingSummarySuite(runner: TestRunner) {
     runner.assertTrue(summary.includes('DOM changes: +3 / -1 nodes'));
   });
 
-  runner.test('generateRecordingSummary handles overflow counts and selector fallbacks', () => {
+  await runner.test('generateRecordingSummary handles overflow counts and selector fallbacks', () => {
     const events: RecordingEvent[] = [
       ...Array.from({ length: 6 }, (_, index) => ({
         type: 'click' as const,

@@ -2,10 +2,10 @@ import { DEFAULT_PROFILE, type ProfileConfig, resolveProfile } from '@parchi/sha
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runResolveProfileSuite(runner: TestRunner) {
+export async function runResolveProfileSuite(runner: TestRunner) {
   log('\n=== Testing resolveProfile Function ===', 'info');
 
-  runner.test('resolveProfile returns default when name not in configs', () => {
+  await runner.test('resolveProfile returns default when name not in configs', () => {
     const configs: Record<string, Partial<ProfileConfig>> = {};
     const profile = resolveProfile(configs, 'nonexistent');
 
@@ -14,7 +14,7 @@ export function runResolveProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.temperature, DEFAULT_PROFILE.temperature);
   });
 
-  runner.test('resolveProfile returns named profile from configs', () => {
+  await runner.test('resolveProfile returns named profile from configs', () => {
     const configs: Record<string, Partial<ProfileConfig>> = {
       custom: {
         provider: 'anthropic',
@@ -31,7 +31,7 @@ export function runResolveProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.maxTokens, DEFAULT_PROFILE.maxTokens);
   });
 
-  runner.test('resolveProfile merges fallback before named profile', () => {
+  await runner.test('resolveProfile merges fallback before named profile', () => {
     const configs: Record<string, Partial<ProfileConfig>> = {
       specific: {
         provider: 'openai',
@@ -53,7 +53,7 @@ export function runResolveProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.apiKey, 'fallback-key');
   });
 
-  runner.test('resolveProfile named profile overrides fallback values', () => {
+  await runner.test('resolveProfile named profile overrides fallback values', () => {
     const configs: Record<string, Partial<ProfileConfig>> = {
       specific: {
         temperature: 0.2,
@@ -67,7 +67,7 @@ export function runResolveProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.temperature, 0.2);
   });
 
-  runner.test('resolveProfile uses only fallback when name not found', () => {
+  await runner.test('resolveProfile uses only fallback when name not found', () => {
     const configs: Record<string, Partial<ProfileConfig>> = {};
     const fallback: Partial<ProfileConfig> = {
       provider: 'openrouter',
@@ -81,17 +81,17 @@ export function runResolveProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.temperature, DEFAULT_PROFILE.temperature);
   });
 
-  runner.test('resolveProfile handles empty configs', () => {
+  await runner.test('resolveProfile handles empty configs', () => {
     const profile = resolveProfile({}, 'default');
     runner.assertEqual(profile.temperature, DEFAULT_PROFILE.temperature);
   });
 
-  runner.test('resolveProfile with null configs throws error', () => {
+  await runner.test('resolveProfile with null configs throws error', () => {
     // @ts-expect-error Testing runtime behavior with null
     runner.assertThrows(() => resolveProfile(null, 'default'));
   });
 
-  runner.test('resolveProfile handles profiles stored with partial fields', () => {
+  await runner.test('resolveProfile handles profiles stored with partial fields', () => {
     const partialConfigs: Record<string, Partial<ProfileConfig>> = {
       'minimal-profile': {
         provider: 'openrouter',

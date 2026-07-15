@@ -11,10 +11,10 @@ import { log } from '../../shared/runner.js';
  * Tests for ProviderInstance features beyond the base type relationship.
  * Includes OAuth handling, ProfileConfig derivation, and extraction behavior.
  */
-export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
+export async function runProviderInstanceFeaturesSuite(runner: TestRunner) {
   log('\n=== Testing ProviderInstance Features ===', 'info');
 
-  runner.test('ProviderInstanceBase fields match extraction output', () => {
+  await runner.test('ProviderInstanceBase fields match extraction output', () => {
     const provider: ProviderInstance = {
       id: 'complete',
       name: 'Complete Provider',
@@ -39,7 +39,7 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
     runner.assertEqual(connection.extraHeaders, provider.extraHeaders);
   });
 
-  runner.test('ProviderInstance can be created from ProfileConfig connection fields', () => {
+  await runner.test('ProviderInstance can be created from ProfileConfig connection fields', () => {
     const profile = createProfile({
       provider: 'openrouter',
       model: 'meta-llama/llama-3-70b',
@@ -73,7 +73,7 @@ export function runProviderInstanceFeaturesSuite(runner: TestRunner) {
     runner.assertEqual(profileConn.model, providerConn.model);
   });
 
-  runner.test('Partial ProviderInstanceBase handles OAuth providers', () => {
+  await runner.test('Partial ProviderInstanceBase handles OAuth providers', () => {
     const oauthProvider: ProviderInstance = {
       id: 'oauth-test',
       name: 'OAuth Provider',

@@ -23,6 +23,8 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
     return {
       success: false,
       error: 'Provide at least one of selector, text, or script.',
+      code: 'invalid_args',
+      hint: 'Use selector (CSS), text (page text), or script (JS expression).',
     };
   }
   if (script.length > EVALUATE_TOOL_MAX_SCRIPT_LENGTH) {
@@ -48,6 +50,9 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
 
   const result = await ctx.runInTab(
     tabId,
+    // chrome.scripting.executeScript serializes `func` via Function.prototype.toString()
+    // and re-runs it with no closure — runPageScript (a module-scope import) must be
+    // reconstructed from its own source, passed in as an arg, rather than referenced directly.
     async (
       scopeSelector: string,
       text: string,
@@ -55,10 +60,28 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
       runtimeArgs: unknown[],
       timeoutLimit: number,
       pollMs: number,
+      runPageScriptSrc: string,
     ) => {
       const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       const startedAt = Date.now();
       let attempts = 0;
+
+      let runPageScriptFn: ((s: string, a: unknown[]) => Promise<unknown>) | null = null;
+      if (source) {
+        try {
+          runPageScriptFn = new Function(`return (${runPageScriptSrc});`)() as (
+            s: string,
+            a: unknown[],
+          ) => Promise<unknown>;
+        } catch (error) {
+          return {
+            success: false,
+            error: error instanceof Error ? error.message : String(error),
+            code: 'csp_blocked',
+            hint: 'Script condition blocked by page CSP. Use selector or text instead.',
+          };
+        }
+      }
 
       const check = async () => {
         let element: Element | null = null;
@@ -77,14 +100,29 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
           if (!element) return { done: false };
         }
 
-        const textScope = element ?? document.body;
-        if (text && !(textScope?.textContent || '').includes(text)) {
-          return { done: false };
+        // Only touch `document` when text matching is requested — pure-script waits
+        // must not require a DOM (and unit tests exercise that path in Node).
+        if (text) {
+          const textScope = element ?? document.body;
+          if (!(textScope?.textContent || '').includes(text)) {
+            return { done: false };
+          }
         }
 
         if (source) {
+          if (!runPageScriptFn) {
+            return {
+              done: true,
+              result: {
+                success: false,
+                error: 'Script execution blocked.',
+                code: 'csp_blocked',
+                hint: 'Script condition blocked by page CSP. Use selector or text instead.',
+              },
+            };
+          }
           try {
-            if (!(await runPageScript(source, runtimeArgs))) {
+            if (!(await runPageScriptFn(source, runtimeArgs))) {
               return { done: false };
             }
           } catch (error) {
@@ -93,6 +131,8 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
               result: {
                 success: false,
                 error: error instanceof Error ? error.message : String(error),
+                code: 'csp_blocked',
+                hint: 'Script condition blocked by page CSP. Use selector or text instead.',
               },
             };
           }
@@ -126,7 +166,7 @@ export async function waitForTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
         attempts,
       };
     },
-    [selector, expectedText, script, scriptArgs, timeoutMs, pollIntervalMs] as const,
+    [selector, expectedText, script, scriptArgs, timeoutMs, pollIntervalMs, runPageScript.toString()] as const,
   );
 
   if (timeout.wasClamped && result && typeof result === 'object') {

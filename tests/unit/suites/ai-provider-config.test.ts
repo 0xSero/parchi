@@ -1,10 +1,10 @@
 import { type TestRunner, log } from '../shared/runner.js';
 import type { ProviderConfig } from '../shared/types.js';
 
-export function runAiProviderConfigSuite(runner: TestRunner) {
+export async function runAiProviderConfigSuite(runner: TestRunner) {
   log('\n=== Testing AI Provider Configuration ===', 'info');
 
-  runner.test('OpenAI provider config is valid', () => {
+  await runner.test('OpenAI provider config is valid', () => {
     const config: ProviderConfig = {
       provider: 'openai',
       apiKey: 'sk-placeholder',
@@ -16,7 +16,7 @@ export function runAiProviderConfigSuite(runner: TestRunner) {
     runner.assertTrue(config.apiKey.startsWith('sk-'), 'OpenAI keys should start with sk-');
   });
 
-  runner.test('Anthropic provider config is valid', () => {
+  await runner.test('Anthropic provider config is valid', () => {
     const config: ProviderConfig = {
       provider: 'anthropic',
       apiKey: 'test-key',
@@ -28,7 +28,7 @@ export function runAiProviderConfigSuite(runner: TestRunner) {
     runner.assertTrue(config.model.includes('claude'), 'Anthropic model should contain "claude"');
   });
 
-  runner.test('Custom provider config is valid', () => {
+  await runner.test('Custom provider config is valid', () => {
     const config: ProviderConfig = {
       provider: 'custom',
       apiKey: 'custom-key',

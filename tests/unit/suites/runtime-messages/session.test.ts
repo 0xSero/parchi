@@ -1,10 +1,10 @@
 import { RUNTIME_MESSAGE_SCHEMA_VERSION, isRuntimeMessage } from '@parchi/shared';
 import { type TestRunner, log } from '../../shared/runner.js';
 
-export function runRuntimeMessagesSessionSuite(runner: TestRunner) {
+export async function runRuntimeMessagesSessionSuite(runner: TestRunner) {
   log('\n=== Testing Runtime Message Session ===', 'info');
 
-  runner.test('session_tabs_update message serializes and deserializes correctly', () => {
+  await runner.test('session_tabs_update message serializes and deserializes correctly', () => {
     const message = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       type: 'session_tabs_update' as const,
@@ -32,7 +32,7 @@ export function runRuntimeMessagesSessionSuite(runner: TestRunner) {
     runner.assertEqual(parsed.tabs[0].url, 'https://example.com/one', 'Tab URL should be preserved');
   });
 
-  runner.test('session_tabs_update message handles minimal variant', () => {
+  await runner.test('session_tabs_update message handles minimal variant', () => {
     const message = {
       schemaVersion: RUNTIME_MESSAGE_SCHEMA_VERSION,
       type: 'session_tabs_update' as const,

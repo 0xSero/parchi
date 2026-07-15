@@ -6,10 +6,10 @@ import {
 } from '../../../packages/extension/sidepanel/ui/core/panel-session-memory.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runPanelSessionMemorySuite(runner: TestRunner) {
+export async function runPanelSessionMemorySuite(runner: TestRunner) {
   log('\n=== Testing Panel Session Memory Helpers ===', 'info');
 
-  runner.test('clampContextHistory trims oldest entries to the soft cap', () => {
+  await runner.test('clampContextHistory trims oldest entries to the soft cap', () => {
     const history = Array.from({ length: CONTEXT_HISTORY_SOFT_CAP + 5 }, (_, index) => ({
       role: 'user',
       content: `message-${index}`,
@@ -22,7 +22,7 @@ export function runPanelSessionMemorySuite(runner: TestRunner) {
     runner.assertEqual(result[result.length - 1]?.content, `message-${CONTEXT_HISTORY_SOFT_CAP + 4}`);
   });
 
-  runner.test('clearToolCallViews aborts live entries and nulls DOM refs', () => {
+  await runner.test('clearToolCallViews aborts live entries and nulls DOM refs', () => {
     let aborted = 0;
     const views = new Map<string, any>([
       [
@@ -42,7 +42,7 @@ export function runPanelSessionMemorySuite(runner: TestRunner) {
     runner.assertEqual(views.size, 0);
   });
 
-  runner.test('clearReportImages revokes blob URLs and clears selection/order state', () => {
+  await runner.test('clearReportImages revokes blob URLs and clears selection/order state', () => {
     const revoked: string[] = [];
     const originalRevoke = (globalThis.URL as any).revokeObjectURL;
     (globalThis.URL as any).revokeObjectURL = (url: string) => {

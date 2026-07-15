@@ -1,3 +1,6 @@
+import type { SelectorSpec } from '../selector-spec.js';
+import type { resolveSelectorSpecElement as ResolveSelectorSpecElement } from './shared.js';
+
 export type InjectedTypeResult =
   | { success: true }
   | {
@@ -6,7 +9,15 @@ export type InjectedTypeResult =
       hint?: string;
     };
 
-export const injectedType = async (selector: string, value: string, waitMs: number): Promise<InjectedTypeResult> => {
+export const injectedType = async (
+  spec: SelectorSpec | null,
+  value: string,
+  waitMs: number,
+  resolveElementFn: (
+    selectorSpec: Parameters<typeof ResolveSelectorSpecElement>[0],
+    allowDeepSearch: boolean,
+  ) => ReturnType<typeof ResolveSelectorSpecElement>,
+): Promise<InjectedTypeResult> => {
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
   const pollIntervalMs = 200;
 
@@ -16,14 +27,6 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
     const style = window.getComputedStyle(el);
     if (style.display === 'none' || style.visibility === 'hidden') return false;
     return true;
-  };
-
-  const safeQuery = (css: string) => {
-    try {
-      return document.querySelector<HTMLElement>(css);
-    } catch (error: any) {
-      return { __error: `Invalid selector: ${error?.message || String(error)}` } as any;
-    }
   };
 
   const safeQueryAll = (css: string) => {
@@ -51,15 +54,20 @@ export const injectedType = async (selector: string, value: string, waitMs: numb
   };
 
   let el: HTMLElement | null = null;
+  const deepQueryMinIntervalMs = 700;
+  let lastDeepQueryAt = 0;
   const start = performance.now();
   const deadline = start + Math.max(0, waitMs || 0);
   while (performance.now() <= deadline) {
-    if (selector) {
-      const q = safeQuery(selector);
-      if ((q as any)?.__error) {
-        return { success: false, error: (q as any).__error };
+    if (spec) {
+      const now = performance.now();
+      const allowDeepSearch = now - lastDeepQueryAt >= deepQueryMinIntervalMs;
+      if (allowDeepSearch) lastDeepQueryAt = now;
+      const resolved = resolveElementFn(spec, allowDeepSearch);
+      if (resolved.error === 'Invalid selector.') {
+        return { success: false, error: `${resolved.error} ${resolved.hint || ''}`.trim() };
       }
-      el = resolveEditable(q as HTMLElement | null);
+      el = resolveEditable(resolved.el);
     }
 
     if (!el) {

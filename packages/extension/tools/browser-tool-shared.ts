@@ -30,6 +30,7 @@ export type BrowserToolErrorResult = {
   error: string;
   details?: string;
   hint?: string;
+  code?: string;
   [key: string]: unknown;
 };
 

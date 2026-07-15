@@ -112,8 +112,7 @@ READING / VERIFICATION:
 TAB MANAGEMENT:
   • describeSessionTabs - Inspect the tabs already tracked for this session before opening more.
   • getTabs - Inspect the current window's tabs when session state may be stale or incomplete.
-  • switchTab - Activate an existing tab by id.
-  • focusTab - Bring an existing tab/window to the front by id.
+  • switchTab - Activate an existing tab by id, bringing its tab and window to the front.
   • closeTab - Remove tabs you no longer need, especially if near the tab limit.
   • groupTabs - Group related tabs when multiple open tabs materially help the task.
 
@@ -175,7 +174,7 @@ SCREENSHOTS AND COORDINATES:
 
 TABS:
   • Prefer existing session tabs. Call describeSessionTabs/getTabs before openTab unless a new tab is clearly necessary.
-  • Use switchTab/focusTab before opening duplicates.
+  • Use switchTab before opening duplicates.
   • Close unnecessary tabs if you are approaching the session limit.
 
 VIDEO:
@@ -196,14 +195,33 @@ EFFICIENCY:
 
 <error_recovery>
 If a tool fails:
-1. Call getContent to understand current page state
-2. Try a different CSS selector
-3. Scroll to find the element  
-4. Try an alternative approach
-5. If stuck, explain what's blocking you
+1. Read the error code and hint — tools return structured codes (csp_blocked, frame_detached, element_not_found, invalid_args) with recovery hints.
+2. Call getContent to understand current page state
+3. Try a different CSS selector
+4. Scroll to find the element
+5. Try an alternative approach
+6. If stuck, explain what's blocking you
 
 Never give up after one failure. Adapt and retry.
 </error_recovery>
+
+<csp_strict_hosts>
+Some sites enforce a strict Content Security Policy that blocks script evaluation. This is common on large SPAs (social networks, banking, enterprise SaaS, Google apps) and causes evaluate / waitFor(script) to fail with code "csp_blocked".
+
+STRATEGY ON CSP-STRICT HOSTS:
+  • Prefer waitFor(selector) or waitFor(text) over waitFor(script) — selector/text paths do NOT use string eval and work regardless of CSP.
+  • Avoid evaluate() entirely on strict-CSP pages unless you have confirmed it works. Use getContent, findHtml, or screenshot instead.
+  • click and clickAt have non-script fallback paths and should still work; if a click returns "csp_blocked", fall back to clickAt with viewport coordinates from a screenshot.
+  • If getContent fails with "frame_detached" after navigation, the tool auto-retries once — if it still fails, wait briefly (waitFor selector or text) then retry getContent.
+
+RECOVERY LADDER (when a tool returns csp_blocked or a script failure):
+  1. Switch from evaluate/script conditions to waitFor(selector) or waitFor(text).
+  2. Use getContent({ type: "text" }) to read page state instead of evaluate.
+  3. Use screenshot + clickAt(x,y) for interaction when selector-based click also fails.
+  4. Use findHtml for DOM/markup verification when evaluate is blocked.
+
+Do NOT retry evaluate or waitFor(script) after a csp_blocked error on the same page — the CSP will not change between calls. Switch strategy immediately.
+</csp_strict_hosts>
 
 <output_format>
 During execution: Minimal commentary. Your tool calls are your actions.

@@ -5,10 +5,10 @@ import {
 } from '../../../packages/extension/tools/browser-tool-definitions.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runToolDefinitionsSuite(runner: TestRunner) {
+export async function runToolDefinitionsSuite(runner: TestRunner) {
   log('\n=== Testing Tool Definitions ===', 'info');
 
-  runner.test('Real browser tool definitions have required fields', () => {
+  await runner.test('Real browser tool definitions have required fields', () => {
     const definitions = getBrowserToolDefinitions(true);
     definitions.forEach((tool) => {
       runner.assertTrue(tool.name, 'Tool must have name');
@@ -19,7 +19,7 @@ export function runToolDefinitionsSuite(runner: TestRunner) {
     });
   });
 
-  runner.test('Tool availability map matches real definitions', () => {
+  await runner.test('Tool availability map matches real definitions', () => {
     const definitions = getBrowserToolDefinitions(true);
     const toolMap = getBrowserToolMap(true);
     const definitionNames = definitions.map((tool) => tool.name).sort();
@@ -28,13 +28,13 @@ export function runToolDefinitionsSuite(runner: TestRunner) {
     runner.assertEqual(JSON.stringify(mapNames), JSON.stringify(definitionNames), 'Tool map should mirror definitions');
   });
 
-  runner.test('Vision tools are included in the real tool map', () => {
+  await runner.test('Vision tools are included in the real tool map', () => {
     const toolMap = getBrowserToolMap(true);
     runner.assertTrue(toolMap.watchVideo === true, 'watchVideo should be executable');
     runner.assertTrue(toolMap.getVideoInfo === true, 'getVideoInfo should be executable');
   });
 
-  runner.test('Tab-group constrained definition set omits groupTabs', () => {
+  await runner.test('Tab-group constrained definition set omits groupTabs', () => {
     const definitions = getBrowserToolDefinitions(false);
     runner.assertFalse(
       definitions.some((tool) => tool.name === 'groupTabs'),
@@ -42,7 +42,7 @@ export function runToolDefinitionsSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Screenshot remains available without vision tools when screenshots are enabled', () => {
+  await runner.test('Screenshot remains available without vision tools when screenshots are enabled', () => {
     const tools = getToolsForSession(
       {
         getToolDefinitions: () => getBrowserToolDefinitions(true),
@@ -67,7 +67,7 @@ export function runToolDefinitionsSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Screenshot is removed only when screenshots are explicitly disabled', () => {
+  await runner.test('Screenshot is removed only when screenshots are explicitly disabled', () => {
     const tools = getToolsForSession(
       {
         getToolDefinitions: () => getBrowserToolDefinitions(true),

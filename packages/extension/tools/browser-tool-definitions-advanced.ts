@@ -5,7 +5,7 @@ export const ADVANCED_BROWSER_TOOL_DEFINITIONS = [
   {
     name: 'watchNetwork',
     description:
-      'Start or refresh network capture for the current page so later reads can inspect recent fetch/XHR responses and metadata.',
+      'Start or refresh network capture for the current page so later reads can inspect recent fetch/XHR responses and metadata. Chrome only — the debugger API this relies on is unavailable in Firefox.',
     input_schema: {
       type: 'object',
       properties: {
@@ -20,7 +20,7 @@ export const ADVANCED_BROWSER_TOOL_DEFINITIONS = [
   {
     name: 'getNetworkLog',
     description:
-      'Read recently captured network requests and responses for the current page, with optional filtering and response body snippets.',
+      'Read recently captured network requests and responses for the current page, with optional filtering and response body snippets. Chrome only — the debugger API this relies on is unavailable in Firefox.',
     input_schema: {
       type: 'object',
       properties: {

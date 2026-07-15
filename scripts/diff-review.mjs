@@ -1,19 +1,19 @@
-import fs from "fs";
-import path from "path";
-import { execSync } from "child_process";
-import { fileURLToPath } from "url";
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, "..");
+const root = path.resolve(__dirname, '..');
 
 // Get the 25 commits in chronological order (oldest first)
-const commitsRaw = execSync(
-  `git log --oneline -25 --format="%H|%s|%ci" --reverse`,
-  { cwd: root }
-).toString().trim().split("\n");
+const commitsRaw = execSync(`git log --oneline -25 --format="%H|%s|%ci" --reverse`, { cwd: root })
+  .toString()
+  .trim()
+  .split('\n');
 
-const commits = commitsRaw.map(line => {
-  const [hash, msg, date] = line.split("|");
+const commits = commitsRaw.map((line) => {
+  const [hash, msg, date] = line.split('|');
   return { hash: hash.trim(), msg: msg.trim(), date: date.trim(), short: hash.trim().slice(0, 7) };
 });
 
@@ -27,12 +27,14 @@ for (let i = 1; i < commits.length; i++) {
   try {
     diff = execSync(
       `git diff ${prev.hash} ${curr.hash} -- ` +
-      `packages/extension/sidepanel/styles/ ` +
-      `packages/extension/sidepanel/templates/ ` +
-      `packages/extension/sidepanel/panel.css ` +
-      `packages/extension/sidepanel/panel.html`,
-      { cwd: root, maxBuffer: 10 * 1024 * 1024 }
-    ).toString().trim();
+        'packages/extension/sidepanel/styles/ ' +
+        'packages/extension/sidepanel/templates/ ' +
+        'packages/extension/sidepanel/panel.css ' +
+        'packages/extension/sidepanel/panel.html',
+      { cwd: root, maxBuffer: 10 * 1024 * 1024 },
+    )
+      .toString()
+      .trim();
   } catch (e) {
     diff = null;
   }
@@ -45,17 +47,18 @@ for (let i = 1; i < commits.length; i++) {
 console.log(`Found ${diffs.length} commits with UI changes out of ${commits.length} total\n`);
 
 // Generate HTML
-const sections = diffs.map(d => {
-  const diffHtml = escapeHtml(d.diff)
-    .replace(/^(-.*)$/gm, '<span class="del">$1</span>')
-    .replace(/^(\+.*)$/gm, '<span class="add">$1</span>')
-    .replace(/^(@@.*@@)$/gm, '<span class="hunk">$1</span>')
-    .replace(/^(diff .*)$/gm, '<span class="header">$1</span>')
-    .replace(/^(index .*)$/gm, '<span class="header">$1</span>')
-    .replace(/^(--- .*)$/gm, '<span class="header">$1</span>')
-    .replace(/^(\+\+\+ .*)$/gm, '<span class="header">$1</span>');
+const sections = diffs
+  .map((d) => {
+    const diffHtml = escapeHtml(d.diff)
+      .replace(/^(-.*)$/gm, '<span class="del">$1</span>')
+      .replace(/^(\+.*)$/gm, '<span class="add">$1</span>')
+      .replace(/^(@@.*@@)$/gm, '<span class="hunk">$1</span>')
+      .replace(/^(diff .*)$/gm, '<span class="header">$1</span>')
+      .replace(/^(index .*)$/gm, '<span class="header">$1</span>')
+      .replace(/^(--- .*)$/gm, '<span class="header">$1</span>')
+      .replace(/^(\+\+\+ .*)$/gm, '<span class="header">$1</span>');
 
-  return `
+    return `
 <div class="diff-section">
   <div class="diff-header">
     <div class="diff-arrow">
@@ -68,7 +71,8 @@ const sections = diffs.map(d => {
   </div>
   <pre class="diff-body">${diffHtml}</pre>
 </div>`;
-}).join("\n");
+  })
+  .join('\n');
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -111,10 +115,10 @@ ${sections}
 </body>
 </html>`;
 
-const outPath = path.join(root, "commit-ui-review.html");
+const outPath = path.join(root, 'commit-ui-review.html');
 fs.writeFileSync(outPath, html);
 console.log(`Done! file://${outPath}`);
 
 function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }

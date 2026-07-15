@@ -1,11 +1,9 @@
-import type { BrowserTools } from '../../../tools/browser-tools.js';
 import type { ServiceContext } from '../../service-context.js';
 import type { SessionState } from '../../service-types.js';
 import { type ToolExecutionArgs, type ToolExecutionOptions, isObjectRecord } from './shared.js';
 import { handleScreenshotResult, handleWatchVideoResult } from './vision.js';
 
 const MAX_FAILURE_TRACKER_ENTRIES = 250;
-const TAB_MODIFYING_TOOLS = new Set(['openTab', 'closeTab', 'navigate', 'switchTab', 'focusTab']);
 const BROWSER_ACTIONS = new Set(['navigate', 'click', 'type', 'scroll', 'pressKey']);
 
 export function applyFailureDedup(
@@ -41,15 +39,6 @@ export function applyFailureDedup(
   }
 
   sessionState.failureTracker?.delete(failureKey);
-}
-
-export function broadcastTabStateIfNeeded(
-  _ctx: ServiceContext,
-  _browserTools: BrowserTools,
-  toolName: string,
-  _options: ToolExecutionOptions,
-) {
-  if (!TAB_MODIFYING_TOOLS.has(toolName)) return;
 }
 
 export function updateVerificationState(sessionState: SessionState, toolName: string, result: unknown) {

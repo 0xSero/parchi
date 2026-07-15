@@ -13,10 +13,10 @@ import {
 } from '@parchi/shared';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runRuntimeTypesSuite(runner: TestRunner) {
+export async function runRuntimeTypesSuite(runner: TestRunner) {
   log('\n=== Testing Runtime Message Types ===', 'info');
 
-  runner.test('TokenUsage type allows optional token counts', () => {
+  await runner.test('TokenUsage type allows optional token counts', () => {
     const minimal: TokenUsage = {};
     const partial: TokenUsage = { inputTokens: 100, outputTokens: 50 };
     const full: TokenUsage = { inputTokens: 100, outputTokens: 50, totalTokens: 150 };
@@ -25,7 +25,7 @@ export function runRuntimeTypesSuite(runner: TestRunner) {
     runner.assertEqual(full.totalTokens, 150);
   });
 
-  runner.test('ContextUsageSnapshot type tracks context utilization', () => {
+  await runner.test('ContextUsageSnapshot type tracks context utilization', () => {
     const minimal: ContextUsageSnapshot = {};
     const partial: ContextUsageSnapshot = { approxTokens: 50000, contextLimit: 200000 };
     const full: ContextUsageSnapshot = { approxTokens: 100000, contextLimit: 200000, percent: 50 };
@@ -34,7 +34,7 @@ export function runRuntimeTypesSuite(runner: TestRunner) {
     runner.assertEqual(full.percent, 50);
   });
 
-  runner.test('TokenTraceSnapshot type captures token state for tracing', () => {
+  await runner.test('TokenTraceSnapshot type captures token state for tracing', () => {
     const snapshot: TokenTraceSnapshot = {
       providerInputTokens: 1000,
       providerOutputTokens: 500,
@@ -52,7 +52,7 @@ export function runRuntimeTypesSuite(runner: TestRunner) {
     runner.assertEqual(nullable.providerInputTokens, null);
   });
 
-  runner.test('RuntimeLatencyMetrics type tracks run timing', () => {
+  await runner.test('RuntimeLatencyMetrics type tracks run timing', () => {
     const metrics: RuntimeLatencyMetrics = {
       runStartAt: 1000,
       completedAt: 5000,
@@ -73,7 +73,7 @@ export function runRuntimeTypesSuite(runner: TestRunner) {
     runner.assertEqual(withOptional.modelAttempts, 3);
   });
 
-  runner.test('RuntimeBenchmarkContext type captures benchmark data', () => {
+  await runner.test('RuntimeBenchmarkContext type captures benchmark data', () => {
     const success: RuntimeBenchmarkContext = { success: true, provider: 'openai', model: 'gpt-4' };
     const failure: RuntimeBenchmarkContext = { success: false, errorCategory: 'rate_limit' };
     runner.assertTrue(success.success);
@@ -81,14 +81,14 @@ export function runRuntimeTypesSuite(runner: TestRunner) {
     runner.assertEqual(failure.errorCategory, 'rate_limit');
   });
 
-  runner.test('RetryCounts type tracks retry attempts', () => {
+  await runner.test('RetryCounts type tracks retry attempts', () => {
     const counts: RetryCounts = { api: 0, tool: 1, finalize: 0 };
     runner.assertEqual(counts.api, 0);
     runner.assertEqual(counts.tool, 1);
     runner.assertEqual(counts.finalize, 0);
   });
 
-  runner.test('runStatusPhases contains all expected phases', () => {
+  await runner.test('runStatusPhases contains all expected phases', () => {
     runner.assertEqual(runStatusPhases.length, 6);
     runner.assertTrue(runStatusPhases.includes('planning'));
     runner.assertTrue(runStatusPhases.includes('executing'));

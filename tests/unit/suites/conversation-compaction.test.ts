@@ -8,10 +8,10 @@ import {
 import type { Message } from '../../../packages/extension/ai/messages/schema.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runConversationCompactionSuite(runner: TestRunner) {
+export async function runConversationCompactionSuite(runner: TestRunner) {
   log('\n=== Testing Conversation Compaction ===', 'info');
 
-  runner.test('compaction utilities preserve summaries + recent messages', () => {
+  await runner.test('compaction utilities preserve summaries + recent messages', () => {
     const history: Message[] = Array.from({ length: 20 }, (_, idx) => ({
       role: 'user',
       content: `Message ${idx} ${'x'.repeat(200)}`,

@@ -3,6 +3,7 @@
 import { pathToFileURL } from 'node:url';
 
 import { AsyncTestRunner, log } from './shared/runner.js';
+import { runCspHardeningPromptSuite } from './suites/csp-hardening-prompt.integration.test.js';
 import { runModelListingIntegrationSuite } from './suites/model-listing.integration.test.js';
 import { runPromptAndCatalogIntegrationSuite } from './suites/prompt-and-catalog.integration.test.js';
 import { runToolPermissionsAndReportImagesSuite } from './suites/tool-permissions-and-report-images.integration.test.js';
@@ -17,6 +18,7 @@ export async function runIntegrationTests() {
 
   await runModelListingIntegrationSuite(runner);
   await runPromptAndCatalogIntegrationSuite(runner);
+  await runCspHardeningPromptSuite(runner);
   await runToolPermissionsAndReportImagesSuite(runner);
   await runXmlAndRecordingIntegrationSuite(runner);
 

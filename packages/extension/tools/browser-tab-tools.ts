@@ -125,7 +125,7 @@ export async function openTabTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
   }
 }
 
-export async function focusTabTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs) {
+export async function switchTabTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs) {
   const tabId = typeof args.tabId === 'number' ? args.tabId : null;
   if (!tabId) return { success: false, error: 'Missing tabId.' };
   const tab = await chrome.tabs.get(tabId);

@@ -566,9 +566,18 @@ body.sidebar-open .context-inspector-popover {
   border-bottom: 1px solid var(--ink-1);
 }
 
+/* Wraps the empty state and the message list so the empty state's overlay
+   is confined to the space above the composer instead of the composer's
+   own row (chat-area spans both). */
+.chat-scroll-region {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
 /* Messages container */
 .chat-messages {
-  flex: 1;
+  height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px 20px;
@@ -577,7 +586,6 @@ body.sidebar-open .context-inspector-popover {
   gap: 0;
   scroll-behavior: smooth;
   min-width: 0;
-  min-height: 0;
 }
 
 .chat-messages::after {

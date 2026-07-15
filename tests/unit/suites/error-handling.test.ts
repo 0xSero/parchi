@@ -1,9 +1,9 @@
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runErrorHandlingSuite(runner: TestRunner) {
+export async function runErrorHandlingSuite(runner: TestRunner) {
   log('\n=== Testing Error Handling ===', 'info');
 
-  runner.test('Missing required parameters throw error', () => {
+  await runner.test('Missing required parameters throw error', () => {
     runner.assertThrows(() => {
       const params: { url?: string } = {}; // Missing required 'url'
       if (!params.url) {
@@ -12,7 +12,7 @@ export function runErrorHandlingSuite(runner: TestRunner) {
     }, 'Should not execute without required params');
   });
 
-  runner.test('Invalid selector format detected', () => {
+  await runner.test('Invalid selector format detected', () => {
     const invalidSelectors: Array<string | null | undefined> = ['', '  ', null, undefined];
 
     invalidSelectors.forEach((selector) => {

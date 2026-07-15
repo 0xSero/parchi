@@ -43,27 +43,29 @@
 
                 <!-- Chat Interface -->
                 <div id="chatInterface" class="chat-area">
-                    <!-- Empty state -->
-                    <div id="chatEmptyState" class="chat-empty-state">
-                        <div class="chat-empty-gravity-well">
-                            <div class="chat-empty-orbit"><div class="chat-empty-orbit-dot"></div></div>
-                            <div class="chat-empty-orbit"><div class="chat-empty-orbit-dot"></div></div>
-                            <div class="chat-empty-singularity"></div>
-                        </div>
-                        <div class="chat-empty-title">What can I help with?</div>
-                        <div class="chat-empty-starters">
-                            <button class="chat-empty-starter" data-prompt="What's on this page?">What's on this page?</button>
-                            <button class="chat-empty-starter" data-prompt="Summarize the key points">Summarize the key points</button>
-                            <button class="chat-empty-starter" data-prompt="Find something across my tabs">Find something across my tabs</button>
-                            <button class="chat-empty-starter" data-prompt="Help me fill out this form">Help me fill out this form</button>
-                            <button class="chat-empty-starter" data-prompt="Extract data into a table">Extract data into a table</button>
-                        </div>
-                    </div>
-
                     <div id="agentNav" class="agent-nav hidden" aria-label="Agent sessions"></div>
 
                     <!-- Messages -->
-                    <div id="chatMessages" class="chat-messages"></div>
+                    <div class="chat-scroll-region">
+                        <!-- Empty state -->
+                        <div id="chatEmptyState" class="chat-empty-state">
+                            <div class="chat-empty-gravity-well">
+                                <div class="chat-empty-orbit"><div class="chat-empty-orbit-dot"></div></div>
+                                <div class="chat-empty-orbit"><div class="chat-empty-orbit-dot"></div></div>
+                                <div class="chat-empty-singularity"></div>
+                            </div>
+                            <div class="chat-empty-title">What can I help with?</div>
+                            <div class="chat-empty-starters">
+                                <button class="chat-empty-starter" data-prompt="What's on this page?">What's on this page?</button>
+                                <button class="chat-empty-starter" data-prompt="Summarize the key points">Summarize the key points</button>
+                                <button class="chat-empty-starter" data-prompt="Find something across my tabs">Find something across my tabs</button>
+                                <button class="chat-empty-starter" data-prompt="Help me fill out this form">Help me fill out this form</button>
+                                <button class="chat-empty-starter" data-prompt="Extract data into a table">Extract data into a table</button>
+                            </div>
+                        </div>
+
+                        <div id="chatMessages" class="chat-messages"></div>
+                    </div>
 
                     <!-- Plan Drawer (above composer) -->
                     <div id="planDrawer" class="plan-drawer hidden">

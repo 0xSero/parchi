@@ -242,7 +242,7 @@
 
 .settings-tabs {
   display: flex;
-  gap: 4px;
+  gap: 3px;
   margin-bottom: 8px;
   padding: 4px;
   background: var(--background);
@@ -251,7 +251,9 @@
 }
 
 .settings-tabs-redesign {
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
   position: sticky;
   top: 0;
   z-index: 4;
@@ -259,9 +261,14 @@
   backdrop-filter: blur(10px);
 }
 
+.settings-tabs-redesign::-webkit-scrollbar {
+  display: none;
+}
+
 .settings-tab-button {
-  padding: 6px 14px;
-  font-size: 12px;
+  flex-shrink: 0;
+  padding: 6px 7px;
+  font-size: 11.5px;
   font-weight: 550;
   letter-spacing: 0.01em;
   background: transparent;
@@ -317,6 +324,12 @@
   font-size: 11px;
   line-height: 1.5;
   color: var(--muted);
+}
+
+.gen-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .switch-row {

@@ -2,10 +2,10 @@ import { isJsonRpcRequest } from '@parchi/shared';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runJsonRpcRequestSuite(runner: TestRunner) {
+export async function runJsonRpcRequestSuite(runner: TestRunner) {
   log('\n=== Testing isJsonRpcRequest ===', 'info');
 
-  runner.test('isJsonRpcRequest accepts valid JSON-RPC requests', () => {
+  await runner.test('isJsonRpcRequest accepts valid JSON-RPC requests', () => {
     const validRequests = [
       { jsonrpc: '2.0' as const, id: 'req-1', method: 'getData' },
       { jsonrpc: '2.0' as const, id: 123, method: 'updateItem', params: { id: 456 } },
@@ -19,7 +19,7 @@ export function runJsonRpcRequestSuite(runner: TestRunner) {
     });
   });
 
-  runner.test('isJsonRpcRequest rejects non-objects', () => {
+  await runner.test('isJsonRpcRequest rejects non-objects', () => {
     runner.assertFalse(isJsonRpcRequest(null), 'Should reject null');
     runner.assertFalse(isJsonRpcRequest(undefined), 'Should reject undefined');
     runner.assertFalse(isJsonRpcRequest('string'), 'Should reject string');
@@ -32,7 +32,7 @@ export function runJsonRpcRequestSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('isJsonRpcRequest rejects missing or wrong jsonrpc version', () => {
+  await runner.test('isJsonRpcRequest rejects missing or wrong jsonrpc version', () => {
     runner.assertFalse(isJsonRpcRequest({ id: '1', method: 'test' }), 'Should reject missing jsonrpc');
     runner.assertFalse(
       isJsonRpcRequest({ jsonrpc: '1.0', id: '1', method: 'test' }),
@@ -41,7 +41,7 @@ export function runJsonRpcRequestSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: 2.0, id: '1', method: 'test' }), 'Should reject non-string jsonrpc');
   });
 
-  runner.test('isJsonRpcRequest rejects invalid id types', () => {
+  await runner.test('isJsonRpcRequest rejects invalid id types', () => {
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', method: 'test' }), 'Should reject missing id');
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', id: null, method: 'test' }), 'Should reject null id');
     runner.assertFalse(
@@ -53,7 +53,7 @@ export function runJsonRpcRequestSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', id: true, method: 'test' }), 'Should reject boolean id');
   });
 
-  runner.test('isJsonRpcRequest rejects invalid method', () => {
+  await runner.test('isJsonRpcRequest rejects invalid method', () => {
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', id: '1' }), 'Should reject missing method');
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', id: '1', method: null }), 'Should reject null method');
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', id: '1', method: 123 }), 'Should reject number method');
@@ -61,11 +61,11 @@ export function runJsonRpcRequestSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcRequest({ jsonrpc: '2.0', id: '1', method: [] }), 'Should reject array method');
   });
 
-  runner.test('isJsonRpcRequest accepts empty string method', () => {
+  await runner.test('isJsonRpcRequest accepts empty string method', () => {
     runner.assertTrue(isJsonRpcRequest({ jsonrpc: '2.0', id: '1', method: '' }), 'Should accept empty string method');
   });
 
-  runner.test('isJsonRpcRequest handles edge cases', () => {
+  await runner.test('isJsonRpcRequest handles edge cases', () => {
     runner.assertFalse(isJsonRpcRequest({}), 'Should reject empty object');
 
     runner.assertTrue(

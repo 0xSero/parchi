@@ -6,10 +6,10 @@ import {
 } from '../../../packages/extension/ai/messages/utils.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runMessageUtilsSuite(runner: TestRunner) {
+export async function runMessageUtilsSuite(runner: TestRunner) {
   log('\n=== Testing Message Utilities ===', 'info');
 
-  runner.test('extractTextFromResponseMessages keeps readable text and skips tool/thinking payloads', () => {
+  await runner.test('extractTextFromResponseMessages keeps readable text and skips tool/thinking payloads', () => {
     const text = extractTextFromResponseMessages([
       { content: 'Hello ' },
       {
@@ -28,7 +28,7 @@ export function runMessageUtilsSuite(runner: TestRunner) {
     runner.assertEqual(extractTextFromResponseMessages(null), '');
   });
 
-  runner.test('extractThinkingFromResponseMessages combines tagged and structured thinking content', () => {
+  await runner.test('extractThinkingFromResponseMessages combines tagged and structured thinking content', () => {
     const thinking = extractThinkingFromResponseMessages([
       { content: '<analysis>First pass</analysis>' },
       { content: { type: 'thinking', text: 'Second pass' } },
@@ -39,7 +39,7 @@ export function runMessageUtilsSuite(runner: TestRunner) {
     runner.assertEqual(extractThinkingFromResponseMessages('bad-input'), null);
   });
 
-  runner.test('dedupeThinking removes duplicate paragraphs and runaway repeated lines', () => {
+  await runner.test('dedupeThinking removes duplicate paragraphs and runaway repeated lines', () => {
     const thinking = dedupeThinking(
       ['First paragraph.', '', 'First paragraph.', '', 'Repeat me', 'Repeat me', 'Repeat me', 'Unique line'].join('\n'),
     );
@@ -48,7 +48,7 @@ export function runMessageUtilsSuite(runner: TestRunner) {
     runner.assertEqual(dedupeThinking(null), '');
   });
 
-  runner.test('estimateTokensFromContent handles strings arrays objects and circular values', () => {
+  await runner.test('estimateTokensFromContent handles strings arrays objects and circular values', () => {
     const circular: Record<string, unknown> = {};
     circular.self = circular;
 

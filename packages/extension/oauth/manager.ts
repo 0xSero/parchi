@@ -20,6 +20,7 @@ import {
   fetchAnthropicModels,
   fetchCodexModels,
   fetchCopilotModels,
+  fetchOpenAICompatibleModelEntries,
   fetchOpenAICompatibleModels,
   fetchOpenAIModels,
   getStaticOAuthModelIds,
@@ -207,6 +208,16 @@ export async function fetchProviderModels(key: OAuthProviderKey): Promise<string
       const apiBase = await getApiBaseUrl(key);
       if (apiBase) {
         models = await fetchOpenAICompatibleModels(accessToken, apiBase);
+      }
+    } else if (key === 'xai') {
+      const apiBase = config.apiBaseUrl;
+      if (apiBase) {
+        const entries = await fetchOpenAICompatibleModelEntries(accessToken, apiBase);
+        if (entries.length > 0) {
+          models = entries.map((e) => e.id);
+        } else {
+          models = await fetchOpenAICompatibleModels(accessToken, apiBase);
+        }
       }
     }
 

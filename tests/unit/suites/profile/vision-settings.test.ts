@@ -2,10 +2,10 @@ import { DEFAULT_PROFILE, createProfile } from '@parchi/shared';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runVisionSettingsSuite(runner: TestRunner) {
+export async function runVisionSettingsSuite(runner: TestRunner) {
   log('\n=== Testing Profile Vision Settings ===', 'info');
 
-  runner.test('Profile with vision settings stores and retrieves correctly', () => {
+  await runner.test('Profile with vision settings stores and retrieves correctly', () => {
     const profile = createProfile({
       provider: 'openai',
       model: 'gpt-4o-vision',
@@ -19,7 +19,7 @@ export function runVisionSettingsSuite(runner: TestRunner) {
     runner.assertEqual(profile.screenshotQuality, 'low');
   });
 
-  runner.test('Profile vision defaults are applied correctly', () => {
+  await runner.test('Profile vision defaults are applied correctly', () => {
     const profile = createProfile({});
 
     runner.assertEqual(profile.enableScreenshots, DEFAULT_PROFILE.enableScreenshots);
@@ -27,7 +27,7 @@ export function runVisionSettingsSuite(runner: TestRunner) {
     runner.assertEqual(profile.screenshotQuality, DEFAULT_PROFILE.screenshotQuality);
   });
 
-  runner.test('Profile vision settings can be disabled explicitly', () => {
+  await runner.test('Profile vision settings can be disabled explicitly', () => {
     const profile = createProfile({
       enableScreenshots: false,
       sendScreenshotsAsImages: false,

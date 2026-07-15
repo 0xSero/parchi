@@ -43,6 +43,7 @@ export type ServiceContext = {
   sendToSidePanel(message: unknown): void;
   getSessionState(sessionId: string): SessionState;
   getBrowserTools(sessionId: string): BrowserTools;
+  hasBrowserTools(sessionId: string): boolean;
   releaseSessionResources(sessionId: string): void;
   setSubagentTabBadge(tabId: number, state: SubagentTabBadgeState): void;
   syncSubagentTabBadge(tabId: number): void;

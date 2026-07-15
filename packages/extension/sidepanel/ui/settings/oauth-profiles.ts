@@ -1,4 +1,5 @@
-import { OAUTH_PROVIDERS, fetchProviderModels, getAllProviderStates } from '../../../oauth/manager.js';
+import { OAUTH_PROVIDERS, fetchProviderModels, getAccessToken, getAllProviderStates } from '../../../oauth/manager.js';
+import { fetchOpenAICompatibleModelEntries } from '../../../oauth/model-listing.js';
 import { normalizeOAuthModelIdForProvider } from '../../../oauth/model-normalization.js';
 import type { OAuthProviderKey } from '../../../oauth/types.js';
 import type { OAuthProviderConfig } from '../../../oauth/types.js';
@@ -7,6 +8,38 @@ import { buildProviderInstanceId, ensureProviderModel } from '../../../state/pro
 import type { SidePanelUI } from '../core/panel-ui.js';
 
 const OAUTH_PROFILE_PREFIX = 'oauth:';
+
+export function resolveProfileContextLimit(
+  modelId: string,
+  providerKey: string,
+  apiModelEntries: any[],
+  staticModels: any[],
+  providerModels: any[],
+): number {
+  const key = providerKey || '';
+  const normalized = normalizeOAuthModelIdForProvider(key, modelId);
+  if (!normalized) return 200000;
+
+  // 1. API entry (live from /models)
+  const apiEntry = apiModelEntries.find((e: any) => normalizeOAuthModelIdForProvider(key, e.id) === normalized);
+  if (apiEntry && typeof apiEntry.contextWindow === 'number') {
+    return apiEntry.contextWindow;
+  }
+
+  // 2. From merged provider models (which may have come from API or static)
+  const provModel = (providerModels || []).find((m: any) => normalizeOAuthModelIdForProvider(key, m.id) === normalized);
+  if (provModel && typeof provModel.contextWindow === 'number') {
+    return provModel.contextWindow;
+  }
+
+  // 3. Static from OAUTH_PROVIDERS
+  const staticModel = staticModels.find((m: any) => normalizeOAuthModelIdForProvider(key, m.id) === normalized);
+  if (staticModel && typeof staticModel.contextWindow === 'number') {
+    return staticModel.contextWindow;
+  }
+
+  return 200000;
+}
 
 function oauthProfileName(key: string): string {
   return `${OAUTH_PROFILE_PREFIX}${key}`;
@@ -53,6 +86,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
     const state = states?.[config.key];
     const connected = Boolean(state?.connected && state?.tokens?.accessToken);
     let discoveredModels: string[] = [];
+    let apiModelEntries: any[] = [];
 
     if (connected) {
       try {
@@ -60,12 +94,25 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       } catch {
         discoveredModels = [];
       }
+      if (config.key === 'xai' && config.apiBaseUrl) {
+        try {
+          const token = await getAccessToken(config.key as OAuthProviderKey);
+          if (token) {
+            apiModelEntries = await fetchOpenAICompatibleModelEntries(token, config.apiBaseUrl);
+          }
+        } catch {
+          apiModelEntries = [];
+        }
+      }
     }
 
-    const defaultModel = normalizeOAuthModelIdForProvider(
-      config.key,
-      discoveredModels[0] || config.models[0]?.id || '',
-    );
+    // Prefer a rich API-sourced model id for the default when available, so a
+    // brand-new (non-static) discovered id becomes the profile model instead of
+    // always falling back to discovered[0]/config.models[0].
+    const defaultModel =
+      (apiModelEntries.length > 0 &&
+        normalizeOAuthModelIdForProvider(config.key, String(apiModelEntries[0]?.id || ''))) ||
+      normalizeOAuthModelIdForProvider(config.key, discoveredModels[0] || config.models[0]?.id || '');
     const providerId = buildProviderInstanceId({
       provider: `${config.key}-oauth`,
       authType: 'oauth',
@@ -88,6 +135,7 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
           config.models || [],
           priorProvider?.models || [],
           discoveredModels,
+          apiModelEntries,
         ),
         createdAt: Number(priorProvider?.createdAt || Date.now()),
         updatedAt: Date.now(),
@@ -99,11 +147,15 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       const normalizedModelId = normalizeOAuthModelIdForProvider(config.key, modelId);
       if (!normalizedModelId) continue;
       const knownModel = config.models.find((model) => model.id === normalizedModelId);
+      const apiEntry = apiModelEntries.find(
+        (e: any) => normalizeOAuthModelIdForProvider(config.key, e.id) === normalizedModelId,
+      );
+      const contextWin = apiEntry?.contextWindow ?? knownModel?.contextWindow;
       nextProvider = ensureProviderModel(nextProvider, {
         id: normalizedModelId,
-        label: knownModel?.label,
-        contextWindow: knownModel?.contextWindow,
-        supportsVision: knownModel?.supportsVision,
+        label: apiEntry?.label ?? knownModel?.label,
+        contextWindow: contextWin,
+        supportsVision: apiEntry?.supportsVision ?? knownModel?.supportsVision,
       });
     }
     providers[providerId] = nextProvider;
@@ -124,10 +176,13 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
         systemPrompt: ui.getDefaultSystemPrompt?.() || '',
         temperature: 0.7,
         maxTokens: 4096,
-        contextLimit:
-          config.models.find((model) => model.id === defaultModel)?.contextWindow ||
-          config.models[0]?.contextWindow ||
-          200000,
+        contextLimit: resolveProfileContextLimit(
+          defaultModel,
+          config.key,
+          apiModelEntries,
+          config.models || [],
+          nextProvider.models || [],
+        ),
         timeout: 30000,
       };
       changed = true;
@@ -148,16 +203,23 @@ export async function syncOAuthProfiles(ui: SidePanelUI): Promise<void> {
       if (nextModel && nextModel !== currentModel) {
         existing.model = nextModel;
         existing.modelId = nextModel;
-        // Only set contextLimit from model metadata if the profile doesn't already
-        // have a user-customized value — otherwise OAuth sync overwrites user edits
-        // on every sidepanel open.
-        if (!existing.contextLimit) {
-          const matchedContextWindow = config.models.find((model) => model.id === nextModel)?.contextWindow;
-          if (matchedContextWindow) {
-            existing.contextLimit = matchedContextWindow;
-          }
-        }
         changed = true;
+      }
+      // Only set contextLimit from model metadata if the profile doesn't already
+      // have a user-customized value — otherwise OAuth sync overwrites user edits
+      // on every sidepanel open.
+      if (nextModel && !existing.contextLimit) {
+        const resolvedLimit = resolveProfileContextLimit(
+          nextModel,
+          config.key,
+          apiModelEntries,
+          config.models || [],
+          nextProvider.models || [],
+        );
+        if (resolvedLimit) {
+          existing.contextLimit = resolvedLimit;
+          changed = true;
+        }
       }
     } else if (!connected && configs[profileName]) {
       delete configs[profileName];

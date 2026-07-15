@@ -204,10 +204,7 @@ sidePanelProto._scrollDropdownToSelected = function _scrollDropdownToSelected() 
 
 // ─── Select ────────────────────────────────────────────────────────────
 
-sidePanelProto._selectFromModelDropdown = function _selectFromModelDropdown(
-  providerId: string,
-  modelId: string,
-) {
+sidePanelProto._selectFromModelDropdown = function _selectFromModelDropdown(providerId: string, modelId: string) {
   this._closeModelDropdown?.();
   try {
     this.selectModelFromGrid?.(providerId, modelId);
@@ -220,7 +217,7 @@ sidePanelProto._selectFromModelDropdown = function _selectFromModelDropdown(
 // ─── Open / Close / Position ───────────────────────────────────────────
 
 sidePanelProto._openModelDropdown = function _openModelDropdown() {
-  let dropdown = this.elements.modelSelectorDropdown;
+  const dropdown = this.elements.modelSelectorDropdown;
   const search = this.elements.modelSelectorSearch;
   const trigger = this.elements.modelSelectorBtn || this.elements.modelSelectorWrap;
 

@@ -161,6 +161,10 @@ export class BrowserTools {
     return this.debugManager.watchNetwork(tabId, clearExisting);
   }
 
+  async detachDebugSessions() {
+    await this.debugManager.detachAll();
+  }
+
   async readNetworkLog(
     tabId: number,
     options: {

@@ -65,7 +65,7 @@ export const mergeProviderModels = (providerType: string, ...sources: unknown[])
       merged[existingIndex] = {
         ...existing,
         label: existing.label || model.label,
-        contextWindow: existing.contextWindow ?? model.contextWindow,
+        contextWindow: model.contextWindow ?? existing.contextWindow,
         supportsVision: existing.supportsVision === true || model.supportsVision === true,
         addedManually: existing.addedManually === true || model.addedManually === true,
       };

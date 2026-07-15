@@ -217,6 +217,13 @@
   border-top: 1px solid var(--ink-1);
 }
 
+/* No model selector to anchor the left side (setup incomplete): let the
+   tools/send group sit flush left instead of stranding it against the right
+   edge with a dead gap where the selector would have been. */
+.composer-toolbar:has(#modelSelectorWrap.hidden) {
+  justify-content: flex-start;
+}
+
 .composer-toolbar-left {
   display: flex;
   align-items: center;
@@ -707,6 +714,10 @@
     width: 100%;
     justify-content: flex-end;
     gap: 4px;
+  }
+
+  .composer-toolbar:has(#modelSelectorWrap.hidden) .composer-toolbar-right {
+    justify-content: flex-start;
   }
 
   .model-selector {

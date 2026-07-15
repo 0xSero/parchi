@@ -110,8 +110,26 @@ export class BrowserDebugManager {
     };
   }
 
+  async detachAll(): Promise<void> {
+    const tabIds = Array.from(this.sessions.keys());
+    await Promise.all(
+      tabIds.map(async (tabId) => {
+        this.sessions.delete(tabId);
+        await new Promise<void>((resolve) => {
+          chrome.debugger.detach(targetForTab(tabId), () => {
+            void chrome.runtime.lastError; // Ignore — tab may already be detached/closed.
+            resolve();
+          });
+        });
+      }),
+    );
+  }
+
   private bindListeners() {
     if (this.listenersBound) return;
+    // chrome.debugger doesn't exist on Firefox (no manifest permission, no API) — constructing
+    // BrowserTools must not crash the whole background service on that platform.
+    if (typeof chrome.debugger === 'undefined') return;
     chrome.debugger.onEvent.addListener((source, method, params) => {
       void this.handleEvent(source, method, (params || {}) as Record<string, any>);
     });
@@ -124,6 +142,12 @@ export class BrowserDebugManager {
   }
 
   private async ensureAttached(tabId: number): Promise<DebugSession> {
+    if (typeof chrome.debugger === 'undefined') {
+      throw new Error(
+        'chrome.debugger is not available in this browser (network capture requires Chrome; Firefox has no debugger API).',
+      );
+    }
+
     const existing = this.sessions.get(tabId);
     if (existing?.attached) return existing;
 

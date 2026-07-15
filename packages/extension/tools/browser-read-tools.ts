@@ -25,21 +25,32 @@ export async function evaluateTool(ctx: BrowserToolsDelegate, args: BrowserToolA
 
   const result = await ctx.runInTab(
     tabId,
-    async (source: string, runtimeArgs: unknown[]) => {
+    async (source: string, runtimeArgs: unknown[], runPageScriptSrc: string, toJsonSafeSrc: string) => {
       try {
-        const value = await runPageScript(source, runtimeArgs);
+        const runPageScriptFn = new Function(`return (${runPageScriptSrc});`)() as (
+          s: string,
+          a: unknown[],
+        ) => Promise<unknown>;
+        const toJsonSafeFn = new Function(`return (${toJsonSafeSrc});`)() as (v: unknown) => unknown;
+        const value = await runPageScriptFn(source, runtimeArgs);
         return {
           success: true,
-          result: toJsonSafe(value),
+          result: toJsonSafeFn(value),
         };
       } catch (error) {
+        const msg = error instanceof Error ? error.message : String(error);
+        const isCsp = msg.toLowerCase().includes('csp') || msg.includes('unsafe-eval') || msg.includes('eval');
         return {
           success: false,
-          error: error instanceof Error ? error.message : String(error),
+          error: msg,
+          code: isCsp ? 'csp_blocked' : 'executeScript_failed',
+          hint: isCsp
+            ? 'Script evaluation blocked by page CSP. Use getContent, waitFor(selector|text), or screenshot instead.'
+            : undefined,
         };
       }
     },
-    [script, scriptArgs] as const,
+    [script, scriptArgs, runPageScript.toString(), toJsonSafe.toString()] as const,
   );
 
   return result || { success: false, error: 'Script execution failed.' };
@@ -59,7 +70,16 @@ export async function getContentTool(ctx: BrowserToolsDelegate, args: BrowserToo
   const result = await ctx.runInTab(
     tabId,
     (t: string, sel: string, limit: number) => {
-      const base = sel ? document.querySelector<HTMLElement>(sel) : document.body;
+      let base: HTMLElement | null;
+      try {
+        base = sel ? document.querySelector<HTMLElement>(sel) : document.body;
+      } catch (error) {
+        return {
+          success: false,
+          error: 'Invalid selector.',
+          details: error instanceof Error ? error.message : String(error),
+        };
+      }
       if (!base) return { success: false, error: 'Target not found.' };
       const normalizedType = ['text', 'html', 'title', 'url', 'links'].includes(t) ? t : 'text';
       const truncate = (value: string) => {

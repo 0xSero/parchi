@@ -78,7 +78,6 @@ Object.assign(toolIcons, {
   screenshot: toolIcons.browser_screenshot,
   getTabs: toolIcons.browser_get_page_text,
   switchTab: toolIcons.browser_go_forward,
-  focusTab: toolIcons.browser_go_forward,
   closeTab: toolIcons.browser_go_back,
   groupTabs: toolIcons.browser_set_viewport,
   describeSessionTabs: toolIcons.browser_get_page_text,

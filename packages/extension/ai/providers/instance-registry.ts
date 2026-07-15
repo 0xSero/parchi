@@ -42,7 +42,18 @@ export const ensureProviderModel = (
           addedManually: model.addedManually === true,
         } satisfies ProviderModelEntry);
   if (!entry.id) return provider;
-  const existing = normalizeProviderModels(provider.models);
-  if (existing.some((item) => item.id === entry.id)) return provider;
-  return { ...provider, models: [...existing, entry], updatedAt: Date.now() };
+  const existingList = normalizeProviderModels(provider.models);
+  const existingIndex = existingList.findIndex((item) => item.id === entry.id);
+  if (existingIndex >= 0) {
+    // update fields if provided in the new entry (e.g. context from API)
+    const updated = { ...existingList[existingIndex] };
+    if (entry.label !== undefined) updated.label = entry.label;
+    if (entry.contextWindow !== undefined) updated.contextWindow = entry.contextWindow;
+    if (entry.supportsVision !== undefined) updated.supportsVision = entry.supportsVision;
+    if (entry.addedManually !== undefined) updated.addedManually = entry.addedManually;
+    const newModels = [...existingList];
+    newModels[existingIndex] = updated;
+    return { ...provider, models: newModels, updatedAt: Date.now() };
+  }
+  return { ...provider, models: [...existingList, entry], updatedAt: Date.now() };
 };

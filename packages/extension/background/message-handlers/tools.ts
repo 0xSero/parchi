@@ -5,7 +5,20 @@ import { normalizeSessionId } from './core.js';
 // Tool execution handlers
 export async function handleExecuteTool(ctx: ServiceContext, message: any, sendResponse: RuntimeSendResponse) {
   const sessionId = normalizeSessionId(message.sessionId, ctx.currentSessionId || 'default');
-  const result = await ctx.getBrowserTools(sessionId).executeTool(message.tool, message.args);
+  const toolName = assertNonEmptyString(message.tool, 'Missing tool name.');
+  const settings = await chrome.storage.local.get(null);
+  const result = await ctx.executeToolByName(
+    toolName,
+    message.args && typeof message.args === 'object' ? message.args : {},
+    {
+      runMeta: {
+        runId: normalizeSessionId(message.runId, `manual-run-${Date.now()}`),
+        turnId: normalizeSessionId(message.turnId, `manual-turn-${Date.now()}`),
+        sessionId,
+      },
+      settings,
+    },
+  );
   respondOk(sendResponse, { result });
 }
 

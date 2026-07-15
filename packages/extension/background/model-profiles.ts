@@ -1,3 +1,4 @@
+import { resolveModelCapabilities } from '../ai/providers/model-capabilities.js';
 import { normalizeOpenRouterModelId } from '../ai/sdk/index.js';
 import { invalidateRuntimeAuthSession, isUsableRuntimeJwt, refreshRuntimeAuthSession } from '../convex/client.js';
 import {
@@ -212,26 +213,5 @@ export function resolveTeamProfiles(settings: Record<string, any>) {
 }
 
 export function isVisionModelProfile(profile: Record<string, any> | null | undefined) {
-  const provider = String(profile?.provider || '').toLowerCase();
-  const model = String(profile?.model || '').toLowerCase();
-
-  if (!provider) return false;
-  if (provider === 'anthropic' || provider === 'claude-oauth') return true;
-  if (provider === 'kimi') return true;
-  if (provider === 'glm') return /4\.6v|vision/.test(model);
-  if (provider === 'minimax') return /vision/.test(model);
-  if (provider === 'codex-oauth' || provider === 'copilot-oauth') {
-    return /gpt-4o|vision/i.test(model);
-  }
-  if (provider === 'openrouter' || provider === 'parchi') {
-    return /(claude|gpt-4o|gpt-4-turbo|gemini|vision)/i.test(model);
-  }
-  if (provider === 'openai') {
-    return /gpt-4o|gpt-4\.1|gpt-4-turbo|gpt-4-vision|vision/.test(model);
-  }
-  if (provider === 'google') {
-    return /(gemini|imagen)/.test(model);
-  }
-
-  return model.includes('vision');
+  return resolveModelCapabilities(String(profile?.provider || ''), String(profile?.model || '')).supportsVision;
 }

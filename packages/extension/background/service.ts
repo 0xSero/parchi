@@ -12,6 +12,7 @@ import {
   emitTokenTrace,
   getBrowserTools,
   getSessionState,
+  hasBrowserTools,
   isRunCancelled,
   registerActiveRun,
   sendRuntime as sendRuntimeImpl,
@@ -137,6 +138,10 @@ export class BackgroundService implements ServiceContext {
 
   getBrowserTools(sessionId: string): BrowserTools {
     return getBrowserTools(this.browserToolsBySessionId, this.currentSettings, sessionId);
+  }
+
+  hasBrowserTools(sessionId: string): boolean {
+    return hasBrowserTools(this.browserToolsBySessionId, sessionId);
   }
 
   releaseSessionResources(sessionId: string) {

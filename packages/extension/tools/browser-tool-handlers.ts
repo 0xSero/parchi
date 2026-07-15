@@ -6,11 +6,11 @@ import { evaluateTool, findHtmlTool, getContentTool } from './browser-read-tools
 import {
   closeTabTool,
   describeSessionTabsTool,
-  focusTabTool,
   getTabsTool,
   groupTabsTool,
   navigateTool,
   openTabTool,
+  switchTabTool,
 } from './browser-tab-tools.js';
 import type { BrowserToolName } from './browser-tool-definitions.js';
 import type { BrowserToolArgs, BrowserToolsDelegate } from './browser-tool-shared.js';
@@ -42,8 +42,7 @@ export function createToolHandlers(delegate: BrowserToolsDelegate): ToolHandlerM
     screenshot: (args) => screenshotTool(delegate, args),
     getTabs: () => getTabsTool(),
     closeTab: (args) => closeTabTool(delegate, args),
-    switchTab: (args) => focusTabTool(delegate, args),
-    focusTab: (args) => focusTabTool(delegate, args),
+    switchTab: (args) => switchTabTool(delegate, args),
     groupTabs: (args) => groupTabsTool(delegate, args),
     describeSessionTabs: () => describeSessionTabsTool(delegate),
     watchVideo: (args) => watchVideoTool(delegate, args),

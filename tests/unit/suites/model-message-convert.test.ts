@@ -2,10 +2,10 @@ import type { Message } from '../../../packages/extension/ai/messages/schema.js'
 import { toModelMessages } from '../../../packages/extension/ai/models/convert.js';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runModelMessageConvertSuite(runner: TestRunner) {
+export async function runModelMessageConvertSuite(runner: TestRunner) {
   log('\n=== Testing Model Message Conversion ===', 'info');
 
-  runner.test('Tool results without top-level toolCallId are recovered from content entries', () => {
+  await runner.test('Tool results without top-level toolCallId are recovered from content entries', () => {
     const history: Message[] = [
       {
         role: 'assistant',
@@ -44,7 +44,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('Tool results with unknown toolCallId are filtered out', () => {
+  await runner.test('Tool results with unknown toolCallId are filtered out', () => {
     const history: Message[] = [
       {
         role: 'assistant',
@@ -69,7 +69,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     runner.assertEqual(toolMessages.length, 0, 'Unknown tool_call_id entries should be dropped');
   });
 
-  runner.test('Assistant tool call groups are dropped unless every tool result stays contiguous', () => {
+  await runner.test('Assistant tool call groups are dropped unless every tool result stays contiguous', () => {
     const history: Message[] = [
       {
         role: 'assistant',
@@ -101,7 +101,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     runner.assertFalse(toolCallIds.includes('missing:2'), 'Expected orphan tool call to be removed');
   });
 
-  runner.test('Non-adjacent tool results are stripped to avoid invalid assistant/tool ordering', () => {
+  await runner.test('Non-adjacent tool results are stripped to avoid invalid assistant/tool ordering', () => {
     const history: Message[] = [
       {
         role: 'assistant',
@@ -132,7 +132,7 @@ export function runModelMessageConvertSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('toModelMessages normalizes user/system payloads and direct tool messages', () => {
+  await runner.test('toModelMessages normalizes user/system payloads and direct tool messages', () => {
     const circular: Record<string, unknown> = {};
     circular.self = circular;
 

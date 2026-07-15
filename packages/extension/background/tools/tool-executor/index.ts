@@ -1,12 +1,7 @@
 import type { ServiceContext } from '../../service-context.js';
 import { validateAndExecuteBrowserTool } from './browser-gate.js';
 import { executeBuiltinTool } from './builtins.js';
-import {
-  applyFailureDedup,
-  broadcastTabStateIfNeeded,
-  postprocessBrowserResult,
-  updateVerificationState,
-} from './postprocess.js';
+import { applyFailureDedup, postprocessBrowserResult, updateVerificationState } from './postprocess.js';
 import { createToolRuntimeEmitter } from './runtime.js';
 import { type ToolExecutionArgs, type ToolExecutionOptions, attachPlanToResult } from './shared.js';
 
@@ -50,7 +45,6 @@ export async function executeToolByName(
   const finalResult = browserExecution.result || { error: 'No result returned' };
 
   applyFailureDedup(sessionState, toolName, args, finalResult);
-  broadcastTabStateIfNeeded(ctx, browserTools, toolName, options);
   updateVerificationState(sessionState, toolName, finalResult);
 
   const processedResult = await postprocessBrowserResult(

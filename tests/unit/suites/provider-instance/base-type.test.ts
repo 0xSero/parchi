@@ -14,11 +14,11 @@ import { log } from '../../shared/runner.js';
  * Tests verifying that ProviderInstance and ProfileConfig share the same base type shape.
  * This ensures type compatibility and proper extraction of connection config from both.
  */
-export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
+export async function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
   log('\n=== Testing ProviderInstance Base Type Relationship ===', 'info');
 
   // ===== ProviderInstanceBase Type Tests =====
-  runner.test('ProviderInstanceBase has same fields as ProviderConnectionConfig', () => {
+  await runner.test('ProviderInstanceBase has same fields as ProviderConnectionConfig', () => {
     // ProviderInstanceBase is defined as Pick<ProviderConnectionConfig, ...>
     // This test verifies the fields are consistent
     const baseFields: (keyof ProviderInstanceBase)[] = [
@@ -40,7 +40,7 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     runner.assertEqual(baseFields.length, CONNECTION_CONFIG_FIELDS.length);
   });
 
-  runner.test('ProviderInstance extends Partial<ProviderInstanceBase> except provider', () => {
+  await runner.test('ProviderInstance extends Partial<ProviderInstanceBase> except provider', () => {
     // ProviderInstance should accept partial base fields since auth types vary
     // but 'provider' is now required as the canonical field
     const minimalProvider: ProviderInstance = {
@@ -61,7 +61,7 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     runner.assertEqual(minimalProvider.apiKey, undefined);
   });
 
-  runner.test('ProviderInstance can have all base fields populated', () => {
+  await runner.test('ProviderInstance can have all base fields populated', () => {
     const fullProvider: ProviderInstance = {
       id: 'full',
       name: 'Full Provider',
@@ -85,7 +85,7 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
   });
 
   // ===== ProfileConfig vs ProviderInstance Compatibility =====
-  runner.test('ProfileConfig and ProviderInstance share base connection shape', () => {
+  await runner.test('ProfileConfig and ProviderInstance share base connection shape', () => {
     // ProfileConfig extends ProviderConnectionConfig (all fields required)
     const profile = createProfile({
       provider: 'anthropic',
@@ -117,7 +117,7 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     runner.assertEqual(profile.apiKey, provider.apiKey);
   });
 
-  runner.test('extractConnectionConfig and extractConnectionFromProvider produce compatible results', () => {
+  await runner.test('extractConnectionConfig and extractConnectionFromProvider produce compatible results', () => {
     const profile = createProfile({
       provider: 'openai',
       model: 'gpt-4o',
@@ -152,7 +152,7 @@ export function runProviderInstanceBaseTypeSuite(runner: TestRunner) {
     runner.assertEqual(profileConnection.extraHeaders?.['X-Key'], providerConnection.extraHeaders?.['X-Key']);
   });
 
-  runner.test('provider field is used directly in extraction', () => {
+  await runner.test('provider field is used directly in extraction', () => {
     const provider: ProviderInstance = {
       id: 'test',
       name: 'Test',

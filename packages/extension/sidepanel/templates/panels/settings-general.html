@@ -92,30 +92,28 @@
 
 <!-- ===== GENERATION ===== -->
 <div class="settings-tab-pane" data-pane="generation">
-    <div class="gen-form">
-        <div class="gen-row">
-            <label for="genTemperature">Temperature <span id="genTemperatureValue" class="form-value">0.7</span></label>
-            <input type="range" id="genTemperature" min="0" max="2" step="0.1" value="0.7" />
-        </div>
-        <div class="gen-row">
-            <label for="genMaxTokens">Max Tokens</label>
-            <input type="number" id="genMaxTokens" min="1" max="32000" value="4096" />
-        </div>
-        <div class="gen-row">
-            <label for="genContextLimit">Context Limit</label>
-            <input type="number" id="genContextLimit" min="4000" value="200000" />
-        </div>
-        <div class="gen-row">
-            <label for="genTimeout">Timeout (ms)</label>
-            <input type="number" id="genTimeout" min="5000" step="1000" value="30000" />
-        </div>
-        <div class="gen-row">
-            <label for="genScreenshotQuality">Screenshot Quality</label>
-            <select id="genScreenshotQuality">
-                <option value="high">High</option>
-                <option value="low">Low</option>
-            </select>
-        </div>
+    <div class="form-group">
+        <label for="genTemperature">Temperature <span id="genTemperatureValue" class="form-value">0.7</span></label>
+        <input type="range" id="genTemperature" min="0" max="2" step="0.1" value="0.7" />
+    </div>
+    <div class="form-group">
+        <label for="genMaxTokens">Max Tokens</label>
+        <input type="number" id="genMaxTokens" min="1" max="32000" value="4096" />
+    </div>
+    <div class="form-group">
+        <label for="genContextLimit">Context Limit</label>
+        <input type="number" id="genContextLimit" min="4000" value="200000" />
+    </div>
+    <div class="form-group">
+        <label for="genTimeout">Timeout (ms)</label>
+        <input type="number" id="genTimeout" min="5000" step="1000" value="30000" />
+    </div>
+    <div class="form-group">
+        <label for="genScreenshotQuality">Screenshot Quality</label>
+        <select id="genScreenshotQuality">
+            <option value="high">High</option>
+            <option value="low">Low</option>
+        </select>
     </div>
 
     <div class="settings-section-label">Capabilities</div>

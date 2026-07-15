@@ -107,3 +107,8 @@ export function getBrowserTools(
   browserToolsBySessionId.set(id, created);
   return created;
 }
+
+export function hasBrowserTools(browserToolsBySessionId: Map<string, BrowserTools>, sessionId: string): boolean {
+  const id = typeof sessionId === 'string' && sessionId.trim() ? sessionId : 'default';
+  return browserToolsBySessionId.has(id);
+}

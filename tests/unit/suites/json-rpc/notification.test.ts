@@ -2,10 +2,10 @@ import { isJsonRpcNotification } from '@parchi/shared';
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runJsonRpcNotificationSuite(runner: TestRunner) {
+export async function runJsonRpcNotificationSuite(runner: TestRunner) {
   log('\n=== Testing isJsonRpcNotification ===', 'info');
 
-  runner.test('isJsonRpcNotification accepts valid JSON-RPC notifications', () => {
+  await runner.test('isJsonRpcNotification accepts valid JSON-RPC notifications', () => {
     const validNotifications = [
       { jsonrpc: '2.0' as const, method: 'notify' },
       { jsonrpc: '2.0' as const, method: 'statusUpdate', params: { status: 'ok' } },
@@ -18,7 +18,7 @@ export function runJsonRpcNotificationSuite(runner: TestRunner) {
     });
   });
 
-  runner.test('isJsonRpcNotification rejects non-objects', () => {
+  await runner.test('isJsonRpcNotification rejects non-objects', () => {
     runner.assertFalse(isJsonRpcNotification(null), 'Should reject null');
     runner.assertFalse(isJsonRpcNotification(undefined), 'Should reject undefined');
     runner.assertFalse(isJsonRpcNotification('notification'), 'Should reject string');
@@ -26,7 +26,7 @@ export function runJsonRpcNotificationSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcNotification([]), 'Should reject array');
   });
 
-  runner.test('isJsonRpcNotification rejects notifications with id', () => {
+  await runner.test('isJsonRpcNotification rejects notifications with id', () => {
     runner.assertFalse(
       isJsonRpcNotification({ jsonrpc: '2.0', id: '1', method: 'test' }),
       'Should reject notifications with id',
@@ -42,7 +42,7 @@ export function runJsonRpcNotificationSuite(runner: TestRunner) {
     );
   });
 
-  runner.test('isJsonRpcNotification rejects wrong jsonrpc version', () => {
+  await runner.test('isJsonRpcNotification rejects wrong jsonrpc version', () => {
     runner.assertFalse(
       isJsonRpcNotification({ jsonrpc: '1.0', method: 'test' }),
       'Should reject wrong jsonrpc version',
@@ -50,18 +50,18 @@ export function runJsonRpcNotificationSuite(runner: TestRunner) {
     runner.assertFalse(isJsonRpcNotification({ method: 'test' }), 'Should reject missing jsonrpc');
   });
 
-  runner.test('isJsonRpcNotification rejects invalid method', () => {
+  await runner.test('isJsonRpcNotification rejects invalid method', () => {
     runner.assertFalse(isJsonRpcNotification({ jsonrpc: '2.0' }), 'Should reject missing method');
     runner.assertFalse(isJsonRpcNotification({ jsonrpc: '2.0', method: null }), 'Should reject null method');
     runner.assertFalse(isJsonRpcNotification({ jsonrpc: '2.0', method: 123 }), 'Should reject number method');
     runner.assertFalse(isJsonRpcNotification({ jsonrpc: '2.0', method: {} }), 'Should reject object method');
   });
 
-  runner.test('isJsonRpcNotification accepts empty string method', () => {
+  await runner.test('isJsonRpcNotification accepts empty string method', () => {
     runner.assertTrue(isJsonRpcNotification({ jsonrpc: '2.0', method: '' }), 'Should accept empty string method');
   });
 
-  runner.test('isJsonRpcNotification handles edge cases', () => {
+  await runner.test('isJsonRpcNotification handles edge cases', () => {
     runner.assertFalse(isJsonRpcNotification({}), 'Should reject empty object');
 
     runner.assertTrue(

@@ -11,11 +11,11 @@ import {
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runProfileCompatibilitySuite(runner: TestRunner) {
+export async function runProfileCompatibilitySuite(runner: TestRunner) {
   log('\n=== Testing Profile Compatibility ===', 'info');
 
   // ===== Storage Format Compatibility Tests =====
-  runner.test('ProfileConfig maintains backward compatibility with flat storage format', () => {
+  await runner.test('ProfileConfig maintains backward compatibility with flat storage format', () => {
     // Simulating how profiles are stored in chrome.storage (flat structure)
     const storedProfile: Record<string, unknown> = {
       provider: 'openai',
@@ -46,7 +46,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     runner.assertEqual(profile.systemPrompt, 'You are helpful');
   });
 
-  runner.test('ProviderInstance storage format supports migration from old profiles', () => {
+  await runner.test('ProviderInstance storage format supports migration from old profiles', () => {
     // Old profile format (pre-migration) - similar to ProfileConfig
     const oldProfileFormat = {
       provider: 'anthropic',
@@ -82,7 +82,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
   });
 
   // ===== Provider/Profile Compatibility Tests =====
-  runner.test('CONNECTION_CONFIG_FIELDS lists all connection fields', () => {
+  await runner.test('CONNECTION_CONFIG_FIELDS lists all connection fields', () => {
     runner.assertEqual(CONNECTION_CONFIG_FIELDS.length, 5);
     runner.assertTrue(CONNECTION_CONFIG_FIELDS.includes('provider'));
     runner.assertTrue(CONNECTION_CONFIG_FIELDS.includes('model'));
@@ -91,7 +91,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     runner.assertTrue(CONNECTION_CONFIG_FIELDS.includes('extraHeaders'));
   });
 
-  runner.test('ProfileConfig and ProviderInstance share base connection fields', () => {
+  await runner.test('ProfileConfig and ProviderInstance share base connection fields', () => {
     // Create a profile and extract connection
     const profile = createProfile({
       provider: 'anthropic',
@@ -121,7 +121,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     runner.assertEqual(profileConnection.apiKey, providerConnection.apiKey);
   });
 
-  runner.test('DEFAULT_CONNECTION_CONFIG is subset of DEFAULT_PROFILE', () => {
+  await runner.test('DEFAULT_CONNECTION_CONFIG is subset of DEFAULT_PROFILE', () => {
     for (const field of CONNECTION_CONFIG_FIELDS) {
       runner.assertEqual(
         (DEFAULT_PROFILE as unknown as Record<string, unknown>)[field],
@@ -130,7 +130,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     }
   });
 
-  runner.test('createProfile merges connection config correctly', () => {
+  await runner.test('createProfile merges connection config correctly', () => {
     const profile = createProfile({
       provider: 'custom',
       model: 'custom-model',
@@ -151,7 +151,7 @@ export function runProfileCompatibilitySuite(runner: TestRunner) {
     runner.assertEqual(profile.systemPrompt, DEFAULT_PROFILE.systemPrompt);
   });
 
-  runner.test('Profile with vision settings excludes vision from connection extraction', () => {
+  await runner.test('Profile with vision settings excludes vision from connection extraction', () => {
     const profile = createProfile({
       provider: 'openai',
       model: 'gpt-4o-vision',

@@ -21,9 +21,9 @@ export class TestRunner {
     this.errors = [];
   }
 
-  test(description: string, fn: () => void) {
+  async test(description: string, fn: () => Promise<void> | void) {
     try {
-      fn();
+      await fn();
       this.passed++;
       log(`✓ ${description}`, 'success');
       return true;

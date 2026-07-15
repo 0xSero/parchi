@@ -2,10 +2,10 @@ import { DEFAULT_PROFILE, type ProfileConfig, createProfile } from '@parchi/shar
 import type { TestRunner } from '../../shared/runner.js';
 import { log } from '../../shared/runner.js';
 
-export function runCreateProfileSuite(runner: TestRunner) {
+export async function runCreateProfileSuite(runner: TestRunner) {
   log('\n=== Testing createProfile Function ===', 'info');
 
-  runner.test('createProfile returns default profile with no overrides', () => {
+  await runner.test('createProfile returns default profile with no overrides', () => {
     const profile = createProfile();
 
     runner.assertEqual(profile.provider, DEFAULT_PROFILE.provider);
@@ -26,7 +26,7 @@ export function runCreateProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.saveHistory, DEFAULT_PROFILE.saveHistory);
   });
 
-  runner.test('createProfile applies overrides on top of defaults', () => {
+  await runner.test('createProfile applies overrides on top of defaults', () => {
     const overrides: Partial<ProfileConfig> = {
       provider: 'openai',
       model: 'gpt-4o',
@@ -47,7 +47,7 @@ export function runCreateProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.enableScreenshots, DEFAULT_PROFILE.enableScreenshots);
   });
 
-  runner.test('createProfile creates independent copies', () => {
+  await runner.test('createProfile creates independent copies', () => {
     const profile1 = createProfile({ provider: 'openai' });
     const profile2 = createProfile({ provider: 'anthropic' });
 
@@ -56,13 +56,13 @@ export function runCreateProfileSuite(runner: TestRunner) {
     runner.assertTrue(profile1.provider !== profile2.provider);
   });
 
-  runner.test('createProfile handles empty overrides object', () => {
+  await runner.test('createProfile handles empty overrides object', () => {
     const profile = createProfile({});
     runner.assertEqual(profile.provider, DEFAULT_PROFILE.provider);
     runner.assertEqual(profile.model, DEFAULT_PROFILE.model);
   });
 
-  runner.test('createProfile spread operator uses undefined values', () => {
+  await runner.test('createProfile spread operator uses undefined values', () => {
     const profile = createProfile({
       provider: undefined,
       model: 'gpt-4o',
@@ -72,7 +72,7 @@ export function runCreateProfileSuite(runner: TestRunner) {
     runner.assertEqual(profile.model, 'gpt-4o');
   });
 
-  runner.test('Profile round-trip through storage format preserves values', () => {
+  await runner.test('Profile round-trip through storage format preserves values', () => {
     const original = createProfile({
       provider: 'anthropic',
       model: 'claude-3-opus',

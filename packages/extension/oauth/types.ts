@@ -1,4 +1,4 @@
-export type OAuthProviderKey = 'claude' | 'codex' | 'copilot' | 'qwen';
+export type OAuthProviderKey = 'claude' | 'codex' | 'copilot' | 'qwen' | 'xai';
 
 export type OAuthFlowType = 'authorization_code_pkce' | 'device_code' | 'device_code_pkce';
 

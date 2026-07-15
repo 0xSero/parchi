@@ -12,10 +12,10 @@ import {
 } from '@parchi/shared';
 import { type TestRunner, log } from '../shared/runner.js';
 
-export function runOrchestratorNormalizationSuite(runner: TestRunner) {
+export async function runOrchestratorNormalizationSuite(runner: TestRunner) {
   log('\n=== Testing Orchestrator Normalization ===', 'info');
 
-  runner.test('normalizeOrchestratorTaskStatus handles valid values', () => {
+  await runner.test('normalizeOrchestratorTaskStatus handles valid values', () => {
     runner.assertEqual(normalizeOrchestratorTaskStatus('pending'), 'pending');
     runner.assertEqual(normalizeOrchestratorTaskStatus('ready'), 'ready');
     runner.assertEqual(normalizeOrchestratorTaskStatus('running'), 'running');
@@ -25,13 +25,13 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(normalizeOrchestratorTaskStatus('cancelled'), 'cancelled');
   });
 
-  runner.test('normalizeOrchestratorTaskStatus normalizes case', () => {
+  await runner.test('normalizeOrchestratorTaskStatus normalizes case', () => {
     runner.assertEqual(normalizeOrchestratorTaskStatus('PENDING'), 'pending');
     runner.assertEqual(normalizeOrchestratorTaskStatus('RUNNING'), 'running');
     runner.assertEqual(normalizeOrchestratorTaskStatus('COMPLETED'), 'completed');
   });
 
-  runner.test('normalizeOrchestratorTaskStatus handles invalid values', () => {
+  await runner.test('normalizeOrchestratorTaskStatus handles invalid values', () => {
     runner.assertEqual(normalizeOrchestratorTaskStatus('unknown'), 'pending');
     runner.assertEqual(normalizeOrchestratorTaskStatus(''), 'pending');
     runner.assertEqual(normalizeOrchestratorTaskStatus(null as any), 'pending');
@@ -39,7 +39,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(normalizeOrchestratorTaskStatus(123 as any), 'pending');
   });
 
-  runner.test('isOrchestratorTaskTerminal identifies terminal states', () => {
+  await runner.test('isOrchestratorTaskTerminal identifies terminal states', () => {
     runner.assertTrue(isOrchestratorTaskTerminal('completed'), 'completed is terminal');
     runner.assertTrue(isOrchestratorTaskTerminal('failed'), 'failed is terminal');
     runner.assertTrue(isOrchestratorTaskTerminal('cancelled'), 'cancelled is terminal');
@@ -49,7 +49,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertFalse(isOrchestratorTaskTerminal('blocked'), 'blocked is not terminal');
   });
 
-  runner.test('normalizeOrchestratorTasks handles valid task array', () => {
+  await runner.test('normalizeOrchestratorTasks handles valid task array', () => {
     const tasks = normalizeOrchestratorTasks([
       { id: 'task-1', title: 'First task', kind: 'browser' },
       { id: 'task-2', title: 'Second task', kind: 'research', status: 'completed' },
@@ -60,7 +60,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(tasks[1].status, 'completed');
   });
 
-  runner.test('normalizeOrchestratorTasks filters invalid entries', () => {
+  await runner.test('normalizeOrchestratorTasks filters invalid entries', () => {
     const tasks = normalizeOrchestratorTasks([
       { id: 'task-1', title: 'Valid task' },
       { id: 'task-2' }, // No title - should be filtered
@@ -73,7 +73,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(tasks[1].id, 'task-3'); // Auto-generated from original array index 2
   });
 
-  runner.test('normalizeOrchestratorTasks handles dependencies normalization', () => {
+  await runner.test('normalizeOrchestratorTasks handles dependencies normalization', () => {
     const tasks = normalizeOrchestratorTasks([
       { id: 'task-1', title: 'Task one', dependencies: ['  task-2  ', '', 'task-1'] },
       { id: 'task-2', title: 'Task two' },
@@ -83,7 +83,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     // Self-referencing dependency should be filtered
   });
 
-  runner.test('buildOrchestratorPlan creates valid plan', () => {
+  await runner.test('buildOrchestratorPlan creates valid plan', () => {
     const plan = buildOrchestratorPlan({
       goal: 'Test goal',
       tasks: [{ id: 't1', title: 'Task 1' }],
@@ -95,7 +95,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertTrue(typeof plan.updatedAt === 'number');
   });
 
-  runner.test('buildOrchestratorPlan merges whiteboardKeys from task inputs/outputs', () => {
+  await runner.test('buildOrchestratorPlan merges whiteboardKeys from task inputs/outputs', () => {
     const plan = buildOrchestratorPlan({
       tasks: [
         {
@@ -112,7 +112,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertTrue(plan.whiteboardKeys.includes('customKey'));
   });
 
-  runner.test('buildOrchestratorPlan preserves existing plan timestamps', () => {
+  await runner.test('buildOrchestratorPlan preserves existing plan timestamps', () => {
     const existingCreatedAt = 1000;
     const now = 5000;
     const existing = buildOrchestratorPlan({ goal: 'Old goal' }, { now: existingCreatedAt });
@@ -121,7 +121,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(updated.updatedAt, now);
   });
 
-  runner.test('getReadyOrchestratorTaskIds returns tasks with satisfied dependencies', () => {
+  await runner.test('getReadyOrchestratorTaskIds returns tasks with satisfied dependencies', () => {
     const plan = buildOrchestratorPlan({
       tasks: [
         { id: 't1', title: 'Task 1', status: 'completed' },
@@ -144,7 +144,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertFalse(ready.includes('t6'), 'running tasks not ready');
   });
 
-  runner.test('getDispatchableOrchestratorTaskIds respects maxSlots', () => {
+  await runner.test('getDispatchableOrchestratorTaskIds respects maxSlots', () => {
     const plan = buildOrchestratorPlan({
       tasks: [
         { id: 't1', title: 'Task 1', status: 'completed' },
@@ -158,7 +158,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(dispatchable.length, 2);
   });
 
-  runner.test('getDispatchableOrchestratorTaskIds excludes running tasks', () => {
+  await runner.test('getDispatchableOrchestratorTaskIds excludes running tasks', () => {
     const plan = buildOrchestratorPlan({
       tasks: [
         { id: 't1', title: 'Task 1', status: 'completed' },
@@ -169,7 +169,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertEqual(dispatchable.length, 0);
   });
 
-  runner.test('getOrchestratorPlanValidationIssues detects missing dependencies', () => {
+  await runner.test('getOrchestratorPlanValidationIssues detects missing dependencies', () => {
     const plan = buildOrchestratorPlan({
       tasks: [{ id: 't1', title: 'Task 1', dependencies: ['nonexistent'] }],
     });
@@ -178,7 +178,7 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertTrue(issues.some((i) => i.includes('missing dependency')));
   });
 
-  runner.test('getOrchestratorPlanValidationIssues detects dependency cycles', () => {
+  await runner.test('getOrchestratorPlanValidationIssues detects dependency cycles', () => {
     const plan = buildOrchestratorPlan({
       tasks: [
         { id: 't1', title: 'Task 1', dependencies: ['t2'] },
@@ -190,14 +190,14 @@ export function runOrchestratorNormalizationSuite(runner: TestRunner) {
     runner.assertTrue(issues.some((i) => i.includes('cycle')));
   });
 
-  runner.test('COMMON_TASK_STATUSES contains shared status values', () => {
+  await runner.test('COMMON_TASK_STATUSES contains shared status values', () => {
     runner.assertTrue(COMMON_TASK_STATUSES.includes('pending'));
     runner.assertTrue(COMMON_TASK_STATUSES.includes('running'));
     runner.assertTrue(COMMON_TASK_STATUSES.includes('blocked'));
     runner.assertEqual(COMMON_TASK_STATUSES.length, 3);
   });
 
-  runner.test('CommonTaskStatus type is compatible with both status types', () => {
+  await runner.test('CommonTaskStatus type is compatible with both status types', () => {
     // This test verifies type compatibility at compile time
     const commonPending: CommonTaskStatus = 'pending';
     const commonRunning: CommonTaskStatus = 'running';

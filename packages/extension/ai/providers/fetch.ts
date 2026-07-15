@@ -45,7 +45,7 @@ export async function fetchModelsForProvider(
       return def.models || [];
     }
     const data = await response.json();
-    const models = extractModelEntries(data);
+    const models = extractModelEntries(data, def.key);
     return models.length > 0 ? models : def.models || [];
   } catch (err) {
     console.warn(`[provider-registry] Failed to fetch models for ${def.key}:`, err);
