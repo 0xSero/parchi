@@ -63,6 +63,7 @@ sidePanelProto.persistAllSettings = async function persistAllSettings({ silent =
       uiZoom: this.uiZoom ?? 1,
       fontPreset: this.fontPreset || 'default',
       fontStylePreset: this.fontStylePreset || 'normal',
+      colorMode: this.currentColorMode,
       theme: this.currentTheme || DEFAULT_THEME_ID,
       activeConfig: this.currentConfig,
       configs: this.configs,

@@ -48,6 +48,7 @@ export const PARCHI_STORAGE_KEYS = [
   'uiZoom',
   'fontPreset',
   'fontStylePreset',
+  'colorMode',
   'timelineCollapsed',
   'accountModeChoice',
   'convexUrl',

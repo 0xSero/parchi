@@ -93,6 +93,7 @@ export const getSidePanelElements = (): SidePanelElements => ({
   teamProfileList: byId<HTMLElement>('teamProfileList'),
   themePreviewHero: byId<HTMLElement>('themePreviewHero'),
   themePreview: byId<HTMLElement>('themePreview'),
+  colorModeSelect: byId<HTMLSelectElement>('colorModeSelect'),
   providerEditorSaveBtn: byId<HTMLButtonElement>('providerEditorSaveBtn'),
   providerEditorCancelBtn: byId<HTMLButtonElement>('providerEditorCancelBtn'),
   // Custom provider form

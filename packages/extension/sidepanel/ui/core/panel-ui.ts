@@ -125,6 +125,9 @@ export class SidePanelUI {
   _deleteConfirmTarget: string | null;
   _deleteConfirmAt: number | null;
   timelineCollapsed: boolean;
+  currentColorMode: 'light' | 'dark' | 'system';
+  _colorModeMediaQuery: MediaQueryList | null;
+  _colorModeMediaQueryHandler: (() => void) | null;
   currentTheme: string;
   workflows: Array<{ id: string; name: string; prompt: string; createdAt: number }>;
   workflowMenuOpen: boolean;
@@ -254,6 +257,9 @@ export class SidePanelUI {
     this._deleteConfirmTarget = null;
     this._deleteConfirmAt = null;
     this.timelineCollapsed = true;
+    this._colorModeMediaQuery = null;
+    this._colorModeMediaQueryHandler = null;
+    this.currentColorMode = 'dark';
     this.currentTheme = 'void';
     this.workflows = [];
     this.workflowMenuOpen = false;

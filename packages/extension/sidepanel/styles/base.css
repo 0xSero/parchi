@@ -1,7 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Geist:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&family=Nunito+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap");
 
-/* Parchi — Modern Void Design System (Dark) */
+/* ===== Light mode overrides ===== */
+:root[data-color-mode="light"] {
+  --background: #fafafa;
+  --foreground: #09090b;
+  --muted: #71717a;
+  --muted-dim: #a1a1aa;
+  --border: #e4e4e7;
+  --card: #ffffff;
+  --card-hover: #f4f4f5;
+  --card-inset: #f4f4f5;
 
+  --ink-1: rgba(0, 0, 0, 0.04);
+  --ink-2: rgba(0, 0, 0, 0.06);
+  --ink-3: rgba(0, 0, 0, 0.12);
+
+  --mascot-fill: var(--card);
+  --mascot-stroke: var(--muted);
+}
+
+/* Parchi — Modern Void Design System (Dark) */
 :root {
   /* Deep void base — cool, neutral, precise */
   --background: #09090b;

@@ -5,6 +5,7 @@ import './agents/panel-agents-detail.js';
 import './chat/panel-chat.js';
 import './chat/panel-context.js';
 import './core/panel-core.js';
+import './core/color-mode.js';
 import './chat/panel-export.js';
 import './core/panel-helpers.js';
 import './history/panel-history.js';

@@ -73,10 +73,11 @@ sidePanelProto.loadSettings = async function loadSettings() {
   this.applyUiZoom(settings.uiZoom ?? 1, { persist: false });
   this.applyTypography(settings.fontPreset ?? 'default', settings.fontStylePreset ?? 'normal', { persist: false });
   this.currentTheme = settings.theme || DEFAULT_THEME_ID;
+  this.currentColorMode =
+    settings.colorMode === 'light' || settings.colorMode === 'system' ? settings.colorMode : 'dark';
 
-  const { applyTheme } = await import('./themes.js');
-  applyTheme(this.currentTheme);
-  this.renderThemeGrid?.();
+  this.applyColorMode(this.currentColorMode, { persist: false });
+  this.renderThemeGrid?.({ icons: true });
 
   if (this.elements.visionBridge) this.elements.visionBridge.checked = settings.visionBridge !== false;
   if (this.elements.visionProfile) this.elements.visionProfile.value = settings.visionProfile || '';
@@ -130,4 +131,3 @@ sidePanelProto.loadSettings = async function loadSettings() {
   await this.refreshAccountPanel?.({ silent: true });
   this.syncAccountAvatar?.();
 };
-

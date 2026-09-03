@@ -57,7 +57,7 @@ sidePanelProto.switchSettingsTab = function switchSettingsTab(
     this.populateGenerationTab?.();
   }
   if (resolvedTab === 'display') {
-    this.renderThemeGrid?.();
+    this.renderThemeGrid?.({ icons: true });
   }
   if (resolvedTab === 'advanced') {
     this.renderTeamProfileList?.();

@@ -3,7 +3,7 @@ import { DEFAULT_THEME_ID, THEMES, applyTheme, getThemeById } from './themes.js'
 
 const sidePanelProto = SidePanelUI.prototype as SidePanelUI & Record<string, unknown>;
 
-sidePanelProto.renderThemeGrid = function renderThemeGrid() {
+sidePanelProto.renderThemeGrid = function renderThemeGrid({ icons = false }: { icons?: boolean } = {}) {
   const select = this.elements.themeSelect as HTMLSelectElement | null;
   const preview = this.elements.themePreview as HTMLElement | null;
   if (!select) return;
@@ -39,12 +39,37 @@ sidePanelProto.renderThemeGrid = function renderThemeGrid() {
     select.addEventListener('change', () => this.setTheme(select.value));
     select.dataset.bound = 'true';
   }
+
+  const colorModeSelect = this.elements.colorModeSelect as HTMLSelectElement | null;
+  if (colorModeSelect) {
+    const options = [
+      { value: 'dark', label: 'Dark', icon: icons ? '●' : '' },
+      { value: 'light', label: 'Light', icon: icons ? '○' : '' },
+      { value: 'system', label: 'System', icon: icons ? '◉' : '' },
+    ];
+    colorModeSelect.innerHTML = options
+      .map((o) => `<option value="${o.value}">${o.icon ? o.icon + ' ' : ''}${o.label}</option>`)
+      .join('');
+    colorModeSelect.value = this.currentColorMode;
+    if (!colorModeSelect.dataset.bound) {
+      colorModeSelect.addEventListener('change', () =>
+        this.setColorMode(colorModeSelect.value as 'dark' | 'light' | 'system'),
+      );
+      colorModeSelect.dataset.bound = 'true';
+    }
+  }
+};
+
+sidePanelProto.applyColorScheme = function applyColorScheme(themeId: string, mode: 'light' | 'dark') {
+  applyTheme(themeId);
+  this.applyBaseColorMode(mode);
 };
 
 sidePanelProto.setTheme = function setTheme(id: string) {
   this.currentTheme = id;
-  applyTheme(id);
-  this.renderThemeGrid();
+  const mode = this.currentColorMode === 'system' ? this.resolveSystemColorMode() : this.currentColorMode || 'dark';
+  this.applyColorScheme(id, mode);
+  this.renderThemeGrid({ icons: true });
   void import('../../../state/stores/settings-store.js').then(({ patchSettingsStoreSnapshot }) =>
     patchSettingsStoreSnapshot({ theme: id }).catch(() => {}),
   );
