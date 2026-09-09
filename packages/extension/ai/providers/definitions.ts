@@ -46,6 +46,16 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
     modelsEndpoint: '/v1/models',
     proxyProvider: 'openai',
   },
+  atlascloud: {
+    key: 'atlascloud',
+    name: 'Atlas Cloud',
+    type: 'api-key',
+    sdkType: 'openai-compatible',
+    defaultBaseUrl: 'https://api.atlascloud.ai/v1',
+    authHeaderStyle: 'bearer',
+    supportsModelListing: true,
+    modelsEndpoint: '/models',
+  },
   'codex-oauth': {
     key: 'codex-oauth',
     name: 'Codex (OpenAI)',
