@@ -12,10 +12,7 @@ import time
 from pathlib import Path
 
 # Config
-API_KEY = os.environ.get(
-    "ANTHROPIC_API_KEY",
-    "sk-cp-VZXCwLKJP1zX0mYOVmjDfr-gGLupgGQ8mpzB0n83whbH01xEntzonMLp9FvT04hNjuguGNRalskz4nS3IoNhEbLI0WDYFG84unUdAfn1ALnXSIA7etYTXgY",
-)
+API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 BASE_URL = "https://api.minimax.io/anthropic"
 MODEL = "MiniMax-M2.5"
 
@@ -253,4 +250,7 @@ def run_demo():
 
 
 if __name__ == "__main__":
+    if not API_KEY:
+        print("ERROR: Missing required environment variable 'ANTHROPIC_API_KEY'.", file=sys.stderr)
+        raise SystemExit(2)
     run_demo()

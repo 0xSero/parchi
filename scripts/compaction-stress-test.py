@@ -17,10 +17,7 @@ import urllib.request
 import urllib.error
 
 # ── Config ──────────────────────────────────────────────────────────────────
-API_KEY = os.environ.get(
-    "ANTHROPIC_API_KEY",
-    "sk-cp-VZXCwLKJP1zX0mYOVmjDfr-gGLupgGQ8mpzB0n83whbH01xEntzonMLp9FvT04hNjuguGNRalskz4nS3IoNhEbLI0WDYFG84unUdAfn1ALnXSIA7etYTXgY",
-)
+API_KEY = os.environ.get("ANTHROPIC_API_KEY")
 BASE_URL = os.environ.get("ANTHROPIC_BASE_URL", "https://api.minimax.io/anthropic")
 MODEL = os.environ.get("ANTHROPIC_MODEL", "MiniMax-M2.5")
 MAX_TOKENS = 1024
@@ -258,4 +255,7 @@ def main():
 
 
 if __name__ == "__main__":
+    if not API_KEY:
+        print("ERROR: Missing required environment variable 'ANTHROPIC_API_KEY'.", file=sys.stderr)
+        raise SystemExit(2)
     main()

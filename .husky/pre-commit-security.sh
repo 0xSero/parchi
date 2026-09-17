@@ -53,9 +53,17 @@ check_secrets() {
 
   # Search for API keys in code
   local matches
-  matches=$(git grep -E "api[_-]?key.*=.*[\"'][a-zA-Z0-9_-]{16,}" --include="*.ts" --include="*.tsx" --include="*.js" 2>/dev/null | grep -v "node_modules\|dist/" || true)
+  matches=$(git grep -E "api[_-]?key.*=.*[\"'][a-zA-Z0-9_-]{16,}" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" 2>/dev/null | grep -v "node_modules\|dist/" || true)
   if [ -n "$matches" ]; then
     log_warn "Potential API keys found:"
+    echo "$matches" | head -5
+    found_secrets=1
+  fi
+
+  # MiniMax keys use a provider-specific prefix that generic scanners may miss.
+  matches=$(git grep -E "sk-cp-[a-zA-Z0-9_-]{40,}" --include="*.ts" --include="*.tsx" --include="*.js" --include="*.py" 2>/dev/null | grep -v "node_modules\|dist/" || true)
+  if [ -n "$matches" ]; then
+    log_warn "Potential MiniMax API keys found:"
     echo "$matches" | head -5
     found_secrets=1
   fi
