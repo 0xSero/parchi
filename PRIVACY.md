@@ -9,7 +9,7 @@ Parchi is local-first, but some features use remote services for authentication 
 ## Data Handling
 
 - **No analytics or telemetry.** Parchi does not include any tracking, analytics, or telemetry code.
-- **BYOK mode is direct.** In BYOK mode, your prompts go directly from your browser to your configured provider (OpenAI, Anthropic, OpenRouter, and others).
+- **BYOK mode is direct.** In BYOK mode, your prompts go directly from your browser to your configured provider (OpenAI, Anthropic, OpenRouter, Requesty, and others).
 - **Managed billing uses backend services.** Paid credit and key-provisioning flows use Parchi backend endpoints plus Stripe webhooks.
 - **Limited billing data.** Parchi stores account email, subscription/credit state, and payment-linked identifiers needed for billing and entitlement checks.
 - **OpenRouter provisioning metadata only.** For managed OpenRouter key provisioning, we store key hash + guardrail/model metadata (not the key secret) in billing records.

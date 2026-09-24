@@ -38,6 +38,9 @@ const PROVIDER_SVGS: Record<string, string> = {
   // OpenRouter — dual-arrow routing mark (source: svgl/openrouter_dark, simplified)
   openrouter:
     '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M.14 11.7c.7 0 3.43-.6 4.83-1.4 1.37-.78 1.37-.78 4.2-2.8 3.58-2.55 6.11-1.7 10.27-1.7" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M23.96 5.72 16.77 9.9V1.54Z"/><path d="M0 12.3c.68 0 3.33.6 4.7 1.4 1.37.78 1.37.78 4.2 2.8 3.58 2.55 6.11 1.7 10.27 1.7" fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round"/><path d="M23.82 17.73 16.63 13.55V21.9Z"/></svg>',
+  // Requesty: tilted chat bubble with prompt mark
+  requesty:
+    '<svg viewBox="0 0 24 24" fill="currentColor"><defs><mask id="requesty-cutout"><rect width="24" height="24" fill="#fff"/><path d="M7.5 7.5l3.75 3-3.75 3M12.375 14.625h3.75" fill="none" stroke="#000" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></mask></defs><g transform="rotate(-6 12 12)"><path mask="url(#requesty-cutout)" d="M6 3h12.375A2.625 2.625 0 0 1 21 5.625v10.5a2.625 2.625 0 0 1-2.625 2.625H10.125L6.75 22.5v-3.75H6a2.625 2.625 0 0 1-2.625-2.625v-10.5A2.625 2.625 0 0 1 6 3z"/></g></svg>',
   // Parchi — smiley mark
   parchi:
     '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 14s1.5 2 4 2 4-2 4-2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="10" r="1" fill="currentColor"/><circle cx="15" cy="10" r="1" fill="currentColor"/></svg>',

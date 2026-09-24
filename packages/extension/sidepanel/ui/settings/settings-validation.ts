@@ -62,7 +62,7 @@ sidePanelProto.validateProfileEditorHeaders = function validateProfileEditorHead
 
 sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
   const provider = this.elements.provider?.value;
-  const isCustom = provider === 'custom' || provider === 'kimi' || provider === 'openrouter';
+  const isCustom = provider === 'custom' || provider === 'kimi' || provider === 'openrouter' || provider === 'requesty';
 
   if (this.elements.customEndpointGroup) {
     this.elements.customEndpointGroup.classList.toggle('required', isCustom);
@@ -81,6 +81,11 @@ sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
       this.elements.customEndpoint.placeholder = 'https://openrouter.ai/api/v1';
       if (!this.elements.customEndpoint.value || this.elements.customEndpoint.value === 'https://api.kimi.com/coding') {
         this.elements.customEndpoint.value = 'https://openrouter.ai/api/v1';
+      }
+    } else if (provider === 'requesty') {
+      this.elements.customEndpoint.placeholder = 'https://router.requesty.ai/v1';
+      if (!this.elements.customEndpoint.value) {
+        this.elements.customEndpoint.value = 'https://router.requesty.ai/v1';
       }
     } else if (isCustom) {
       this.elements.customEndpoint.placeholder = 'https://openrouter.ai/api/v1';
@@ -107,6 +112,9 @@ sidePanelProto.toggleCustomEndpoint = function toggleCustomEndpoint() {
       case 'openrouter':
         modelHint.textContent = 'e.g. anthropic/claude-sonnet-4, openai/gpt-4o, google/gemini-2.0-flash';
         break;
+      case 'requesty':
+        modelHint.textContent = 'e.g. openai/gpt-4o-mini, anthropic/claude-sonnet-4-5, google/gemini-2.5-flash';
+        break;
       case 'custom':
         modelHint.textContent = 'Enter the model ID from your provider';
         break;
@@ -120,5 +128,7 @@ sidePanelProto.toggleProfileEditorEndpoint = function toggleProfileEditorEndpoin
   if (!this.elements.profileEditorEndpointGroup) return;
   const provider = this.elements.profileEditorProvider?.value;
   this.elements.profileEditorEndpointGroup.style.display =
-    provider === 'custom' || provider === 'kimi' || provider === 'openrouter' ? 'block' : 'none';
+    provider === 'custom' || provider === 'kimi' || provider === 'openrouter' || provider === 'requesty'
+      ? 'block'
+      : 'none';
 };

@@ -152,6 +152,20 @@ export const PROVIDER_REGISTRY: Record<string, ProviderDefinition> = {
     },
     proxyProvider: 'openrouter',
   },
+  requesty: {
+    key: 'requesty',
+    name: 'Requesty',
+    type: 'api-key',
+    sdkType: 'openai-compatible',
+    defaultBaseUrl: 'https://router.requesty.ai/v1',
+    authHeaderStyle: 'bearer',
+    supportsModelListing: true,
+    modelsEndpoint: '/models/managed',
+    defaultHeaders: {
+      'HTTP-Referer': 'https://parchi.app',
+      'X-Title': 'Parchi',
+    },
+  },
   parchi: {
     key: 'parchi',
     name: 'Parchi (Managed)',

@@ -67,7 +67,7 @@ sidePanelProto.collectModelCatalogTargets = async function collectModelCatalogTa
     const endpointBase = normalizeEndpointBase(provider, String((profile as any).customEndpoint || ''));
     if (!endpointBase) continue;
 
-    const allowsUnauthedList = provider === 'openrouter' || provider === 'parchi';
+    const allowsUnauthedList = provider === 'openrouter' || provider === 'parchi' || provider === 'requesty';
     if (!apiKey && !allowsUnauthedList) continue;
 
     const headers: Record<string, string> = {
@@ -84,7 +84,7 @@ sidePanelProto.collectModelCatalogTargets = async function collectModelCatalogTa
       headers.Authorization = `Bearer ${apiKey}`;
     }
 
-    if (provider === 'openrouter' || provider === 'parchi') {
+    if (provider === 'openrouter' || provider === 'parchi' || provider === 'requesty') {
       headers['HTTP-Referer'] = headers['HTTP-Referer'] || 'https://parchi.ai';
       headers['X-Title'] = headers['X-Title'] || 'Parchi';
     }
