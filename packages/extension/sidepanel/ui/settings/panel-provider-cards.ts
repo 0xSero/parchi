@@ -104,6 +104,7 @@ sidePanelProto.openProviderEditor = function openProviderEditor(providerKeyOrId:
       providerType === 'custom' ||
       providerType === 'kimi' ||
       providerType === 'openrouter' ||
+      providerType === 'requesty' ||
       providerType === 'glm' ||
       providerType === 'minimax'
         ? ''

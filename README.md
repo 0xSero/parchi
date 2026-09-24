@@ -64,6 +64,7 @@ Open the extension settings and configure an OpenAI-compatible provider:
 - **OpenAI** `https://api.openai.com/v1`
 - **Anthropic-compatible**
 - **OpenRouter** `https://openrouter.ai/api/v1`
+- **Requesty** `https://router.requesty.ai/v1` (EU: `https://router.eu.requesty.ai/v1`)
 - **Local** (Ollama/LM Studio) `http://localhost:11434/v1`
 - any other OpenAI-compatible endpoint
 

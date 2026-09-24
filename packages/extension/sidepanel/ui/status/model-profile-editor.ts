@@ -85,7 +85,7 @@ sidePanelProto.refreshModelCatalogForProfileEditor = async function refreshModel
     return;
   }
 
-  const allowsUnauthedList = provider === 'openrouter' || provider === 'parchi';
+  const allowsUnauthedList = provider === 'openrouter' || provider === 'parchi' || provider === 'requesty';
   if (!apiKey && !allowsUnauthedList) {
     this._profileEditorModels = [];
     if (modelSelect) populateModelSelectElement(modelSelect, [], currentModel, 'Select model...', modelDatalist);
@@ -110,7 +110,7 @@ sidePanelProto.refreshModelCatalogForProfileEditor = async function refreshModel
   } else if (apiKey) {
     headers.Authorization = `Bearer ${apiKey}`;
   }
-  if (provider === 'openrouter' || provider === 'parchi') {
+  if (provider === 'openrouter' || provider === 'parchi' || provider === 'requesty') {
     headers['HTTP-Referer'] = 'https://parchi.ai';
     headers['X-Title'] = 'Parchi';
   }

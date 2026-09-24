@@ -40,6 +40,23 @@ export function resolveOpenRouterProvider(
   return openRouterProvider(normalizeOpenRouterModelId(modelId));
 }
 
+export function resolveRequestyProvider(
+  settings: SDKModelSettings,
+  apiKey: string,
+  extraHeaders: Record<string, string> | undefined,
+  modelId: string,
+) {
+  const baseURL = (settings.customEndpoint || 'https://router.requesty.ai/v1')
+    .replace(/\/chat\/completions\/?$/i, '')
+    .replace(/\/+$/, '');
+  return createOpenAICompatible({
+    name: 'requesty',
+    apiKey,
+    baseURL,
+    headers: { ...extraHeaders, 'HTTP-Referer': 'https://parchi.app', 'X-Title': 'Parchi' },
+  })(modelId);
+}
+
 export function resolveCustomProvider(
   settings: SDKModelSettings,
   apiKey: string,

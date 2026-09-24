@@ -32,7 +32,9 @@ export const normalizeEndpointBase = (provider: string, customEndpoint: string) 
               ? 'https://api.anthropic.com/v1'
               : provider === 'kimi'
                 ? 'https://api.kimi.com/coding/v1'
-                : '';
+                : provider === 'requesty'
+                  ? 'https://router.requesty.ai/v1'
+                  : '';
 
   const base = (raw || fallback)
     .replace(/\/chat\/completions\/?$/i, '')

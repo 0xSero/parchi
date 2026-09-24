@@ -223,7 +223,7 @@ export function isVisionModelProfile(profile: Record<string, any> | null | undef
   if (provider === 'codex-oauth' || provider === 'copilot-oauth') {
     return /gpt-4o|vision/i.test(model);
   }
-  if (provider === 'openrouter' || provider === 'parchi') {
+  if (provider === 'openrouter' || provider === 'parchi' || provider === 'requesty') {
     return /(claude|gpt-4o|gpt-4-turbo|gemini|vision)/i.test(model);
   }
   if (provider === 'openai') {

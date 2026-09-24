@@ -7,6 +7,7 @@ import {
   resolveAnthropicCompatibleProvider,
   resolveCustomProvider,
   resolveOpenRouterProvider,
+  resolveRequestyProvider,
 } from './provider-standard.js';
 import type { SDKModelSettings } from './provider-types.js';
 
@@ -35,6 +36,10 @@ export function resolveLanguageModel(settings: SDKModelSettings) {
 
   if (provider === 'openrouter' || provider === 'parchi') {
     return resolveOpenRouterProvider(provider, apiKey, extraHeaders, modelId);
+  }
+
+  if (provider === 'requesty') {
+    return resolveRequestyProvider(settings, apiKey, extraHeaders, modelId);
   }
 
   if (provider.endsWith('-oauth')) {
