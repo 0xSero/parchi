@@ -41,7 +41,8 @@ export const usageObjectToTokenCount = (usage: unknown): number | null => {
   const completionTokens = toSafeInt(
     row.completion_tokens ?? row.completionTokens ?? row.output_tokens ?? row.outputTokens ?? 0,
   );
-  const cacheTokens = toSafeInt(row.cache_creation_input_tokens ?? row.cache_read_input_tokens ?? 0);
+  const cacheTokens =
+    toSafeInt(row.cache_creation_input_tokens ?? 0) + toSafeInt(row.cache_read_input_tokens ?? 0);
   const sum = promptTokens + completionTokens + cacheTokens;
   return sum > 0 ? sum : null;
 };
