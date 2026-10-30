@@ -8,7 +8,8 @@ export function scopedTarget(tabId: number, scope: ExecutionScope | undefined, a
   if (!scope) return allFrames ? { tabId, allFrames: true } : { tabId };
   if (scope.tabId !== tabId) throw new Error('Tool target tab does not match the authorized tab.');
   const frames = allFrames ? scope.frames : scope.frames.filter((frame) => frame.frameId === 0);
-  if (!frames.length) return allFrames ? { tabId, allFrames: true } : { tabId };
+  // An authorized scope with no judged documents must never widen to unrestricted injection.
+  if (!frames.length) throw new Error('No authorized frame documents for this tool call.');
   const documentIds = frames.map((frame) => frame.documentId).filter((id): id is string => Boolean(id));
   return documentIds.length === frames.length
     ? ({ tabId, documentIds } as chrome.scripting.InjectionTarget)

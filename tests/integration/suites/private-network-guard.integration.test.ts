@@ -1,4 +1,4 @@
-import { recordResponse, resetNetworkObserver } from '../../../packages/extension/background/network-observer.js';
+import * as observer from '../../../packages/extension/background/network-observer.js';
 import { isPrivateNetworkUrl } from '../../../packages/extension/background/private-network.js';
 import { validateAndExecuteBrowserTool } from '../../../packages/extension/background/tools/tool-executor/browser-gate.js';
 import { BrowserTools } from '../../../packages/extension/tools/browser-tools.js';
@@ -15,9 +15,12 @@ export const DEFAULT_SETTINGS = {
 
 export type GuardEnv = { fake: FakeBrowser; tools: BrowserTools; sessionId: string };
 
+let currentFake: FakeBrowser | null = null;
+
 export async function withGuardEnv(fn: (env: GuardEnv) => Promise<void>) {
-  resetNetworkObserver();
+  observer.resetNetworkObserver();
   const fake = new FakeBrowser();
+  currentFake = fake;
   const restore = fake.install();
   try {
     await fn({ fake, tools: new BrowserTools(), sessionId: `s-${Math.random().toString(36).slice(2)}` });
@@ -34,8 +37,17 @@ export function sessionTab(env: GuardEnv, id: number, url: string, ip?: string, 
   return tab;
 }
 
+/**
+ * Feeds what Chrome reports for a load: frame documents get a webRequest response (no documentId) followed by a
+ * webNavigation commit carrying the fake frame's documentId; subresources get a response tagged with `documentId`.
+ */
 export function observe(url: string, ip: string, tabId: number, frameId = 0, type = 'main_frame', documentId?: string) {
-  recordResponse({ url, ip, tabId, frameId, type, documentId });
+  observer.recordResponse({ url, ip, tabId, frameId, type, documentId });
+  if (type !== 'main_frame' && type !== 'sub_frame') return;
+  const frame = currentFake?.tabs.get(tabId)?.frames.find((entry) => entry.frameId === frameId);
+  // recordCommit does not exist before the document-binding fix; the namespace lookup keeps old builds compiling.
+  const recordCommit = (observer as Record<string, unknown>).recordCommit as ((d: object) => void) | undefined;
+  recordCommit?.({ url, tabId, frameId, documentId: documentId ?? frame?.documentId });
 }
 
 export async function runTool(

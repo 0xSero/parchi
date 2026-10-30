@@ -34,10 +34,12 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   describeSessionTabs: 'tabs',
 };
 
-export function getToolPermissionCategory(toolName: string): ToolPermissionCategory | null {
+export function getToolPermissionCategory(toolName: string, args?: BrowserToolArgs): ToolPermissionCategory | null {
   if (!Object.hasOwn(TOOL_PERMISSION_CATEGORIES, toolName)) {
     return null;
   }
+  // waitFor({ script }) evaluates arbitrary JavaScript exactly like evaluate.
+  if (toolName === 'waitFor' && typeof args?.script === 'string' && args.script.trim()) return 'script';
   return TOOL_PERMISSION_CATEGORIES[toolName as BrowserToolName];
 }
 
@@ -110,13 +112,13 @@ export async function checkToolPermission(
 ) {
   const settings = settingsOverride || currentSettings;
   const permissions = settings?.toolPermissions || {};
-  const category = getToolPermissionCategory(toolName);
+  const category = getToolPermissionCategory(toolName, args);
   // evaluate runs arbitrary page JavaScript (it can fetch/post anywhere the page can), so it is opt-in only.
   const disabled = category === 'script' ? permissions.script !== true : category && permissions[category] === false;
   if (disabled) {
     const reason =
       category === 'script'
-        ? 'Permission blocked: script. evaluate runs arbitrary JavaScript and is off unless "Run JavaScript" is enabled in Tool Permissions.'
+        ? 'Permission blocked: script. evaluate and waitFor scripts run arbitrary JavaScript and are off unless "Run JavaScript" is enabled in Tool Permissions.'
         : `Permission blocked: ${category}`;
     return {
       allowed: false,

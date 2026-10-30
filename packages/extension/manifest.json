@@ -15,6 +15,7 @@
     "storage",
     "declarativeNetRequest",
     "webRequest",
+    "webNavigation",
     "userScripts"
   ],
   "host_permissions": [

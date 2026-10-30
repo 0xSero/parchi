@@ -30,7 +30,6 @@ export class BrowserTools {
   supportsTabGroups: boolean;
   screenshotQuality: 'high' | 'medium' | 'low' | undefined;
   debugManager: BrowserDebugManager;
-  private executionScopes = new Map<number, ExecutionScope>();
 
   constructor() {
     this.sessionTabs = new Map();
@@ -113,22 +112,23 @@ export class BrowserTools {
     await updateGroupTitleState(this.supportsTabGroups, this.sessionTabGroupId, this.sessionTabs);
   }
 
-  /** Runs `fn` with script injection pinned to the frame documents the destination policy authorized. */
-  async withExecutionScope<T>(scope: ExecutionScope | undefined, fn: () => Promise<T>): Promise<T> {
-    if (!scope) return fn();
-    this.executionScopes.set(scope.tabId, scope);
-    try {
-      return await fn();
-    } finally {
-      if (this.executionScopes.get(scope.tabId) === scope) this.executionScopes.delete(scope.tabId);
-    }
-  }
-
-  private scopeFor(tabId: number): ExecutionScope | undefined {
-    const scope = this.executionScopes.get(tabId);
-    if (scope || this.executionScopes.size === 0) return scope;
-    // A scoped call must not inject into a tab other than the one that was authorized.
-    return { tabId: -1, frames: [] };
+  /**
+   * Executes a tool with script injection pinned to the frame documents the destination policy authorized. Each call
+   * gets its own delegate, so concurrent calls never share, overwrite or drop each other's authorization.
+   */
+  async executeScopedTool(scope: ExecutionScope, toolName: string, args: BrowserToolArgs = {}) {
+    const scoped = new Proxy(this, {
+      get: (target, prop) => {
+        if (prop === 'runInTab' || prop === 'runInAllFrames') {
+          const run = prop === 'runInTab' ? runInTab : runInAllFrames;
+          return (tabId: number, func: (...a: unknown[]) => unknown, funcArgs: unknown[]) =>
+            run(tabId, func, funcArgs, scope);
+        }
+        const value = Reflect.get(target, prop, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+    return executeTool(createToolHandlers(scoped), toolName, args);
   }
 
   async executeTool(toolName: string, args: BrowserToolArgs = {}) {
@@ -166,7 +166,7 @@ export class BrowserTools {
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
   ) {
-    return runInTab(tabId, func, args, this.scopeFor(tabId));
+    return runInTab(tabId, func, args);
   }
 
   async runInAllFrames<TArgs extends unknown[], TResult>(
@@ -174,7 +174,7 @@ export class BrowserTools {
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
   ) {
-    return runInAllFrames(tabId, func, args, this.scopeFor(tabId));
+    return runInAllFrames(tabId, func, args);
   }
 
   async watchNetwork(tabId: number, clearExisting = true) {

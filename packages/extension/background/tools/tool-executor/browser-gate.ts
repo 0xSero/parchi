@@ -60,10 +60,13 @@ export async function validateAndExecuteBrowserTool(
     const preflight = await preflightDestination(toolName, args, browserTools, sessionId, settings);
     if (!preflight.allowed) return blockedResult(preflight);
 
-    const result = await browserTools.withExecutionScope(preflight.scope, () =>
-      browserTools.executeTool(toolName, args),
-    );
-    const postflight = await postflightDestination(toolName, args, result, browserTools, sessionId, settings);
+    const scope = preflight.scope;
+    // Pin the judged tab (screenshots judge the visible tab but capture via the target's window).
+    const pinnedArgs = scope && toolName !== 'screenshot' ? { ...args, tabId: scope.tabId } : args;
+    const result = scope
+      ? await browserTools.executeScopedTool(scope, toolName, pinnedArgs)
+      : await browserTools.executeTool(toolName, args);
+    const postflight = await postflightDestination(toolName, pinnedArgs, result, browserTools, sessionId, settings);
     if (!postflight.allowed) return blockedResult(postflight);
     return { shouldReturn: false, result: postflight.result };
   } catch (error) {

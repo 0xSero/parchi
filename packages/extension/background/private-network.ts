@@ -130,13 +130,35 @@ export function isPrivateNetworkUrl(url: string): boolean {
   return isPrivateHostname(parsed.hostname);
 }
 
+const DEFAULT_PORTS: Record<string, string> = {
+  'http:': '80',
+  'https:': '443',
+  'ws:': '80',
+  'wss:': '443',
+  'ftp:': '21',
+};
+
+/** Port written in an approval entry, including default ports that WHATWG URL parsing normalizes away. */
+function explicitPort(entry: string) {
+  const authority = entry
+    .replace(/^[a-z][a-z0-9+.-]*:\/\//, '')
+    .split(/[/?#]/)[0]
+    .replace(/^.*@/, '');
+  const match = (authority.startsWith('[') ? authority.slice(authority.indexOf(']') + 1) : authority).match(
+    /^[^:]*:(\d+)$|^:(\d+)$/,
+  );
+  const digits = match?.[1] ?? match?.[2];
+  return digits === undefined ? '' : String(Number(digits));
+}
+
 function parseApprovalEntry(entry: string) {
   const trimmed = entry.trim().toLowerCase();
   if (!trimmed) return null;
   if (trimmed === '*') return { any: true, hostname: '', port: '' };
   try {
     const parsed = new URL(trimmed.includes('://') ? trimmed : `http://${trimmed}`);
-    return { any: false, hostname: normalizeHostname(parsed.hostname), port: parsed.port };
+    // An entry without a port approves every port of that host; an explicit port (even :80/:443) approves only it.
+    return { any: false, hostname: normalizeHostname(parsed.hostname), port: explicitPort(trimmed) };
   } catch {
     return null;
   }
@@ -144,7 +166,8 @@ function parseApprovalEntry(entry: string) {
 
 /**
  * True when the user explicitly approved this private destination. Entries are host names or IPs with an optional
- * non-default port (localhost, localhost:3000, 192.168.1.10, nas.lan). A bare `*` approves every private destination.
+ * port (localhost, localhost:3000, localhost:80, 192.168.1.10, nas.lan); an explicit port, including a default one,
+ * approves only that port. A bare `*` approves every private destination.
  * Named entries also cover their subdomains; IP entries must match exactly.
  */
 export function isPrivateUrlApproved(url: string, approvals: string[]): boolean {
@@ -162,7 +185,7 @@ export function isPrivateUrlApproved(url: string, approvals: string[]): boolean 
   const host = normalizeHostname(parsed.hostname);
   const isIp = Boolean(parseIpv4(host) || parseIpv6(host));
   return entries.some((entry) => {
-    if (entry.port && entry.port !== parsed.port) return false;
+    if (entry.port && entry.port !== (parsed.port || DEFAULT_PORTS[parsed.protocol])) return false;
     if (host === entry.hostname) return true;
     return !isIp && Boolean(entry.hostname) && host.endsWith(`.${entry.hostname}`);
   });

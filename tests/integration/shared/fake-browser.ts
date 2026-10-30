@@ -26,6 +26,20 @@ export class FakeBrowser {
   beforeNextInjection: (() => void) | null = null;
   /** Called when a navigation starts (tabs.update/create with a url); tests use it to commit + observe the load. */
   onNavigate: ((tabId: number, url: string) => void) | null = null;
+  /** When true, frame probes throw (e.g. mid-navigation or a page scripts cannot enter). */
+  failProbe = false;
+  /** Results returned by the next non-probe injections, in order (default: success with frame content). */
+  queuedResults: unknown[] = [];
+  private held: Promise<void> | null = null;
+
+  /** Holds the next non-probe injection until the returned release function is called. */
+  holdNextInjection() {
+    let release = () => {};
+    this.held = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    return release;
+  }
 
   addTab(tab: Partial<FakeTab> & { id: number; url: string }) {
     const full: FakeTab = {
@@ -111,7 +125,13 @@ export class FakeBrowser {
         executeScript: async (details: { target: Record<string, unknown>; func: () => unknown }) => {
           const tab = tabOf(details.target.tabId as number);
           const isProbe = String(details.func).includes('self.origin');
+          if (isProbe && this.failProbe) throw new Error('Cannot access contents of the page.');
+          let queued: unknown;
           if (!isProbe) {
+            queued = this.queuedResults.shift();
+            const held = this.held;
+            this.held = null;
+            if (held) await held;
             const hook = this.beforeNextInjection;
             this.beforeNextInjection = null;
             hook?.();
@@ -122,7 +142,7 @@ export class FakeBrowser {
             documentId: frame.documentId,
             result: isProbe
               ? { url: frame.url, origin: frame.origin ?? new URL(frame.url).origin }
-              : { success: true, content: frame.content },
+              : (queued ?? { success: true, content: frame.content }),
           }));
         },
       },

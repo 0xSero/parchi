@@ -3,7 +3,10 @@
 //    destinations are refused, and the call is pinned to the exact documents that were judged;
 // 2. postflight: re-judge after execution (redirects, late navigation, rebinding) and withhold output, redact tab
 //    listings and network logs, and record private reads;
-// 3. once a session read approved private content, writes/navigation to non-allowlisted public sites are refused.
+// 3. once a session read approved private content, every tool that is not on the read-only allowlist is refused
+//    when any frame it can affect is a public site not explicitly listed in Allowed Domains.
+// webRequest is observational: requests a tool or page triggers are sent before they can be judged; this guard
+// withholds results and fences later tool calls, it does not prevent request side effects.
 import type { BrowserToolArgs, ExecutionScope } from '../tools/browser-tool-shared.js';
 import type { BrowserTools } from '../tools/browser-tools.js';
 import {
@@ -23,7 +26,19 @@ type GuardResult = { allowed: true } | Blocked;
 const NAV_TOOLS = new Set(['navigate', 'openTab']);
 const LIST_TOOLS = new Set(['getTabs', 'describeSessionTabs']);
 const TAB_CONTROL_TOOLS = new Set(['closeTab', 'switchTab', 'groupTabs', 'focusTab']);
-const WRITE_TOOLS = new Set(['navigate', 'openTab', 'click', 'clickAt', 'type', 'pressKey', 'evaluate']);
+// Tools that cannot carry model-chosen data into a page. Anything else (including future tools, scroll offsets,
+// video seeks and waitFor scripts) is treated as a potential write channel.
+const READ_ONLY_TOOLS = new Set([
+  'getContent',
+  'findHtml',
+  'screenshot',
+  'getVideoInfo',
+  'getNetworkLog',
+  'watchNetwork',
+]);
+export const isReadOnlyTool = (toolName: string, args: BrowserToolArgs) =>
+  READ_ONLY_TOOLS.has(toolName) || (toolName === 'waitFor' && !hasScript(args));
+export const hasScript = (args: BrowserToolArgs) => typeof args?.script === 'string' && args.script.trim() !== '';
 
 const splitList = (value: unknown) =>
   String(value || '')
@@ -71,23 +86,34 @@ async function resolveTargetTab(toolName: string, args: BrowserToolArgs, tools: 
   return visible?.id ?? tabId;
 }
 
-/** Judges a navigation target string. A hostname that later resolves privately is caught by postflight/reads. */
-function checkNavigationUrl(url: string, settings: GuardSettings): GuardResult {
-  if (isPrivateNetworkUrl(url) && !isPrivateUrlApproved(url, privateApprovals(settings))) {
-    return destinationBlocked({ verdict: 'private', origin: url });
+/**
+ * Judges a navigation target string exactly as it will be parsed for navigation (unparseable targets are refused).
+ * A hostname that later resolves privately is caught when the document commits.
+ */
+function checkNavigationUrl(url: string, sessionId: string, settings: GuardSettings): GuardResult {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return blocked('invalid-url', 'Blocked: navigation target is not a valid absolute URL.', url);
   }
+  if (!isPrivateNetworkUrl(parsed.href)) return { allowed: true };
+  if (!isPrivateUrlApproved(parsed.href, privateApprovals(settings))) {
+    return destinationBlocked({ verdict: 'private', origin: parsed.origin });
+  }
+  markPrivateRead(sessionId, parsed.origin); // the navigation itself exposes the approved page to the agent
   return { allowed: true };
 }
 
 export async function guardSpawnUrl(url: string | undefined, sessionId: string, settings: GuardSettings) {
   if (!url || url === 'about:blank') return { allowed: true } as GuardResult;
-  const navCheck = checkNavigationUrl(url, settings);
-  if (!navCheck.allowed) return navCheck;
+  const navCheck = checkNavigationUrl(url, sessionId, settings);
+  if (!navCheck.allowed || isPrivateNetworkUrl(url)) return navCheck;
   return checkPublicWrite(url, sessionId, settings);
 }
 
 async function checkPublicWrite(url: string, sessionId: string, settings: GuardSettings): Promise<GuardResult> {
-  if (isPrivateNetworkUrl(url) || isExplicitlyAllowedPublic(url, settings)) return { allowed: true };
+  if (isExplicitlyAllowedPublic(url, settings)) return { allowed: true };
   const reads = await getPrivateReads(sessionId);
   if (!reads.length) return { allowed: true };
   return blocked(
@@ -107,17 +133,27 @@ export async function preflightDestination(
   if (LIST_TOOLS.has(toolName) || TAB_CONTROL_TOOLS.has(toolName)) return { allowed: true };
   if (NAV_TOOLS.has(toolName)) {
     if (typeof args.url !== 'string') return { allowed: true };
-    const navCheck = checkNavigationUrl(args.url, settings);
-    return navCheck.allowed ? checkPublicWrite(args.url, sessionId, settings) : navCheck;
+    const navCheck = checkNavigationUrl(args.url, sessionId, settings);
+    if (!navCheck.allowed || isPrivateNetworkUrl(args.url)) return navCheck;
+    return checkPublicWrite(args.url, sessionId, settings);
   }
   const tabId = await resolveTargetTab(toolName, args, tools);
-  if (typeof tabId !== 'number') return { allowed: true }; // the tool itself reports the missing tab
+  // The tool itself reports the missing tab; the empty scope guarantees it cannot inject anywhere meanwhile.
+  if (typeof tabId !== 'number') return { allowed: true, scope: { tabId: -1, frames: [] } };
   const assessment = await assessTab(tabId, privateApprovals(settings));
   if (isBlockedVerdict(assessment.verdict)) return destinationBlocked(assessment);
-  if (WRITE_TOOLS.has(toolName) && assessment.verdict === 'public') {
-    const tab = await chrome.tabs.get(tabId);
-    const writeCheck = await checkPublicWrite(tab.url || '', sessionId, settings);
-    if (!writeCheck.allowed) return writeCheck;
+  // Taint before running: the tool touches approved private content even if the tab navigates away meanwhile.
+  for (const origin of assessment.approvedOrigins) markPrivateRead(sessionId, origin);
+  if (!isReadOnlyTool(toolName, args)) {
+    // Interactions can reach any frame (click/type fall back to all frames), so every public frame must be allowed.
+    const publicUrls = assessment.frames
+      .filter((frame) => frame.verdict === 'public')
+      .map((frame) => (/^(https?|wss?):/.test(frame.url) ? frame.url : frame.origin));
+    if (!assessment.frames.length) publicUrls.push((await chrome.tabs.get(tabId)).url || '');
+    for (const url of publicUrls) {
+      const writeCheck = await checkPublicWrite(url, sessionId, settings);
+      if (!writeCheck.allowed) return writeCheck;
+    }
   }
   return { allowed: true, scope: { tabId, frames: assessment.frames } };
 }
@@ -153,7 +189,15 @@ async function filterNetworkLog(result: Record<string, unknown>, sessionId: stri
     if (assessment.verdict === 'private') {
       withheld += 1;
     } else if (assessment.verdict === 'unverified') {
-      entries.push({ ...entry, body: undefined, requestHeaders: undefined, responseHeaders: undefined });
+      // Unknown remote address: keep only the origin; path/query, headers and body may carry private data.
+      entries.push({
+        ...entry,
+        url: assessment.origin || '[unverified]',
+        body: undefined,
+        requestHeaders: undefined,
+        responseHeaders: undefined,
+        redacted: 'unverified-destination',
+      });
     } else {
       for (const origin of assessment.approvedOrigins) markPrivateRead(sessionId, origin);
       entries.push(entry);
@@ -203,5 +247,10 @@ async function postflightTab(
   const refuse = NAV_TOOLS.has(toolName) ? assessment.verdict === 'private' : isBlockedVerdict(assessment.verdict);
   if (refuse) return destinationBlocked(assessment);
   for (const origin of assessment.approvedOrigins) markPrivateRead(sessionId, origin);
+  if (NAV_TOOLS.has(toolName)) {
+    // The new document is usually still unverified here: return only what the agent asked for, no page metadata.
+    const { success, tabId: resultTabId, error, hint } = record;
+    return { allowed: true as const, result: { success, tabId: resultTabId, url: args.url, error, hint } };
+  }
   return { allowed: true as const, result: record };
 }

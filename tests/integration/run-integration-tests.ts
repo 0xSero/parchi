@@ -6,6 +6,7 @@ import { AsyncTestRunner, log } from './shared/runner.js';
 import { runModelListingIntegrationSuite } from './suites/model-listing.integration.test.js';
 import { runPrivateNetworkGuardSuite } from './suites/private-network-guard.integration.test.js';
 import { runPrivateNetworkLeakSuite } from './suites/private-network-leaks.integration.test.js';
+import { runPrivateNetworkReviewSuite } from './suites/private-network-review.integration.test.js';
 import { runPromptAndCatalogIntegrationSuite } from './suites/prompt-and-catalog.integration.test.js';
 import { runToolPermissionsAndReportImagesSuite } from './suites/tool-permissions-and-report-images.integration.test.js';
 import { runXmlAndRecordingIntegrationSuite } from './suites/xml-and-recording.integration.test.js';
@@ -22,6 +23,7 @@ export async function runIntegrationTests() {
   await runToolPermissionsAndReportImagesSuite(runner);
   await runPrivateNetworkGuardSuite(runner);
   await runPrivateNetworkLeakSuite(runner);
+  await runPrivateNetworkReviewSuite(runner);
   await runXmlAndRecordingIntegrationSuite(runner);
 
   return runner.printSummary();
