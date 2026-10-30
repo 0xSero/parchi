@@ -119,6 +119,7 @@ sidePanelProto.loadSettings = async function loadSettings() {
   if (this.elements.permissionScreenshots)
     this.elements.permissionScreenshots.checked = toolPermissions.screenshots !== false;
   if (this.elements.allowedDomains) this.elements.allowedDomains.value = settings.allowedDomains || '';
+  if (this.elements.allowedPrivateHosts) this.elements.allowedPrivateHosts.value = settings.allowedPrivateHosts || '';
 
   await syncOAuthProfiles(this).catch(() => {});
 

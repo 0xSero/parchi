@@ -164,6 +164,7 @@ export const getSidePanelElements = (): SidePanelElements => ({
   permissionTabs: byId<HTMLInputElement>('permissionTabs'),
   permissionScreenshots: byId<HTMLInputElement>('permissionScreenshots'),
   allowedDomains: byId<HTMLTextAreaElement>('allowedDomains'),
+  allowedPrivateHosts: byId<HTMLInputElement>('allowedPrivateHosts'),
 
   // Account + billing
   accountOnboardingModal: byId<HTMLElement>('accountOnboardingModal'),

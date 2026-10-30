@@ -38,6 +38,7 @@ export const PARCHI_STORAGE_KEYS = [
   'autoSaveSession',
   'toolPermissions',
   'allowedDomains',
+  'allowedPrivateHosts',
   'activeConfig',
   'configs',
   'auxAgentProfiles',

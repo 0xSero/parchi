@@ -1,12 +1,14 @@
 import type { BrowserToolName } from '../tools/browser-tool-definitions.js';
 import type { BrowserToolArgs } from '../tools/browser-tool-shared.js';
 import type { BrowserTools } from '../tools/browser-tools.js';
+import { isPrivateNetworkUrl, isPrivateUrlApproved } from './private-network.js';
 
 type ToolPermissionCategory = 'navigate' | 'interact' | 'read' | 'screenshots' | 'tabs';
 
 type ToolPermissionSettings = {
   toolPermissions?: Partial<Record<ToolPermissionCategory, boolean>>;
   allowedDomains?: string;
+  allowedPrivateHosts?: string;
 } & Record<string, unknown>;
 
 const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory> = {
@@ -58,29 +60,63 @@ export function isUrlAllowed(url: string, allowlist: string[]) {
   }
 }
 
-export async function resolveToolUrl(
-  _toolName: string,
+// Only navigation tools act on the URL argument; every other tool acts on the tab it resolves to, so a
+// model-supplied `url` must never stand in for the real target of a read or interaction.
+const URL_ARGUMENT_TOOLS = new Set(['navigate', 'openTab']);
+
+async function getTabUrls(tabId: number) {
+  const tab = await chrome.tabs.get(tabId);
+  return [tab?.url || '', tab?.pendingUrl || ''].filter(Boolean);
+}
+
+/** URLs a tool will act on: the navigation target, or the committed + pending URL of the resolved tab. */
+export async function resolveToolTargetUrls(
+  toolName: string,
   args: BrowserToolArgs,
   sessionId: string | undefined,
   currentSessionId: string | null,
   getBrowserTools: (id: string) => BrowserTools,
-) {
-  if (typeof args.url === 'string') return args.url;
+): Promise<string[]> {
+  if (URL_ARGUMENT_TOOLS.has(toolName) && typeof args.url === 'string') return [args.url];
   const tools = getBrowserTools(sessionId || currentSessionId || 'default');
-  const tabId = typeof args.tabId === 'number' ? args.tabId : tools.getCurrentSessionTabId();
   try {
-    if (typeof tabId === 'number') {
-      const tab = await chrome.tabs.get(tabId);
-      return tab?.url || '';
+    if (typeof tools.resolveTabId === 'function') {
+      const tabId = await tools.resolveTabId(args);
+      return typeof tabId === 'number' ? await getTabUrls(tabId) : [];
     }
+    const tabId = typeof args.tabId === 'number' ? args.tabId : tools.getCurrentSessionTabId();
+    if (typeof tabId === 'number') return await getTabUrls(tabId);
   } catch (error) {
     console.warn('Failed to resolve tab URL for permissions:', error);
   }
-  const [active] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  return active?.url || '';
+  try {
+    const [active] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    return active?.url ? [active.url] : [];
+  } catch (error) {
+    console.warn('Failed to resolve active tab URL for permissions:', error);
+    return [];
+  }
+}
+
+/** Blocks unapproved loopback/LAN/intranet/file destinations regardless of the public-domain allowlist. */
+export function checkPrivateNetworkAccess(urls: string[], settings: ToolPermissionSettings | null | undefined) {
+  const approvals = [
+    ...parseAllowedDomains(settings?.allowedPrivateHosts || ''),
+    ...parseAllowedDomains(settings?.allowedDomains || ''),
+  ];
+  const blocked = urls.find((url) => isPrivateNetworkUrl(url) && !isPrivateUrlApproved(url, approvals));
+  if (!blocked) return { allowed: true as const };
+  const reason =
+    'Blocked private-network destination (localhost, LAN, intranet or local file). ' +
+    'Add the host to "Allowed private hosts" in settings to approve it.';
+  return {
+    allowed: false as const,
+    reason,
+    policy: { type: 'private-network', domain: blocked, reason },
+  };
 }
 
 export async function checkToolPermission(
@@ -93,8 +129,7 @@ export async function checkToolPermission(
   getBrowserTools: (id: string) => BrowserTools,
 ) {
   const settings = settingsOverride || currentSettings;
-  if (!settings) return { allowed: true };
-  const permissions = settings.toolPermissions || {};
+  const permissions = settings?.toolPermissions || {};
   const category = getToolPermissionCategory(toolName);
   if (category && permissions[category] === false) {
     return {
@@ -110,11 +145,15 @@ export async function checkToolPermission(
 
   if (category === 'tabs') return { allowed: true };
 
-  const allowlist = parseAllowedDomains(settings.allowedDomains || '');
+  const targetUrls = await resolveToolTargetUrls(toolName, args, sessionId, currentSessionId, getBrowserTools);
+  const privateCheck = checkPrivateNetworkAccess(targetUrls, settings);
+  if (!privateCheck.allowed) return privateCheck;
+
+  const allowlist = parseAllowedDomains(settings?.allowedDomains || '');
   if (!allowlist.length) return { allowed: true };
 
-  const targetUrl = await resolveToolUrl(toolName, args, sessionId, currentSessionId, getBrowserTools);
-  if (!isUrlAllowed(targetUrl, allowlist)) {
+  const targetUrl = targetUrls.find((url) => !isUrlAllowed(url, allowlist)) ?? (targetUrls.length ? null : '');
+  if (targetUrl !== null) {
     return {
       allowed: false,
       reason: 'Blocked by allowed domains list.',
@@ -127,4 +166,22 @@ export async function checkToolPermission(
   }
 
   return { allowed: true };
+}
+
+/**
+ * Re-checks the tab a read/interact/screenshot tool acted on after it ran. A redirect or late navigation can move
+ * the tab onto a private origin between the pre-check and script execution; in that case the output is withheld.
+ */
+export async function recheckToolTargetAfterExecution(
+  toolName: string,
+  args: BrowserToolArgs,
+  settings: ToolPermissionSettings | null | undefined,
+  sessionId: string | undefined,
+  currentSessionId: string | null,
+  getBrowserTools: (id: string) => BrowserTools,
+) {
+  const category = getToolPermissionCategory(toolName);
+  if (!category || category === 'tabs' || URL_ARGUMENT_TOOLS.has(toolName)) return { allowed: true as const };
+  const targetUrls = await resolveToolTargetUrls(toolName, args, sessionId, currentSessionId, getBrowserTools);
+  return checkPrivateNetworkAccess(targetUrls, settings);
 }

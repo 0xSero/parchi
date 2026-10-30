@@ -1,6 +1,6 @@
 import type { BrowserTools } from '../../../tools/browser-tools.js';
 import type { ServiceContext } from '../../service-context.js';
-import { checkToolPermission } from '../../tool-permissions.js';
+import { checkToolPermission, recheckToolTargetAfterExecution } from '../../tool-permissions.js';
 import { type ToolExecutionArgs, type ToolExecutionOptions, formatToolExecutorError } from './shared.js';
 
 export type BrowserToolGateResult =
@@ -56,10 +56,22 @@ export async function validateAndExecuteBrowserTool(
   }
 
   try {
-    return {
-      shouldReturn: false,
-      result: await browserTools.executeTool(toolName, args),
-    };
+    const result = await browserTools.executeTool(toolName, args);
+    const recheck = await recheckToolTargetAfterExecution(
+      toolName,
+      args,
+      options.settings || ctx.currentSettings,
+      options.runMeta.sessionId,
+      ctx.currentSessionId,
+      (id) => ctx.getBrowserTools(id),
+    );
+    if (!recheck.allowed) {
+      return {
+        shouldReturn: true,
+        result: { success: false, error: recheck.reason, policy: recheck.policy },
+      };
+    }
+    return { shouldReturn: false, result };
   } catch (error) {
     return {
       shouldReturn: true,

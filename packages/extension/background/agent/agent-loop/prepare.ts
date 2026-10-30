@@ -130,6 +130,7 @@ async function loadAgentSettings(): Promise<AgentSettings> {
   settings.visionBridge ??= true;
   settings.toolPermissions ??= { read: true, interact: true, navigate: true, tabs: true, screenshots: true };
   settings.allowedDomains ??= '';
+  settings.allowedPrivateHosts ??= '';
   if (!Array.isArray(settings.auxAgentProfiles)) settings.auxAgentProfiles = [];
   return settings;
 }

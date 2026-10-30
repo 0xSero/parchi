@@ -59,6 +59,7 @@ sidePanelProto.persistAllSettings = async function persistAllSettings({ silent =
       orchestratorProfile: this.elements.orchestratorProfile?.value || '',
       toolPermissions: this.collectToolPermissions(),
       allowedDomains: this.elements.allowedDomains?.value || '',
+      allowedPrivateHosts: this.elements.allowedPrivateHosts?.value || '',
       auxAgentProfiles: this.auxAgentProfiles,
       uiZoom: this.uiZoom ?? 1,
       fontPreset: this.fontPreset || 'default',

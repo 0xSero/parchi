@@ -134,7 +134,7 @@ export async function runToolPermissionsAndReportImagesSuite(runner: AsyncTestRu
       runner.assertTrue(viaTabFallback.allowed, 'Fallback active-tab URL should be accepted');
 
       const blocked = await checkToolPermission(
-        'click',
+        'navigate',
         { url: 'https://evil.com' } as any,
         { allowedDomains: 'example.com' },
         null,
