@@ -201,7 +201,12 @@ export class BackgroundService implements ServiceContext {
   async executeToolByName(
     toolName: string,
     args: Record<string, any>,
-    options: { runMeta: RunMeta; settings: Record<string, any>; visionProfile?: Record<string, any> | null },
+    options: {
+      runMeta: RunMeta;
+      settings: Record<string, any>;
+      visionProfile?: Record<string, any> | null;
+      allowTestHooks?: boolean;
+    },
     toolCallId?: string,
   ) {
     return executeToolByName(this, toolName, args, options, toolCallId);

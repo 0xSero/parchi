@@ -51,12 +51,20 @@ export type BrowserNetworkLogEntry = {
   mimeType?: string;
   requestHeaders?: Record<string, string>;
   responseHeaders?: Record<string, string>;
+  /** Remote address the browser connected to (CDP), used by destination policy. */
+  remoteIPAddress?: string;
   body?: string;
   bodyTruncated?: boolean;
   failed?: boolean;
   errorText?: string;
   startedAt: number;
   finishedAt?: number;
+};
+
+/** Frame documents a tool call was authorized for (destination policy, issue #42). */
+export type ExecutionScope = {
+  tabId: number;
+  frames: Array<{ frameId: number; documentId?: string; url: string; origin: string }>;
 };
 
 export interface BrowserToolsDelegate {

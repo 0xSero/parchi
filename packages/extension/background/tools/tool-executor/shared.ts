@@ -10,6 +10,8 @@ export type ToolExecutionOptions = {
   settings: ToolExecutionSettings;
   visionProfile?: ToolExecutionProfile;
   runtimeMeta?: Pick<RuntimeMessageBase, 'agentId' | 'agentName' | 'agentKind' | 'agentSessionId' | 'parentSessionId'>;
+  /** Set only by the extension-page runtime test handler; never for model-issued tool calls. */
+  allowTestHooks?: boolean;
 };
 
 export type NestedToolExecutor = (

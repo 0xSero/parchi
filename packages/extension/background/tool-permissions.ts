@@ -1,14 +1,12 @@
 import type { BrowserToolName } from '../tools/browser-tool-definitions.js';
 import type { BrowserToolArgs } from '../tools/browser-tool-shared.js';
 import type { BrowserTools } from '../tools/browser-tools.js';
-import { isPrivateNetworkUrl, isPrivateUrlApproved } from './private-network.js';
 
-type ToolPermissionCategory = 'navigate' | 'interact' | 'read' | 'screenshots' | 'tabs';
+type ToolPermissionCategory = 'navigate' | 'interact' | 'read' | 'screenshots' | 'tabs' | 'script';
 
 type ToolPermissionSettings = {
   toolPermissions?: Partial<Record<ToolPermissionCategory, boolean>>;
   allowedDomains?: string;
-  allowedPrivateHosts?: string;
 } & Record<string, unknown>;
 
 const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory> = {
@@ -20,7 +18,7 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   pressKey: 'interact',
   scroll: 'interact',
   waitFor: 'read',
-  evaluate: 'read',
+  evaluate: 'script',
   watchNetwork: 'read',
   getNetworkLog: 'read',
   getContent: 'read',
@@ -101,24 +99,6 @@ export async function resolveToolTargetUrls(
   }
 }
 
-/** Blocks unapproved loopback/LAN/intranet/file destinations regardless of the public-domain allowlist. */
-export function checkPrivateNetworkAccess(urls: string[], settings: ToolPermissionSettings | null | undefined) {
-  const approvals = [
-    ...parseAllowedDomains(settings?.allowedPrivateHosts || ''),
-    ...parseAllowedDomains(settings?.allowedDomains || ''),
-  ];
-  const blocked = urls.find((url) => isPrivateNetworkUrl(url) && !isPrivateUrlApproved(url, approvals));
-  if (!blocked) return { allowed: true as const };
-  const reason =
-    'Blocked private-network destination (localhost, LAN, intranet or local file). ' +
-    'Add the host to "Allowed private hosts" in settings to approve it.';
-  return {
-    allowed: false as const,
-    reason,
-    policy: { type: 'private-network', domain: blocked, reason },
-  };
-}
-
 export async function checkToolPermission(
   toolName: string,
   args: BrowserToolArgs,
@@ -131,26 +111,26 @@ export async function checkToolPermission(
   const settings = settingsOverride || currentSettings;
   const permissions = settings?.toolPermissions || {};
   const category = getToolPermissionCategory(toolName);
-  if (category && permissions[category] === false) {
+  // evaluate runs arbitrary page JavaScript (it can fetch/post anywhere the page can), so it is opt-in only.
+  const disabled = category === 'script' ? permissions.script !== true : category && permissions[category] === false;
+  if (disabled) {
+    const reason =
+      category === 'script'
+        ? 'Permission blocked: script. evaluate runs arbitrary JavaScript and is off unless "Run JavaScript" is enabled in Tool Permissions.'
+        : `Permission blocked: ${category}`;
     return {
       allowed: false,
-      reason: `Permission blocked: ${category}`,
-      policy: {
-        type: 'permission',
-        category,
-        reason: `Permission blocked: ${category}`,
-      },
+      reason,
+      policy: { type: 'permission', category, reason },
     };
   }
 
   if (category === 'tabs') return { allowed: true };
 
-  const targetUrls = await resolveToolTargetUrls(toolName, args, sessionId, currentSessionId, getBrowserTools);
-  const privateCheck = checkPrivateNetworkAccess(targetUrls, settings);
-  if (!privateCheck.allowed) return privateCheck;
-
   const allowlist = parseAllowedDomains(settings?.allowedDomains || '');
   if (!allowlist.length) return { allowed: true };
+
+  const targetUrls = await resolveToolTargetUrls(toolName, args, sessionId, currentSessionId, getBrowserTools);
 
   const targetUrl = targetUrls.find((url) => !isUrlAllowed(url, allowlist)) ?? (targetUrls.length ? null : '');
   if (targetUrl !== null) {
@@ -166,22 +146,4 @@ export async function checkToolPermission(
   }
 
   return { allowed: true };
-}
-
-/**
- * Re-checks the tab a read/interact/screenshot tool acted on after it ran. A redirect or late navigation can move
- * the tab onto a private origin between the pre-check and script execution; in that case the output is withheld.
- */
-export async function recheckToolTargetAfterExecution(
-  toolName: string,
-  args: BrowserToolArgs,
-  settings: ToolPermissionSettings | null | undefined,
-  sessionId: string | undefined,
-  currentSessionId: string | null,
-  getBrowserTools: (id: string) => BrowserTools,
-) {
-  const category = getToolPermissionCategory(toolName);
-  if (!category || category === 'tabs' || URL_ARGUMENT_TOOLS.has(toolName)) return { allowed: true as const };
-  const targetUrls = await resolveToolTargetUrls(toolName, args, sessionId, currentSessionId, getBrowserTools);
-  return checkPrivateNetworkAccess(targetUrls, settings);
 }

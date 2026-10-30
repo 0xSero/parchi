@@ -7,6 +7,7 @@ type BrowserToolProvider = {
 
 type ToolCatalogSettings = {
   enableScreenshots?: boolean;
+  toolPermissions?: Record<string, boolean | undefined>;
 } & Record<string, unknown>;
 
 export function getToolsForSession(
@@ -19,6 +20,10 @@ export function getToolsForSession(
   let tools = browserTools.getToolDefinitions();
   if (settings && settings.enableScreenshots === false) {
     tools = tools.filter((tool) => tool.name !== 'screenshot');
+  }
+  if (settings?.toolPermissions?.script !== true) {
+    // evaluate runs arbitrary JavaScript; only offer it when the user explicitly enabled it.
+    tools = tools.filter((tool) => tool.name !== 'evaluate');
   }
   if (!includeVisionTools) {
     tools = tools.filter((tool) => tool.name !== 'watchVideo' && tool.name !== 'getVideoInfo');

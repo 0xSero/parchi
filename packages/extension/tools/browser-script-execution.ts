@@ -1,4 +1,19 @@
-import { type BrowserToolResult, formatToolError, isToolSuccess } from './browser-tool-shared.js';
+import { type BrowserToolResult, type ExecutionScope, formatToolError, isToolSuccess } from './browser-tool-shared.js';
+
+/**
+ * Injection target pinned to the authorized frame documents. documentIds make injection fail instead of running in a
+ * document that replaced the judged one (navigation/redirect race); frameIds are the fallback where unsupported.
+ */
+export function scopedTarget(tabId: number, scope: ExecutionScope | undefined, allFrames: boolean) {
+  if (!scope) return allFrames ? { tabId, allFrames: true } : { tabId };
+  if (scope.tabId !== tabId) throw new Error('Tool target tab does not match the authorized tab.');
+  const frames = allFrames ? scope.frames : scope.frames.filter((frame) => frame.frameId === 0);
+  if (!frames.length) return allFrames ? { tabId, allFrames: true } : { tabId };
+  const documentIds = frames.map((frame) => frame.documentId).filter((id): id is string => Boolean(id));
+  return documentIds.length === frames.length
+    ? ({ tabId, documentIds } as chrome.scripting.InjectionTarget)
+    : { tabId, frameIds: frames.map((frame) => frame.frameId) };
+}
 
 /**
  * Execute a function in a specific tab's content script context.
@@ -7,10 +22,11 @@ export async function runInTab<TArgs extends unknown[], TResult>(
   tabId: number,
   func: (...args: TArgs) => TResult | Promise<TResult>,
   args: TArgs,
+  scope?: ExecutionScope,
 ): Promise<BrowserToolResult<TResult>> {
   try {
     const results = await chrome.scripting.executeScript({
-      target: { tabId },
+      target: scopedTarget(tabId, scope, false),
       func: func as (...args: unknown[]) => unknown,
       args: [...args],
     });
@@ -32,10 +48,11 @@ export async function runInAllFrames<TArgs extends unknown[], TResult>(
   tabId: number,
   func: (...args: TArgs) => TResult | Promise<TResult>,
   args: TArgs,
+  scope?: ExecutionScope,
 ): Promise<BrowserToolResult<TResult>> {
   try {
     const results = await chrome.scripting.executeScript({
-      target: { tabId, allFrames: true },
+      target: scopedTarget(tabId, scope, true),
       func: func as (...args: unknown[]) => unknown,
       args: [...args],
     });

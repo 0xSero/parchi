@@ -163,6 +163,7 @@ export const getSidePanelElements = (): SidePanelElements => ({
   permissionNavigate: byId<HTMLInputElement>('permissionNavigate'),
   permissionTabs: byId<HTMLInputElement>('permissionTabs'),
   permissionScreenshots: byId<HTMLInputElement>('permissionScreenshots'),
+  permissionScript: byId<HTMLInputElement>('permissionScript'),
   allowedDomains: byId<HTMLTextAreaElement>('allowedDomains'),
   allowedPrivateHosts: byId<HTMLInputElement>('allowedPrivateHosts'),
 

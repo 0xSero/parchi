@@ -4,6 +4,8 @@ export type ToolPermissions = {
   navigate: boolean;
   tabs: boolean;
   screenshots: boolean;
+  /** evaluate (arbitrary page JavaScript); explicit opt-in. */
+  script?: boolean;
 };
 
 export const DEFAULT_TOOL_PERMISSIONS: ToolPermissions = {
@@ -12,6 +14,7 @@ export const DEFAULT_TOOL_PERMISSIONS: ToolPermissions = {
   navigate: true,
   tabs: true,
   screenshots: true,
+  script: false,
 };
 
 // Superset of keys used across background + sidepanel.

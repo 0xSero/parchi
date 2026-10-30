@@ -92,6 +92,15 @@ function matchesSuffix(host: string, suffixes: string[]) {
   return suffixes.some((suffix) => host === suffix || host.endsWith(`.${suffix}`));
 }
 
+/** True for a literal IPv4/IPv6 address (as reported by webRequest/CDP) in loopback, LAN, link-local or similar space. */
+export function isPrivateIpAddress(ip: string): boolean {
+  const host = normalizeHostname(ip).split('%')[0];
+  const v4 = parseIpv4(host);
+  if (v4) return isPrivateIpv4(v4);
+  const v6 = parseIpv6(host);
+  return v6 ? isPrivateIpv6(v6) : false;
+}
+
 /** True when a hostname (already WHATWG-normalized) targets loopback, LAN, link-local or intranet space. */
 export function isPrivateHostname(rawHostname: string): boolean {
   const host = normalizeHostname(rawHostname);

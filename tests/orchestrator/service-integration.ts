@@ -116,6 +116,32 @@ export async function runOrchestratorServiceIntegrationSuite(
     });
   });
 
+  await runner.test('model-issued dispatch ignores synthetic test scripts (issue #42)', async () => {
+    // __testSubagentResults drives browser tools directly; only the extension-page test harness may use it.
+    const hookCtx = createHarnessContext();
+    await callBuiltin(hookCtx, 'set_orchestrator_plan', crossSiteFixture);
+    const spawned: string[] = [];
+    const spawnStub = createNestedSpawnStub(hookCtx);
+    const result = await callBuiltin(
+      hookCtx,
+      'dispatch_orchestrator_tasks',
+      {
+        maxTasks: 1,
+        __testSubagentResults: {
+          airtable_to_notion: { url: 'http://127.0.0.1:8080/secret', script: [{ tool: 'getContent' }] },
+          notion_to_airtable: { url: 'http://127.0.0.1:8080/secret', script: [{ tool: 'getContent' }] },
+        },
+      },
+      async (toolName, args) => {
+        spawned.push(toolName);
+        return spawnStub(toolName, args);
+      },
+    );
+    runner.assertTrue(result.success === true, 'dispatch should succeed through the normal spawn path');
+    runner.assertEqual(spawned, ['spawn_subagent'], 'synthetic script path must not run for model calls');
+    scenarios.push({ id: 'test-hooks-ignored', passed: true, details: { spawned } });
+  });
+
   return {
     generatedAt: new Date().toISOString(),
     runtimeEventCount: ctx.runtimeEvents.length,

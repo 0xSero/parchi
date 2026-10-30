@@ -9,6 +9,7 @@ sidePanelProto.collectToolPermissions = function collectToolPermissions() {
     navigate: true,
     tabs: true,
     screenshots: true,
+    script: false,
   };
   return {
     read: this.elements.permissionRead ? this.elements.permissionRead.checked !== false : fallback.read !== false,
@@ -22,6 +23,7 @@ sidePanelProto.collectToolPermissions = function collectToolPermissions() {
     screenshots: this.elements.permissionScreenshots
       ? this.elements.permissionScreenshots.checked !== false
       : fallback.screenshots !== false,
+    script: this.elements.permissionScript ? this.elements.permissionScript.checked === true : fallback.script === true,
   };
 };
 

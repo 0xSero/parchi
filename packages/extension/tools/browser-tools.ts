@@ -15,6 +15,7 @@ import {
   type ActionOverlayPayload,
   type BrowserToolArgs,
   DEFAULT_SESSION_GROUP,
+  type ExecutionScope,
   type GroupOptions,
   MAX_SESSION_TABS,
   type SessionTabSummary,
@@ -29,6 +30,7 @@ export class BrowserTools {
   supportsTabGroups: boolean;
   screenshotQuality: 'high' | 'medium' | 'low' | undefined;
   debugManager: BrowserDebugManager;
+  private executionScopes = new Map<number, ExecutionScope>();
 
   constructor() {
     this.sessionTabs = new Map();
@@ -111,6 +113,24 @@ export class BrowserTools {
     await updateGroupTitleState(this.supportsTabGroups, this.sessionTabGroupId, this.sessionTabs);
   }
 
+  /** Runs `fn` with script injection pinned to the frame documents the destination policy authorized. */
+  async withExecutionScope<T>(scope: ExecutionScope | undefined, fn: () => Promise<T>): Promise<T> {
+    if (!scope) return fn();
+    this.executionScopes.set(scope.tabId, scope);
+    try {
+      return await fn();
+    } finally {
+      if (this.executionScopes.get(scope.tabId) === scope) this.executionScopes.delete(scope.tabId);
+    }
+  }
+
+  private scopeFor(tabId: number): ExecutionScope | undefined {
+    const scope = this.executionScopes.get(tabId);
+    if (scope || this.executionScopes.size === 0) return scope;
+    // A scoped call must not inject into a tab other than the one that was authorized.
+    return { tabId: -1, frames: [] };
+  }
+
   async executeTool(toolName: string, args: BrowserToolArgs = {}) {
     return executeTool(this.toolHandlers, toolName, args);
   }
@@ -146,7 +166,7 @@ export class BrowserTools {
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
   ) {
-    return runInTab(tabId, func, args);
+    return runInTab(tabId, func, args, this.scopeFor(tabId));
   }
 
   async runInAllFrames<TArgs extends unknown[], TResult>(
@@ -154,7 +174,7 @@ export class BrowserTools {
     func: (...args: TArgs) => TResult | Promise<TResult>,
     args: TArgs,
   ) {
-    return runInAllFrames(tabId, func, args);
+    return runInAllFrames(tabId, func, args, this.scopeFor(tabId));
   }
 
   async watchNetwork(tabId: number, clearExisting = true) {

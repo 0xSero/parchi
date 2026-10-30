@@ -128,7 +128,14 @@ async function loadAgentSettings(): Promise<AgentSettings> {
   settings.enableScreenshots ??= true;
   settings.sendScreenshotsAsImages ??= false;
   settings.visionBridge ??= true;
-  settings.toolPermissions ??= { read: true, interact: true, navigate: true, tabs: true, screenshots: true };
+  settings.toolPermissions ??= {
+    read: true,
+    interact: true,
+    navigate: true,
+    tabs: true,
+    screenshots: true,
+    script: false,
+  };
   settings.allowedDomains ??= '';
   settings.allowedPrivateHosts ??= '';
   if (!Array.isArray(settings.auxAgentProfiles)) settings.auxAgentProfiles = [];

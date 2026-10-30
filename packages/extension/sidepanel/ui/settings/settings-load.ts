@@ -118,6 +118,7 @@ sidePanelProto.loadSettings = async function loadSettings() {
   if (this.elements.permissionTabs) this.elements.permissionTabs.checked = toolPermissions.tabs !== false;
   if (this.elements.permissionScreenshots)
     this.elements.permissionScreenshots.checked = toolPermissions.screenshots !== false;
+  if (this.elements.permissionScript) this.elements.permissionScript.checked = toolPermissions.script === true;
   if (this.elements.allowedDomains) this.elements.allowedDomains.value = settings.allowedDomains || '';
   if (this.elements.allowedPrivateHosts) this.elements.allowedPrivateHosts.value = settings.allowedPrivateHosts || '';
 

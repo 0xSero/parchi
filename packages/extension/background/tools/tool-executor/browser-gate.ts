@@ -1,6 +1,7 @@
 import type { BrowserTools } from '../../../tools/browser-tools.js';
+import { postflightDestination, preflightDestination } from '../../destination-guard.js';
 import type { ServiceContext } from '../../service-context.js';
-import { checkToolPermission, recheckToolTargetAfterExecution } from '../../tool-permissions.js';
+import { checkToolPermission } from '../../tool-permissions.js';
 import { type ToolExecutionArgs, type ToolExecutionOptions, formatToolExecutorError } from './shared.js';
 
 export type BrowserToolGateResult =
@@ -12,6 +13,11 @@ export type BrowserToolGateResult =
       shouldReturn: false;
       result: unknown;
     };
+
+const blockedResult = (check: { reason?: string; policy?: unknown }): BrowserToolGateResult => ({
+  shouldReturn: true,
+  result: { success: false, error: check.reason || 'Tool blocked by permissions.', policy: check.policy },
+});
 
 export async function validateAndExecuteBrowserTool(
   ctx: ServiceContext,
@@ -37,16 +43,7 @@ export async function validateAndExecuteBrowserTool(
     ctx.currentSessionId,
     (id) => ctx.getBrowserTools(id),
   );
-  if (!permissionCheck.allowed) {
-    return {
-      shouldReturn: true,
-      result: {
-        success: false,
-        error: permissionCheck.reason || 'Tool blocked by permissions.',
-        policy: permissionCheck.policy,
-      },
-    };
-  }
+  if (!permissionCheck.allowed) return blockedResult(permissionCheck);
 
   if (toolName === 'screenshot' && options.settings.enableScreenshots === false) {
     return {
@@ -55,23 +52,20 @@ export async function validateAndExecuteBrowserTool(
     };
   }
 
+  // Private-network / destination policy (#42): judge the real target before and after execution, and pin
+  // script injection to the exact frame documents that were judged.
+  const settings = options.settings || ctx.currentSettings;
+  const sessionId = options.runMeta.sessionId;
   try {
-    const result = await browserTools.executeTool(toolName, args);
-    const recheck = await recheckToolTargetAfterExecution(
-      toolName,
-      args,
-      options.settings || ctx.currentSettings,
-      options.runMeta.sessionId,
-      ctx.currentSessionId,
-      (id) => ctx.getBrowserTools(id),
+    const preflight = await preflightDestination(toolName, args, browserTools, sessionId, settings);
+    if (!preflight.allowed) return blockedResult(preflight);
+
+    const result = await browserTools.withExecutionScope(preflight.scope, () =>
+      browserTools.executeTool(toolName, args),
     );
-    if (!recheck.allowed) {
-      return {
-        shouldReturn: true,
-        result: { success: false, error: recheck.reason, policy: recheck.policy },
-      };
-    }
-    return { shouldReturn: false, result };
+    const postflight = await postflightDestination(toolName, args, result, browserTools, sessionId, settings);
+    if (!postflight.allowed) return blockedResult(postflight);
+    return { shouldReturn: false, result: postflight.result };
   } catch (error) {
     return {
       shouldReturn: true,

@@ -1,3 +1,4 @@
+import { guardSpawnUrl } from '../../destination-guard.js';
 import { resolveProfile } from '../../model-profiles.js';
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta, SubagentResult } from '../../service-types.js';
@@ -48,6 +49,10 @@ export async function handleSpawnSubagent(
     typeof args.orchestratorTaskId === 'string' && args.orchestratorTaskId.trim()
       ? args.orchestratorTaskId.trim()
       : undefined;
+
+  // The subagent tab is opened at a model-chosen URL, so apply the same navigation policy as openTab (#42).
+  const urlCheck = await guardSpawnUrl(requestedUrl, runMeta.sessionId, settings);
+  if (!urlCheck.allowed) return { success: false, error: urlCheck.reason, policy: urlCheck.policy };
 
   // Create dedicated Chrome tab + isolated BrowserTools
   const subTab = await createSubagentTab(ctx, runMeta, subagentSessionId, nextSubagentCount, requestedUrl);
