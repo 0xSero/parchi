@@ -49,6 +49,13 @@ const HANDLERS: Record<
   reset_all_profiles: handleResetAllProfiles,
 };
 
+const EXTENSION_PAGE_ONLY = new Set(['execute_tool', 'execute_runtime_tool_test', 'configure_session_tabs_test']);
+
+function isExtensionPageSender(sender: chrome.runtime.MessageSender) {
+  const extensionOrigin = chrome.runtime.getURL('');
+  return sender?.id === chrome.runtime.id && typeof sender.url === 'string' && sender.url.startsWith(extensionOrigin);
+}
+
 export async function handleMessage(
   ctx: ServiceContext,
   message: any,
@@ -62,6 +69,12 @@ export async function handleMessage(
       const unknownType = typeof message?.type === 'string' ? message.type : '<missing>';
       console.warn('Unknown message type:', unknownType);
       response.respond({ success: false, error: `Unknown message type: ${unknownType}` });
+      return;
+    }
+
+    if (EXTENSION_PAGE_ONLY.has(message.type) && !isExtensionPageSender(sender)) {
+      // Direct tool execution skips the agent gate; web-page content scripts must never reach it (#42).
+      response.respond({ success: false, error: `${message.type} is only available to extension pages.` });
       return;
     }
 

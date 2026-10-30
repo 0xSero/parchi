@@ -196,6 +196,7 @@ export class BrowserDebugManager {
         draft.statusText = typeof response.statusText === 'string' ? response.statusText : undefined;
         draft.mimeType = typeof response.mimeType === 'string' ? response.mimeType : undefined;
         draft.responseHeaders = normalizeHeaders(response.headers);
+        draft.remoteIPAddress = typeof response.remoteIPAddress === 'string' ? response.remoteIPAddress : undefined;
         draft.resourceType = typeof params.type === 'string' ? params.type : draft.resourceType;
         break;
       }

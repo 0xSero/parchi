@@ -24,7 +24,6 @@ export const setupRuntimeListeners = function setupRuntimeListeners(this: SidePa
       this.handleRecordingMessage?.(message);
     }
   });
-
 };
 
 sidePanelProto.setupRuntimeListeners = setupRuntimeListeners;

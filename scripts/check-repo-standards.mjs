@@ -117,12 +117,7 @@ const shouldCheckLineCount = (filePath) => {
 
 const DEEP_SHARED_IMPORT_EXTENSIONS = new Set(['.ts', '.tsx', '.js', '.jsx', '.mjs']);
 const DEEP_SHARED_IMPORT_PATTERNS = [/from\s+['"][^'"]*shared\/src\//, /import\(\s*['"][^'"]*shared\/src\//];
-const DEEP_SHARED_IMPORT_IGNORE_SEGMENTS = [
-  'dist/',
-  'dist-firefox/',
-  'node_modules/',
-  'packages/shared/',
-];
+const DEEP_SHARED_IMPORT_IGNORE_SEGMENTS = ['dist/', 'dist-firefox/', 'node_modules/', 'packages/shared/'];
 
 const findDeepSharedImports = (filePath) => {
   if (!filePath) return [];

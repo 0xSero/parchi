@@ -78,6 +78,7 @@ export class SidePanelUI {
     navigate: boolean;
     tabs: boolean;
     screenshots: boolean;
+    script?: boolean;
   };
   auxAgentProfiles: string[];
   currentView: 'chat' | 'history';

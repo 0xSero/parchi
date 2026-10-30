@@ -24,6 +24,7 @@
     "test:orchestrator": "node scripts/build.mjs && node dist/tests/orchestrator/run-fixture-executor.js",
     "test:e2e": "node scripts/build.mjs && node dist/tests/e2e/run-e2e.js",
     "test:e2e:orchestrator": "node scripts/build.mjs && node dist/tests/e2e/run-orchestrator-runtime-e2e.js",
+    "test:e2e:private-network": "node scripts/build.mjs && node dist/tests/e2e/private-network-browser.js",
     "perf:tabs": "node scripts/build.mjs && node dist/tests/perf/run-tab-cpu-audit.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "check:repo-standards": "node scripts/check-repo-standards.mjs",

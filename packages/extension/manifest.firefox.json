@@ -21,6 +21,7 @@
     "identity",
     "storage",
     "webRequest",
+    "webNavigation",
     "webRequestBlocking"
   ],
   "host_permissions": [

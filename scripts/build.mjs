@@ -105,10 +105,7 @@ const run = async () => {
 
   // Build background and sidepanel as ESM (they support modules)
   await esbuild.build({
-    entryPoints: [
-      path.join(extensionRoot, 'background.ts'),
-      path.join(extensionRoot, 'sidepanel', 'panel.ts'),
-    ],
+    entryPoints: [path.join(extensionRoot, 'background.ts'), path.join(extensionRoot, 'sidepanel', 'panel.ts')],
     outdir: distDir,
     outbase: extensionRoot,
     bundle: true,
@@ -143,6 +140,7 @@ const run = async () => {
       path.join(rootDir, 'tests', 'e2e', 'run-e2e.ts'),
       path.join(rootDir, 'tests', 'e2e', 'run-orchestrator-runtime-e2e.ts'),
       path.join(rootDir, 'tests', 'e2e', 'test-browser-tools.ts'),
+      path.join(rootDir, 'tests', 'e2e', 'private-network-browser.ts'),
       path.join(rootDir, 'tests', 'orchestrator', 'run-fixture-executor.ts'),
       path.join(rootDir, 'tests', 'api', 'run-api-tests.ts'),
       path.join(rootDir, 'tests', 'perf', 'run-perf-profile.ts'),

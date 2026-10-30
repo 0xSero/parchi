@@ -114,6 +114,14 @@
                     <input type="checkbox" id="permissionScreenshots" class="switch-input" />
                     <span class="switch-track"></span>
                 </label>
+                <label class="switch-row" for="permissionScript">
+                    <span class="switch-copy">
+                        <span class="switch-title">Run JavaScript</span>
+                        <span class="switch-subtitle">Allow evaluate (arbitrary page scripts). Off by default.</span>
+                    </span>
+                    <input type="checkbox" id="permissionScript" class="switch-input" />
+                    <span class="switch-track"></span>
+                </label>
             </div>
         </div>
     </details>
@@ -125,6 +133,11 @@
                 <label for="allowedDomains">Allowed Domains</label>
                 <input type="text" id="allowedDomains" placeholder="Leave empty for all domains" />
                 <small>Comma-separated, e.g. google.com, github.com</small>
+            </div>
+            <div class="form-group">
+                <label for="allowedPrivateHosts">Allowed Private Hosts</label>
+                <input type="text" id="allowedPrivateHosts" placeholder="Blocked by default" />
+                <small>Local/LAN/intranet hosts (or names that resolve to them) the agent may open, read or interact with, e.g. localhost:3000, nas.lan. Use * to allow all. After reading one, the session can only write to sites listed in Allowed Domains.</small>
             </div>
         </div>
     </details>

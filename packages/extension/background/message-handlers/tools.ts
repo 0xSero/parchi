@@ -27,6 +27,7 @@ export async function handleExecuteRuntimeToolTest(
         sessionId,
       },
       settings,
+      allowTestHooks: true,
     },
   );
   respondOk(sendResponse, { result });

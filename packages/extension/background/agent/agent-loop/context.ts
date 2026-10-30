@@ -1,3 +1,4 @@
+import { redactTabEntry } from '../../destination-guard.js';
 import { isVisionModelProfile } from '../../model-profiles.js';
 import type { ServiceContext } from '../../service-context.js';
 import type { RunMeta } from '../../service-types.js';
@@ -18,18 +19,24 @@ export async function buildAgentLoopContext(
     teamProfiles,
     isVisionModelProfile(orchestratorProfile),
   );
-  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const sessionTabs = browserTools.getSessionTabSummaries();
-  const workingTabId: number | null = browserTools.getCurrentSessionTabId() ?? activeTab?.id ?? null;
+  const [rawActiveTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  // Titles/URLs of private-network or unverified tabs must not reach the model via the system prompt (#42).
+  const activeTab = rawActiveTab ? await redactTabEntry(rawActiveTab, settings) : undefined;
+  const sessionTabs = await Promise.all(
+    browserTools.getSessionTabSummaries().map((tab) => redactTabEntry(tab, settings)),
+  );
+  const workingTabId: number | null = browserTools.getCurrentSessionTabId() ?? rawActiveTab?.id ?? null;
   const workingTab = sessionTabs.find((tab) => tab.id === workingTabId);
+  const titleOf = (tab: object | undefined) =>
+    tab && 'title' in tab ? String(tab.title || '') : tab && 'redacted' in tab ? '[hidden]' : '';
 
   return {
     currentUrl: workingTab?.url || activeTab?.url || 'unknown',
-    currentTitle: workingTab?.title || activeTab?.title || 'unknown',
+    currentTitle: titleOf(workingTab) || titleOf(activeTab) || 'unknown',
     tabId: workingTabId,
     availableTabs: sessionTabs
       .filter((tab) => typeof tab.id === 'number')
-      .map((tab) => ({ id: tab.id as number, title: tab.title, url: tab.url })),
+      .map((tab) => ({ id: tab.id as number, title: titleOf(tab) || undefined, url: tab.url })),
     orchestratorEnabled,
     teamProfiles,
     provider: orchestratorProfile.provider || '',

@@ -76,6 +76,7 @@ export type ServiceContext = {
       runMeta: RunMeta;
       settings: Record<string, any>;
       visionProfile?: Record<string, any> | null;
+      allowTestHooks?: boolean;
     },
     toolCallId?: string,
   ): Promise<any>;

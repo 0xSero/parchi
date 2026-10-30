@@ -8,8 +8,9 @@ import {
   missingSessionTabError,
 } from './browser-tool-shared.js';
 
-const isNavigableUrl = (url: string) =>
-  url.startsWith('http://') || url.startsWith('https://') || url.startsWith('chrome://');
+// Agent navigation is limited to web pages: browser/extension UI (chrome://, chrome-extension://) and executable or
+// opaque schemes (javascript:, data:) are not agent destinations (issue #42).
+const isNavigableUrl = (url: string) => url.startsWith('http://') || url.startsWith('https://');
 
 export async function describeSessionTabsTool(ctx: BrowserToolsDelegate) {
   if (ctx.sessionTabs.size === 0) {
@@ -39,7 +40,7 @@ export async function navigateTool(ctx: BrowserToolsDelegate, args: BrowserToolA
   if (!isNavigableUrl(url)) {
     return {
       success: false,
-      error: `Invalid URL: "${url}". URLs must start with http://, https://, or chrome://`,
+      error: `Invalid URL: "${url}". URLs must start with http:// or https://`,
       hint: 'For searches, navigate directly to the target site or use a direct search URL only when necessary.',
     };
   }
@@ -82,7 +83,7 @@ export async function openTabTool(ctx: BrowserToolsDelegate, args: BrowserToolAr
   if (!isNavigableUrl(url)) {
     return {
       success: false,
-      error: `Invalid URL: "${url}". URLs must start with http://, https://, or chrome://`,
+      error: `Invalid URL: "${url}". URLs must start with http:// or https://`,
       hint: 'Use a fully-qualified URL and prefer direct target-site navigation over generic search pages.',
     };
   }

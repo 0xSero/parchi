@@ -142,3 +142,32 @@ jobs:
             test-output/orchestrator-service-integration.md
           if-no-files-found: warn
           retention-days: 30
+
+  integration:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      # Includes the issue #42 private-network suites (guard, leaks, review regressions).
+      - run: npm run test:integration
+
+  private-network-e2e:
+    name: Private Network Browser E2E
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      # Real Chromium + built extension against a 127.0.0.1 fixture (issue #42); fails the job on any check failure.
+      - run: npm run test:e2e:private-network

@@ -17,8 +17,10 @@ export async function screenshotTool(ctx: BrowserToolsDelegate, args: BrowserToo
     format: 'jpeg',
     quality,
   });
+  // captureVisibleTab images whatever tab is visible; report it so destination policy can judge the captured tab.
+  const [visible] = await chrome.tabs.query({ active: true, windowId: tab.windowId });
   await ctx.sendOverlay(tabId, { label: 'Screenshot captured', durationMs: 1000 }, 1);
-  return { success: true, dataUrl };
+  return { success: true, dataUrl, capturedTabId: visible?.id ?? tabId };
 }
 
 export async function getVideoInfoTool(ctx: BrowserToolsDelegate, args: BrowserToolArgs) {

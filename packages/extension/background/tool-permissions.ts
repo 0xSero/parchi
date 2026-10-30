@@ -2,7 +2,7 @@ import type { BrowserToolName } from '../tools/browser-tool-definitions.js';
 import type { BrowserToolArgs } from '../tools/browser-tool-shared.js';
 import type { BrowserTools } from '../tools/browser-tools.js';
 
-type ToolPermissionCategory = 'navigate' | 'interact' | 'read' | 'screenshots' | 'tabs';
+type ToolPermissionCategory = 'navigate' | 'interact' | 'read' | 'screenshots' | 'tabs' | 'script';
 
 type ToolPermissionSettings = {
   toolPermissions?: Partial<Record<ToolPermissionCategory, boolean>>;
@@ -18,7 +18,7 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   pressKey: 'interact',
   scroll: 'interact',
   waitFor: 'read',
-  evaluate: 'read',
+  evaluate: 'script',
   watchNetwork: 'read',
   getNetworkLog: 'read',
   getContent: 'read',
@@ -34,10 +34,12 @@ const TOOL_PERMISSION_CATEGORIES: Record<BrowserToolName, ToolPermissionCategory
   describeSessionTabs: 'tabs',
 };
 
-export function getToolPermissionCategory(toolName: string): ToolPermissionCategory | null {
+export function getToolPermissionCategory(toolName: string, args?: BrowserToolArgs): ToolPermissionCategory | null {
   if (!Object.hasOwn(TOOL_PERMISSION_CATEGORIES, toolName)) {
     return null;
   }
+  // waitFor({ script }) evaluates arbitrary JavaScript exactly like evaluate.
+  if (toolName === 'waitFor' && typeof args?.script === 'string' && args.script.trim()) return 'script';
   return TOOL_PERMISSION_CATEGORIES[toolName as BrowserToolName];
 }
 
@@ -58,29 +60,45 @@ export function isUrlAllowed(url: string, allowlist: string[]) {
   }
 }
 
-export async function resolveToolUrl(
-  _toolName: string,
+// Only navigation tools act on the URL argument; every other tool acts on the tab it resolves to, so a
+// model-supplied `url` must never stand in for the real target of a read or interaction.
+const URL_ARGUMENT_TOOLS = new Set(['navigate', 'openTab']);
+
+async function getTabUrls(tabId: number) {
+  const tab = await chrome.tabs.get(tabId);
+  return [tab?.url || '', tab?.pendingUrl || ''].filter(Boolean);
+}
+
+/** URLs a tool will act on: the navigation target, or the committed + pending URL of the resolved tab. */
+export async function resolveToolTargetUrls(
+  toolName: string,
   args: BrowserToolArgs,
   sessionId: string | undefined,
   currentSessionId: string | null,
   getBrowserTools: (id: string) => BrowserTools,
-) {
-  if (typeof args.url === 'string') return args.url;
+): Promise<string[]> {
+  if (URL_ARGUMENT_TOOLS.has(toolName) && typeof args.url === 'string') return [args.url];
   const tools = getBrowserTools(sessionId || currentSessionId || 'default');
-  const tabId = typeof args.tabId === 'number' ? args.tabId : tools.getCurrentSessionTabId();
   try {
-    if (typeof tabId === 'number') {
-      const tab = await chrome.tabs.get(tabId);
-      return tab?.url || '';
+    if (typeof tools.resolveTabId === 'function') {
+      const tabId = await tools.resolveTabId(args);
+      return typeof tabId === 'number' ? await getTabUrls(tabId) : [];
     }
+    const tabId = typeof args.tabId === 'number' ? args.tabId : tools.getCurrentSessionTabId();
+    if (typeof tabId === 'number') return await getTabUrls(tabId);
   } catch (error) {
     console.warn('Failed to resolve tab URL for permissions:', error);
   }
-  const [active] = await chrome.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  return active?.url || '';
+  try {
+    const [active] = await chrome.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    return active?.url ? [active.url] : [];
+  } catch (error) {
+    console.warn('Failed to resolve active tab URL for permissions:', error);
+    return [];
+  }
 }
 
 export async function checkToolPermission(
@@ -93,28 +111,31 @@ export async function checkToolPermission(
   getBrowserTools: (id: string) => BrowserTools,
 ) {
   const settings = settingsOverride || currentSettings;
-  if (!settings) return { allowed: true };
-  const permissions = settings.toolPermissions || {};
-  const category = getToolPermissionCategory(toolName);
-  if (category && permissions[category] === false) {
+  const permissions = settings?.toolPermissions || {};
+  const category = getToolPermissionCategory(toolName, args);
+  // evaluate runs arbitrary page JavaScript (it can fetch/post anywhere the page can), so it is opt-in only.
+  const disabled = category === 'script' ? permissions.script !== true : category && permissions[category] === false;
+  if (disabled) {
+    const reason =
+      category === 'script'
+        ? 'Permission blocked: script. evaluate and waitFor scripts run arbitrary JavaScript and are off unless "Run JavaScript" is enabled in Tool Permissions.'
+        : `Permission blocked: ${category}`;
     return {
       allowed: false,
-      reason: `Permission blocked: ${category}`,
-      policy: {
-        type: 'permission',
-        category,
-        reason: `Permission blocked: ${category}`,
-      },
+      reason,
+      policy: { type: 'permission', category, reason },
     };
   }
 
   if (category === 'tabs') return { allowed: true };
 
-  const allowlist = parseAllowedDomains(settings.allowedDomains || '');
+  const allowlist = parseAllowedDomains(settings?.allowedDomains || '');
   if (!allowlist.length) return { allowed: true };
 
-  const targetUrl = await resolveToolUrl(toolName, args, sessionId, currentSessionId, getBrowserTools);
-  if (!isUrlAllowed(targetUrl, allowlist)) {
+  const targetUrls = await resolveToolTargetUrls(toolName, args, sessionId, currentSessionId, getBrowserTools);
+
+  const targetUrl = targetUrls.find((url) => !isUrlAllowed(url, allowlist)) ?? (targetUrls.length ? null : '');
+  if (targetUrl !== null) {
     return {
       allowed: false,
       reason: 'Blocked by allowed domains list.',

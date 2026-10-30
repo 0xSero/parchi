@@ -1,23 +1,23 @@
-import { execSync } from "child_process";
-import fs from "fs";
-import path from "path";
-import { chromium } from "playwright";
-import { fileURLToPath } from "url";
+import { execSync } from 'child_process';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import { chromium } from 'playwright';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const root = path.resolve(__dirname, "..");
-const tmpDir = "/tmp/parchi-screenshots";
-const outHtml = path.join(root, "commit-ui-review.html");
+const root = path.resolve(__dirname, '..');
+const tmpDir = '/tmp/parchi-screenshots';
+const outHtml = path.join(root, 'commit-ui-review.html');
 
-const worktreeDir = "/tmp/parchi-worktree";
+const worktreeDir = '/tmp/parchi-worktree';
 
 // Cleanup from previous runs
 execSync(`rm -rf ${tmpDir} ${worktreeDir}`);
 
 // The 25 commits from HEAD
-const commitsRaw = execSync(`git log --oneline -25 --format="%H|%s"`, { cwd: root }).toString().trim().split("\n");
+const commitsRaw = execSync(`git log --oneline -25 --format="%H|%s"`, { cwd: root }).toString().trim().split('\n');
 const commits = commitsRaw.map((line) => {
-  const [hash, msg] = line.split("|");
+  const [hash, msg] = line.split('|');
   return { hash: hash.trim(), msg: msg.trim() };
 });
 
@@ -26,13 +26,15 @@ const uiCommits = [];
 for (const c of commits) {
   const files = execSync(`git diff-tree --no-commit-id --name-only -r ${c.hash}`, { cwd: root }).toString().trim();
   if (!files) continue;
-  const touchesUI = files.split("\n").some(
-    (f) =>
-      f.includes("sidepanel/styles/") ||
-      f.includes("sidepanel/templates/") ||
-      f.includes("sidepanel/panel.css") ||
-      f.includes("sidepanel/panel.html"),
-  );
+  const touchesUI = files
+    .split('\n')
+    .some(
+      (f) =>
+        f.includes('sidepanel/styles/') ||
+        f.includes('sidepanel/templates/') ||
+        f.includes('sidepanel/panel.css') ||
+        f.includes('sidepanel/panel.html'),
+    );
   if (touchesUI) uiCommits.push(c);
 }
 
@@ -44,7 +46,10 @@ if (!uiCommits.find((c) => c.hash === commits[commits.length - 1].hash)) uiCommi
 const seen = new Set();
 const unique = [];
 for (const c of uiCommits) {
-  if (!seen.has(c.hash)) { seen.add(c.hash); unique.push(c); }
+  if (!seen.has(c.hash)) {
+    seen.add(c.hash);
+    unique.push(c);
+  }
 }
 
 console.log(`\nBuilding ${unique.length} commits with UI changes...\n`);
@@ -52,18 +57,18 @@ console.log(`\nBuilding ${unique.length} commits with UI changes...\n`);
 fs.mkdirSync(tmpDir, { recursive: true });
 
 // Create a single worktree — we'll just checkout different commits in it
-console.log("Creating worktree...");
+console.log('Creating worktree...');
 try {
-  execSync(`git worktree add --detach ${worktreeDir} ${unique[0].hash}`, { cwd: root, stdio: "pipe" });
+  execSync(`git worktree add --detach ${worktreeDir} ${unique[0].hash}`, { cwd: root, stdio: 'pipe' });
 } catch {
   // If worktree fails, fall back to cloning
-  console.log("Worktree failed, using clone...");
-  execSync(`git clone --no-checkout . ${worktreeDir}`, { cwd: root, stdio: "pipe" });
+  console.log('Worktree failed, using clone...');
+  execSync(`git clone --no-checkout . ${worktreeDir}`, { cwd: root, stdio: 'pipe' });
 }
 
 // Install deps in worktree (needed for esbuild)
-console.log("Installing deps in worktree...");
-execSync(`npm install --ignore-scripts`, { cwd: worktreeDir, stdio: "pipe" });
+console.log('Installing deps in worktree...');
+execSync('npm install --ignore-scripts', { cwd: worktreeDir, stdio: 'pipe' });
 
 let idx = 0;
 for (const c of unique) {
@@ -73,10 +78,10 @@ for (const c of unique) {
   console.log(`[${label}] ${short} ${c.msg.slice(0, 60)}...`);
 
   try {
-    execSync(`git checkout ${c.hash} -q`, { cwd: worktreeDir, stdio: "pipe" });
+    execSync(`git checkout ${c.hash} -q`, { cwd: worktreeDir, stdio: 'pipe' });
 
     // Build
-    execSync(`node scripts/build.mjs`, { cwd: worktreeDir, stdio: "pipe" });
+    execSync('node scripts/build.mjs', { cwd: worktreeDir, stdio: 'pipe' });
 
     // Copy the built sidepanel to persistent tmp
     const commitDir = path.join(tmpDir, short);
@@ -86,7 +91,7 @@ for (const c of unique) {
 
     // Save commit info
     const date = execSync(`git log -1 --format="%ci" ${c.hash}`, { cwd: root }).toString().trim();
-    fs.writeFileSync(path.join(commitDir, "commit-info.json"), JSON.stringify({ hash: c.hash, msg: c.msg, date }));
+    fs.writeFileSync(path.join(commitDir, 'commit-info.json'), JSON.stringify({ hash: c.hash, msg: c.msg, date }));
 
     console.log(`  [${label}] Built OK`);
   } catch (e) {
@@ -95,11 +100,13 @@ for (const c of unique) {
 }
 
 // Clean up worktree
-console.log("\nCleaning up worktree...");
-try { execSync(`git worktree remove ${worktreeDir} --force`, { cwd: root, stdio: "pipe" }); } catch {}
+console.log('\nCleaning up worktree...');
+try {
+  execSync(`git worktree remove ${worktreeDir} --force`, { cwd: root, stdio: 'pipe' });
+} catch {}
 
 // Now screenshot each with Playwright
-console.log("\nTaking screenshots...\n");
+console.log('\nTaking screenshots...\n');
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext({ viewport: { width: 420, height: 700 }, deviceScaleFactor: 2 });
@@ -109,18 +116,24 @@ const screenshots = [];
 for (const c of unique) {
   const short = c.hash.slice(0, 7);
   const commitDir = path.join(tmpDir, short);
-  const infoPath = path.join(commitDir, "commit-info.json");
-  if (!fs.existsSync(infoPath)) { console.log(`  Skip ${short} (no build)`); continue; }
+  const infoPath = path.join(commitDir, 'commit-info.json');
+  if (!fs.existsSync(infoPath)) {
+    console.log(`  Skip ${short} (no build)`);
+    continue;
+  }
 
-  const info = JSON.parse(fs.readFileSync(infoPath, "utf-8"));
-  const htmlPath = path.join(commitDir, "panel.html");
-  if (!fs.existsSync(htmlPath)) { console.log(`  Skip ${short} (no panel.html)`); continue; }
+  const info = JSON.parse(fs.readFileSync(infoPath, 'utf-8'));
+  const htmlPath = path.join(commitDir, 'panel.html');
+  if (!fs.existsSync(htmlPath)) {
+    console.log(`  Skip ${short} (no panel.html)`);
+    continue;
+  }
 
   const page = await ctx.newPage();
   try {
-    await page.goto(`file://${htmlPath}`, { waitUntil: "networkidle", timeout: 10000 });
+    await page.goto(`file://${htmlPath}`, { waitUntil: 'networkidle', timeout: 10000 });
     await page.waitForTimeout(800);
-    const screenshotPath = path.join(commitDir, "screenshot.png");
+    const screenshotPath = path.join(commitDir, 'screenshot.png');
     await page.screenshot({ path: screenshotPath, fullPage: false });
     screenshots.push({ ...info, screenshotPath, shortHash: short });
     console.log(`  Captured ${short} ${info.msg.slice(0, 50)}`);
@@ -134,11 +147,12 @@ for (const c of unique) {
 await browser.close();
 
 // Generate HTML
-console.log("\nGenerating review HTML...");
+console.log('\nGenerating review HTML...');
 
-const cards = screenshots.map((s) => {
-  const imgData = fs.readFileSync(s.screenshotPath).toString("base64");
-  return `<div class="commit-card">
+const cards = screenshots
+  .map((s) => {
+    const imgData = fs.readFileSync(s.screenshotPath).toString('base64');
+    return `<div class="commit-card">
   <div class="commit-header">
     <code>${s.shortHash}</code>
     <span class="commit-msg">${escapeHtml(s.msg)}</span>
@@ -146,7 +160,8 @@ const cards = screenshots.map((s) => {
   </div>
   <img src="data:image/png;base64,${imgData}" alt="${s.shortHash}" />
 </div>`;
-}).join("\n");
+  })
+  .join('\n');
 
 const html = `<!DOCTYPE html>
 <html lang="en">
@@ -181,5 +196,5 @@ fs.writeFileSync(outHtml, html);
 console.log(`\nDone! file://${outHtml}`);
 
 function escapeHtml(s) {
-  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }

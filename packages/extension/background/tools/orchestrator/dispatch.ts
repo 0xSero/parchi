@@ -42,7 +42,8 @@ export async function dispatchOrchestratorTasks(
   const remainingSlots = Math.max(0, plan.maxConcurrentTabs - runningTaskIds.length);
   const maxSlots = requestedMax === null ? remainingSlots : Math.max(0, Math.min(remainingSlots, requestedMax));
   const dispatchableTaskIds = getDispatchableOrchestratorTaskIds(plan, { runningTaskIds, maxSlots });
-  const syntheticSpecs = getSyntheticSubagentSpecs(args.__testSubagentResults);
+  // Synthetic subagent scripts drive browser tools directly, so they are a test-harness hook only (#42).
+  const syntheticSpecs = options.allowTestHooks ? getSyntheticSubagentSpecs(args.__testSubagentResults) : null;
 
   const dispatched: Array<Record<string, unknown>> = [];
   for (const taskId of dispatchableTaskIds) {

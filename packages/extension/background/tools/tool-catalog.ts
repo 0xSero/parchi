@@ -7,7 +7,19 @@ type BrowserToolProvider = {
 
 type ToolCatalogSettings = {
   enableScreenshots?: boolean;
+  toolPermissions?: Record<string, boolean | undefined>;
 } & Record<string, unknown>;
+
+function withoutWaitForScript(tool: ToolDefinition): ToolDefinition {
+  const properties = tool.input_schema?.properties as Record<string, unknown> | undefined;
+  if (tool.name !== 'waitFor' || !properties) return tool;
+  const { script: _script, args: _args, ...rest } = properties;
+  return {
+    ...tool,
+    description: 'Wait for a selector or text to appear.',
+    input_schema: { ...tool.input_schema, type: 'object', properties: rest },
+  };
+}
 
 export function getToolsForSession(
   browserTools: BrowserToolProvider,
@@ -19,6 +31,10 @@ export function getToolsForSession(
   let tools = browserTools.getToolDefinitions();
   if (settings && settings.enableScreenshots === false) {
     tools = tools.filter((tool) => tool.name !== 'screenshot');
+  }
+  if (settings?.toolPermissions?.script !== true) {
+    // evaluate and waitFor scripts run arbitrary JavaScript; only offer them when the user explicitly enabled it.
+    tools = tools.filter((tool) => tool.name !== 'evaluate').map(withoutWaitForScript);
   }
   if (!includeVisionTools) {
     tools = tools.filter((tool) => tool.name !== 'watchVideo' && tool.name !== 'getVideoInfo');

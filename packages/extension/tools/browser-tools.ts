@@ -15,6 +15,7 @@ import {
   type ActionOverlayPayload,
   type BrowserToolArgs,
   DEFAULT_SESSION_GROUP,
+  type ExecutionScope,
   type GroupOptions,
   MAX_SESSION_TABS,
   type SessionTabSummary,
@@ -109,6 +110,25 @@ export class BrowserTools {
 
   async updateGroupTitle() {
     await updateGroupTitleState(this.supportsTabGroups, this.sessionTabGroupId, this.sessionTabs);
+  }
+
+  /**
+   * Executes a tool with script injection pinned to the frame documents the destination policy authorized. Each call
+   * gets its own delegate, so concurrent calls never share, overwrite or drop each other's authorization.
+   */
+  async executeScopedTool(scope: ExecutionScope, toolName: string, args: BrowserToolArgs = {}) {
+    const scoped = new Proxy(this, {
+      get: (target, prop) => {
+        if (prop === 'runInTab' || prop === 'runInAllFrames') {
+          const run = prop === 'runInTab' ? runInTab : runInAllFrames;
+          return (tabId: number, func: (...a: unknown[]) => unknown, funcArgs: unknown[]) =>
+            run(tabId, func, funcArgs, scope);
+        }
+        const value = Reflect.get(target, prop, target);
+        return typeof value === 'function' ? value.bind(target) : value;
+      },
+    });
+    return executeTool(createToolHandlers(scoped), toolName, args);
   }
 
   async executeTool(toolName: string, args: BrowserToolArgs = {}) {
