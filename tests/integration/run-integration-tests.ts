@@ -4,6 +4,7 @@ import { pathToFileURL } from 'node:url';
 
 import { AsyncTestRunner, log } from './shared/runner.js';
 import { runModelListingIntegrationSuite } from './suites/model-listing.integration.test.js';
+import { runPrivateNetworkClosingSuite } from './suites/private-network-closing.integration.test.js';
 import { runPrivateNetworkGuardSuite } from './suites/private-network-guard.integration.test.js';
 import { runPrivateNetworkLeakSuite } from './suites/private-network-leaks.integration.test.js';
 import { runPrivateNetworkReviewSuite } from './suites/private-network-review.integration.test.js';
@@ -24,6 +25,7 @@ export async function runIntegrationTests() {
   await runPrivateNetworkGuardSuite(runner);
   await runPrivateNetworkLeakSuite(runner);
   await runPrivateNetworkReviewSuite(runner);
+  await runPrivateNetworkClosingSuite(runner);
   await runXmlAndRecordingIntegrationSuite(runner);
 
   return runner.printSummary();

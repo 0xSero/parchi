@@ -1,7 +1,9 @@
 // Records the remote address the browser actually connected to for each committed frame document (webRequest `ip`
 // bound to webNavigation.onCommitted `documentId`), plus private-address subresources per document (issue #42).
-// Ordinary-looking DNS names that resolve to loopback/LAN space, rebinding of subresources and private iframes are
-// visible here. webRequest is observational only: requests have already been sent when these events fire.
+// Ordinary-looking DNS names that resolve to loopback/LAN space and private iframes are visible here. Subresource
+// provenance is best-effort: only responses webRequest attributes to a tab's loading document are recorded (service
+// worker, popup, removed-frame or postMessage relays are not). webRequest/webNavigation are observational only:
+// requests have already been sent when these events fire, so nothing here prevents request side effects.
 import { isPrivateIpAddress, isPrivateNetworkUrl } from './private-network.js';
 
 type ObserverState = {
@@ -11,7 +13,7 @@ type ObserverState = {
   docs: Record<string, { origin: string; ip: string }>;
   /** tabId -> document key of the committed main-frame document (used for script-free tab listings). */
   mainDocs: Record<string, string>;
-  /** document key -> origins of private responses that document loaded (rebinding, private img/xhr). */
+  /** document key -> origins of private responses attributed to that loading document (best-effort). */
   docPrivate: Record<string, string[]>;
   /** root session id -> origins of approved private content the agent has read (private-read taint). */
   sessions: Record<string, string[]>;
@@ -79,6 +81,14 @@ export function recordResponse(details: ResponseDetails) {
   if (isPrivate && details.documentId) addUnique(state.docPrivate, details.documentId, origin);
 }
 
+/** Drops a frame's pending response when a new navigation starts or fails, so it can never bind to a later commit. */
+export function clearPending(details: { tabId: number; frameId: number }) {
+  if (state.pending[`${details.tabId}:${details.frameId}`]) {
+    delete state.pending[`${details.tabId}:${details.frameId}`];
+    scheduleSave();
+  }
+}
+
 /** Applies one webNavigation.onCommitted observation. Exported for tests. */
 export function recordCommit(details: CommitDetails) {
   const slot = `${details.tabId}:${details.frameId}`;
@@ -115,6 +125,8 @@ export function installNetworkObserver() {
     urls: ['<all_urls>'],
   });
   api?.webNavigation?.onCommitted?.addListener((details) => recordCommit(details as CommitDetails));
+  api?.webNavigation?.onBeforeNavigate?.addListener(clearPending);
+  api?.webNavigation?.onErrorOccurred?.addListener(clearPending);
   api?.tabs?.onRemoved?.addListener((tabId) => {
     delete state.mainDocs[String(tabId)];
     for (const key of Object.keys(state.pending)) if (key.startsWith(`${tabId}:`)) delete state.pending[key];

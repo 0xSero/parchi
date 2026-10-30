@@ -35,6 +35,12 @@ function parse(url: string) {
   }
 }
 
+function inheritsCreatorOrigin(parsed: URL | null, frameId: number | undefined) {
+  if (!parsed) return false;
+  if (parsed.protocol === 'about:') return parsed.pathname === 'blank' || parsed.pathname === 'srcdoc';
+  return (parsed.protocol === 'data:' || parsed.protocol === 'blob:') && typeof frameId === 'number' && frameId > 0;
+}
+
 type Target = { url: string; origin?: string; tabId?: number; frameId?: number; documentId?: string; ip?: string };
 
 /**
@@ -68,14 +74,19 @@ export function assessDestination(
     const ip = target.ip ?? (record && record.origin === parsed.origin ? record.ip : '');
     if (isPrivateNetworkUrl(parsed.href) || (ip && isPrivateIpAddress(ip))) verdict = judge(parsed.href, origin);
     else if (!ip) verdict = isPrivateUrlApproved(parsed.href, approvals) ? judge(parsed.href, origin) : 'unverified';
-  } else {
-    // about:blank/srcdoc/blob/data documents have no response of their own; they inherit the creator's origin
-    // (reported by the frame probe), whose own document in this tab is judged separately.
+  } else if (inheritsCreatorOrigin(parsed, target.frameId)) {
+    // about:blank/srcdoc (any frame) and data:/blob: subframes have no response of their own; they inherit the
+    // creator's origin (reported by the frame probe), whose own document in this tab is judged separately.
     const inherited = parse(origin);
     if (inherited && isPrivateNetworkUrl(inherited.href)) verdict = judge(inherited.href, origin);
+  } else {
+    // chrome:, chrome-extension:, devtools:, view-source:, javascript:, top-level data:/blob:, unknown or unparseable
+    // schemes: browser/extension UI and opaque documents are never treated as a verified public destination.
+    verdict = 'unverified';
   }
 
-  // Private responses loaded by this document (DNS rebinding, private img/xhr) taint the frame.
+  // Private responses attributed to this loading document (DNS rebinding, private img/xhr) taint the frame.
+  // Best-effort: data relayed from other contexts (service workers, popups, postMessage) is not attributed.
   for (const privateOrigin of obs?.documentPrivateOrigins(key) || []) {
     verdict = worstVerdict([verdict, judge(privateOrigin, privateOrigin)]);
   }

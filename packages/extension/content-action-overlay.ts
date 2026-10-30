@@ -156,11 +156,12 @@ export class ActionOverlayController {
   }
 
   showActionOverlay(payload: Record<string, unknown>) {
-    const { label: overlayLabel, selector, note, status, durationMs, bringIntoView } = payload || {};
+    const { label: overlayLabel, selector, status, durationMs, bringIntoView } = payload || {};
     this.ensureOverlayRoot();
 
     const toast = this.overlay.toast;
-    const actionLabel = [overlayLabel, note].filter(Boolean).join(' · ');
+    // Page scripts can read this DOM; show only the constant tool label, never model-supplied argument text.
+    const actionLabel = typeof overlayLabel === 'string' ? overlayLabel : '';
     if (toast) {
       const textEl = toast.querySelector('.parchi-overlay-text');
       if (textEl) textEl.textContent = actionLabel || 'Working…';

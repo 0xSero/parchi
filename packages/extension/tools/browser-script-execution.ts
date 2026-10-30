@@ -71,7 +71,9 @@ export async function runInAllFrames<TArgs extends unknown[], TResult>(
 }
 
 /**
- * Send an overlay action message to a tab with retry logic.
+ * Send an overlay action message to a tab with retry logic. The overlay is rendered in the page's own DOM, where page
+ * scripts can observe it, so only the constant tool label is sent: model-controlled `note` text (selectors, typed text,
+ * URLs) never leaves the extension (issue #42).
  */
 export async function sendOverlay(
   tabId: number,
@@ -86,7 +88,8 @@ export async function sendOverlay(
   retries = 0,
 ): Promise<void> {
   try {
-    await chrome.tabs.sendMessage(tabId, { action: 'action_overlay', ...payload });
+    const { note: _note, ...pageSafe } = payload;
+    await chrome.tabs.sendMessage(tabId, { action: 'action_overlay', ...pageSafe });
   } catch {
     if (retries > 0) {
       await new Promise((resolve) => setTimeout(resolve, 300));

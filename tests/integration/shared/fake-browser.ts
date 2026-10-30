@@ -20,6 +20,8 @@ export class FakeBrowser {
   tabs = new Map<number, FakeTab>();
   injections: Array<{ tabId: number; target: Record<string, unknown> }> = [];
   createdUrls: string[] = [];
+  /** Messages delivered to content scripts (rendered into page DOM by the overlay). */
+  messages: Array<{ tabId: number; message: unknown }> = [];
   debuggerListeners: Array<(source: { tabId: number }, method: string, params: Record<string, unknown>) => void> = [];
   responseBodies = new Map<string, string>();
   /** Called once before the next non-probe injection runs (simulates navigation racing a tool call). */
@@ -114,7 +116,10 @@ export class FakeBrowser {
           this.onNavigate?.(id, props.url);
           return publicTab(tab);
         },
-        sendMessage: async () => ({}),
+        sendMessage: async (tabId: number, message: unknown) => {
+          this.messages.push({ tabId, message });
+          return {};
+        },
         captureVisibleTab: async (windowId: number) => {
           const visible = [...this.tabs.values()].find((tab) => tab.windowId === windowId && tab.active);
           return `data:image/jpeg;base64,${btoa(visible?.frames.map((frame) => frame.content).join('|') || '')}`;
