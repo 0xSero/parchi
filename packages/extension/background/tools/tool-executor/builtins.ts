@@ -135,7 +135,13 @@ export async function executeBuiltinTool(
     const sizeKb = Math.max(1, Math.round(new TextEncoder().encode(content).byteLength / 1024));
     return {
       handled: true,
-      result: { success: true, filename, mimeType, sizeKb, message: `File "${filename}" (${sizeKb} KB) created and offered for download.` },
+      result: {
+        success: true,
+        filename,
+        mimeType,
+        sizeKb,
+        message: `File "${filename}" (${sizeKb} KB) created and offered for download.`,
+      },
     };
   }
 
